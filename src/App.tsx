@@ -138,14 +138,26 @@ function App() {
             <details className="accordion-item">
               <summary className="accordion-header">
                 <h3 className="accordion-title">Is TimeCross free?</h3>
+
+                <span className="accordionTooltip">
+                  <span className="accordionTooltip-title">
+                    TL;DR
+                  </span>
+                  <span className="accordionTooltip-para">
+                    Yes
+                  </span>
+                </span>
               </summary>
 
               <div className="accordion-content">
-                <p>Epcot is a theme park at Walt Disney World Resort featuring exciting attractions, international
+                <p className="accordion-para">Epcot is a theme park at Walt Disney World Resort featuring exciting
+                  attractions, international
                   pavilions, award-winning fireworks and seasonal special events.</p>
-                <p>Epcot is a theme park at Walt Disney World Resort featuring exciting attractions, international
+                <p className="accordion-para">Epcot is a theme park at Walt Disney World Resort featuring exciting
+                  attractions, international
                   pavilions, award-winning fireworks and seasonal special events.</p>
-                <p>Epcot is a theme park at Walt Disney World Resort featuring exciting attractions, international
+                <p className="accordion-para">Epcot is a theme park at Walt Disney World Resort featuring exciting
+                  attractions, international
                   pavilions, award-winning fireworks and seasonal special events.</p>
               </div>
             </details>
@@ -153,6 +165,15 @@ function App() {
             <details className="accordion-item">
               <summary className="accordion-header">
                 <h3 className="accordion-title">Does it work offline?</h3>
+
+                <span className="accordionTooltip">
+                  <span className="accordionTooltip-title">
+                    TL;DR
+                  </span>
+                  <span className="accordionTooltip-para">
+                    Yes
+                  </span>
+                </span>
               </summary>
 
               <div className="accordion-content">
@@ -164,10 +185,19 @@ function App() {
             <details className="accordion-item">
               <summary className="accordion-header">
                 <h3 className="accordion-title">Do I need to register an account?</h3>
+
+                <span className="accordionTooltip">
+                  <span className="accordionTooltip-title">
+                    TL;DR
+                  </span>
+                  <span className="accordionTooltip-para">
+                    No
+                  </span>
+                </span>
               </summary>
 
               <div className="accordion-content">
-                <p>Epcot is a theme park at Walt Disney World Resort featuring exciting attractions, international
+                <p className="accordion-para">Epcot is a theme park at Walt Disney World Resort featuring exciting attractions, international
                   pavilions, award-winning fireworks and seasonal special events.</p>
               </div>
             </details>
@@ -175,10 +205,19 @@ function App() {
             <details className="accordion-item">
               <summary className="accordion-header">
                 <h3 className="accordion-title">Which platforms are supported?</h3>
+
+                <span className="accordionTooltip accordionTooltip_platforms">
+                  <span className="accordionTooltip-title">
+                    TL;DR
+                  </span>
+                  <span className="accordionTooltip-para">
+                    IOS. Android — in progress
+                  </span>
+                </span>
               </summary>
 
               <div className="accordion-content">
-                <p>Epcot is a theme park at Walt Disney World Resort featuring exciting attractions, international
+                <p className="accordion-para">Epcot is a theme park at Walt Disney World Resort featuring exciting attractions, international
                   pavilions, award-winning fireworks and seasonal special events.</p>
               </div>
             </details>
@@ -186,10 +225,19 @@ function App() {
             <details className="accordion-item">
               <summary className="accordion-header">
                 <h3 className="accordion-title">How do I enable Notifications?</h3>
+
+                <span className="accordionTooltip accordionTooltip_howNotifications">
+                  <span className="accordionTooltip-title">
+                    TL;DR
+                  </span>
+                  <span className="accordionTooltip-para">
+                    Menu &gt; Settings &gt; Notfications
+                  </span>
+                </span>
               </summary>
 
               <div className="accordion-content">
-                <p>Epcot is a theme park at Walt Disney World Resort featuring exciting attractions, international
+                <p className="accordion-para">Epcot is a theme park at Walt Disney World Resort featuring exciting attractions, international
                   pavilions, award-winning fireworks and seasonal special events.</p>
               </div>
             </details>

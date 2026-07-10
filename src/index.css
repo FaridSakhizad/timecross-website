@@ -8,7 +8,7 @@
 
     --body-text-color: 51, 51, 51;
     --body-text-color-0: 0, 0, 0;
-    --body-text-color-1: var(--accent-color-1);
+    --body-text-color-1: rgba(var(--accent-color-1), 1);
     --body-text-color-2: rgba(var(--accent-color-2), 1);
 
     --link-color-1: 255, 255, 178;
@@ -79,6 +79,7 @@ body {
     font-family: var(--body-font-family-1);
     color: rgb(var(--body-text-color));
     font-size: 15px;
+    letter-spacing: -0.02em;
 
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
