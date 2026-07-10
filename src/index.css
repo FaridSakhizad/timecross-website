@@ -3,13 +3,39 @@
 }
 
 :root {
-    --body-text-color: 51, 51, 51;
     --accent-color-1: 62, 63, 86;
     --accent-color-2: 255, 255, 255;
+
+    --body-text-color: 51, 51, 51;
+    --body-text-color-0: 0, 0, 0;
+    --body-text-color-1: var(--accent-color-1);
+    --body-text-color-2: rgba(var(--accent-color-2), 1);
 
     --link-color-1: 255, 255, 178;
 
     --body-font-family-1: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+    --background-color-1: 255, 255, 255;
+
+    --input-text-color: var(--body-text-color-1);
+
+    --input-border-color: rgba(var(--background-color-1), 0);
+    --input-border-color-hover: rgba(var(--background-color-1), 0);
+    --input-border-color-focus: rgba(var(--background-color-1), 0.7);
+
+    --input-background-color: rgba(var(--background-color-1), 0.3);
+    --input-background-color-hover: rgba(var(--background-color-1), 0.4);
+    --input-background-color-focus: rgba(var(--background-color-1), 0.9);
+    --input-background-color-focus-visible: rgba(var(--background-color-1), 0.7);
+    --input-background-color-disabled: rgba(var(--background-color-1), 0.2);
+
+    --button-text-color: rgba(var(--accent-color-2), 1);
+
+    --button-background-color: rgba(var(--accent-color-1), 0.3);
+    --button-background-color-hover: rgba(var(--accent-color-1), 0.4);
+    --button-background-color-focus: rgba(var(--accent-color-1), 0.5);
+    --button-background-color-focus-visible: rgba(var(--accent-color-1), 1);
+    --button-background-color-disabled: rgba(var(--accent-color-1), 0.2);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -45,6 +71,8 @@ html {
             radial-gradient(circle at bottom left,  #4d7cfe 0%, transparent 75%),
             radial-gradient(circle at bottom right, #06d6a0 0%, transparent 75%),
             #ffffff;
+
+    background-attachment: fixed;
 }
 
 body {
@@ -66,3 +94,102 @@ button {
     flex-direction: column;
     min-height: 100%;
 }
+
+.h2 {
+    font-size: 36px;
+    line-height: 1.2;
+    font-weight: normal;
+    color: #fff;
+}
+
+.h3 {
+    font-size: 24px;
+    line-height: 1.2;
+    font-weight: 900;
+    color: #fff;
+}
+
+.h4 {
+    font-size: 20px;
+    line-height: 1.2;
+    font-weight: bold;
+    color: #fff;
+}
+
+
+.input,
+.textarea {
+    display: block;
+    border: 1px solid var(--input-border-color);
+    color: var(--input-text-color);
+    font: normal normal 16px/18px var(--body-font-family-1);
+    background-color: var(--input-background-color);
+    border-radius: 8px;
+    padding: 10px 14px;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+        background-color: var(--input-background-color-hover);
+    }
+
+    &:focus {
+        background-color: var(--input-background-color-focus);
+        border-color: var(--input-border-color-focus);
+        outline: none;
+    }
+
+    &:focus-visible {
+        color: rgb(var(--body-text-color-0));
+        outline: 1px solid var(--input-background-color-focus-visible);
+        outline-offset: 2px;
+    }
+
+    &[disabled] {
+        background-color: var(--input-background-color-disabled);
+        cursor: default;
+    }
+
+    &::placeholder {
+        color: var(--body-text-color-1);
+        opacity: 1;
+    }
+}
+
+.textarea {
+    min-height: 122px;
+    resize: vertical;
+}
+
+.button {
+    display: block;
+    height: 36px;
+    border-radius: 65536px;
+    text-align: center;
+    color: var(--button-text-color);
+    font: normal normal 16px/1 var(--body-font-family-1);
+    border: 1px solid transparent;
+    padding: 9px 14px;
+    background-color: var(--button-background-color);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+        background-color: var(--button-background-color-hover);
+    }
+
+    &:focus {
+        background-color: var(--button-background-color-focus);
+    }
+
+    &:focus-visible {
+        outline: 1px solid var(--button-background-color-focus-visible);
+        outline-offset: 2px;
+    }
+
+    &[disabled] {
+        background-color: var(--button-background-color-disabled);
+        cursor: default;
+    }
+}
+
+
