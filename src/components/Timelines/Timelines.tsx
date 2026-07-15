@@ -3,11 +3,16 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 import { getSettings, type TimeFormat } from '../../settings';
 import CustomScrollbar from '../CustomScrollbar';
 import { getOrderedFavoriteCities } from '../Cities/fixtures';
-import { TIMELINE_DRAG_ENABLED, TIMELINE_HOUR_WIDTH, TIMELINE_TOTAL_HOURS } from './constants';
+import {
+  TIMELINE_EXTRA_DAY_HOURS,
+  TIMELINE_HOUR_WIDTH,
+  TIMELINE_SNAP_DELAY_MS,
+  TIMELINE_SNAP_RELEASE_MS,
+} from './constants';
+import { initHorizontalDragScroll } from './dragScroll';
 import TimelineHeader from './TimelineHeader';
 import TimelineRow from './TimelineRow';
-import type { TimelineDragState } from './types';
-import { getBrowserTimezone, getTimelineCells, getTimelineCurrentPosition, getTimelineDates } from './utils';
+import { getBrowserTimezone, getTimelineCells, getTimelineDates } from './utils';
 
 type TimelinesProps = {
   timeFormat: TimeFormat;
@@ -16,35 +21,14 @@ type TimelinesProps = {
 export default function Timelines({ timeFormat }: TimelinesProps) {
   const viewportRef = useRef<HTMLDivElement>(null);
   const hasCenteredTimelineRef = useRef(false);
+  const isSnappingTimelineRef = useRef(false);
+  const lastTimelineScrollLeftRef = useRef(0);
   const baseDate = useMemo(() => new Date(), []);
   const browserTimezone = getBrowserTimezone();
   const cities = useMemo(() => getOrderedFavoriteCities(getSettings().cityOrder), []);
-  const userTimelinePosition = getTimelineCurrentPosition(browserTimezone, baseDate);
-  const timelineCoverage = useMemo(() => {
-    const cityOffsets = cities.map((city) => (
-      userTimelinePosition - getTimelineCurrentPosition(city.timezone, baseDate)
-    ));
-    const minPosition = Math.min(0, ...cityOffsets);
-    const maxPosition = Math.max(
-      TIMELINE_TOTAL_HOURS,
-      ...cityOffsets.map((offset) => offset + TIMELINE_TOTAL_HOURS),
-    );
-    const startPosition = Math.floor(minPosition);
-    const endPosition = Math.ceil(maxPosition);
-
-    return {
-      startPosition,
-      hoursCount: endPosition - startPosition,
-    };
-  }, [baseDate, cities, userTimelinePosition]);
   const timelineDates = useMemo(
-    () => getTimelineDates(
-      browserTimezone,
-      baseDate,
-      timelineCoverage.startPosition,
-      timelineCoverage.hoursCount,
-    ),
-    [baseDate, browserTimezone, timelineCoverage],
+    () => getTimelineDates(browserTimezone, baseDate),
+    [baseDate, browserTimezone],
   );
   const userCells = useMemo(
     () => getTimelineCells(browserTimezone, baseDate, timelineDates, timeFormat),
@@ -55,6 +39,16 @@ export default function Timelines({ timeFormat }: TimelinesProps) {
     viewportRef.current = element;
   }, []);
 
+  const getTimelineSidePad = useCallback((viewport: HTMLDivElement) => (
+    Math.max(0, viewport.clientWidth / 2 - TIMELINE_HOUR_WIDTH / 2)
+  ), []);
+
+  const getScrollLeftForHourIndex = useCallback((viewport: HTMLDivElement, hourIndex: number) => {
+    const sidePad = getTimelineSidePad(viewport);
+
+    return sidePad + hourIndex * TIMELINE_HOUR_WIDTH + TIMELINE_HOUR_WIDTH / 2 - viewport.clientWidth / 2;
+  }, [getTimelineSidePad]);
+
   useLayoutEffect(() => {
     const viewport = viewportRef.current;
 
@@ -62,95 +56,107 @@ export default function Timelines({ timeFormat }: TimelinesProps) {
       return;
     }
 
-    viewport.scrollLeft = (
-      currentUserHourIndex * TIMELINE_HOUR_WIDTH
-      + TIMELINE_HOUR_WIDTH / 2
-      - viewport.clientWidth / 2
+    viewport.style.setProperty('--timeline-side-pad', `${getTimelineSidePad(viewport)}px`);
+    viewport.scrollLeft = getScrollLeftForHourIndex(
+      viewport,
+      currentUserHourIndex >= 0 ? currentUserHourIndex : TIMELINE_EXTRA_DAY_HOURS,
     );
     hasCenteredTimelineRef.current = true;
-  }, [currentUserHourIndex]);
+    lastTimelineScrollLeftRef.current = viewport.scrollLeft;
+  }, [currentUserHourIndex, getScrollLeftForHourIndex, getTimelineSidePad]);
 
   useEffect(() => {
-    if (!TIMELINE_DRAG_ENABLED) {
-      return;
-    }
-
     const viewport = viewportRef.current;
-    let drag: TimelineDragState | null = null;
 
     if (!viewport) {
       return;
     }
 
-    const endDrag = () => {
-      if (!drag) {
+    let snapTimer: number | undefined;
+    let releaseTimer: number | undefined;
+
+    const clearTimers = () => {
+      if (snapTimer !== undefined) {
+        window.clearTimeout(snapTimer);
+      }
+
+      if (releaseTimer !== undefined) {
+        window.clearTimeout(releaseTimer);
+      }
+    };
+
+    const snapToNearestHour = () => {
+      const maxScrollLeft = viewport.scrollWidth - viewport.clientWidth;
+
+      if (maxScrollLeft <= 0) {
         return;
       }
 
-      drag = null;
-      viewport.classList.remove('timelinesViewport_dragging');
-      window.removeEventListener('pointermove', handleWindowPointerMove);
-      window.removeEventListener('pointerup', handleWindowPointerUp);
-      window.removeEventListener('pointercancel', handleWindowPointerUp);
-      window.removeEventListener('blur', handleWindowBlur);
-    };
+      const centerX = viewport.scrollLeft + viewport.clientWidth / 2;
+      const sidePad = getTimelineSidePad(viewport);
+      const nearestHourIndex = Math.round(
+        (centerX - sidePad - TIMELINE_HOUR_WIDTH / 2) / TIMELINE_HOUR_WIDTH,
+      );
+      const targetScrollLeft = Math.max(
+        0,
+        Math.min(
+          maxScrollLeft,
+          getScrollLeftForHourIndex(viewport, nearestHourIndex),
+        ),
+      );
 
-    const handleWindowPointerMove = (event: globalThis.PointerEvent) => {
-      if (!drag || drag.pointerId !== event.pointerId) {
+      if (Math.abs(targetScrollLeft - viewport.scrollLeft) < 0.5) {
         return;
       }
 
-      if (event.buttons === 0) {
-        endDrag();
+      isSnappingTimelineRef.current = true;
+      viewport.scrollTo({
+        left: targetScrollLeft,
+        behavior: 'smooth',
+      });
+
+      releaseTimer = window.setTimeout(() => {
+        isSnappingTimelineRef.current = false;
+        lastTimelineScrollLeftRef.current = viewport.scrollLeft;
+      }, TIMELINE_SNAP_RELEASE_MS);
+    };
+
+    const handleTimelineScroll = () => {
+      const previousScrollLeft = lastTimelineScrollLeftRef.current;
+
+      lastTimelineScrollLeftRef.current = viewport.scrollLeft;
+
+      if (isSnappingTimelineRef.current || Math.abs(viewport.scrollLeft - previousScrollLeft) < 0.5) {
         return;
       }
 
-      event.preventDefault();
-      viewport.scrollLeft -= event.clientX - drag.lastX;
-      viewport.scrollTop -= event.clientY - drag.lastY;
-      drag.lastX = event.clientX;
-      drag.lastY = event.clientY;
-    };
-
-    const handleWindowPointerUp = (event: globalThis.PointerEvent) => {
-      if (!drag || drag.pointerId !== event.pointerId) {
-        return;
+      if (snapTimer !== undefined) {
+        window.clearTimeout(snapTimer);
       }
 
-      viewport.scrollLeft -= event.clientX - drag.lastX;
-      viewport.scrollTop -= event.clientY - drag.lastY;
-      endDrag();
+      snapTimer = window.setTimeout(snapToNearestHour, TIMELINE_SNAP_DELAY_MS);
     };
 
-    const handleWindowBlur = () => {
-      endDrag();
-    };
-
-    const handleViewportPointerDown = (event: globalThis.PointerEvent) => {
-      if (event.button !== 0) {
-        return;
-      }
-
-      event.preventDefault();
-      endDrag();
-      drag = {
-        pointerId: event.pointerId,
-        lastX: event.clientX,
-        lastY: event.clientY,
-      };
-      viewport.classList.add('timelinesViewport_dragging');
-      window.addEventListener('pointermove', handleWindowPointerMove, { passive: false });
-      window.addEventListener('pointerup', handleWindowPointerUp);
-      window.addEventListener('pointercancel', handleWindowPointerUp);
-      window.addEventListener('blur', handleWindowBlur);
-    };
-
-    viewport.addEventListener('pointerdown', handleViewportPointerDown);
+    viewport.style.setProperty('--timeline-side-pad', `${getTimelineSidePad(viewport)}px`);
+    lastTimelineScrollLeftRef.current = viewport.scrollLeft;
+    viewport.addEventListener('scroll', handleTimelineScroll, { passive: true });
 
     return () => {
-      viewport.removeEventListener('pointerdown', handleViewportPointerDown);
-      endDrag();
+      clearTimers();
+      viewport.removeEventListener('scroll', handleTimelineScroll);
     };
+  }, [getScrollLeftForHourIndex, getTimelineSidePad]);
+
+  useEffect(() => {
+    const viewport = viewportRef.current;
+
+    if (!viewport) {
+      return;
+    }
+
+    return initHorizontalDragScroll(viewport, {
+      draggingClassName: 'timelinesViewport_dragging',
+    });
   }, []);
 
   return (
@@ -167,7 +173,7 @@ export default function Timelines({ timeFormat }: TimelinesProps) {
           browserTimezone={browserTimezone}
           city={city}
           key={city.id}
-          timelineStartPosition={timelineCoverage.startPosition}
+          timelineDates={timelineDates}
           timeFormat={timeFormat}
         />
       ))}

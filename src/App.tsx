@@ -72,9 +72,7 @@ function App() {
       </section>
 
       <section className="section timelines">
-        <div className="container container_timelines">
-          <Timelines timeFormat={timeFormat} />
-        </div>
+        <Timelines timeFormat={timeFormat} />
       </section>
 
       <section className="section">

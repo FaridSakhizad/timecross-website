@@ -16,19 +16,21 @@ export default function TimelineHeader({ userCells }: TimelineHeaderProps) {
         </div>
       </div>
       */}
-      <div className="timelines-cells" style={getTimelineCellsStyle(0)}>
-        {userCells.map((cell, index) => (
-          <span
-            className={[
-              'timelines-hour',
-              cell.isCurrentHour ? 'timelines-hour_current' : '',
-              cell.isDateLabel ? 'timelines-hour_date' : '',
-            ].filter(Boolean).join(' ')}
-            key={`user-${cell.date.toISOString()}-${index}`}
-          >
-            {cell.label}
-          </span>
-        ))}
+      <div className="timelines-trackClip">
+        <div className="timelines-cells" style={getTimelineCellsStyle(0)}>
+          {userCells.map((cell, index) => (
+            <span
+              className={[
+                'timelines-hour',
+                cell.isCurrentHour ? 'timelines-hour_current' : '',
+                cell.isDateLabel ? 'timelines-hour_date' : '',
+              ].filter(Boolean).join(' ')}
+              key={`user-${cell.date.toISOString()}-${index}`}
+            >
+              {cell.label}
+            </span>
+          ))}
+        </div>
       </div>
     </div>
   );

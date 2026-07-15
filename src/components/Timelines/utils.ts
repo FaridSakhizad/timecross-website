@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react';
 import type { TimeFormat } from '../../settings';
-import { TIMELINE_EXTRA_DAY_HOURS, TIMELINE_HOURS_IN_DAY, TIMELINE_HOUR_WIDTH, TIMELINE_TOTAL_HOURS } from './constants';
+import { TIMELINE_EXTRA_DAY_HOURS, TIMELINE_HOUR_WIDTH, TIMELINE_HOUR_MS, TIMELINE_TOTAL_HOURS } from './constants';
 import type { TimelineCell } from './types';
 
 export function getBrowserTimezone() {
@@ -87,7 +87,7 @@ export function getRelativeDayMarker(
   return null;
 }
 
-function getZonedDateParts(timezone: string, date: Date) {
+export function getZonedDateParts(timezone: string, date: Date) {
   const formatter = new Intl.DateTimeFormat('en-US', {
     timeZone: timezone,
     year: 'numeric',
@@ -126,26 +126,23 @@ function getDateSerialFromParts(dateParts: Pick<ReturnType<typeof getZonedDatePa
   return Date.UTC(dateParts.year, dateParts.month - 1, dateParts.day) / 86400000;
 }
 
-function getPositiveModulo(value: number, divisor: number) {
-  return ((value % divisor) + divisor) % divisor;
+function getHourIndexForDate(date: Date) {
+  return Math.floor(date.getTime() / TIMELINE_HOUR_MS);
 }
 
-export function getTimelineDates(timezone: string, baseDate: Date, startPosition = 0, hoursCount?: number) {
-  const cityDateParts = getZonedDateParts(timezone, baseDate);
-  const totalHours = hoursCount ?? TIMELINE_TOTAL_HOURS;
-
-  return Array.from({ length: totalHours }, (_, index) => {
-    const timelinePosition = startPosition + index;
-    const dayOffset = Math.floor(timelinePosition / TIMELINE_HOURS_IN_DAY) - 1;
-    const hour = getPositiveModulo(timelinePosition, TIMELINE_HOURS_IN_DAY);
-
-    return getUtcDateForZonedTime(timezone, {
-      year: cityDateParts.year,
-      month: cityDateParts.month,
-      day: cityDateParts.day + dayOffset,
-      hour,
-    });
+export function getTimelineDates(timezone: string, baseDate: Date) {
+  const dateParts = getZonedDateParts(timezone, baseDate);
+  const todayStartDate = getUtcDateForZonedTime(timezone, {
+    year: dateParts.year,
+    month: dateParts.month,
+    day: dateParts.day,
+    hour: 0,
   });
+  const startHourIndex = getHourIndexForDate(todayStartDate) - TIMELINE_EXTRA_DAY_HOURS;
+
+  return Array.from({ length: TIMELINE_TOTAL_HOURS }, (_, index) => (
+    new Date((startHourIndex + index) * TIMELINE_HOUR_MS)
+  ));
 }
 
 export function getTimelineCells(
@@ -172,17 +169,15 @@ export function getTimelineCells(
   });
 }
 
-export function getTimelineCurrentPosition(timezone: string, date: Date) {
-  const dateParts = getZonedDateParts(timezone, date);
+export function getTimelineTimezoneShiftMinutes(timezone: string, baseTimezone: string, date: Date) {
+  const timezoneDateParts = getZonedDateParts(timezone, date);
+  const baseTimezoneDateParts = getZonedDateParts(baseTimezone, date);
 
-  return TIMELINE_EXTRA_DAY_HOURS
-    + dateParts.hour
-    + dateParts.minute / 60
-    + dateParts.second / 3600;
+  return timezoneDateParts.minute - baseTimezoneDateParts.minute;
 }
 
-export function getTimelineCellsStyle(offsetHours: number): CSSProperties {
-  const offsetPx = offsetHours * TIMELINE_HOUR_WIDTH;
+export function getTimelineCellsStyle(offsetMinutes: number): CSSProperties {
+  const offsetPx = -(offsetMinutes / 60) * TIMELINE_HOUR_WIDTH;
 
   return {
     '--timeline-offset-px': `${offsetPx}px`,

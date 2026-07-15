@@ -93,6 +93,7 @@ export default function CustomScrollbar({
     }
 
     const { clientHeight, clientWidth, scrollHeight, scrollLeft, scrollTop, scrollWidth } = content;
+    content.style.setProperty('--custom-scrollbar-client-width', `${clientWidth}px`);
     const verticalVisible = showVerticalScrollbar && scrollHeight > clientHeight;
     const horizontalVisible = showHorizontalScrollbar && scrollWidth > clientWidth;
     const verticalTrackLength = Math.max(clientHeight - SCROLLBAR_VERTICAL_PADDING, 0);
