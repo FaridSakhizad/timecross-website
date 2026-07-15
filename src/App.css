@@ -122,12 +122,19 @@
 }
 
 .citiesBox {
+    display: flex;
+    justify-content: stretch;
     border: 3px solid rgba(var(--accent-color-2), 1);
     background-color: rgba(var(--accent-color-1), 0.1);
     border-radius: 40px;
     width: 548px;
     height: 600px;
     box-shadow: 0 10px 50px 0 rgba(0, 0, 0, 0.15);
+    transition: box-shadow 0.2s ease;
+
+    &:hover {
+        box-shadow: 0 10px 50px 0 rgba(0, 0, 0, 0.3);
+    }
 }
 
 .heroPreviewBox {
@@ -286,10 +293,14 @@
 .heroDownload-button_googlePlay {}
 
 .timelines {
-    min-height: 372px;
     background: rgba(var(--accent-color-1), 0.4);
     border-bottom: 1px solid rgba(var(--accent-color-2), 0.3);
     background-clip: padding-box;
+    padding: 0;
+}
+
+.container_timelines {
+    max-width: 100%;
     padding: 0;
 }
 

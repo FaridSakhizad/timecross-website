@@ -1,6 +1,23 @@
-import './App.css'
+import Cities from './components/Cities';
+import ScreenshotSlider from './components/ScreenshotSlider';
+import Timelines from './components/Timelines';
+import { getSettings, updateSettings, type TimeFormat } from './settings';
+import { useState } from 'react';
+
+import './App.css';
 
 function App() {
+  const [timeFormat, setTimeFormat] = useState<TimeFormat>(() => getSettings().timeFormat);
+
+  const handleTimeFormatButtonClick = () => {
+    const nextSettings = updateSettings((settings) => ({
+      ...settings,
+      timeFormat: settings.timeFormat === '24h' ? '12h' : '24h',
+    }));
+
+    setTimeFormat(nextSettings.timeFormat);
+  };
+
   return (
     <>
       <header className="header">
@@ -13,7 +30,9 @@ function App() {
           <div className="headerMenu">
             <a href="#" className="headerMenu-item">Buy Me a Coffee</a>
 
-            <button type="button" className="headerMenu-item">AM/PM</button>
+            <button type="button" className="headerMenu-item" onClick={handleTimeFormatButtonClick}>
+              {timeFormat === '24h' ? 'AM/PM' : '24H'}
+            </button>
 
             <button type="button" className="headerMenu-item nightMode" />
 
@@ -24,7 +43,9 @@ function App() {
 
       <section className="section hero">
         <div className="container container_hero">
-          <div className="citiesBox"></div>
+          <div className="citiesBox">
+            <Cities timeFormat={timeFormat} />
+          </div>
 
           <div className="heroPreviewBox">
             <div className="iphonePreviewContainer">
@@ -51,6 +72,9 @@ function App() {
       </section>
 
       <section className="section timelines">
+        <div className="container container_timelines">
+          <Timelines timeFormat={timeFormat} />
+        </div>
       </section>
 
       <section className="section">
@@ -130,6 +154,12 @@ function App() {
         </div>
       </section>
 
+      <section className="section">
+        <div className="container">
+
+          <ScreenshotSlider />
+        </div>
+      </section>
       <section className="section">
         <div className="container">
           <h2 className="section-title">FAQ</h2>
