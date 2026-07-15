@@ -439,15 +439,19 @@ export default function Cities({ timeFormat }: CitiesProps) {
           aria-label="Reset selected time"
           onClick={handleTimeRulerReset}
         />
+
         <div className="timeRuler-info">
           {isTimeRulerAdjusted && (
             <span className="timeRuler-currentTime">{formatRulerTime(baseDate, timeFormat)}</span>
           )}
+
           <span className="timeRuler-selectedTime">{formatRulerTime(selectedDate, timeFormat)}</span>
+
           {isTimeRulerAdjusted && (
             <span className="timeRuler-offset">{formatTimeRulerOffset(timeOffsetMinutes)}</span>
           )}
         </div>
+
         <div
           className={`timeRuler-scale ${isTimeRulerDragging ? 'timeRuler-scale_dragging' : ''}`}
           role="slider"

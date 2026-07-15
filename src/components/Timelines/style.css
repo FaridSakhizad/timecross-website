@@ -4,14 +4,24 @@
 }
 
 .timelinesViewport {
-    max-height: 760px;
+    max-height: 372px;
     overflow: auto;
-    border-top: 1px solid rgba(255 255 255 / 0.35);
-    border-bottom: 1px solid rgba(255 255 255 / 0.35);
     user-select: none;
     touch-action: pan-x pan-y;
     overscroll-behavior: contain;
     scroll-behavior: auto;
+}
+
+.timelinesWidgets-middleMarker {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 74px;
+    background-color: rgba(var(--accent-color-1), 0.2);
+    margin: auto;
+    z-index: 0;
 }
 
 .timelinesViewport_dragging {
@@ -22,7 +32,7 @@
     display: grid;
     grid-template-columns: max-content;
     min-width: max-content;
-    border-bottom: 1px solid rgba(255 255 255 / 0.18);
+    padding-bottom: 6px;
 }
 
 .timelines-row:last-child {
@@ -33,8 +43,8 @@
     position: sticky;
     top: 0;
     z-index: 4;
-    background: rgba(var(--accent-color-1), 0.35);
-    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255 255 255 / 0.15);
+    padding: 10px 0;
 }
 
 .timelines-city {
@@ -42,9 +52,7 @@
     left: 0;
     z-index: 3;
     width: 100vw;
-    padding: 20px 0 10px;
-    background: rgba(var(--accent-color-1), 0.26);
-    backdrop-filter: blur(12px);
+    padding: 11px 0 6px 0;
 }
 
 .timelines-city_header {
@@ -55,70 +63,90 @@
 }
 
 .timelines-cityContainer {
-    display: grid;
-    grid-template-columns: auto auto 1fr;
-    gap: 0 12px;
-    align-items: baseline;
+    display: flex;
+    align-items: center;
 }
 
 .timelines-cityName {
-    font-size: 22px;
+    font-size: 16px;
     line-height: 1.2;
     font-weight: 700;
 }
 
-.timelines-cityOffset {
-    font-size: 22px;
+.timelines-cityDayMarker {
+    margin-left: 8px;
+    padding: 2px 8px;
+    border-radius: 65536px;
+    background: rgba(255 255 255 / 0.1);
+    color: rgba(255 255 255 / 0.72);
+    font-size: 12px;
     line-height: 1.2;
 }
 
+.timelines-cityOffset {
+    font-size: 16px;
+    line-height: 1.2;
+    font-weight: normal;
+}
+
 .timelines-cityTime {
-    justify-self: end;
+    margin-left: auto;
     color: rgba(255 255 255 / 0.82);
-    font-size: 18px;
-    line-height: 1;
+    font-size: 16px;
+    line-height: 1.2;
 }
 
 .timelines-cells {
     display: grid;
     grid-auto-flow: column;
-    grid-auto-columns: 110px;
+    grid-auto-columns: 74px;
     align-items: stretch;
-    padding-left: calc(50vw - 55px);
-    padding-right: calc(50vw - 55px);
+
     margin-left: var(--timeline-offset-px, 0px);
 }
 
-.timelines-hour,
-.timelines-cell {
-    display: grid;
+.timelines-hour {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     place-items: center;
-    min-height: 64px;
-    color: rgba(255 255 255 / 0.9);
-    border-left: 1px solid rgba(255 255 255 / 0.09);
+    justify-self: center;
+    height: 24px;
+    width: 64px;
+    border-radius: 65536px;
+    border: 1px solid rgba(255 255 255 / 0.1);
+    font-size: 16px;
+    line-height: 18px;
 }
 
 .timelines-cell {
-    min-height: 92px;
-    margin: 10px 10px 18px;
-    border: none;
-    border-radius: 20px;
-    background: rgba(255 255 255 / 0.14);
-    font-size: 42px;
+    width: 64px;
+    height: 64px;
+    display: grid;
+    place-items: center;
+    justify-self: center;
+    border-radius: 10px;
+    background: rgba(255 255 255 / 0.1);
+    color: rgba(255 255 255 / 1);
+    font-size: 36px;
     line-height: 1;
     font-weight: 300;
 }
 
-.timelines-cell_adjacentDay {
-    opacity: 0.7;
+.timelines-cell_date {
+    font-size: 16px;
+    line-height: 18px;
 }
 
-.timelines-hour_current,
+.timelines-cell_adjacentDay {
+    background: rgba(255 255 255 / 0.03);
+}
+
 .timelines-cell_current {
     background: rgba(var(--accent-color-1), 0.28);
-    box-shadow: inset 0 0 0 1px rgba(255 255 255 / 0.18);
 }
 
 .timelines-hour_current {
-    border-radius: 20px 20px 0 0;
+    background: rgba(var(--accent-color-1), 0.28);
+    border: rgba(var(--accent-color-1), 0.28);
 }
