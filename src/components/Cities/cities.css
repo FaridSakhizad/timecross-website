@@ -93,19 +93,19 @@
 }
 
 .citiesList-periodIcon_morning {
-    mask-image: url("../../../assets/icon--morning.svg");
+    mask-image: url("../../assets/icon--morning.svg");
 }
 
 .citiesList-periodIcon_day {
-    mask-image: url("../../../assets/icon--day.svg");
+    mask-image: url("../../assets/icon--day.svg");
 }
 
 .citiesList-periodIcon_evening {
-    mask-image: url("../../../assets/icon--evening.svg");
+    mask-image: url("../../assets/icon--evening.svg");
 }
 
 .citiesList-periodIcon_night {
-    mask-image: url("../../../assets/icon--night.svg");
+    mask-image: url("../../assets/icon--night.svg");
 }
 
 .citiesList-city {

@@ -33,7 +33,7 @@
         top: 0;
         width: 40px;
         height: 62px;
-        background: url("assets/logo-1.svg") center no-repeat;
+        background: url("./assets/logo-1.svg") center no-repeat;
     }
 }
 
@@ -443,7 +443,7 @@
         margin: auto;
         transition: all 0.2s ease;
         background-color: var(--main-color);
-        mask: url("assets/icon--arrow-1.svg");
+        mask: url("./assets/icon--arrow-1.svg");
     }
 
     .accordionTooltip {

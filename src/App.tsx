@@ -199,10 +199,10 @@ function App() {
 
       <section className="section">
         <div className="container">
-
           <ScreenshotSlider />
         </div>
       </section>
+
       <section className="section">
         <div className="container">
           <h2 className="section-title">FAQ</h2>
