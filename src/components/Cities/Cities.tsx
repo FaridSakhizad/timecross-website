@@ -14,7 +14,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent, type WheelEvent } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent } from 'react';
 import CustomScrollbar from '../CustomScrollbar';
 import { getOrderedFavoriteCities, type FavoriteCity } from './fixtures';
 import { getSettings, updateSettings, type TimeFormat } from '../../settings';
@@ -139,12 +139,17 @@ function getRelativeTimeOffset(timezone: string, fallback: string, date: Date) {
 }
 
 function formatTimeInTimezone(timezone: string, date: Date, timeFormat: TimeFormat) {
-  return new Intl.DateTimeFormat(timeFormat === '24h' ? 'en-GB' : 'en-US', {
+  if (timeFormat === '24h') {
+    const { hour, minute } = getZonedDateParts(timezone, date);
+
+    return `${hour === 0 ? '00' : hour}:${String(minute).padStart(2, '0')}`;
+  }
+
+  return new Intl.DateTimeFormat('en-US', {
     timeZone: timezone,
-    hour: timeFormat === '24h' ? '2-digit' : 'numeric',
+    hour: 'numeric',
     minute: '2-digit',
-    hour12: timeFormat === '12h',
-    hourCycle: 'h23',
+    hour12: true,
   }).format(date);
 }
 
@@ -168,10 +173,15 @@ function getDateSerial(dateParts: Pick<ZonedDateParts, 'year' | 'month' | 'day'>
   return Date.UTC(dateParts.year, dateParts.month - 1, dateParts.day) / 86400000;
 }
 
-function getDayShiftLabel(timezone: string, browserTimezone: string, date: Date) {
-  const browserDate = getZonedDateParts(browserTimezone, date);
-  const cityDate = getZonedDateParts(timezone, date);
-  const dayDiff = getDateSerial(cityDate) - getDateSerial(browserDate);
+function getDayShiftLabel(
+  timezone: string,
+  browserTimezone: string,
+  selectedDate: Date,
+  baseDate: Date,
+) {
+  const baseBrowserDate = getZonedDateParts(browserTimezone, baseDate);
+  const selectedCityDate = getZonedDateParts(timezone, selectedDate);
+  const dayDiff = getDateSerial(selectedCityDate) - getDateSerial(baseBrowserDate);
 
   if (dayDiff > 0) {
     return 'Tomorrow';
@@ -187,6 +197,7 @@ function getDayShiftLabel(timezone: string, browserTimezone: string, date: Date)
 function getCityView(
   city: FavoriteCity,
   selectedDate: Date,
+  baseDate: Date,
   browserTimezone: string,
   timeFormat: TimeFormat,
 ): CityView {
@@ -196,7 +207,7 @@ function getCityView(
     ...city,
     currentTime: formatTimeInTimezone(city.timezone, selectedDate, timeFormat),
     currentPeriod: getPeriodFromHour(cityDateParts.hour),
-    dayShiftLabel: getDayShiftLabel(city.timezone, browserTimezone, selectedDate),
+    dayShiftLabel: getDayShiftLabel(city.timezone, browserTimezone, selectedDate, baseDate),
     relativeTimeOffset: getRelativeTimeOffset(city.timezone, city.timeOffset, selectedDate),
   };
 }
@@ -265,6 +276,7 @@ export default function Cities({ timeFormat }: CitiesProps) {
   const [timeOffsetMinutes, setTimeOffsetMinutes] = useState(0);
   const [isTimeRulerDragging, setIsTimeRulerDragging] = useState(false);
   const timeRulerDragRef = useRef<TimeRulerDrag | null>(null);
+  const timeRulerScaleRef = useRef<HTMLDivElement | null>(null);
 
   const cityIds = useMemo(() => cities.map((city) => city.id), [cities]);
   const selectedDate = useMemo(
@@ -276,8 +288,8 @@ export default function Cities({ timeFormat }: CitiesProps) {
   const cityViews = useMemo(() => {
     const browserTimezone = getBrowserTimezone();
 
-    return cities.map((city) => getCityView(city, selectedDate, browserTimezone, timeFormat));
-  }, [cities, selectedDate, timeFormat]);
+    return cities.map((city) => getCityView(city, selectedDate, baseDate, browserTimezone, timeFormat));
+  }, [baseDate, cities, selectedDate, timeFormat]);
 
   const timeRulerTicks = useMemo(() => {
     const ticks = [];
@@ -324,13 +336,13 @@ export default function Cities({ timeFormat }: CitiesProps) {
     });
   };
 
-  const updateTimeOffset = (nextTimeOffsetMinutes: number) => {
+  const updateTimeOffset = useCallback((nextTimeOffsetMinutes: number) => {
     setTimeOffsetMinutes(clamp(
       Math.round(nextTimeOffsetMinutes),
       -TIME_RULER_RANGE_MINUTES,
       TIME_RULER_RANGE_MINUTES,
     ));
-  };
+  }, []);
 
   const endTimeRulerDrag = useCallback(() => {
     if (!timeRulerDragRef.current) {
@@ -384,11 +396,6 @@ export default function Cities({ timeFormat }: CitiesProps) {
     }
   };
 
-  const handleTimeRulerWheel = (event: WheelEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    updateTimeOffset(timeOffsetMinutes + (event.deltaY + event.deltaX) / PIXELS_IN_MINUTE);
-  };
-
   const handleTimeRulerReset = () => {
     updateTimeOffset(0);
   };
@@ -412,6 +419,26 @@ export default function Cities({ timeFormat }: CitiesProps) {
       window.removeEventListener('blur', handleWindowPointerUp);
     };
   }, [endTimeRulerDrag, isTimeRulerDragging]);
+
+  useEffect(() => {
+    const timeRulerScale = timeRulerScaleRef.current;
+
+    if (!timeRulerScale) {
+      return;
+    }
+
+    const handleWheel = (event: globalThis.WheelEvent) => {
+      event.preventDefault();
+      event.stopPropagation();
+      updateTimeOffset(timeOffsetMinutes + (event.deltaY + event.deltaX) / PIXELS_IN_MINUTE);
+    };
+
+    timeRulerScale.addEventListener('wheel', handleWheel, { passive: false });
+
+    return () => {
+      timeRulerScale.removeEventListener('wheel', handleWheel);
+    };
+  }, [timeOffsetMinutes, updateTimeOffset]);
 
   return (
     <div className="cities">
@@ -454,6 +481,7 @@ export default function Cities({ timeFormat }: CitiesProps) {
 
         <div
           className={`timeRuler-scale ${isTimeRulerDragging ? 'timeRuler-scale_dragging' : ''}`}
+          ref={timeRulerScaleRef}
           role="slider"
           aria-label="Selected time offset"
           aria-valuemin={-TIME_RULER_RANGE_MINUTES}
@@ -463,7 +491,6 @@ export default function Cities({ timeFormat }: CitiesProps) {
           onPointerMove={handleTimeRulerPointerMove}
           onPointerUp={handleTimeRulerPointerUp}
           onPointerCancel={handleTimeRulerPointerUp}
-          onWheel={handleTimeRulerWheel}
         >
           <div
             className="timeRuler-track"

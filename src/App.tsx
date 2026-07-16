@@ -1,13 +1,29 @@
 import Cities from './components/Cities';
+import Footer from './components/Footer';
 import ScreenshotSlider from './components/ScreenshotSlider';
 import Timelines from './components/Timelines';
+import {
+  APP_STORE_URL,
+  BUY_ME_A_COFFEE_URL,
+  CONTACT_FORM_DEFAULT_SUBJECT,
+  CONTACT_FORM_SOURCE_LABEL,
+  GOOGLE_PLAY_URL,
+  PRIVACY_POLICY_PATH,
+  SUPPORT_EMAIL,
+  TERMS_OF_USE_PATH,
+} from './config';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
+import TermsOfUsePage from './pages/TermsOfUsePage';
 import { getSettings, updateSettings, type TimeFormat } from './settings';
-import { useState } from 'react';
+import { useState, type FormEvent } from 'react';
 
 import './App.css';
 
 function App() {
   const [timeFormat, setTimeFormat] = useState<TimeFormat>(() => getSettings().timeFormat);
+  const currentPath = window.location.pathname.replace(/\/$/, '') || '/';
+  const isPrivacyPolicyPage = currentPath === PRIVACY_POLICY_PATH;
+  const isTermsOfUsePage = currentPath === TERMS_OF_USE_PATH;
 
   const handleTimeFormatButtonClick = () => {
     const nextSettings = updateSettings((settings) => ({
@@ -16,6 +32,24 @@ function App() {
     }));
 
     setTimeFormat(nextSettings.timeFormat);
+  };
+
+  const handleContactFormSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const formData = new FormData(event.currentTarget);
+    const email = String(formData.get('email') ?? '').trim();
+    const subject = String(formData.get('subject') ?? '').trim() || CONTACT_FORM_DEFAULT_SUBJECT;
+    const message = String(formData.get('message') ?? '').trim();
+    const body = [
+      message,
+      '',
+      '---',
+      `Reply to: ${email}`,
+      CONTACT_FORM_SOURCE_LABEL,
+    ].join('\n');
+
+    window.location.href = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   };
 
   return (
@@ -28,7 +62,7 @@ function App() {
           </a>
 
           <div className="headerMenu">
-            <a href="#" className="headerMenu-item">Buy Me a Coffee</a>
+            <a href={BUY_ME_A_COFFEE_URL} className="headerMenu-item">Buy Me a Coffee</a>
 
             <button type="button" className="headerMenu-item" onClick={handleTimeFormatButtonClick}>
               {timeFormat === '24h' ? 'AM/PM' : '24H'}
@@ -41,6 +75,10 @@ function App() {
         </div>
       </header>
 
+      {isPrivacyPolicyPage && <PrivacyPolicyPage />}
+      {isTermsOfUsePage && <TermsOfUsePage />}
+      {!isPrivacyPolicyPage && !isTermsOfUsePage && (
+        <>
       <section className="section hero">
         <div className="container container_hero">
           <div className="citiesBox">
@@ -65,8 +103,8 @@ function App() {
           </div>
 
           <div className="heroDownload">
-            <a href="#" className="heroDownload-button heroDownload-button_appStore">Download on the App Store</a>
-            <a href="#" className="heroDownload-button heroDownload-button_googlePlay">Get it on Google Play</a>
+            <a href={APP_STORE_URL} className="heroDownload-button heroDownload-button_appStore">Download on the App Store</a>
+            <a href={GOOGLE_PLAY_URL} className="heroDownload-button heroDownload-button_googlePlay">Get it on Google Play</a>
           </div>
         </div>
       </section>
@@ -86,10 +124,10 @@ function App() {
                 <h3 className="featuresList-title">Notifications</h3>
               </div>
               <div className="featuresList-content">
-                <p className="featuresList-para">Use this app to compare time across cities, organize them your way, and
-                  see the current time in each place at a glance.</p>
-                <p className="featuresList-para">Create reminders for specific cities to keep people, plans, and
-                  routines in sync across time zones.</p>
+                <p className="featuresList-para">Set city-based reminders for calls, meetings, handoffs, or daily
+                  routines without doing timezone math in your head.</p>
+                <p className="featuresList-para">TimeCross helps you choose the right local moment first, then reminds
+                  you when that moment arrives.</p>
               </div>
             </li>
 
@@ -99,15 +137,10 @@ function App() {
                 <h3 className="featuresList-title">Synchronisation</h3>
               </div>
               <div className="featuresList-content">
-                <p className="featuresList-para">Use this app to compare time across cities, organize them your way, and
-                  see the current time in each
-                  place at a glance.</p>
-                <p className="featuresList-para">Create reminders for specific cities to keep people, plans, and
-                  routines in sync across time
-                  zones.</p>
-                <p className="featuresList-para">Create reminders for specific cities to keep people, plans, and
-                  routines in sync across time
-                  zones.</p>
+                <p className="featuresList-para">Keep your favorite cities, order, and display preferences consistent
+                  across the app, so your personal world clock always feels familiar.</p>
+                <p className="featuresList-para">The goal is simple: open TimeCross anywhere and see the same people,
+                  places, and working hours you rely on every day.</p>
               </div>
             </li>
 
@@ -117,12 +150,10 @@ function App() {
                 <h3 className="featuresList-title">Countdowns</h3>
               </div>
               <div className="featuresList-content">
-                <p className="featuresList-para">Use this app to compare time across cities, organize them your way, and
-                  see the current time in each
-                  place at a glance.</p>
-                <p className="featuresList-para">Create reminders for specific cities to keep people, plans, and
-                  routines in sync across time
-                  zones.</p>
+                <p className="featuresList-para">See how much time is left until a specific hour in another city, even
+                  when that city is already in tomorrow.</p>
+                <p className="featuresList-para">Countdowns make planning feel concrete: no more guessing whether a
+                  deadline, livestream, flight, or call is one hour away or half a day away.</p>
               </div>
             </li>
           </ul>
@@ -133,22 +164,36 @@ function App() {
         <div className="container">
           <h2 className="section-title">Contact Us</h2>
 
-          <form className="contactForm">
+          <form className="contactForm" onSubmit={handleContactFormSubmit}>
             <div className="contactForm-row">
-              <input type="email" className="input contactForm-input" placeholder="Email*" />
+              <input
+                type="email"
+                className="input contactForm-input"
+                name="email"
+                placeholder="Email*"
+                required
+              />
             </div>
             <div className="contactForm-row">
-              <input type="text" className="input contactForm-input" placeholder="Subject" />
+              <input
+                type="text"
+                className="input contactForm-input"
+                name="subject"
+                placeholder="Subject"
+              />
             </div>
             <div className="contactForm-row">
-              <textarea className="textarea contactForm-input" placeholder="Message*"></textarea>
+              <textarea
+                className="textarea contactForm-input"
+                name="message"
+                placeholder="Message*"
+                required
+              ></textarea>
             </div>
             <div className="contactForm-row">
               <button className="button contactForm-submitButton" type="submit">Send</button>
             </div>
           </form>
-
-          <div className="support">Contact: <a href="mailto:support@timecross.app">support@timecross.app</a></div>
         </div>
       </section>
 
@@ -178,15 +223,10 @@ function App() {
               </summary>
 
               <div className="accordion-content">
-                <p className="accordion-para">Epcot is a theme park at Walt Disney World Resort featuring exciting
-                  attractions, international
-                  pavilions, award-winning fireworks and seasonal special events.</p>
-                <p className="accordion-para">Epcot is a theme park at Walt Disney World Resort featuring exciting
-                  attractions, international
-                  pavilions, award-winning fireworks and seasonal special events.</p>
-                <p className="accordion-para">Epcot is a theme park at Walt Disney World Resort featuring exciting
-                  attractions, international
-                  pavilions, award-winning fireworks and seasonal special events.</p>
+                <p className="accordion-para">Yes. TimeCross is free to download and use for the core experience:
+                  tracking favorite cities, comparing time zones, and checking timelines across the day.</p>
+                <p className="accordion-para">If paid features are added later, they will be clearly marked before you
+                  enable them. The app is designed to be useful without forcing you into an account or subscription.</p>
               </div>
             </details>
 
@@ -205,8 +245,10 @@ function App() {
               </summary>
 
               <div className="accordion-content">
-                <p>Epcot is a theme park at Walt Disney World Resort featuring exciting attractions, international
-                  pavilions, award-winning fireworks and seasonal special events.</p>
+                <p className="accordion-para">Yes. TimeCross can calculate city times and time zone offsets on your device, so the main timeline
+                  and city list continue to work without an internet connection.</p>
+                <p className="accordion-para">Some things still depend on your device settings, such as the system clock and the time zone database
+                  provided by the operating system.</p>
               </div>
             </details>
 
@@ -225,8 +267,10 @@ function App() {
               </summary>
 
               <div className="accordion-content">
-                <p className="accordion-para">Epcot is a theme park at Walt Disney World Resort featuring exciting attractions, international
-                  pavilions, award-winning fireworks and seasonal special events.</p>
+                <p className="accordion-para">No. You can start using TimeCross right away without creating an account.
+                  Your cities, ordering, display format, and other preferences are kept locally on your device.</p>
+                <p className="accordion-para">That also means the app stays lightweight: there is no login step just to
+                  check whether it is a good time to call, meet, or send a message.</p>
               </div>
             </details>
 
@@ -245,8 +289,10 @@ function App() {
               </summary>
 
               <div className="accordion-content">
-                <p className="accordion-para">Epcot is a theme park at Walt Disney World Resort featuring exciting attractions, international
-                  pavilions, award-winning fireworks and seasonal special events.</p>
+                <p className="accordion-para">TimeCross is available for iOS. The Android version is in progress and is
+                  being built to keep the same simple city list, timeline view, and notification flow.</p>
+                <p className="accordion-para">The website also provides a lightweight preview of the core experience, so
+                  you can explore how the timeline and city comparison work before installing the app.</p>
               </div>
             </details>
 
@@ -265,8 +311,10 @@ function App() {
               </summary>
 
               <div className="accordion-content">
-                <p className="accordion-para">Epcot is a theme park at Walt Disney World Resort featuring exciting attractions, international
-                  pavilions, award-winning fireworks and seasonal special events.</p>
+                <p className="accordion-para">Open the app menu, go to Settings, and choose Notifications. From there you
+                  can enable reminders for the cities and times that matter to you.</p>
+                <p className="accordion-para">Your device may also ask for notification permission. If notifications do
+                  not appear, check that TimeCross is allowed to send alerts in your system settings.</p>
               </div>
             </details>
           </div>
@@ -309,29 +357,15 @@ function App() {
           <h2 className="section-title">Download</h2>
 
           <div className="download">
-            <a href="" className="downloadLink"></a>
-            <a href="" className="downloadLink"></a>
+            <a href={APP_STORE_URL} className="downloadLink"></a>
+            <a href={GOOGLE_PLAY_URL} className="downloadLink"></a>
           </div>
         </div>
       </section>
+        </>
+      )}
 
-      <footer className="footer">
-        <div className="container container_footer">
-          <span className="copyright">&copy; Farid Sakhizad 2026</span>
-
-          <ul className="footerMenu">
-            <li className="footerMenu-item">
-              <a href="mailto:support@timecross.app" className="footerMenu-link">Support</a>
-            </li>
-            <li className="footerMenu-item">
-              <a href="/privacy-policy" className="footerMenu-link">Privacy Policy</a>
-            </li>
-            <li className="footerMenu-item">
-              <a href="mailto:support@timecross.app" className="footerMenu-link">Contact</a>
-            </li>
-          </ul>
-        </div>
-      </footer>
+      <Footer />
     </>
   )
 }

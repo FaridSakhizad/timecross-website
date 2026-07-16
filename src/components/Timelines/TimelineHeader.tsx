@@ -8,14 +8,6 @@ type TimelineHeaderProps = {
 export default function TimelineHeader({ userCells }: TimelineHeaderProps) {
   return (
     <div className="timelines-row timelines-row_header">
-      {/*
-      <div className="timelines-city timelines-city_header">
-        <div className="container timelines-cityContainer">
-          <span>Your Time</span>
-          <span className="timelines-cityTime">{formatTime(baseDate, browserTimezone, timeFormat)}</span>
-        </div>
-      </div>
-      */}
       <div className="timelines-trackClip">
         <div className="timelines-cells" style={getTimelineCellsStyle(0)}>
           {userCells.map((cell, index) => (

@@ -293,18 +293,7 @@
 .heroDownload-button_googlePlay {}
 
 .timelines {
-
-    border: none;
-
-    background-clip: padding-box;
-    padding: 0;
-    margin: 60px auto 0 auto;
-
-}
-
-.container_timelines {
-    /*max-width: 100%;*/
-    /*padding: 0;*/
+    padding-top: 70px;
 }
 
 .featuresList {
@@ -591,43 +580,4 @@
     height: 75px;
     background: #000;
     border-radius: 8px;
-}
-
-.footer {
-    margin-top: auto;
-    background-color: #fff;
-}
-
-.container_footer {
-    display: flex;
-    padding-top: 64px;
-    padding-bottom: 70px;
-}
-
-.copyright {
-    font-size: 13px;
-    line-height: 16px;
-    margin-left: 10px;
-}
-
-.footerMenu {
-    display: flex;
-    gap: 25px;
-    margin: 0 10px 0 auto;
-    padding: 0;
-    font-size: 13px;
-    line-height: 16px;
-}
-
-.footerMenu-item {
-    display: block;
-}
-
-.footerMenu-link {
-    color: rgb(var(--body-text-color));
-    text-decoration: none;
-
-    &:hover {
-        text-decoration: underline;
-    }
 }

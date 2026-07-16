@@ -1,0 +1,10 @@
+export const SUPPORT_EMAIL = 'support@timecross.app';
+export const PRIVACY_POLICY_PATH = '/privacy-policy';
+export const TERMS_OF_USE_PATH = '/terms-of-use';
+export const BUY_ME_A_COFFEE_URL = '#';
+export const APP_STORE_URL = '#';
+export const GOOGLE_PLAY_URL = '#';
+export const COPYRIGHT_HOLDER = 'Farid Sakhizad';
+export const COPYRIGHT_YEAR = 2026;
+export const CONTACT_FORM_DEFAULT_SUBJECT = 'TimeCross support request';
+export const CONTACT_FORM_SOURCE_LABEL = 'Sent from TimeCross.app contact form';

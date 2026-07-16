@@ -1,6 +1,12 @@
 import type { CSSProperties } from 'react';
 import type { TimeFormat } from '../../settings';
-import { TIMELINE_EXTRA_DAY_HOURS, TIMELINE_HOUR_WIDTH, TIMELINE_HOUR_MS, TIMELINE_TOTAL_HOURS } from './constants';
+import {
+  TIMELINE_EDGE_FADE_HOURS,
+  TIMELINE_EXTRA_DAY_HOURS,
+  TIMELINE_HOUR_WIDTH,
+  TIMELINE_HOUR_MS,
+  TIMELINE_TOTAL_HOURS,
+} from './constants';
 import type { TimelineCell } from './types';
 
 export function getBrowserTimezone() {
@@ -28,11 +34,14 @@ function getUtcDateForZonedTime(
 }
 
 function formatHour(date: Date, timezone: string, timeFormat: TimeFormat) {
-  return new Intl.DateTimeFormat(timeFormat === '24h' ? 'en-GB' : 'en-US', {
+  if (timeFormat === '24h') {
+    return String(getZonedDateParts(timezone, date).hour);
+  }
+
+  return new Intl.DateTimeFormat('en-US', {
     timeZone: timezone,
-    hour: timeFormat === '24h' ? '2-digit' : 'numeric',
-    hour12: timeFormat === '12h',
-    hourCycle: 'h23',
+    hour: 'numeric',
+    hour12: true,
   }).format(date);
 }
 
@@ -138,9 +147,11 @@ export function getTimelineDates(timezone: string, baseDate: Date) {
     day: dateParts.day,
     hour: 0,
   });
-  const startHourIndex = getHourIndexForDate(todayStartDate) - TIMELINE_EXTRA_DAY_HOURS;
+  const startHourIndex = getHourIndexForDate(todayStartDate)
+    - TIMELINE_EXTRA_DAY_HOURS
+    - TIMELINE_EDGE_FADE_HOURS;
 
-  return Array.from({ length: TIMELINE_TOTAL_HOURS }, (_, index) => (
+  return Array.from({ length: TIMELINE_TOTAL_HOURS + TIMELINE_EDGE_FADE_HOURS * 2 }, (_, index) => (
     new Date((startHourIndex + index) * TIMELINE_HOUR_MS)
   ));
 }
