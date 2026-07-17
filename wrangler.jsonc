@@ -1,5 +1,7 @@
 {
   "name": "timecross-website",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-06-18",
   "send_email": [
     {
       "name": "CONTACT_EMAIL",

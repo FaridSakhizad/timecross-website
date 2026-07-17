@@ -5,11 +5,9 @@ import Timelines from './components/Timelines';
 import {
   APP_STORE_URL,
   BUY_ME_A_COFFEE_URL,
-  CONTACT_FORM_DEFAULT_SUBJECT,
-  CONTACT_FORM_SOURCE_LABEL,
+  CONTACT_API_PATH,
   GOOGLE_PLAY_URL,
   PRIVACY_POLICY_PATH,
-  SUPPORT_EMAIL,
   TERMS_OF_USE_PATH,
 } from './config';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
@@ -19,8 +17,17 @@ import { useState, type FormEvent } from 'react';
 
 import './App.css';
 
+type ContactFormStatus = 'idle' | 'sending' | 'sent' | 'error';
+
+type ContactResponse = {
+  ok: boolean;
+  error?: string;
+};
+
 function App() {
   const [timeFormat, setTimeFormat] = useState<TimeFormat>(() => getSettings().timeFormat);
+  const [contactFormStatus, setContactFormStatus] = useState<ContactFormStatus>('idle');
+  const [contactFormMessage, setContactFormMessage] = useState('');
   const currentPath = window.location.pathname.replace(/\/$/, '') || '/';
   const isPrivacyPolicyPage = currentPath === PRIVACY_POLICY_PATH;
   const isTermsOfUsePage = currentPath === TERMS_OF_USE_PATH;
@@ -34,22 +41,43 @@ function App() {
     setTimeFormat(nextSettings.timeFormat);
   };
 
-  const handleContactFormSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleContactFormSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const formData = new FormData(event.currentTarget);
+    const form = event.currentTarget;
+    const name = String(formData.get('name') ?? '').trim();
     const email = String(formData.get('email') ?? '').trim();
-    const subject = String(formData.get('subject') ?? '').trim() || CONTACT_FORM_DEFAULT_SUBJECT;
     const message = String(formData.get('message') ?? '').trim();
-    const body = [
-      message,
-      '',
-      '---',
-      `Reply to: ${email}`,
-      CONTACT_FORM_SOURCE_LABEL,
-    ].join('\n');
 
-    window.location.href = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    setContactFormStatus('sending');
+    setContactFormMessage('');
+
+    try {
+      const response = await fetch(CONTACT_API_PATH, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          message,
+        }),
+      });
+      const result = await response.json() as ContactResponse;
+
+      if (!response.ok || !result.ok) {
+        throw new Error(result.error || 'Unable to send message');
+      }
+
+      form.reset();
+      setContactFormStatus('sent');
+      setContactFormMessage('Message sent. Thank you!');
+    } catch (error) {
+      setContactFormStatus('error');
+      setContactFormMessage(error instanceof Error ? error.message : 'Unable to send message');
+    }
   };
 
   return (
@@ -167,19 +195,22 @@ function App() {
           <form className="contactForm" onSubmit={handleContactFormSubmit}>
             <div className="contactForm-row">
               <input
-                type="email"
+                type="text"
                 className="input contactForm-input"
-                name="email"
-                placeholder="Email*"
+                name="name"
+                placeholder="Name*"
+                maxLength={100}
                 required
               />
             </div>
             <div className="contactForm-row">
               <input
-                type="text"
+                type="email"
                 className="input contactForm-input"
-                name="subject"
-                placeholder="Subject"
+                name="email"
+                placeholder="Email*"
+                maxLength={254}
+                required
               />
             </div>
             <div className="contactForm-row">
@@ -187,12 +218,27 @@ function App() {
                 className="textarea contactForm-input"
                 name="message"
                 placeholder="Message*"
+                maxLength={5000}
                 required
               ></textarea>
             </div>
             <div className="contactForm-row">
-              <button className="button contactForm-submitButton" type="submit">Send</button>
+              <button
+                className="button contactForm-submitButton"
+                type="submit"
+                disabled={contactFormStatus === 'sending'}
+              >
+                {contactFormStatus === 'sending' ? 'Sending...' : 'Send'}
+              </button>
             </div>
+            {contactFormMessage && (
+              <p
+                className={`contactForm-status contactForm-status_${contactFormStatus}`}
+                role="status"
+              >
+                {contactFormMessage}
+              </p>
+            )}
           </form>
         </div>
       </section>

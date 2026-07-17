@@ -12,8 +12,10 @@ export default function PrivacyPolicyPage() {
 
       <section className="legalPage-section">
         <h2 className="legalPage-sectionTitle">Information You Provide</h2>
-        <p className="legalPage-para">If you contact us by email or through the website contact form, your email address,
-          subject, and message are sent through your email client to our support address.</p>
+        <p className="legalPage-para">If you contact us through the website contact form, your name, email address, and
+          message are sent to TimeCross support so we can reply to your request.</p>
+        <p className="legalPage-para">The contact form is processed by our website backend and forwarded to our support
+          email address.</p>
         <p className="legalPage-para">Do not include sensitive information in support messages unless it is necessary for
           your request.</p>
       </section>

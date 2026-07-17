@@ -567,6 +567,21 @@
     margin-inline: auto;
 }
 
+.contactForm-status {
+    margin: -4px 0 0 0;
+    font-size: 14px;
+    line-height: 1.4;
+    text-align: center;
+}
+
+.contactForm-status_sent {
+    color: #0f7a46;
+}
+
+.contactForm-status_error {
+    color: #a62929;
+}
+
 .download {
     display: flex;
     gap: 64px;

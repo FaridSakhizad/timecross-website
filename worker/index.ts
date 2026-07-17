@@ -1,0 +1,139 @@
+type ContactRequest = {
+  name: string;
+  email: string;
+  message: string;
+};
+
+const CONTACT_EMAIL = "support@timecross.app";
+const FROM_EMAIL = "contact-form@timecross.app";
+
+function jsonResponse(
+  body: Record<string, unknown>,
+  status = 200,
+): Response {
+  return Response.json(body, { status });
+}
+
+function isContactRequest(value: unknown): value is ContactRequest {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const data = value as Record<string, unknown>;
+
+  return (
+    typeof data.name === "string" &&
+    typeof data.email === "string" &&
+    typeof data.message === "string"
+  );
+}
+
+function isValidEmail(email: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+export default {
+  async fetch(request: Request, env: Env): Promise<Response> {
+    const url = new URL(request.url);
+
+    if (url.pathname !== "/api/contact") {
+      return new Response("Not Found", { status: 404 });
+    }
+
+    if (request.method !== "POST") {
+      return jsonResponse(
+        { ok: false, error: "Method not allowed" },
+        405,
+      );
+    }
+
+    let body: unknown;
+
+    try {
+      body = await request.json();
+    } catch {
+      return jsonResponse(
+        { ok: false, error: "Invalid JSON" },
+        400,
+      );
+    }
+
+    if (!isContactRequest(body)) {
+      return jsonResponse(
+        { ok: false, error: "Invalid request body" },
+        400,
+      );
+    }
+
+    const name = body.name.trim();
+    const email = body.email.trim();
+    const message = body.message.trim();
+
+    if (!name || !email || !message) {
+      return jsonResponse(
+        { ok: false, error: "All fields are required" },
+        400,
+      );
+    }
+
+    if (name.length > 100) {
+      return jsonResponse(
+        { ok: false, error: "Name is too long" },
+        400,
+      );
+    }
+
+    if (!isValidEmail(email) || email.length > 254) {
+      return jsonResponse(
+        { ok: false, error: "Invalid email address" },
+        400,
+      );
+    }
+
+    if (message.length > 5000) {
+      return jsonResponse(
+        { ok: false, error: "Message is too long" },
+        400,
+      );
+    }
+
+    try {
+      const result = await env.CONTACT_EMAIL.send({
+        to: CONTACT_EMAIL,
+        from: {
+          email: FROM_EMAIL,
+          name: "TimeCross Contact Form",
+        },
+        replyTo: {
+          email,
+          name,
+        },
+        subject: `TimeCross contact form: ${name}`,
+        text: [
+          "New message from the TimeCross website",
+          "",
+          `Name: ${name}`,
+          `Email: ${email}`,
+          "",
+          "Message:",
+          message,
+        ].join("\n"),
+      });
+
+      return jsonResponse({
+        ok: true,
+        messageId: result.messageId,
+      });
+    } catch (error) {
+      console.error("Contact email failed:", error);
+
+      return jsonResponse(
+        {
+          ok: false,
+          error: "Unable to send message",
+        },
+        500,
+      );
+    }
+  },
+} satisfies ExportedHandler<Env>;
