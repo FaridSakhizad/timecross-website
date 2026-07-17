@@ -1,3 +1,9 @@
 {
   "name": "timecross-website",
+  "send_email": [
+    {
+      "name": "CONTACT_EMAIL",
+      "destination_address": "support@timecross.app"
+    }
+  ]
 }
