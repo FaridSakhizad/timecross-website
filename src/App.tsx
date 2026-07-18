@@ -86,7 +86,7 @@ function App() {
       <header className="header">
         <div className="container container_header">
           <a href="/" className="logo">
-            <span className="logo-name">{SITE_NAME} | Stage</span>
+            <span className="logo-name">{SITE_NAME} | Stage 1</span>
             <span className="logo-pitch">Understand Time Across the World</span>
           </a>
 
