@@ -8,6 +8,7 @@ import {
   CONTACT_API_PATH,
   GOOGLE_PLAY_URL,
   PRIVACY_POLICY_PATH,
+  SITE_NAME,
   TERMS_OF_USE_PATH,
 } from './config';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
@@ -85,7 +86,7 @@ function App() {
       <header className="header">
         <div className="container container_header">
           <a href="/" className="logo">
-            <span className="logo-name">TimeCross</span>
+            <span className="logo-name">{SITE_NAME}</span>
             <span className="logo-pitch">Understand Time Across the World</span>
           </a>
 
@@ -154,7 +155,7 @@ function App() {
               <div className="featuresList-content">
                 <p className="featuresList-para">Set city-based reminders for calls, meetings, handoffs, or daily
                   routines without doing timezone math in your head.</p>
-                <p className="featuresList-para">TimeCross helps you choose the right local moment first, then reminds
+                <p className="featuresList-para">{SITE_NAME} helps you choose the right local moment first, then reminds
                   you when that moment arrives.</p>
               </div>
             </li>
@@ -167,7 +168,7 @@ function App() {
               <div className="featuresList-content">
                 <p className="featuresList-para">Keep your favorite cities, order, and display preferences consistent
                   across the app, so your personal world clock always feels familiar.</p>
-                <p className="featuresList-para">The goal is simple: open TimeCross anywhere and see the same people,
+                <p className="featuresList-para">The goal is simple: open {SITE_NAME} anywhere and see the same people,
                   places, and working hours you rely on every day.</p>
               </div>
             </li>
@@ -256,7 +257,7 @@ function App() {
           <div className="accordion accordion_faq">
             <details className="accordion-item">
               <summary className="accordion-header">
-                <h3 className="accordion-title">Is TimeCross free?</h3>
+                <h3 className="accordion-title">Is {SITE_NAME} free?</h3>
 
                 <span className="accordionTooltip">
                   <span className="accordionTooltip-title">
@@ -269,7 +270,7 @@ function App() {
               </summary>
 
               <div className="accordion-content">
-                <p className="accordion-para">Yes. TimeCross is free to download and use for the core experience:
+                <p className="accordion-para">Yes. {SITE_NAME} is free to download and use for the core experience:
                   tracking favorite cities, comparing time zones, and checking timelines across the day.</p>
                 <p className="accordion-para">If paid features are added later, they will be clearly marked before you
                   enable them. The app is designed to be useful without forcing you into an account or subscription.</p>
@@ -291,7 +292,7 @@ function App() {
               </summary>
 
               <div className="accordion-content">
-                <p className="accordion-para">Yes. TimeCross can calculate city times and time zone offsets on your device, so the main timeline
+                <p className="accordion-para">Yes. {SITE_NAME} can calculate city times and time zone offsets on your device, so the main timeline
                   and city list continue to work without an internet connection.</p>
                 <p className="accordion-para">Some things still depend on your device settings, such as the system clock and the time zone database
                   provided by the operating system.</p>
@@ -313,7 +314,7 @@ function App() {
               </summary>
 
               <div className="accordion-content">
-                <p className="accordion-para">No. You can start using TimeCross right away without creating an account.
+                <p className="accordion-para">No. You can start using {SITE_NAME} right away without creating an account.
                   Your cities, ordering, display format, and other preferences are kept locally on your device.</p>
                 <p className="accordion-para">That also means the app stays lightweight: there is no login step just to
                   check whether it is a good time to call, meet, or send a message.</p>
@@ -335,7 +336,7 @@ function App() {
               </summary>
 
               <div className="accordion-content">
-                <p className="accordion-para">TimeCross is available for iOS. The Android version is in progress and is
+                <p className="accordion-para">{SITE_NAME} is available for iOS. The Android version is in progress and is
                   being built to keep the same simple city list, timeline view, and notification flow.</p>
                 <p className="accordion-para">The website also provides a lightweight preview of the core experience, so
                   you can explore how the timeline and city comparison work before installing the app.</p>
@@ -360,7 +361,7 @@ function App() {
                 <p className="accordion-para">Open the app menu, go to Settings, and choose Notifications. From there you
                   can enable reminders for the cities and times that matter to you.</p>
                 <p className="accordion-para">Your device may also ask for notification permission. If notifications do
-                  not appear, check that TimeCross is allowed to send alerts in your system settings.</p>
+                  not appear, check that {SITE_NAME} is allowed to send alerts in your system settings.</p>
               </div>
             </details>
           </div>

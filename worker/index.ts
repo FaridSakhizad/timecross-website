@@ -1,11 +1,14 @@
+import {
+  CONTACT_FORM_FROM_EMAIL,
+  CONTACT_FORM_TO_EMAIL,
+  SITE_NAME,
+} from "../src/config";
+
 type ContactRequest = {
   name: string;
   email: string;
   message: string;
 };
-
-const CONTACT_EMAIL = "support@timecross.app";
-const FROM_EMAIL = "contact-form@timecross.app";
 
 function jsonResponse(
   body: Record<string, unknown>,
@@ -99,18 +102,18 @@ export default {
 
     try {
       const result = await env.CONTACT_EMAIL.send({
-        to: CONTACT_EMAIL,
+        to: CONTACT_FORM_TO_EMAIL,
         from: {
-          email: FROM_EMAIL,
-          name: "TimeCross Contact Form",
+          email: CONTACT_FORM_FROM_EMAIL,
+          name: `${SITE_NAME} Contact Form`,
         },
         replyTo: {
           email,
           name,
         },
-        subject: `TimeCross contact form: ${name}`,
+        subject: `${SITE_NAME} contact form: ${name}`,
         text: [
-          "New message from the TimeCross website",
+          `New message from the ${SITE_NAME} website`,
           "",
           `Name: ${name}`,
           `Email: ${email}`,

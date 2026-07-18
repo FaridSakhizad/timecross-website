@@ -1,18 +1,18 @@
 import LegalPage from '../components/LegalPage';
-import { SUPPORT_EMAIL } from '../config';
+import { SITE_NAME, SUPPORT_EMAIL } from '../config';
 
 export default function TermsOfUsePage() {
   return (
     <LegalPage title="Terms of Use" updatedAt="July 16, 2026">
       <section className="legalPage-section">
         <h2 className="legalPage-sectionTitle">Acceptance</h2>
-        <p className="legalPage-para">By using TimeCross or this website, you agree to these Terms of Use. If you do not
+        <p className="legalPage-para">By using {SITE_NAME} or this website, you agree to these Terms of Use. If you do not
           agree, please do not use the app or website.</p>
       </section>
 
       <section className="legalPage-section">
-        <h2 className="legalPage-sectionTitle">Purpose of TimeCross</h2>
-        <p className="legalPage-para">TimeCross helps compare times across cities, plan across time zones, and understand
+        <h2 className="legalPage-sectionTitle">Purpose of {SITE_NAME}</h2>
+        <p className="legalPage-para">{SITE_NAME} helps compare times across cities, plan across time zones, and understand
           local time differences. It is a planning tool, not a guarantee that every schedule, calendar, or device clock is
           always correct.</p>
       </section>
@@ -32,7 +32,7 @@ export default function TermsOfUsePage() {
 
       <section className="legalPage-section">
         <h2 className="legalPage-sectionTitle">Availability and Changes</h2>
-        <p className="legalPage-para">We may update, change, pause, or discontinue parts of TimeCross as the product
+        <p className="legalPage-para">We may update, change, pause, or discontinue parts of {SITE_NAME} as the product
           evolves. Features described on the website may change over time.</p>
       </section>
 
