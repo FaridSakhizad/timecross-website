@@ -85,7 +85,7 @@ function App() {
     <>
       <header className="header">
         <div className="container container_header">
-          <a href="/" className="logo">
+          <a href="/" className="logo" title={`${SITE_NAME} | Prod`}>
             <span className="logo-name">{SITE_NAME}</span>
             <span className="logo-pitch">Understand Time Across the World</span>
           </a>
