@@ -35,6 +35,14 @@ function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
+function serializeForLog(value: unknown): unknown {
+  try {
+    return JSON.parse(JSON.stringify(value));
+  } catch {
+    return String(value);
+  }
+}
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
@@ -123,9 +131,19 @@ export default {
         ].join("\n"),
       });
 
+      const emailResult = serializeForLog(result);
+
+      console.log("Contact email sent:", {
+        to: CONTACT_FORM_TO_EMAIL,
+        from: CONTACT_FORM_FROM_EMAIL,
+        messageId: result.messageId,
+        result: emailResult,
+      });
+
       return jsonResponse({
         ok: true,
         messageId: result.messageId,
+        emailResult,
       });
     } catch (error) {
       console.error("Contact email failed:", error);
