@@ -1,0 +1,26 @@
+{
+  "name": "timecross-website",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-06-18",
+  "send_email": [
+    {
+      "name": "CONTACT_EMAIL",
+      "destination_address": "support@timecross.app"
+    }
+  ],
+  "observability": {
+    "enabled": false,
+    "head_sampling_rate": 1,
+    "logs": {
+      "enabled": true,
+      "head_sampling_rate": 1,
+      "persist": true,
+      "invocation_logs": true
+    },
+    "traces": {
+      "enabled": false,
+      "persist": true,
+      "head_sampling_rate": 1
+    }
+  }
+}

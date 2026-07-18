@@ -1,0 +1,38 @@
+.footer {
+    margin-top: auto;
+    background-color: #fff;
+    padding-top: 64px;
+    padding-bottom: 70px;
+}
+
+.container_footer {
+    display: flex;
+}
+
+.copyright {
+    font-size: 13px;
+    line-height: 16px;
+    margin-left: 10px;
+}
+
+.footerMenu {
+    display: flex;
+    gap: 25px;
+    margin: 0 10px 0 auto;
+    padding: 0;
+    font-size: 13px;
+    line-height: 16px;
+}
+
+.footerMenu-item {
+    display: block;
+}
+
+.footerMenu-link {
+    color: rgb(var(--body-text-color));
+    text-decoration: none;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
