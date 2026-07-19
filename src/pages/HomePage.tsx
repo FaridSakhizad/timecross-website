@@ -136,7 +136,7 @@ export default function HomePage({ timeFormat }: HomePageProps) {
         </div>
       </section>
 
-      <section className="section">
+      <section className="section section_realUseCases">
         <div className="container">
           <h2 className="section-title">{t('home.realUseCasesTitle')}</h2>
           <h3 className="section-subTitle">{t('home.realUseCasesSubtitle')}</h3>
