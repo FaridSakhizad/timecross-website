@@ -385,11 +385,13 @@
 }
 
 .heroDownload-button_appStore {
-  background: #000 url("./assets/img--download-app-store.svg") center / cover no-repeat;
+  background: #000 url("./assets/img--download-app-store.svg") center no-repeat;
+  background-size: 186px 55px;
 }
 
 .heroDownload-button_googlePlay {
-  background: #000 url("./assets/img--download-google-play.svg") center / cover no-repeat;
+  background: #000 url("./assets/img--download-google-play.svg") center no-repeat;
+  background-size: 186px 55px;
   pointer-events: none;
 
   &:before {

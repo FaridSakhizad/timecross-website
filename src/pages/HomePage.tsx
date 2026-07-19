@@ -4,6 +4,8 @@ import FAQ from '../components/FAQ';
 import ScreenshotSlider from '../components/ScreenshotSlider';
 import Timelines from '../components/Timelines';
 
+import dwonloadAppStrore from '../assets/img--download-app-store.svg';
+
 import heroImg1 from '../assets/1-cities.jpg';
 import heroImg2 from '../assets/2-cities.jpg';
 
