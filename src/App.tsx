@@ -12,7 +12,7 @@ import {
   getLanguageFromUrlSegment,
   stripLanguageFromPathname,
 } from './i18n/languageRouting';
-import { getSettings, updateSettings, type TimeFormat } from './settings';
+import { getSettings, updateSettings, type ColorMode, type TimeFormat } from './settings';
 
 import './App.css';
 
@@ -50,7 +50,12 @@ function LocalizedRoute({ children }: LocalizedRouteProps) {
 
 function App() {
   const [timeFormat, setTimeFormat] = useState<TimeFormat>(() => getSettings().timeFormat);
+  const [colorMode, setColorMode] = useState<ColorMode>(() => getSettings().colorMode);
   const location = useLocation();
+
+  useEffect(() => {
+    document.documentElement.dataset.colorMode = colorMode;
+  }, [colorMode]);
 
   const handleTimeFormatButtonClick = () => {
     const nextSettings = updateSettings((settings) => ({
@@ -61,6 +66,15 @@ function App() {
     setTimeFormat(nextSettings.timeFormat);
   };
 
+  const handleColorModeButtonClick = () => {
+    const nextSettings = updateSettings((settings) => ({
+      ...settings,
+      colorMode: settings.colorMode === 'night' ? 'day' : 'night',
+    }));
+
+    setColorMode(nextSettings.colorMode);
+  };
+
   if (location.pathname.startsWith('/api/')) {
     return null;
   }
@@ -68,7 +82,9 @@ function App() {
   return (
     <>
       <Header
+        colorMode={colorMode}
         timeFormat={timeFormat}
+        onColorModeButtonClick={handleColorModeButtonClick}
         onTimeFormatButtonClick={handleTimeFormatButtonClick}
       />
 

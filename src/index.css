@@ -39,23 +39,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
+  :root {}
 }
 
 html, body {
@@ -73,6 +57,18 @@ html {
             #ffffff;
 
     background-attachment: fixed;
+}
+
+html[data-color-mode="night"] {
+    background:
+            radial-gradient(circle at top left, #992ecf 0%, transparent 75%),
+            radial-gradient(circle at top right, #003e98 0%, transparent 75%),
+            radial-gradient(circle at bottom left, #1d395a 0%, transparent 75%),
+            radial-gradient(circle at bottom right, #058172 0%, transparent 75%),
+            #080914;
+    background-attachment: fixed;
+
+    --accent-color-1: 20, 21, 33;
 }
 
 body {
@@ -192,5 +188,4 @@ button {
         cursor: default;
     }
 }
-
 

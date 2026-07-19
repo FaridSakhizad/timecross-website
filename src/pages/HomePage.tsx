@@ -28,12 +28,16 @@ export default function HomePage({ timeFormat }: HomePageProps) {
 
           <div className="heroPreviewBox">
             <div className="iphonePreviewContainer">
-              <div className="iphonePreviewBox"></div>
+              <div className="iphonePreviewBox">
+                <img src="src/assets/1-cities.jpg" className="iphonePreview-image" alt="" />
+              </div>
               <i className="iphonePreviewShadow" />
             </div>
 
             <div className="androidPreviewContainer">
-              <div className="androidPreviewBox"></div>
+              <div className="androidPreviewBox">
+                <img src="src/assets/2-cities.jpg" className="androidPreview-image" alt="" />
+              </div>
             </div>
           </div>
 

@@ -72,14 +72,36 @@ export default function Timelines({ timeFormat }: TimelinesProps) {
           aria-label={t('common.previousHour')}
           title={t('common.previousHour')}
           onClick={() => scrollByHours(-1)}
-        />
+        >
+          <svg
+            className="timelinesNavIcon"
+            width="48"
+            height="48"
+            viewBox="0 0 48 48"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path d="M27 14l-10 10 10 10" />
+          </svg>
+        </button>
         <button
           className="timelinesNav timelinesNav_next"
           type="button"
           aria-label={t('common.nextHour')}
           title={t('common.nextHour')}
           onClick={() => scrollByHours(1)}
-        />
+        >
+          <svg
+            className="timelinesNavIcon"
+            width="48"
+            height="48"
+            viewBox="0 0 48 48"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path d="M21 14l10 10-10 10" />
+          </svg>
+        </button>
       </div>
     </>
   );

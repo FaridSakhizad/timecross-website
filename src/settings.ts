@@ -1,10 +1,12 @@
 export type TimeFormat = '24h' | '12h';
 export type AppLanguage = 'en' | 'fr' | 'uk' | 'ru';
+export type ColorMode = 'day' | 'night';
 
 export type AppSettings = {
   version: 1;
   timeFormat: TimeFormat;
   language: AppLanguage;
+  colorMode: ColorMode;
   cityOrder: string[];
 };
 
@@ -15,6 +17,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   version: 1,
   timeFormat: '24h',
   language: 'en',
+  colorMode: 'day',
   cityOrder: [],
 };
 
@@ -44,6 +47,7 @@ function normalizeSettings(settings: Partial<AppSettings> | null): AppSettings {
     ...settings,
     timeFormat: settings?.timeFormat === '12h' ? '12h' : '24h',
     language: isSupportedLanguage(settings?.language) ? settings.language : 'en',
+    colorMode: settings?.colorMode === 'night' ? 'night' : 'day',
     cityOrder: isStringArray(settings?.cityOrder)
       ? settings.cityOrder
       : getLegacyCityOrder(),

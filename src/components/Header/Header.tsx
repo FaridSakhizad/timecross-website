@@ -7,15 +7,19 @@ import {
   getCanonicalLanguagePath,
   getLocalizedPathname,
 } from '../../i18n/languageRouting';
-import type { AppLanguage, TimeFormat } from '../../settings';
+import type { AppLanguage, ColorMode, TimeFormat } from '../../settings';
 
 type HeaderProps = {
+  colorMode: ColorMode;
   timeFormat: TimeFormat;
+  onColorModeButtonClick: () => void;
   onTimeFormatButtonClick: () => void;
 };
 
 export default function Header({
+  colorMode,
   timeFormat,
+  onColorModeButtonClick,
   onTimeFormatButtonClick,
 }: HeaderProps) {
   const [isLangSelectorVisible, setIsLangSelectorVisible] = useState(false);
@@ -58,7 +62,12 @@ export default function Header({
             {timeFormat === '24h' ? 'AM/PM' : '24H'}
           </button>
 
-          <button type="button" className="headerMenu-item nightMode" />
+          <button
+            type="button"
+            className={`headerMenu-item headerMenu-item_nightMode ${colorMode === 'night' ? 'isActive' : ''}`}
+            aria-label="Night mode"
+            onClick={onColorModeButtonClick}
+          />
 
           <div className="langSelectButtonBox">
             <button
