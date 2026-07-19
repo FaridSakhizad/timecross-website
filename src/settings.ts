@@ -1,8 +1,10 @@
 export type TimeFormat = '24h' | '12h';
+export type AppLanguage = 'en' | 'fr' | 'uk' | 'ru';
 
 export type AppSettings = {
   version: 1;
   timeFormat: TimeFormat;
+  language: AppLanguage;
   cityOrder: string[];
 };
 
@@ -12,6 +14,7 @@ const LEGACY_CITIES_ORDER_STORAGE_KEY = 'timecross:cities-order';
 const DEFAULT_SETTINGS: AppSettings = {
   version: 1,
   timeFormat: '24h',
+  language: 'en',
   cityOrder: [],
 };
 
@@ -40,10 +43,15 @@ function normalizeSettings(settings: Partial<AppSettings> | null): AppSettings {
     ...DEFAULT_SETTINGS,
     ...settings,
     timeFormat: settings?.timeFormat === '12h' ? '12h' : '24h',
+    language: isSupportedLanguage(settings?.language) ? settings.language : 'en',
     cityOrder: isStringArray(settings?.cityOrder)
       ? settings.cityOrder
       : getLegacyCityOrder(),
   };
+}
+
+function isSupportedLanguage(value: unknown): value is AppLanguage {
+  return value === 'en' || value === 'fr' || value === 'uk' || value === 'ru';
 }
 
 export function getSettings(): AppSettings {

@@ -18,6 +18,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent } 
 import CustomScrollbar from '../CustomScrollbar';
 import { getOrderedFavoriteCities, type FavoriteCity } from './fixtures';
 import { getSettings, updateSettings, type TimeFormat } from '../../settings';
+import { useI18n } from '../../i18n';
 
 const PIXELS_IN_MINUTE = 1;
 const TIME_RULER_RANGE_MINUTES = 24 * 60;
@@ -42,7 +43,7 @@ type ZonedDateParts = {
 type CityView = FavoriteCity & {
   currentTime: string;
   currentPeriod: FavoriteCity['period'];
-  dayShiftLabel: 'Yesterday' | 'Tomorrow' | null;
+  dayShift: 'yesterday' | 'tomorrow' | null;
   relativeTimeOffset: string;
 };
 
@@ -63,6 +64,9 @@ function saveCityOrder(cities: FavoriteCity[]) {
 
 type SortableCityItemProps = {
   favoriteCity: CityView;
+  moveLabel: string;
+  tomorrowLabel: string;
+  yesterdayLabel: string;
 };
 
 function clamp(value: number, min: number, max: number) {
@@ -105,9 +109,9 @@ function getTimeZoneOffsetMinutes(timezone: string, date: Date) {
   return Math.round((zonedTime - date.getTime()) / 60000);
 }
 
-function formatRelativeTimeOffset(offsetMinutes: number) {
+function formatRelativeTimeOffset(offsetMinutes: number, sameLabel: string) {
   if (offsetMinutes === 0) {
-    return 'same';
+    return sameLabel;
   }
 
   const sign = offsetMinutes > 0 ? '+' : '-';
@@ -119,20 +123,20 @@ function formatRelativeTimeOffset(offsetMinutes: number) {
 }
 
 function formatTimeRulerOffset(offsetMinutes: number) {
-  return offsetMinutes === 0 ? '+0' : formatRelativeTimeOffset(offsetMinutes);
+  return offsetMinutes === 0 ? '+0' : formatRelativeTimeOffset(offsetMinutes, 'same');
 }
 
 function getBrowserTimezone() {
   return Intl.DateTimeFormat().resolvedOptions().timeZone;
 }
 
-function getRelativeTimeOffset(timezone: string, fallback: string, date: Date) {
+function getRelativeTimeOffset(timezone: string, fallback: string, date: Date, sameLabel: string) {
   try {
     const browserTimezone = getBrowserTimezone();
     const browserOffset = getTimeZoneOffsetMinutes(browserTimezone, date);
     const cityOffset = getTimeZoneOffsetMinutes(timezone, date);
 
-    return formatRelativeTimeOffset(cityOffset - browserOffset);
+    return formatRelativeTimeOffset(cityOffset - browserOffset, sameLabel);
   } catch {
     return fallback.replace(/h$/i, '');
   }
@@ -184,11 +188,11 @@ function getDayShiftLabel(
   const dayDiff = getDateSerial(selectedCityDate) - getDateSerial(baseBrowserDate);
 
   if (dayDiff > 0) {
-    return 'Tomorrow';
+    return 'tomorrow';
   }
 
   if (dayDiff < 0) {
-    return 'Yesterday';
+    return 'yesterday';
   }
 
   return null;
@@ -200,6 +204,7 @@ function getCityView(
   baseDate: Date,
   browserTimezone: string,
   timeFormat: TimeFormat,
+  sameLabel: string,
 ): CityView {
   const cityDateParts = getZonedDateParts(city.timezone, selectedDate);
 
@@ -207,8 +212,8 @@ function getCityView(
     ...city,
     currentTime: formatTimeInTimezone(city.timezone, selectedDate, timeFormat),
     currentPeriod: getPeriodFromHour(cityDateParts.hour),
-    dayShiftLabel: getDayShiftLabel(city.timezone, browserTimezone, selectedDate, baseDate),
-    relativeTimeOffset: getRelativeTimeOffset(city.timezone, city.timeOffset, selectedDate),
+    dayShift: getDayShiftLabel(city.timezone, browserTimezone, selectedDate, baseDate),
+    relativeTimeOffset: getRelativeTimeOffset(city.timezone, city.timeOffset, selectedDate, sameLabel),
   };
 }
 
@@ -225,7 +230,12 @@ function getDateWithTimeOffset(baseDate: Date, offsetMinutes: number) {
   return new Date(baseDate.getTime() + offsetMinutes * 60000);
 }
 
-function SortableCityItem({ favoriteCity }: SortableCityItemProps) {
+function SortableCityItem({
+  favoriteCity,
+  moveLabel,
+  tomorrowLabel,
+  yesterdayLabel,
+}: SortableCityItemProps) {
   const {
     attributes,
     listeners,
@@ -248,7 +258,7 @@ function SortableCityItem({ favoriteCity }: SortableCityItemProps) {
       <button
         className="citiesList-dragButton"
         type="button"
-        aria-label={`Move ${favoriteCity.customName || favoriteCity.city}`}
+        aria-label={moveLabel}
         {...attributes}
         {...listeners}
       />
@@ -260,8 +270,10 @@ function SortableCityItem({ favoriteCity }: SortableCityItemProps) {
         </h4>
         <span className="citiesList-timeOffset">
           {favoriteCity.relativeTimeOffset}
-          {favoriteCity.dayShiftLabel && (
-            <span className="citiesList-dayBadge">{favoriteCity.dayShiftLabel}</span>
+          {favoriteCity.dayShift && (
+            <span className="citiesList-dayBadge">
+              {favoriteCity.dayShift === 'tomorrow' ? tomorrowLabel : yesterdayLabel}
+            </span>
           )}
         </span>
       </div>
@@ -271,6 +283,7 @@ function SortableCityItem({ favoriteCity }: SortableCityItemProps) {
 }
 
 export default function Cities({ timeFormat }: CitiesProps) {
+  const { t } = useI18n();
   const [cities, setCities] = useState(() => getOrderedCities(getSettings().cityOrder));
   const [baseDate] = useState(() => new Date());
   const [timeOffsetMinutes, setTimeOffsetMinutes] = useState(0);
@@ -288,8 +301,15 @@ export default function Cities({ timeFormat }: CitiesProps) {
   const cityViews = useMemo(() => {
     const browserTimezone = getBrowserTimezone();
 
-    return cities.map((city) => getCityView(city, selectedDate, baseDate, browserTimezone, timeFormat));
-  }, [baseDate, cities, selectedDate, timeFormat]);
+    return cities.map((city) => getCityView(
+      city,
+      selectedDate,
+      baseDate,
+      browserTimezone,
+      timeFormat,
+      t('cities.sameOffset'),
+    ));
+  }, [baseDate, cities, selectedDate, timeFormat, t]);
 
   const timeRulerTicks = useMemo(() => {
     const ticks = [];
@@ -454,6 +474,9 @@ export default function Cities({ timeFormat }: CitiesProps) {
               <SortableCityItem
                 favoriteCity={favoriteCity}
                 key={favoriteCity.id}
+                moveLabel={t('cities.moveCity', { city: favoriteCity.customName || favoriteCity.city })}
+                tomorrowLabel={t('cities.tomorrow')}
+                yesterdayLabel={t('cities.yesterday')}
               />
             ))}
           </SortableContext>
@@ -463,7 +486,7 @@ export default function Cities({ timeFormat }: CitiesProps) {
         <button
           className="timeRuler-reset"
           type="button"
-          aria-label="Reset selected time"
+          aria-label={t('cities.resetSelectedTime')}
           onClick={handleTimeRulerReset}
         />
 
@@ -483,7 +506,7 @@ export default function Cities({ timeFormat }: CitiesProps) {
           className={`timeRuler-scale ${isTimeRulerDragging ? 'timeRuler-scale_dragging' : ''}`}
           ref={timeRulerScaleRef}
           role="slider"
-          aria-label="Selected time offset"
+          aria-label={t('cities.selectedTimeOffset')}
           aria-valuemin={-TIME_RULER_RANGE_MINUTES}
           aria-valuemax={TIME_RULER_RANGE_MINUTES}
           aria-valuenow={timeOffsetMinutes}

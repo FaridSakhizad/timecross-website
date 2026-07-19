@@ -1,5 +1,6 @@
 import './style.css';
 import { useEffect, useState } from 'react';
+import { useI18n } from '../../i18n';
 
 import slide1 from '../../assets/1-cities.jpg';
 import slide2 from '../../assets/2-cities.jpg';
@@ -42,6 +43,7 @@ const SLIDES = [
 ];
 
 export default function ScreenshotSlider() {
+  const { t } = useI18n();
   const [ activeSlideIdx, setActiveSlideIdx ] = useState<number>(0);
   const [ lockSlideAnimation, setLockSlideAnimation ] = useState<boolean>(false);
   const [ isAnimating, setIsAnimating ] = useState<boolean>(false);
@@ -125,7 +127,23 @@ export default function ScreenshotSlider() {
 
   return (
     <div className="screenshotsSlider">
-      <button className="screenshotsSlider-navButton" onClick={handleLeftSliderButtonClick} />
+      <button
+        type="button"
+        className="screenshotsSlider-navButton screenshotsSlider-navButton_prev"
+        aria-label={t('common.previousScreenshot')}
+        onClick={handleLeftSliderButtonClick}
+      >
+        <svg
+          className="screenshotsSlider-navIcon"
+          width="48"
+          height="48"
+          viewBox="0 0 48 48"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <path d="M27 14l-10 10 10 10" />
+        </svg>
+      </button>
 
       <div className="screenshotsSliderBox">
 
@@ -173,7 +191,23 @@ export default function ScreenshotSlider() {
         </div>
       </div>
 
-      <button className="screenshotsSlider-navButton" onClick={handleRightSliderButtonClick} />
+      <button
+        type="button"
+        className="screenshotsSlider-navButton screenshotsSlider-navButton_next"
+        aria-label={t('common.nextScreenshot')}
+        onClick={handleRightSliderButtonClick}
+      >
+        <svg
+          className="screenshotsSlider-navIcon"
+          width="48"
+          height="48"
+          viewBox="0 0 48 48"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <path d="M21 14l10 10-10 10" />
+        </svg>
+      </button>
 
       <div className="screenshotsSliderPagination">
         {SLIDES.map((_, idx) => {

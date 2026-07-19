@@ -1,4 +1,5 @@
 import type { TimeFormat } from '../../settings';
+import { useI18n } from '../../i18n';
 import type { FavoriteCity } from '../Cities/fixtures';
 import {
   formatOffset,
@@ -25,10 +26,11 @@ export default function TimelineRow({
   timelineDates,
   timeFormat,
 }: TimelineRowProps) {
+  const { t } = useI18n();
   const cells = getTimelineCells(city.timezone, baseDate, timelineDates, timeFormat);
   const offsetMinutes = getTimeZoneOffsetMinutes(city.timezone, baseDate)
     - getTimeZoneOffsetMinutes(browserTimezone, baseDate);
-  const offset = formatOffset(offsetMinutes);
+  const offset = formatOffset(offsetMinutes, t('cities.sameOffset'));
   const relativeDayMarker = getRelativeDayMarker(city.timezone, browserTimezone, baseDate);
   const timelineShiftMinutes = getTimelineTimezoneShiftMinutes(city.timezone, browserTimezone, baseDate);
 
@@ -43,7 +45,7 @@ export default function TimelineRow({
             <span
               className={`timelines-cityDayMarker timelines-cityDayMarker_${relativeDayMarker}`}
             >
-              {relativeDayMarker}
+              {relativeDayMarker === 'tomorrow' ? t('cities.tomorrow') : t('cities.yesterday')}
             </span>
           )}
 

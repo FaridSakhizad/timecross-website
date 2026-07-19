@@ -63,9 +63,9 @@ function formatDateCell(date: Date, timezone: string) {
   }).format(date);
 }
 
-export function formatOffset(offsetMinutes: number) {
+export function formatOffset(offsetMinutes: number, sameLabel: string) {
   if (offsetMinutes === 0) {
-    return 'same';
+    return sameLabel;
   }
 
   const sign = offsetMinutes > 0 ? '+' : '-';

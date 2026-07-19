@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { getSettings, type TimeFormat } from '../../settings';
 import CustomScrollbar from '../CustomScrollbar';
 import { getOrderedFavoriteCities } from '../Cities/fixtures';
+import { useI18n } from '../../i18n';
 import { TIMELINE_EDGE_FADE_HOURS, TIMELINE_TOTAL_HOURS } from './constants';
 import TimelineHeader from './TimelineHeader';
 import TimelineRow from './TimelineRow';
@@ -14,6 +15,7 @@ type TimelinesProps = {
 };
 
 export default function Timelines({ timeFormat }: TimelinesProps) {
+  const { t } = useI18n();
   const baseDate = useMemo(() => new Date(), []);
   const browserTimezone = useMemo(() => getBrowserTimezone(), []);
   const cities = useMemo(() => getOrderedFavoriteCities(getSettings().cityOrder), []);
@@ -38,7 +40,7 @@ export default function Timelines({ timeFormat }: TimelinesProps) {
         className="timelinesReset"
         type="button"
         onClick={resetScroll}
-        aria-label="Reset"
+        aria-label={t('common.reset')}
       />
       <div className="timelinesWidget" ref={widgetRef}>
         <div className="timelinesPanel">
@@ -67,15 +69,15 @@ export default function Timelines({ timeFormat }: TimelinesProps) {
         <button
           className="timelinesNav timelinesNav_prev"
           type="button"
-          aria-label="На час назад"
-          title="На час назад"
+          aria-label={t('common.previousHour')}
+          title={t('common.previousHour')}
           onClick={() => scrollByHours(-1)}
         />
         <button
           className="timelinesNav timelinesNav_next"
           type="button"
-          aria-label="На час вперед"
-          title="На час вперед"
+          aria-label={t('common.nextHour')}
+          title={t('common.nextHour')}
           onClick={() => scrollByHours(1)}
         />
       </div>
