@@ -527,7 +527,6 @@
 .downloadLink {
   width: 252px;
   height: 75px;
-  background: #000 url("./assets/img--download-app-store.svg") center / cover no-repeat;
   border-radius: 8px;
   position: relative;
 }
