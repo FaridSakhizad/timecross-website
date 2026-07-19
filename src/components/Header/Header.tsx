@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
 
-import { BUY_ME_A_COFFEE_URL, SITE_NAME } from '../../config';
+import { SITE_NAME } from '../../config';
 import { SUPPORTED_LANGUAGES, useI18n } from '../../i18n';
 import {
   getCanonicalLanguagePath,
