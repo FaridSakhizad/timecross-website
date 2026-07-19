@@ -3,11 +3,16 @@ import ContactForm from '../components/ContactForm';
 import FAQ from '../components/FAQ';
 import ScreenshotSlider from '../components/ScreenshotSlider';
 import Timelines from '../components/Timelines';
+
+import heroImg1 from '../assets/1-cities.jpg';
+import heroImg2 from '../assets/2-cities.jpg';
+
 import {
   APP_STORE_URL,
   GOOGLE_PLAY_URL,
   SITE_NAME,
 } from '../config';
+
 import { useI18n } from '../i18n';
 import type { TimeFormat } from '../settings';
 
@@ -29,14 +34,14 @@ export default function HomePage({ timeFormat }: HomePageProps) {
           <div className="heroPreviewBox">
             <div className="iphonePreviewContainer">
               <div className="iphonePreviewBox">
-                <img src="src/assets/1-cities.jpg" className="iphonePreview-image" alt="" />
+                <img src={heroImg1} className="iphonePreview-image" alt="" />
               </div>
               <i className="iphonePreviewShadow" />
             </div>
 
             <div className="androidPreviewContainer">
               <div className="androidPreviewBox">
-                <img src="src/assets/2-cities.jpg" className="androidPreview-image" alt="" />
+                <img src={heroImg2} className="androidPreview-image" alt="" />
               </div>
             </div>
           </div>
