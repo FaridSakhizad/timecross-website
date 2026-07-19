@@ -2,6 +2,13 @@
   "name": "timecross-website",
   "main": "worker/index.ts",
   "compatibility_date": "2026-06-18",
+  "assets": {
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": [
+      "/api/*"
+    ]
+  },
   "send_email": [
     {
       "name": "CONTACT_EMAIL",
