@@ -549,6 +549,11 @@
     opacity: 0.1;
     background-blend-mode: overlay;
   }
+
+  .container {
+    position: relative;
+    z-index: 1;
+  }
 }
 
 .realUseCases {
