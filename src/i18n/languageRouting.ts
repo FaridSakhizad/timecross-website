@@ -5,6 +5,9 @@ const LANGUAGE_TO_URL_SEGMENT: Record<AppLanguage, string> = {
   fr: 'fr',
   uk: 'ua',
   ru: 'ru',
+  es: 'es',
+  pt: 'pt',
+  de: 'de',
 };
 
 const URL_SEGMENT_TO_LANGUAGE: Record<string, AppLanguage> = {
@@ -13,6 +16,9 @@ const URL_SEGMENT_TO_LANGUAGE: Record<string, AppLanguage> = {
   ua: 'uk',
   uk: 'uk',
   ru: 'ru',
+  es: 'es',
+  pt: 'pt',
+  de: 'de',
 };
 
 const LOCALIZED_PAGE_PATHS = [

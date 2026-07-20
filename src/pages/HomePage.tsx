@@ -68,6 +68,7 @@ export default function HomePage({ timeFormat }: HomePageProps) {
               href={GOOGLE_PLAY_URL}
               className="heroDownload-button heroDownload-button_googlePlay"
               aria-label={t('common.googlePlay')}
+              data-coming-soon={t('common.comingSoon')}
               target="_blank"
             ></a>
           </div>
@@ -111,7 +112,7 @@ export default function HomePage({ timeFormat }: HomePageProps) {
                 <h3 className="featuresList-title">{t('home.features.countdowns.title')}</h3>
               </div>
               <div className="featuresList-content">
-                <span className="featuresList-comingSoon">Coming Soon</span>
+                <span className="featuresList-comingSoon">{t('common.comingSoon')}</span>
                 <p className="featuresList-para">{t('home.features.countdowns.paragraph1')}</p>
                 <p className="featuresList-para">{t('home.features.countdowns.paragraph2')}</p>
               </div>
@@ -186,6 +187,7 @@ export default function HomePage({ timeFormat }: HomePageProps) {
               href={GOOGLE_PLAY_URL}
               className="downloadLink downloadLink_googlePlay"
               aria-label={t('common.googlePlay')}
+              data-coming-soon={t('common.comingSoon')}
             ></a>
           </div>
         </div>

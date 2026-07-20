@@ -1,5 +1,5 @@
 export type TimeFormat = '24h' | '12h';
-export type AppLanguage = 'en' | 'fr' | 'uk' | 'ru';
+export type AppLanguage = 'en' | 'fr' | 'uk' | 'ru' | 'es' | 'pt' | 'de';
 export type ColorMode = 'day' | 'night';
 
 export type AppSettings = {
@@ -55,7 +55,15 @@ function normalizeSettings(settings: Partial<AppSettings> | null): AppSettings {
 }
 
 function isSupportedLanguage(value: unknown): value is AppLanguage {
-  return value === 'en' || value === 'fr' || value === 'uk' || value === 'ru';
+  return (
+    value === 'en' ||
+    value === 'fr' ||
+    value === 'uk' ||
+    value === 'ru' ||
+    value === 'es' ||
+    value === 'pt' ||
+    value === 'de'
+  );
 }
 
 export function getSettings(): AppSettings {

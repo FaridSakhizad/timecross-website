@@ -4,6 +4,7 @@
     "buyMeACoffee": "Offrir un café",
     "appStore": "Télécharger dans l'App Store",
     "googlePlay": "Disponible sur Google Play",
+    "comingSoon": "Bientôt disponible",
     "reset": "Réinitialiser",
     "previousHour": "Une heure en arrière",
     "nextHour": "Une heure en avant",
@@ -18,7 +19,10 @@
     "en": "English",
     "fr": "Français",
     "uk": "Українська",
-    "ru": "Русский"
+    "ru": "Русский",
+    "es": "Español",
+    "pt": "Português",
+    "de": "Deutsch"
   },
   "cities": {
     "moveCity": "Déplacer {city}",

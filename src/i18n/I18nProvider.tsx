@@ -13,15 +13,21 @@ import en from './locales/en.json';
 import fr from './locales/fr.json';
 import uk from './locales/uk.json';
 import ru from './locales/ru.json';
+import es from './locales/es.json';
+import pt from './locales/pt.json';
+import de from './locales/de.json';
 
 const DICTIONARIES = {
   en,
   fr,
   uk,
   ru,
+  es,
+  pt,
+  de,
 };
 
-export const SUPPORTED_LANGUAGES: AppLanguage[] = ['en', 'fr', 'uk', 'ru'];
+export const SUPPORTED_LANGUAGES: AppLanguage[] = ['en', 'fr', 'uk', 'ru', 'es', 'pt', 'de'];
 
 type Dictionary = typeof en;
 type TranslationValues = Record<string, string | number>;

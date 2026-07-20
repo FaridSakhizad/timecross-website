@@ -4,6 +4,7 @@
     "buyMeACoffee": "Buy Me a Coffee",
     "appStore": "Download on the App Store",
     "googlePlay": "Get it on Google Play",
+    "comingSoon": "Coming Soon",
     "reset": "Reset",
     "previousHour": "One hour back",
     "nextHour": "One hour forward",
@@ -18,7 +19,10 @@
     "en": "English",
     "fr": "Français",
     "uk": "Українська",
-    "ru": "Русский"
+    "ru": "Русский",
+    "es": "Español",
+    "pt": "Português",
+    "de": "Deutsch"
   },
   "cities": {
     "moveCity": "Move {city}",

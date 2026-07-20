@@ -4,6 +4,7 @@
     "buyMeACoffee": "Угостить кофе",
     "appStore": "Загрузить в App Store",
     "googlePlay": "Скачать в Google Play",
+    "comingSoon": "Скоро",
     "reset": "Сбросить",
     "previousHour": "На час назад",
     "nextHour": "На час вперед",
@@ -18,7 +19,10 @@
     "en": "English",
     "fr": "Français",
     "uk": "Українська",
-    "ru": "Русский"
+    "ru": "Русский",
+    "es": "Español",
+    "pt": "Português",
+    "de": "Deutsch"
   },
   "cities": {
     "moveCity": "Переместить {city}",

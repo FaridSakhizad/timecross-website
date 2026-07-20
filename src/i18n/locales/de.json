@@ -1,0 +1,156 @@
+{
+  "common": {
+    "sitePitch": "Weltweite Zeiten verstehen",
+    "buyMeACoffee": "Spendiere mir einen Kaffee",
+    "appStore": "Im App Store laden",
+    "googlePlay": "Bei Google Play erhältlich",
+    "comingSoon": "Demnächst",
+    "reset": "Zurücksetzen",
+    "previousHour": "Eine Stunde zurück",
+    "nextHour": "Eine Stunde vor",
+    "previousScreenshot": "Vorheriger Screenshot",
+    "nextScreenshot": "Nächster Screenshot",
+    "lastUpdated": "Zuletzt aktualisiert: {date}",
+    "support": "Support",
+    "termsOfUse": "Nutzungsbedingungen",
+    "privacyPolicy": "Datenschutzerklärung"
+  },
+  "languages": {
+    "en": "English",
+    "fr": "Français",
+    "uk": "Українська",
+    "ru": "Русский",
+    "es": "Español",
+    "pt": "Português",
+    "de": "Deutsch"
+  },
+  "cities": {
+    "moveCity": "{city} verschieben",
+    "resetSelectedTime": "Ausgewählte Zeit zurücksetzen",
+    "selectedTimeOffset": "Ausgewählte Zeitverschiebung",
+    "sameOffset": "gleich",
+    "yesterday": "Gestern",
+    "tomorrow": "Morgen"
+  },
+  "home": {
+    "heroText": "Nutze diese App, um Zeiten zwischen Städten zu vergleichen, sie nach deinen Wünschen zu ordnen und die aktuelle Uhrzeit an jedem Ort auf einen Blick zu sehen.\nErstelle Erinnerungen für bestimmte Städte, damit Menschen, Pläne und Routinen über Zeitzonen hinweg abgestimmt bleiben.",
+    "moreFeaturesTitle": "Weitere Funktionen",
+    "contactTitle": "Kontakt",
+    "faqTitle": "FAQ",
+    "realUseCasesTitle": "Echte Anwendungsfälle",
+    "realUseCasesSubtitle": "Wozu brauchst du die App?",
+    "downloadTitle": "Download",
+    "features": {
+      "notifications": {
+        "title": "Benachrichtigungen",
+        "paragraph1": "Lege stadtspezifische Erinnerungen für Anrufe, Meetings, Übergaben oder tägliche Routinen fest, ohne Zeitzonen im Kopf auszurechnen.",
+        "paragraph2": "{siteName} hilft dir zuerst, den richtigen lokalen Moment zu wählen, und erinnert dich dann, wenn dieser Moment erreicht ist."
+      },
+      "synchronisation": {
+        "title": "Kalenderereignisse",
+        "paragraph1": "Sieh Kalenderereignisse im Kontext der Städte, die dir wichtig sind, damit Anrufe, Meetings und Pläne leichter auf der Timeline einzuordnen sind.",
+        "paragraph2": "{siteName} verbindet geplante Momente mit lokaler Zeit und macht klarer, was heute, morgen oder später über Zeitzonen hinweg passiert."
+      },
+      "countdowns": {
+        "title": "Countdowns",
+        "paragraph1": "Sieh, wie viel Zeit bis zu einer bestimmten Stunde in einer anderen Stadt bleibt, selbst wenn dort schon morgen ist.",
+        "paragraph2": "Countdowns machen Planung greifbar: kein Raten mehr, ob eine Deadline, ein Livestream, ein Flug oder ein Anruf in einer Stunde oder erst in einem halben Tag ansteht."
+      }
+    },
+    "useCases": {
+      "remoteTeams": {
+        "title": "Remote-Teams",
+        "text": "Koordiniere Meetings über Kontinente hinweg."
+      },
+      "familyAbroad": {
+        "title": "Familie im Ausland",
+        "text": "Wisse, wann ein guter Zeitpunkt zum Anrufen ist."
+      },
+      "travelers": {
+        "title": "Reisende",
+        "text": "Gewöhne dich schneller an neue Zeitzonen."
+      },
+      "freelancers": {
+        "title": "Freelancer",
+        "text": "Plane Arbeit mit internationalen Kunden."
+      }
+    }
+  },
+  "contactForm": {
+    "name": "Name*",
+    "email": "E-Mail*",
+    "message": "Nachricht*",
+    "send": "Senden",
+    "sending": "Wird gesendet...",
+    "sent": "Nachricht gesendet. Danke!",
+    "error": "Nachricht konnte nicht gesendet werden"
+  },
+  "faq": {
+    "short": "Kurzfassung",
+    "yes": "Ja",
+    "no": "Nein",
+    "platformsShort": "iOS. Android — in Arbeit",
+    "notificationsShort": "Menü > Einstellungen > Benachrichtigungen",
+    "free": {
+      "title": "Ist {siteName} kostenlos?",
+      "paragraph1": "Ja. {siteName} kann kostenlos heruntergeladen und für die Kernfunktionen genutzt werden: Lieblingsstädte verfolgen, Zeitzonen vergleichen und Timelines über den Tag hinweg prüfen.",
+      "paragraph2": "Falls später kostenpflichtige Funktionen hinzukommen, werden sie klar gekennzeichnet, bevor du sie aktivierst. Die App soll nützlich sein, ohne dich zu einem Konto oder Abo zu zwingen."
+    },
+    "offline": {
+      "title": "Funktioniert die App offline?",
+      "paragraph1": "Ja. {siteName} kann Stadtzeiten und Zeitzonenunterschiede auf deinem Gerät berechnen, sodass die Haupt-Timeline und die Städteliste auch ohne Internet weiter funktionieren.",
+      "paragraph2": "Einige Dinge hängen weiterhin von deinen Geräteeinstellungen ab, etwa von der Systemuhr und der vom Betriebssystem bereitgestellten Zeitzonendatenbank."
+    },
+    "account": {
+      "title": "Muss ich ein Konto erstellen?",
+      "paragraph1": "Nein. Du kannst {siteName} sofort nutzen, ohne ein Konto zu erstellen. Deine Städte, Reihenfolge, Anzeigeformat und andere Einstellungen werden lokal auf deinem Gerät gespeichert.",
+      "paragraph2": "So bleibt die App leichtgewichtig: Es gibt keinen Login-Schritt nur, um zu prüfen, ob es ein guter Zeitpunkt für einen Anruf, ein Meeting oder eine Nachricht ist."
+    },
+    "platforms": {
+      "title": "Welche Plattformen werden unterstützt?",
+      "paragraph1": "{siteName} ist für iOS verfügbar. Die Android-Version ist in Arbeit und wird so entwickelt, dass sie dieselbe einfache Städteliste, Timeline-Ansicht und Benachrichtigungslogik bietet.",
+      "paragraph2": "Die Website bietet außerdem eine leichte Vorschau auf die Kernfunktionen, damit du ausprobieren kannst, wie Timeline und Städtevergleich funktionieren, bevor du die App installierst."
+    },
+    "notifications": {
+      "title": "Wie aktiviere ich Benachrichtigungen?",
+      "paragraph1": "Öffne das App-Menü, gehe zu Einstellungen und wähle Benachrichtigungen. Dort kannst du Erinnerungen für die Städte und Zeiten aktivieren, die dir wichtig sind.",
+      "paragraph2": "Dein Gerät kann zusätzlich um Benachrichtigungsberechtigung bitten. Wenn keine Benachrichtigungen erscheinen, prüfe in den Systemeinstellungen, ob {siteName} Benachrichtigungen senden darf."
+    }
+  },
+  "legal": {
+    "privacy": {
+      "title": "Datenschutzerklärung",
+      "overviewTitle": "Überblick",
+      "overviewText": "{siteName} soll dir helfen, Zeiten zwischen Städten zu vergleichen, ohne ein Konto zu verlangen. App und Website versuchen, die Erhebung personenbezogener Daten minimal zu halten.",
+      "infoTitle": "Informationen, die du bereitstellst",
+      "infoText1": "Wenn du uns über das Kontaktformular der Website kontaktierst, werden dein Name, deine E-Mail-Adresse und deine Nachricht an den Support von {siteName} gesendet, damit wir antworten können.",
+      "infoText2": "Das Kontaktformular wird über unser Website-Backend verarbeitet und an unsere Support-E-Mail-Adresse weitergeleitet.",
+      "infoText3": "Füge Support-Nachrichten keine sensiblen Informationen hinzu, es sei denn, sie sind für deine Anfrage erforderlich.",
+      "localDataTitle": "Lokale App-Daten",
+      "localDataText1": "{siteName} kann Einstellungen lokal auf deinem Gerät oder im Browser speichern, zum Beispiel ausgewählte Städte, Stadtreihenfolge und Zeitformat. Diese Informationen sorgen dafür, dass sich die App vertraut anfühlt, wenn du zurückkommst.",
+      "localDataText2": "Lokale Daten sind keine Konto-Sicherung. Das Löschen des Browser-Speichers, Entfernen der App oder Zurücksetzen des Geräts kann diese Einstellungen entfernen.",
+      "notificationsTitle": "Benachrichtigungen",
+      "notificationsText": "Wenn du Benachrichtigungen aktivierst, nutzt {siteName} das Benachrichtigungssystem deines Geräts, um die von dir gewählten Erinnerungen anzuzeigen. Du kannst Benachrichtigungsberechtigungen in den Geräteeinstellungen deaktivieren.",
+      "thirdPartyTitle": "Dienste Dritter",
+      "thirdPartyText": "Das Öffnen von Store-Links, E-Mail-Links oder externen Support-Links kann dich zu Diensten Dritter führen. Deren Datenschutzpraktiken unterliegen ihren eigenen Richtlinien.",
+      "contactTitle": "Kontakt",
+      "contactPrefix": "Bei Datenschutzfragen kontaktiere uns unter "
+    },
+    "terms": {
+      "title": "Nutzungsbedingungen",
+      "acceptanceTitle": "Annahme",
+      "acceptanceText": "Durch die Nutzung von {siteName} oder dieser Website stimmst du diesen Nutzungsbedingungen zu. Wenn du nicht zustimmst, nutze die App oder Website bitte nicht.",
+      "purposeTitle": "Zweck von {siteName}",
+      "purposeText": "{siteName} hilft, Zeiten zwischen Städten zu vergleichen, über Zeitzonen hinweg zu planen und lokale Zeitunterschiede zu verstehen. Es ist ein Planungstool, keine Garantie dafür, dass jeder Zeitplan, Kalender oder jede Geräteuhr immer korrekt ist.",
+      "responsibilityTitle": "Deine Verantwortung",
+      "responsibilityText1": "Du bist dafür verantwortlich, wichtige Zeiten zu prüfen, bevor du dich bei Reisen, Arbeit, medizinischen, rechtlichen, finanziellen oder anderen kritischen Entscheidungen darauf verlässt.",
+      "responsibilityText2": "Zeitzonenregeln können sich ändern, und Geräteeinstellungen können angezeigte Zeiten beeinflussen.",
+      "acceptableUseTitle": "Zulässige Nutzung",
+      "acceptableUseText": "Du stimmst zu, die App oder Website nicht zu missbrauchen, ihren Betrieb nicht zu stören und sie nicht in einer Weise zu verwenden, die gegen geltendes Recht verstößt.",
+      "availabilityTitle": "Verfügbarkeit und Änderungen",
+      "availabilityText": "Wir können Teile von {siteName} aktualisieren, ändern, pausieren oder einstellen, während sich das Produkt weiterentwickelt. Auf der Website beschriebene Funktionen können sich mit der Zeit ändern.",
+      "contactTitle": "Kontakt",
+      "contactPrefix": "Fragen zu diesen Bedingungen können gesendet werden an "
+    }
+  }
+}

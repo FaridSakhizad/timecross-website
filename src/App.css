@@ -396,7 +396,7 @@
   pointer-events: none;
 
   &:before {
-    content: 'Coming Soon';
+    content: attr(data-coming-soon);
     font-weight: bold;
     text-transform: uppercase;
     display: flex;
@@ -611,7 +611,7 @@
   pointer-events: none;
 
   &:before {
-    content: 'Coming Soon';
+    content: attr(data-coming-soon);
     font-weight: bold;
     text-transform: uppercase;
     display: flex;
