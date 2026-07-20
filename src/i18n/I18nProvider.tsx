@@ -7,7 +7,8 @@ import {
   type ReactNode,
 } from 'react';
 
-import { getSettings, updateSettings, type AppLanguage } from '../settings';
+import { updateSettings, type AppLanguage } from '../settings';
+import { getBrowserLanguage, getLanguageFromPathname } from './languageRouting';
 import en from './locales/en.json';
 import fr from './locales/fr.json';
 import uk from './locales/uk.json';
@@ -53,8 +54,12 @@ type I18nProviderProps = {
   children: ReactNode;
 };
 
+function getInitialLanguage() {
+  return getLanguageFromPathname(window.location.pathname) ?? getBrowserLanguage();
+}
+
 export function I18nProvider({ children }: I18nProviderProps) {
-  const [language, setLanguageState] = useState<AppLanguage>(() => getSettings().language);
+  const [language, setLanguageState] = useState<AppLanguage>(getInitialLanguage);
 
   const setLanguage = useCallback((nextLanguage: AppLanguage) => {
     setLanguageState((currentLanguage) => (

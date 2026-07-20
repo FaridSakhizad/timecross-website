@@ -1,5 +1,5 @@
 import { Navigate, Route, Routes, useLocation, useParams } from 'react-router';
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useState, type ReactNode } from 'react';
 
 import Footer from './components/Footer';
 import Header from './components/Header';
@@ -8,6 +8,7 @@ import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import TermsOfUsePage from './pages/TermsOfUsePage';
 import { useI18n } from './i18n';
 import {
+  getBrowserLanguage,
   getCanonicalLanguagePath,
   getLanguageFromUrlSegment,
   stripLanguageFromPathname,
@@ -25,24 +26,26 @@ function LocalizedRoute({ children }: LocalizedRouteProps) {
   const location = useLocation();
   const { language, setLanguage } = useI18n();
   const routeLanguage = getLanguageFromUrlSegment(lang);
+  const fallbackLanguage = getBrowserLanguage();
+  const effectiveRouteLanguage = routeLanguage ?? fallbackLanguage;
   const pagePath = stripLanguageFromPathname(location.pathname);
 
-  useEffect(() => {
-    if (routeLanguage && routeLanguage !== language) {
-      setLanguage(routeLanguage);
+  useLayoutEffect(() => {
+    if (effectiveRouteLanguage !== language) {
+      setLanguage(effectiveRouteLanguage);
     }
-  }, [language, routeLanguage, setLanguage]);
+  }, [effectiveRouteLanguage, language, setLanguage]);
 
   if (lang && !routeLanguage) {
-    return <Navigate replace to="/" />;
+    return <Navigate replace to={getCanonicalLanguagePath(fallbackLanguage)} />;
   }
 
-  if (lang === 'uk' || lang === 'en') {
+  if (!lang) {
+    return <Navigate replace to={getCanonicalLanguagePath(fallbackLanguage, pagePath)} />;
+  }
+
+  if (lang === 'uk') {
     return <Navigate replace to={getCanonicalLanguagePath(routeLanguage ?? 'en', pagePath)} />;
-  }
-
-  if (routeLanguage && routeLanguage !== language) {
-    return null;
   }
 
   return children;

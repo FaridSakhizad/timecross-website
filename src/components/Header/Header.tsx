@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router';
+import { useEffect, useRef, useState } from 'react';
+import { Link, useLocation } from 'react-router';
 
 import { SITE_NAME } from '../../config';
 import { SUPPORTED_LANGUAGES, useI18n } from '../../i18n';
@@ -7,7 +7,7 @@ import {
   getCanonicalLanguagePath,
   getLocalizedPathname,
 } from '../../i18n/languageRouting';
-import type { AppLanguage, ColorMode, TimeFormat } from '../../settings';
+import type { ColorMode, TimeFormat } from '../../settings';
 
 type HeaderProps = {
   colorMode: ColorMode;
@@ -23,18 +23,35 @@ export default function Header({
   onTimeFormatButtonClick,
 }: HeaderProps) {
   const [isLangSelectorVisible, setIsLangSelectorVisible] = useState(false);
-  const { language, setLanguage, t } = useI18n();
+  const langSelectorRef = useRef<HTMLDivElement>(null);
+  const { language, t } = useI18n();
   const location = useLocation();
-  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isLangSelectorVisible) {
+      return undefined;
+    }
+
+    const handleDocumentPointerDown = (event: PointerEvent) => {
+      const target = event.target;
+
+      if (
+        target instanceof Node &&
+        !langSelectorRef.current?.contains(target)
+      ) {
+        setIsLangSelectorVisible(false);
+      }
+    };
+
+    document.addEventListener('pointerdown', handleDocumentPointerDown);
+
+    return () => {
+      document.removeEventListener('pointerdown', handleDocumentPointerDown);
+    };
+  }, [isLangSelectorVisible]);
 
   const handleLangSelectorClick = () => {
     setIsLangSelectorVisible((isVisible) => !isVisible);
-  };
-
-  const handleLanguageButtonClick = (nextLanguage: AppLanguage) => {
-    setLanguage(nextLanguage);
-    setIsLangSelectorVisible(false);
-    navigate(getLocalizedPathname(location.pathname, nextLanguage));
   };
 
   return (
@@ -69,7 +86,7 @@ export default function Header({
             onClick={onColorModeButtonClick}
           />
 
-          <div className="langSelectButtonBox">
+          <div className="langSelectButtonBox" ref={langSelectorRef}>
             <button
               type="button"
               className="headerMenu-item langSelectButton"
@@ -78,15 +95,15 @@ export default function Header({
 
             {isLangSelectorVisible && (
               <div className="langSelectMenu">
-                {SUPPORTED_LANGUAGES.map((languageOption) => (
-                  <button
-                    type="button"
+                {SUPPORTED_LANGUAGES.filter((languageOption) => languageOption !== language).map((languageOption) => (
+                  <Link
+                    to={getLocalizedPathname(location.pathname, languageOption)}
                     className="langSelectMenu-button"
                     key={languageOption}
-                    onClick={() => handleLanguageButtonClick(languageOption)}
+                    onClick={() => setIsLangSelectorVisible(false)}
                   >
                     {t(`languages.${languageOption}`)}
-                  </button>
+                  </Link>
                 ))}
               </div>
             )}

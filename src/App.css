@@ -161,6 +161,7 @@
   color: #fff;
   cursor: pointer;
   font: normal normal 16px/1 var(--body-font-family-1);
+  text-decoration: none;
 
   &:hover {
     background-color: rgba(0 0 0 / 0.8);
@@ -385,12 +386,12 @@
 }
 
 .heroDownload-button_appStore {
-  background: #000 url("./assets/img--download-app-store.svg") center no-repeat;
+  background: #000 url("./assets/img--download-on-the-app-store-1.svg") center no-repeat;
   background-size: 186px 55px;
 }
 
 .heroDownload-button_googlePlay {
-  background: #000 url("./assets/img--download-google-play.svg") center no-repeat;
+  background: #000 url("./assets/img--get-it-on-google-play-1.svg") center no-repeat;
   background-size: 186px 55px;
   pointer-events: none;
 

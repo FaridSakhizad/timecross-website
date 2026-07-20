@@ -1,7 +1,7 @@
 import type { AppLanguage } from '../settings';
 
 const LANGUAGE_TO_URL_SEGMENT: Record<AppLanguage, string> = {
-  en: '',
+  en: 'en',
   fr: 'fr',
   uk: 'ua',
   ru: 'ru',
@@ -20,8 +20,29 @@ const LOCALIZED_PAGE_PATHS = [
   '/terms-of-use',
 ];
 
+function normalizeLanguageCode(value: string) {
+  return value.toLowerCase().split('-')[0];
+}
+
 function trimSlashes(value: string) {
   return value.replace(/^\/+|\/+$/g, '');
+}
+
+export function getBrowserLanguage(): AppLanguage {
+  const browserLanguages = navigator.languages?.length
+    ? navigator.languages
+    : [navigator.language];
+
+  for (const browserLanguage of browserLanguages) {
+    const normalizedLanguage = normalizeLanguageCode(browserLanguage);
+    const supportedLanguage = getLanguageFromUrlSegment(normalizedLanguage);
+
+    if (supportedLanguage) {
+      return supportedLanguage;
+    }
+  }
+
+  return 'en';
 }
 
 export function getLanguageFromUrlSegment(segment: string | undefined) {
@@ -29,7 +50,13 @@ export function getLanguageFromUrlSegment(segment: string | undefined) {
     return null;
   }
 
-  return URL_SEGMENT_TO_LANGUAGE[segment] ?? null;
+  return URL_SEGMENT_TO_LANGUAGE[segment.toLowerCase()] ?? null;
+}
+
+export function getLanguageFromPathname(pathname: string) {
+  const firstPathPart = pathname.split('/').filter(Boolean)[0];
+
+  return getLanguageFromUrlSegment(firstPathPart);
 }
 
 export function getLanguageUrlSegment(language: AppLanguage) {
@@ -47,7 +74,7 @@ export function getCanonicalLanguagePath(language: AppLanguage, pagePath = '/') 
 
 export function stripLanguageFromPathname(pathname: string) {
   const parts = pathname.split('/').filter(Boolean);
-  const firstPartLanguage = getLanguageFromUrlSegment(parts[0]);
+  const firstPartLanguage = getLanguageFromPathname(pathname);
 
   if (firstPartLanguage) {
     parts.shift();
