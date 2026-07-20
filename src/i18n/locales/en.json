@@ -43,9 +43,9 @@
         "paragraph2": "{siteName} helps you choose the right local moment first, then reminds you when that moment arrives."
       },
       "synchronisation": {
-        "title": "Synchronisation",
-        "paragraph1": "Keep your favorite cities, order, and display preferences consistent across the app, so your personal world clock always feels familiar.",
-        "paragraph2": "The goal is simple: open {siteName} anywhere and see the same people, places, and working hours you rely on every day."
+        "title": "Calendar Events",
+        "paragraph1": "See calendar events in the context of the cities that matter to you, so calls, meetings, and plans are easier to place on the timeline.",
+        "paragraph2": "{siteName} helps connect scheduled moments with local time, making it clearer what is happening today, tomorrow, or later across time zones."
       },
       "countdowns": {
         "title": "Countdowns",

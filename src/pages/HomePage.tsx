@@ -85,7 +85,7 @@ export default function HomePage({ timeFormat }: HomePageProps) {
           <ul className="featuresList">
             <li className="featuresList-item">
               <div className="featuresList-header">
-                <i className="featuresList-headerIcon"></i>
+                <i className="featuresList-headerIcon featuresList-headerIcon_notifications"></i>
                 <h3 className="featuresList-title">{t('home.features.notifications.title')}</h3>
               </div>
               <div className="featuresList-content">
@@ -96,7 +96,7 @@ export default function HomePage({ timeFormat }: HomePageProps) {
 
             <li className="featuresList-item">
               <div className="featuresList-header">
-                <i className="featuresList-headerIcon"></i>
+                <i className="featuresList-headerIcon featuresList-headerIcon_calendar"></i>
                 <h3 className="featuresList-title">{t('home.features.synchronisation.title')}</h3>
               </div>
               <div className="featuresList-content">
@@ -107,10 +107,11 @@ export default function HomePage({ timeFormat }: HomePageProps) {
 
             <li className="featuresList-item">
               <div className="featuresList-header">
-                <i className="featuresList-headerIcon"></i>
+                <i className="featuresList-headerIcon featuresList-headerIcon_countdowns"></i>
                 <h3 className="featuresList-title">{t('home.features.countdowns.title')}</h3>
               </div>
               <div className="featuresList-content">
+                <span className="featuresList-comingSoon">Coming Soon</span>
                 <p className="featuresList-para">{t('home.features.countdowns.paragraph1')}</p>
                 <p className="featuresList-para">{t('home.features.countdowns.paragraph2')}</p>
               </div>

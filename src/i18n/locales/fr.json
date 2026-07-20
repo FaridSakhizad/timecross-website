@@ -43,9 +43,9 @@
         "paragraph2": "{siteName} vous aide d'abord à choisir le bon moment local, puis vous prévient quand ce moment arrive."
       },
       "synchronisation": {
-        "title": "Synchronisation",
-        "paragraph1": "Gardez vos villes favorites, leur ordre et vos préférences d'affichage cohérents dans l'app, pour que votre horloge mondiale personnelle reste familière.",
-        "paragraph2": "L'objectif est simple : ouvrir {siteName} n'importe où et retrouver les mêmes personnes, lieux et horaires de travail dont vous dépendez chaque jour."
+        "title": "Événements du calendrier",
+        "paragraph1": "Consultez les événements du calendrier dans le contexte des villes qui comptent pour vous, afin de mieux situer appels, réunions et projets sur la timeline.",
+        "paragraph2": "{siteName} relie les moments planifiés à l'heure locale, pour voir plus clairement ce qui se passe aujourd'hui, demain ou plus tard selon les fuseaux horaires."
       },
       "countdowns": {
         "title": "Comptes à rebours",
