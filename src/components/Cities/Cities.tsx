@@ -14,22 +14,20 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent } from 'react';
-import CustomScrollbar from '../CustomScrollbar';
+import { useCallback, useMemo, useState } from 'react';
 import { getOrderedFavoriteCities, type FavoriteCity } from './fixtures';
 import { getSettings, updateSettings, type TimeFormat } from '../../settings';
 import { useI18n } from '../../i18n';
+import { useTimeRulerScroll } from './useTimeRulerScroll';
 
 const PIXELS_IN_MINUTE = 1;
 const TIME_RULER_RANGE_MINUTES = 24 * 60;
 const TIME_RULER_TICK_STEP_MINUTES = 15;
 const TIME_RULER_HOUR_STEP_MINUTES = 60;
 
-type TimeRulerDrag = {
-  pointerId: number;
-  pointerStartX: number;
-  timeOffsetStartMinutes: number;
-};
+const zonedDatePartsFormatters = new Map<string, Intl.DateTimeFormat>();
+const rulerTimeFormatters = new Map<TimeFormat, Intl.DateTimeFormat>();
+let browserTimezoneCache: string | null = null;
 
 type ZonedDateParts = {
   year: number;
@@ -73,7 +71,13 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
 }
 
-function getZonedDateParts(timezone: string, date: Date): ZonedDateParts {
+function getZonedDatePartsFormatter(timezone: string) {
+  const cachedFormatter = zonedDatePartsFormatters.get(timezone);
+
+  if (cachedFormatter) {
+    return cachedFormatter;
+  }
+
   const formatter = new Intl.DateTimeFormat('en-US', {
     timeZone: timezone,
     year: 'numeric',
@@ -85,6 +89,33 @@ function getZonedDateParts(timezone: string, date: Date): ZonedDateParts {
     hour12: false,
     hourCycle: 'h23',
   });
+
+  zonedDatePartsFormatters.set(timezone, formatter);
+
+  return formatter;
+}
+
+function getRulerTimeFormatter(timeFormat: TimeFormat) {
+  const cachedFormatter = rulerTimeFormatters.get(timeFormat);
+
+  if (cachedFormatter) {
+    return cachedFormatter;
+  }
+
+  const formatter = new Intl.DateTimeFormat(timeFormat === '24h' ? 'en-GB' : 'en-US', {
+    hour: timeFormat === '24h' ? '2-digit' : 'numeric',
+    minute: '2-digit',
+    hour12: timeFormat === '12h',
+    hourCycle: 'h23',
+  });
+
+  rulerTimeFormatters.set(timeFormat, formatter);
+
+  return formatter;
+}
+
+function getZonedDateParts(timezone: string, date: Date): ZonedDateParts {
+  const formatter = getZonedDatePartsFormatter(timezone);
   const parts = formatter.formatToParts(date);
   const dateParts = Object.fromEntries(
     parts
@@ -97,6 +128,11 @@ function getZonedDateParts(timezone: string, date: Date): ZonedDateParts {
 
 function getTimeZoneOffsetMinutes(timezone: string, date: Date) {
   const dateParts = getZonedDateParts(timezone, date);
+
+  return getTimeZoneOffsetMinutesFromParts(dateParts, date);
+}
+
+function getTimeZoneOffsetMinutesFromParts(dateParts: ZonedDateParts, date: Date) {
   const zonedTime = Date.UTC(
     dateParts.year,
     dateParts.month - 1,
@@ -127,34 +163,24 @@ function formatTimeRulerOffset(offsetMinutes: number) {
 }
 
 function getBrowserTimezone() {
-  return Intl.DateTimeFormat().resolvedOptions().timeZone;
-}
-
-function getRelativeTimeOffset(timezone: string, fallback: string, date: Date, sameLabel: string) {
-  try {
-    const browserTimezone = getBrowserTimezone();
-    const browserOffset = getTimeZoneOffsetMinutes(browserTimezone, date);
-    const cityOffset = getTimeZoneOffsetMinutes(timezone, date);
-
-    return formatRelativeTimeOffset(cityOffset - browserOffset, sameLabel);
-  } catch {
-    return fallback.replace(/h$/i, '');
+  if (!browserTimezoneCache) {
+    browserTimezoneCache = Intl.DateTimeFormat().resolvedOptions().timeZone;
   }
+
+  return browserTimezoneCache;
 }
 
-function formatTimeInTimezone(timezone: string, date: Date, timeFormat: TimeFormat) {
+function formatTimeFromDateParts(dateParts: ZonedDateParts, timeFormat: TimeFormat) {
   if (timeFormat === '24h') {
-    const { hour, minute } = getZonedDateParts(timezone, date);
+    const { hour, minute } = dateParts;
 
     return `${hour === 0 ? '00' : hour}:${String(minute).padStart(2, '0')}`;
   }
 
-  return new Intl.DateTimeFormat('en-US', {
-    timeZone: timezone,
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true,
-  }).format(date);
+  const hour = dateParts.hour % 12 || 12;
+  const dayPeriod = dateParts.hour >= 12 ? 'PM' : 'AM';
+
+  return `${hour}:${String(dateParts.minute).padStart(2, '0')} ${dayPeriod}`;
 }
 
 function getPeriodFromHour(hour: number): FavoriteCity['period'] {
@@ -177,15 +203,8 @@ function getDateSerial(dateParts: Pick<ZonedDateParts, 'year' | 'month' | 'day'>
   return Date.UTC(dateParts.year, dateParts.month - 1, dateParts.day) / 86400000;
 }
 
-function getDayShiftLabel(
-  timezone: string,
-  browserTimezone: string,
-  selectedDate: Date,
-  baseDate: Date,
-) {
-  const baseBrowserDate = getZonedDateParts(browserTimezone, baseDate);
-  const selectedCityDate = getZonedDateParts(timezone, selectedDate);
-  const dayDiff = getDateSerial(selectedCityDate) - getDateSerial(baseBrowserDate);
+function getDayShiftLabel(cityDateParts: ZonedDateParts, baseBrowserDateParts: ZonedDateParts) {
+  const dayDiff = getDateSerial(cityDateParts) - getDateSerial(baseBrowserDateParts);
 
   if (dayDiff > 0) {
     return 'tomorrow';
@@ -201,8 +220,8 @@ function getDayShiftLabel(
 function getCityView(
   city: FavoriteCity,
   selectedDate: Date,
-  baseDate: Date,
-  browserTimezone: string,
+  baseBrowserDateParts: ZonedDateParts,
+  browserOffsetMinutes: number,
   timeFormat: TimeFormat,
   sameLabel: string,
 ): CityView {
@@ -210,20 +229,18 @@ function getCityView(
 
   return {
     ...city,
-    currentTime: formatTimeInTimezone(city.timezone, selectedDate, timeFormat),
+    currentTime: formatTimeFromDateParts(cityDateParts, timeFormat),
     currentPeriod: getPeriodFromHour(cityDateParts.hour),
-    dayShift: getDayShiftLabel(city.timezone, browserTimezone, selectedDate, baseDate),
-    relativeTimeOffset: getRelativeTimeOffset(city.timezone, city.timeOffset, selectedDate, sameLabel),
+    dayShift: getDayShiftLabel(cityDateParts, baseBrowserDateParts),
+    relativeTimeOffset: formatRelativeTimeOffset(
+      getTimeZoneOffsetMinutesFromParts(cityDateParts, selectedDate) - browserOffsetMinutes,
+      sameLabel,
+    ),
   };
 }
 
 function formatRulerTime(date: Date, timeFormat: TimeFormat) {
-  return new Intl.DateTimeFormat(timeFormat === '24h' ? 'en-GB' : 'en-US', {
-    hour: timeFormat === '24h' ? '2-digit' : 'numeric',
-    minute: '2-digit',
-    hour12: timeFormat === '12h',
-    hourCycle: 'h23',
-  }).format(date);
+  return getRulerTimeFormatter(timeFormat).format(date);
 }
 
 function getDateWithTimeOffset(baseDate: Date, offsetMinutes: number) {
@@ -287,9 +304,6 @@ export default function Cities({ timeFormat }: CitiesProps) {
   const [cities, setCities] = useState(() => getOrderedCities(getSettings().cityOrder));
   const [baseDate] = useState(() => new Date());
   const [timeOffsetMinutes, setTimeOffsetMinutes] = useState(0);
-  const [isTimeRulerDragging, setIsTimeRulerDragging] = useState(false);
-  const timeRulerDragRef = useRef<TimeRulerDrag | null>(null);
-  const timeRulerScaleRef = useRef<HTMLDivElement | null>(null);
 
   const cityIds = useMemo(() => cities.map((city) => city.id), [cities]);
   const selectedDate = useMemo(
@@ -300,12 +314,14 @@ export default function Cities({ timeFormat }: CitiesProps) {
 
   const cityViews = useMemo(() => {
     const browserTimezone = getBrowserTimezone();
+    const baseBrowserDateParts = getZonedDateParts(browserTimezone, baseDate);
+    const browserOffsetMinutes = getTimeZoneOffsetMinutes(browserTimezone, selectedDate);
 
     return cities.map((city) => getCityView(
       city,
       selectedDate,
-      baseDate,
-      browserTimezone,
+      baseBrowserDateParts,
+      browserOffsetMinutes,
       timeFormat,
       t('cities.sameOffset'),
     ));
@@ -364,124 +380,45 @@ export default function Cities({ timeFormat }: CitiesProps) {
     ));
   }, []);
 
-  const endTimeRulerDrag = useCallback(() => {
-    if (!timeRulerDragRef.current) {
-      return;
-    }
-
-    timeRulerDragRef.current = null;
-    setIsTimeRulerDragging(false);
-  }, []);
-
-  const handleTimeRulerPointerDown = (event: PointerEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    event.currentTarget.setPointerCapture(event.pointerId);
-
-    timeRulerDragRef.current = {
-      pointerId: event.pointerId,
-      pointerStartX: event.clientX,
-      timeOffsetStartMinutes: timeOffsetMinutes,
-    };
-    setIsTimeRulerDragging(true);
-  };
-
-  const handleTimeRulerPointerMove = (event: PointerEvent<HTMLDivElement>) => {
-    const drag = timeRulerDragRef.current;
-
-    if (!drag || drag.pointerId !== event.pointerId) {
-      return;
-    }
-
-    if (event.buttons === 0) {
-      endTimeRulerDrag();
-      return;
-    }
-
-    const pointerDelta = event.clientX - drag.pointerStartX;
-
-    updateTimeOffset(drag.timeOffsetStartMinutes - pointerDelta / PIXELS_IN_MINUTE);
-  };
-
-  const handleTimeRulerPointerUp = (event: PointerEvent<HTMLDivElement>) => {
-    const drag = timeRulerDragRef.current;
-
-    if (!drag || drag.pointerId !== event.pointerId) {
-      return;
-    }
-
-    endTimeRulerDrag();
-
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-      event.currentTarget.releasePointerCapture(event.pointerId);
-    }
-  };
+  const {
+    isDragging: isTimeRulerDragging,
+    scrollToOffset: scrollTimeRulerToOffset,
+    viewportRef: timeRulerScaleRef,
+  } = useTimeRulerScroll({
+    offsetMinutes: timeOffsetMinutes,
+    pixelsInMinute: PIXELS_IN_MINUTE,
+    rangeMinutes: TIME_RULER_RANGE_MINUTES,
+    onOffsetChange: updateTimeOffset,
+  });
 
   const handleTimeRulerReset = () => {
-    updateTimeOffset(0);
+    scrollTimeRulerToOffset(0, true);
   };
-
-  useEffect(() => {
-    if (!isTimeRulerDragging) {
-      return;
-    }
-
-    const handleWindowPointerUp = () => {
-      endTimeRulerDrag();
-    };
-
-    window.addEventListener('pointerup', handleWindowPointerUp);
-    window.addEventListener('pointercancel', handleWindowPointerUp);
-    window.addEventListener('blur', handleWindowPointerUp);
-
-    return () => {
-      window.removeEventListener('pointerup', handleWindowPointerUp);
-      window.removeEventListener('pointercancel', handleWindowPointerUp);
-      window.removeEventListener('blur', handleWindowPointerUp);
-    };
-  }, [endTimeRulerDrag, isTimeRulerDragging]);
-
-  useEffect(() => {
-    const timeRulerScale = timeRulerScaleRef.current;
-
-    if (!timeRulerScale) {
-      return;
-    }
-
-    const handleWheel = (event: globalThis.WheelEvent) => {
-      event.preventDefault();
-      event.stopPropagation();
-      updateTimeOffset(timeOffsetMinutes + (event.deltaY + event.deltaX) / PIXELS_IN_MINUTE);
-    };
-
-    timeRulerScale.addEventListener('wheel', handleWheel, { passive: false });
-
-    return () => {
-      timeRulerScale.removeEventListener('wheel', handleWheel);
-    };
-  }, [timeOffsetMinutes, updateTimeOffset]);
 
   return (
     <div className="cities">
       <div className="citiesHeader"></div>
-      <CustomScrollbar className="citiesListBox" contentClassName="citiesList">
+      <div className="citiesListBox">
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
           onDragEnd={handleDragEnd}
         >
-          <SortableContext items={cityIds} strategy={verticalListSortingStrategy}>
-            {cityViews.map((favoriteCity) => (
-              <SortableCityItem
-                favoriteCity={favoriteCity}
-                key={favoriteCity.id}
-                moveLabel={t('cities.moveCity', { city: favoriteCity.customName || favoriteCity.city })}
-                tomorrowLabel={t('cities.tomorrow')}
-                yesterdayLabel={t('cities.yesterday')}
-              />
-            ))}
-          </SortableContext>
+          <div className="citiesList">
+            <SortableContext items={cityIds} strategy={verticalListSortingStrategy}>
+              {cityViews.map((favoriteCity) => (
+                <SortableCityItem
+                  favoriteCity={favoriteCity}
+                  key={favoriteCity.id}
+                  moveLabel={t('cities.moveCity', { city: favoriteCity.customName || favoriteCity.city })}
+                  tomorrowLabel={t('cities.tomorrow')}
+                  yesterdayLabel={t('cities.yesterday')}
+                />
+              ))}
+            </SortableContext>
+          </div>
         </DndContext>
-      </CustomScrollbar>
+      </div>
       <div className="timeRuler">
         <button
           className="timeRuler-reset"
@@ -510,16 +447,11 @@ export default function Cities({ timeFormat }: CitiesProps) {
           aria-valuemin={-TIME_RULER_RANGE_MINUTES}
           aria-valuemax={TIME_RULER_RANGE_MINUTES}
           aria-valuenow={timeOffsetMinutes}
-          onPointerDown={handleTimeRulerPointerDown}
-          onPointerMove={handleTimeRulerPointerMove}
-          onPointerUp={handleTimeRulerPointerUp}
-          onPointerCancel={handleTimeRulerPointerUp}
         >
           <div
             className="timeRuler-track"
             style={{
               width: `${TIME_RULER_RANGE_MINUTES * 2 * PIXELS_IN_MINUTE}px`,
-              transform: `translate3d(-${(timeOffsetMinutes + TIME_RULER_RANGE_MINUTES) * PIXELS_IN_MINUTE}px, 0, 0)`,
             }}
           >
             {timeRulerTicks.map((minute) => (

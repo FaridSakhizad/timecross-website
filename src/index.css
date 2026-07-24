@@ -48,10 +48,6 @@ html, body {
   margin: 0;
 }
 
-body {
-  overflow-x: hidden;
-}
-
 html {
   height: 100%;
   background:
@@ -91,6 +87,8 @@ body {
 
   background: url("./assets/bg--noise-1.png") center;
   background-attachment: fixed;
+
+  overflow-x: hidden;
 }
 
 button {
