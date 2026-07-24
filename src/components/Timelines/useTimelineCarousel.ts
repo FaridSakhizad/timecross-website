@@ -5,13 +5,22 @@ import {
   TIMELINE_SNAP_DELAY_MS,
   TIMELINE_SNAP_RELEASE_MS,
 } from './constants';
-import { initHorizontalDragScroll } from './dragScroll';
 
 type TimelineCarouselOptions = {
   currentHourIndex: number;
   maxHourIndex: number;
   minHourIndex: number;
 };
+
+type TouchGesture = {
+  mode: 'pending' | 'horizontal' | 'vertical';
+  startScrollLeft: number;
+  startX: number;
+  startY: number;
+};
+
+const TOUCH_AXIS_LOCK_THRESHOLD = 8;
+const TOUCH_AXIS_LOCK_RATIO = 1.2;
 
 function getSidePad(viewport: HTMLDivElement) {
   return Math.max(0, viewport.clientWidth / 2 - TIMELINE_HOUR_WIDTH / 2);
@@ -65,8 +74,11 @@ export function useTimelineCarousel({
   const isProgrammaticScrollRef = useRef(false);
   const lastScrollLeftRef = useRef(0);
   const animationFrameRef = useRef<number | undefined>(undefined);
+  const animationTokenRef = useRef(0);
   const snapTimerRef = useRef<number | undefined>(undefined);
   const releaseTimerRef = useRef<number | undefined>(undefined);
+  const touchGestureRef = useRef<TouchGesture | null>(null);
+  const isUserInteractingRef = useRef(false);
 
   const setViewportRef = useCallback((element: HTMLDivElement | null) => {
     viewportRef.current = element;
@@ -82,6 +94,7 @@ export function useTimelineCarousel({
 
     widget.style.setProperty('--timeline-side-pad', `${getSidePad(viewport)}px`);
     widget.style.setProperty('--timeline-scroll-left', `${-viewport.scrollLeft}px`);
+    widget.style.setProperty('--timeline-viewport-width', `${viewport.clientWidth}px`);
   }, []);
 
   const clearSnapTimer = useCallback(() => {
@@ -94,6 +107,8 @@ export function useTimelineCarousel({
   }, []);
 
   const clearScrollAnimation = useCallback(() => {
+    animationTokenRef.current += 1;
+
     if (animationFrameRef.current === undefined) {
       return;
     }
@@ -102,10 +117,24 @@ export function useTimelineCarousel({
     animationFrameRef.current = undefined;
   }, []);
 
-  const releaseProgrammaticScroll = useCallback(() => {
-    if (releaseTimerRef.current !== undefined) {
-      window.clearTimeout(releaseTimerRef.current);
+  const clearReleaseTimer = useCallback(() => {
+    if (releaseTimerRef.current === undefined) {
+      return;
     }
+
+    window.clearTimeout(releaseTimerRef.current);
+    releaseTimerRef.current = undefined;
+  }, []);
+
+  const cancelProgrammaticMotion = useCallback(() => {
+    clearSnapTimer();
+    clearScrollAnimation();
+    clearReleaseTimer();
+    isProgrammaticScrollRef.current = false;
+  }, [clearReleaseTimer, clearScrollAnimation, clearSnapTimer]);
+
+  const releaseProgrammaticScroll = useCallback(() => {
+    clearReleaseTimer();
 
     releaseTimerRef.current = window.setTimeout(() => {
       const viewport = viewportRef.current;
@@ -119,7 +148,7 @@ export function useTimelineCarousel({
 
       releaseTimerRef.current = undefined;
     }, TIMELINE_SNAP_RELEASE_MS);
-  }, [syncLayout]);
+  }, [clearReleaseTimer, syncLayout]);
 
   const animateScrollLeft = useCallback((targetScrollLeft: number) => {
     const viewport = viewportRef.current;
@@ -131,8 +160,10 @@ export function useTimelineCarousel({
     const startScrollLeft = viewport.scrollLeft;
     const distance = targetScrollLeft - startScrollLeft;
     const startTime = performance.now();
+    const animationToken = animationTokenRef.current + 1;
 
     clearScrollAnimation();
+    animationTokenRef.current = animationToken;
 
     if (Math.abs(distance) < 0.5) {
       viewport.scrollLeft = targetScrollLeft;
@@ -142,6 +173,10 @@ export function useTimelineCarousel({
     }
 
     const step = (time: number) => {
+      if (animationTokenRef.current !== animationToken) {
+        return;
+      }
+
       const progress = Math.min((time - startTime) / TIMELINE_SCROLL_ANIMATION_MS, 1);
 
       viewport.scrollLeft = startScrollLeft + distance * easeOutCubic(progress);
@@ -175,10 +210,10 @@ export function useTimelineCarousel({
       maxHourIndex,
     );
 
-    clearSnapTimer();
+    cancelProgrammaticMotion();
     isProgrammaticScrollRef.current = true;
     animateScrollLeft(targetScrollLeft);
-  }, [animateScrollLeft, clearSnapTimer, maxHourIndex, minHourIndex]);
+  }, [animateScrollLeft, cancelProgrammaticMotion, maxHourIndex, minHourIndex]);
 
   const scrollByHours = useCallback((hours: number) => {
     const viewport = viewportRef.current;
@@ -256,7 +291,11 @@ export function useTimelineCarousel({
       lastScrollLeftRef.current = viewport.scrollLeft;
       syncLayout();
 
-      if (isProgrammaticScrollRef.current || Math.abs(viewport.scrollLeft - previousScrollLeft) < 0.5) {
+      if (
+        isUserInteractingRef.current
+        || isProgrammaticScrollRef.current
+        || Math.abs(viewport.scrollLeft - previousScrollLeft) < 0.5
+      ) {
         return;
       }
 
@@ -265,37 +304,111 @@ export function useTimelineCarousel({
       snapTimerRef.current = window.setTimeout(snapToNearestHour, TIMELINE_SNAP_DELAY_MS);
     };
 
+    const handleTouchStart = (event: TouchEvent) => {
+      if (event.touches.length !== 1) {
+        touchGestureRef.current = null;
+        return;
+      }
+
+      cancelProgrammaticMotion();
+      isUserInteractingRef.current = true;
+
+      const touch = event.touches[0];
+
+      touchGestureRef.current = {
+        mode: 'pending',
+        startScrollLeft: viewport.scrollLeft,
+        startX: touch.clientX,
+        startY: touch.clientY,
+      };
+    };
+
+    const handleTouchMove = (event: TouchEvent) => {
+      const gesture = touchGestureRef.current;
+
+      if (!gesture || event.touches.length !== 1) {
+        return;
+      }
+
+      const touch = event.touches[0];
+      const deltaX = touch.clientX - gesture.startX;
+      const deltaY = touch.clientY - gesture.startY;
+      const absoluteX = Math.abs(deltaX);
+      const absoluteY = Math.abs(deltaY);
+
+      if (gesture.mode === 'pending') {
+        if (
+          absoluteX < TOUCH_AXIS_LOCK_THRESHOLD
+          && absoluteY < TOUCH_AXIS_LOCK_THRESHOLD
+        ) {
+          return;
+        }
+
+        gesture.mode = absoluteX > absoluteY * TOUCH_AXIS_LOCK_RATIO
+          ? 'horizontal'
+          : 'vertical';
+      }
+
+      if (gesture.mode === 'vertical') {
+        return;
+      }
+
+      event.preventDefault();
+      viewport.scrollLeft = gesture.startScrollLeft - deltaX;
+      syncLayout();
+    };
+
+    const handleTouchEnd = () => {
+      const gesture = touchGestureRef.current;
+
+      touchGestureRef.current = null;
+      isUserInteractingRef.current = false;
+
+      if (gesture?.mode === 'horizontal') {
+        clearSnapTimer();
+        snapTimerRef.current = window.setTimeout(snapToNearestHour, TIMELINE_SNAP_DELAY_MS);
+      }
+    };
+
+    const handleWheel = () => {
+      cancelProgrammaticMotion();
+      isUserInteractingRef.current = false;
+    };
+
     const resizeObserver = new ResizeObserver(syncLayout);
 
     syncLayout();
     lastScrollLeftRef.current = viewport.scrollLeft;
     viewport.addEventListener('scroll', handleScroll, { passive: true });
+    viewport.addEventListener('touchstart', handleTouchStart, { passive: true });
+    viewport.addEventListener('touchmove', handleTouchMove, { passive: false });
+    viewport.addEventListener('touchend', handleTouchEnd);
+    viewport.addEventListener('touchcancel', handleTouchEnd);
+    viewport.addEventListener('wheel', handleWheel, { passive: true });
     resizeObserver.observe(viewport);
 
     return () => {
-      clearSnapTimer();
-      clearScrollAnimation();
-
-      if (releaseTimerRef.current !== undefined) {
-        window.clearTimeout(releaseTimerRef.current);
-      }
+      cancelProgrammaticMotion();
+      isUserInteractingRef.current = false;
+      touchGestureRef.current = null;
 
       resizeObserver.disconnect();
       viewport.removeEventListener('scroll', handleScroll);
+      viewport.removeEventListener('touchstart', handleTouchStart);
+      viewport.removeEventListener('touchmove', handleTouchMove);
+      viewport.removeEventListener('touchend', handleTouchEnd);
+      viewport.removeEventListener('touchcancel', handleTouchEnd);
+      viewport.removeEventListener('wheel', handleWheel);
     };
-  }, [animateScrollLeft, clearScrollAnimation, clearSnapTimer, maxHourIndex, minHourIndex, syncLayout]);
-
-  useEffect(() => {
-    const viewport = viewportRef.current;
-
-    if (!viewport) {
-      return;
-    }
-
-    return initHorizontalDragScroll(viewport, {
-      draggingClassName: 'timelinesViewport_dragging',
-    });
-  }, []);
+  }, [
+    animateScrollLeft,
+    cancelProgrammaticMotion,
+    clearScrollAnimation,
+    clearSnapTimer,
+    maxHourIndex,
+    minHourIndex,
+    syncLayout,
+  ]);
 
   return {
     resetScroll,

@@ -96,9 +96,10 @@
   max-height: 372px;
   overflow: auto;
   user-select: none;
-  touch-action: pan-x pan-y;
+  touch-action: pan-y;
   overscroll-behavior: contain;
   scroll-behavior: auto;
+  scrollbar-gutter: stable both-edges;
 }
 
 .timelinesMiddleMarker {
@@ -158,10 +159,6 @@
   stroke-linejoin: round;
 }
 
-.timelinesViewport_dragging {
-  cursor: grabbing;
-}
-
 .timelines-row {
   display: grid;
   grid-template-columns: max-content;
@@ -178,7 +175,7 @@
   position: sticky;
   left: 0;
   z-index: 3;
-  width: var(--custom-scrollbar-client-width, 100%);
+  width: var(--timeline-viewport-width, 100%);
   padding: 11px 0 6px 0;
 }
 
@@ -364,5 +361,3 @@
     display: none;
   }
 }
-
-
