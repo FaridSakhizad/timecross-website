@@ -48,6 +48,10 @@ html, body {
   margin: 0;
 }
 
+body {
+  overflow-x: hidden;
+}
+
 html {
   height: 100%;
   background:
@@ -58,6 +62,7 @@ html {
   #ffffff;
 
   background-attachment: fixed;
+  overflow-x: hidden;
 }
 
 html[data-color-mode="night"] {

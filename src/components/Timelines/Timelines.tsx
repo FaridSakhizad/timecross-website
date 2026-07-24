@@ -42,66 +42,68 @@ export default function Timelines({ timeFormat }: TimelinesProps) {
         onClick={resetScroll}
         aria-label={t('common.reset')}
       />
-      <div className="timelinesWidget" ref={widgetRef}>
-        <div className="timelinesPanel">
-          <div className="timelinesHeaderViewport">
-            <TimelineHeader userCells={userCells} />
+      <div className="timelinesWidgetWrapper">
+        <div className="timelinesWidget" ref={widgetRef}>
+          <div className="timelinesPanel">
+            <div className="timelinesHeaderViewport">
+              <TimelineHeader userCells={userCells} />
+            </div>
+            <CustomScrollbar
+              className="timelinesScroller"
+              contentClassName="timelinesViewport"
+              contentRef={setViewportRef}
+              mode="vertical"
+            >
+              {cities.map((city) => (
+                <TimelineRow
+                  baseDate={baseDate}
+                  browserTimezone={browserTimezone}
+                  city={city}
+                  key={city.id}
+                  timelineDates={timelineDates}
+                  timeFormat={timeFormat}
+                />
+              ))}
+            </CustomScrollbar>
+            <div className="timelinesMiddleMarker" />
           </div>
-          <CustomScrollbar
-            className="timelinesScroller"
-            contentClassName="timelinesViewport"
-            contentRef={setViewportRef}
-            mode="vertical"
+          <button
+            className="timelinesNav timelinesNav_prev"
+            type="button"
+            aria-label={t('common.previousHour')}
+            title={t('common.previousHour')}
+            onClick={() => scrollByHours(-1)}
           >
-            {cities.map((city) => (
-              <TimelineRow
-                baseDate={baseDate}
-                browserTimezone={browserTimezone}
-                city={city}
-                key={city.id}
-                timelineDates={timelineDates}
-                timeFormat={timeFormat}
-              />
-            ))}
-          </CustomScrollbar>
-          <div className="timelinesMiddleMarker" />
+            <svg
+              className="timelinesNavIcon"
+              width="48"
+              height="48"
+              viewBox="0 0 48 48"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path d="M27 14l-10 10 10 10" />
+            </svg>
+          </button>
+          <button
+            className="timelinesNav timelinesNav_next"
+            type="button"
+            aria-label={t('common.nextHour')}
+            title={t('common.nextHour')}
+            onClick={() => scrollByHours(1)}
+          >
+            <svg
+              className="timelinesNavIcon"
+              width="48"
+              height="48"
+              viewBox="0 0 48 48"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path d="M21 14l10 10-10 10" />
+            </svg>
+          </button>
         </div>
-        <button
-          className="timelinesNav timelinesNav_prev"
-          type="button"
-          aria-label={t('common.previousHour')}
-          title={t('common.previousHour')}
-          onClick={() => scrollByHours(-1)}
-        >
-          <svg
-            className="timelinesNavIcon"
-            width="48"
-            height="48"
-            viewBox="0 0 48 48"
-            aria-hidden="true"
-            focusable="false"
-          >
-            <path d="M27 14l-10 10 10 10" />
-          </svg>
-        </button>
-        <button
-          className="timelinesNav timelinesNav_next"
-          type="button"
-          aria-label={t('common.nextHour')}
-          title={t('common.nextHour')}
-          onClick={() => scrollByHours(1)}
-        >
-          <svg
-            className="timelinesNavIcon"
-            width="48"
-            height="48"
-            viewBox="0 0 48 48"
-            aria-hidden="true"
-            focusable="false"
-          >
-            <path d="M21 14l10 10-10 10" />
-          </svg>
-        </button>
       </div>
     </>
   );

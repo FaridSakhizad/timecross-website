@@ -42,6 +42,7 @@
     <clipPath id="clippath">
       <rect class="cls-2" width="64" height="64" rx="14" ry="14"/>
     </clipPath>
+    
     <radialGradient id="radial-gradient" cx="-361.3" cy="427.3" fx="-361.3" fy="427.3" r="1" gradientTransform="translate(23121 27345) scale(64 -64)" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="#ff5a5f"/>
       <stop offset=".2" stop-color="#ff5a5f"/>
@@ -49,10 +50,10 @@
       <stop offset="1" stop-color="#ff5a5f" stop-opacity="0"/>
     </radialGradient>
     <radialGradient id="radial-gradient-2" cx="-360.3" cy="427.3" fx="-360.3" fy="427.3" r="0" gradientTransform="translate(23121 27345) scale(64 -64)" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#ffd166"/>
-      <stop offset=".2" stop-color="#ffd166"/>
-      <stop offset=".8" stop-color="#ffd166" stop-opacity="0"/>
-      <stop offset="1" stop-color="#ffd166" stop-opacity="0"/>
+      <stop offset="0" stop-color="#fdb71f"/>
+      <stop offset=".2" stop-color="#fdb71f"/>
+      <stop offset=".8" stop-color="#fdb71f" stop-opacity="0"/>
+      <stop offset="1" stop-color="#fdb71f" stop-opacity="0"/>
     </radialGradient>
     <radialGradient id="radial-gradient-3" cx="-361.3" cy="426.3" fx="-361.3" fy="426.3" r="1" gradientTransform="translate(23121 27345) scale(64 -64)" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="#4d7cfe"/>

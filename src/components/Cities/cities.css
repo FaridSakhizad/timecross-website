@@ -283,3 +283,11 @@
   top: 68px;
   background: rgba(255 255 255 / 1);
 }
+
+@media screen and (width < 768px) {
+  .cities {
+    .customScrollbar-track {
+      display: none;
+    }
+  }
+}
