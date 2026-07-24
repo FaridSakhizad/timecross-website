@@ -1,0 +1,270 @@
+.section {
+  &.section_hero {
+    padding-top: 0;
+    border-bottom: 1px solid rgba(var(--accent-color-2), 0.3);
+  }
+}
+
+.container_hero {
+  display: grid;
+  grid-template-columns: 548px 548px;
+  gap: 57px 74px;
+}
+
+.citiesBox {
+  display: flex;
+  justify-content: stretch;
+  border: 3px solid rgba(var(--accent-color-2), 1);
+  background-color: rgba(var(--accent-color-1), 0.1);
+  border-radius: 40px;
+  width: 100%;
+  height: 600px;
+  box-shadow: 0 10px 50px 0 rgba(0, 0, 0, 0.15);
+  transition: box-shadow 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 10px 50px 0 rgba(0, 0, 0, 0.3);
+  }
+}
+
+.heroPreviewBox {
+  display: flex;
+  flex-wrap: nowrap;
+  width: 100%;
+}
+
+.iphonePreviewContainer {
+  width: 291px;
+  height: 600px;
+  position: relative;
+  flex-shrink: 0;
+  order: 1;
+  z-index: 20;
+  margin-right: -30px;
+
+  &:before {
+    content: '';
+    display: block;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    z-index: 30;
+    background: url("../../assets/img--iphone-1.png") center / cover no-repeat;
+  }
+
+  &:after {
+    content: '';
+    display: block;
+    width: 281px;
+    height: 75px;
+    position: absolute;
+    left: 4px;
+    bottom: -27px;
+    z-index: 10;
+    background: url("../../assets/img--iphone-shadow-1.png") center center no-repeat;
+  }
+
+  .iphonePreviewShadow {
+    display: block;
+    width: 98px;
+    height: 620px;
+    background: url("../../assets/img--iphone-shadow-2.png") center center no-repeat;
+    position: absolute;
+    top: -10px;
+    right: -39px;
+    z-index: 5;
+  }
+}
+
+.iphonePreviewBox {
+  width: 270px;
+  height: 582px;
+  position: absolute;
+  top: 10px;
+  left: 9px;
+  background-color: #fff;
+  border-radius: 40px;
+  z-index: 20;
+  overflow: hidden;
+}
+
+.iphonePreview-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  filter: contrast(0.9) saturate(0.9);
+}
+
+.androidPreview-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  filter: contrast(0.9) saturate(0.9);
+}
+
+.androidPreviewContainer {
+  width: 287px;
+  height: 599px;
+  position: relative;
+  flex-shrink: 0;
+  order: 2;
+  z-index: 10;
+
+  &:before {
+    content: '';
+    display: block;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    z-index: 30;
+    background: url("../../assets/img--android-1.png") center / cover no-repeat;
+  }
+
+  &:after {
+    content: '';
+    display: block;
+    width: 321px;
+    height: 75px;
+    position: absolute;
+    left: -17px;
+    bottom: -27px;
+    z-index: 10;
+    background: url("../../assets/img--android-shadow-1.png") center center no-repeat;
+  }
+}
+
+.androidPreviewBox {
+  width: 270px;
+  height: 582px;
+  position: absolute;
+  top: 9px;
+  left: 8px;
+  background-color: #fff;
+  border-radius: 11px;
+  z-index: 20;
+}
+
+.heroTextBox {
+  justify-self: center;
+}
+
+.heroText {
+  text-align: center;
+  color: white;
+  font-weight: normal;
+  font-size: 18px;
+  line-height: 1.3333;
+  display: block;
+  max-width: 506px;
+  margin: auto;
+  text-wrap: balance;
+}
+
+.heroDownload {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 73px;
+}
+
+.heroDownload-button {
+  display: block;
+  width: 186px;
+  height: 55px;
+  position: relative;
+  background-color: black;
+  border-radius: 7px;
+
+  &:after {
+    content: '';
+    display: block;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -4px;
+    margin: auto;
+    width: 172px;
+    height: 8px;
+    background-color: #000;
+    border-radius: 24px / 4px;
+    filter: blur(5px);
+    opacity: 0.3;
+    z-index: -1;
+  }
+}
+
+.heroDownload-button_appStore {
+  background: #000 url("../../assets/img--download-on-the-app-store-1.svg") center no-repeat;
+  background-size: 186px 55px;
+}
+
+.heroDownload-button_googlePlay {
+  background: #000 url("../../assets/img--get-it-on-google-play-1.svg") center no-repeat;
+  background-size: 186px 55px;
+  pointer-events: none;
+
+  &:before {
+    content: attr(data-coming-soon);
+    font-weight: bold;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0 0 0 / 0.6);
+    backdrop-filter: blur(1px);
+    border-radius: 8px;
+  }
+}
+
+@media screen and (width < 1200px) {
+  .container_hero {
+    grid-template-columns: 485px 485px;
+    gap: 40px 24px;
+  }
+
+  .iphonePreviewContainer {
+    margin-right: -93px;
+  }
+
+  .heroDownload {
+    gap: 33px;
+  }
+}
+
+@media screen and (width < 1024px) {
+  .container_hero {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .heroText {
+    max-width: unset;
+    text-wrap: unset;
+  }
+
+  .heroPreviewBox {
+    order: 1;
+    justify-self: center;
+    width: auto;
+  }
+
+  .iphonePreviewContainer {
+    margin-right: -22px;
+  }
+}
+
+@media screen and (width < 768px) {
+  .heroTextBox {
+    order: 1;
+  }
+
+  .heroPreviewBox {
+    display: none;
+  }
+}

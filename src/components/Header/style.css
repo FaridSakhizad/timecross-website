@@ -1,0 +1,196 @@
+.header {
+  border-top: 10px solid rgba(0 0 0 / 0.1);
+}
+
+.container_header {
+  display: flex;
+  align-items: center;
+  height: 144px;
+}
+
+.logo {
+  display: block;
+  height: 62px;
+  color: #fff;
+  text-decoration: none;
+  padding-left: 58px;
+  position: relative;
+  margin-left: 29px;
+  margin-bottom: 6px;
+
+  &:before {
+    content: '';
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 40px;
+    height: 62px;
+    background: url("../../assets/logo-1.svg") center no-repeat;
+  }
+}
+
+.logo-name {
+  font-size: 52px;
+  line-height: 1;
+  display: block;
+  margin-top: -5px;
+}
+
+.logo-pitch {
+  font-size: 15px;
+  line-height: 1;
+  display: block;
+  padding-left: 3px;
+}
+
+.headerMenu {
+  display: flex;
+  gap: 20px;
+  margin-left: auto;
+  margin-right: 1px;
+}
+
+.headerMenu-item {
+  display: block;
+  padding: 6px 16px 7px 16px;
+  min-width: 36px;
+  margin: 0;
+  color: #fff;
+  border: 1px solid transparent;
+  background-color: rgba(var(--accent-color-1), 0.3);
+  border-radius: 65536px;
+  font-size: 16px;
+  line-height: 22px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease, translate 0.2s ease;
+
+  &:hover {
+    background-color: rgba(var(--accent-color-1), 0.5);
+  }
+
+  &:active {
+    translate: 0 2px;
+  }
+}
+
+.headerMenu-item_ampm {
+  min-width: 105px;
+}
+
+.headerMenu-item_nightMode {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:before {
+    content: '';
+    display: block;
+    width: 20px;
+    height: 20px;
+    background-color: #fff;
+    mask: url("../../assets/icon--mode-night.svg");
+  }
+
+  &.isActive {
+    &:before {
+      mask: url("../../assets/icon--mode-day.svg");
+    }
+  }
+}
+
+.langSelectButtonBox {
+  position: relative;
+  z-index: 100;
+}
+
+.langSelectButton {
+  padding-right: 35px;
+  position: relative;
+
+  &:after {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 15px;
+    right: 14px;
+    width: 12px;
+    height: 7px;
+    background-color: #fff;
+    mask: url("../../assets/icon--arrow-1.svg");
+  }
+}
+
+.langSelectMenu {
+  background-color: rgba(var(--accent-color-1), 0.95);
+  border-radius: 16px;
+  min-width: 120px;
+  min-height: 100px;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  color: #fff;
+  padding: 4px 4px;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+
+  @starting-style {
+    opacity: 0;
+  }
+}
+
+.langSelectMenu-button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 10px 12px;
+  background-color: transparent;
+  border: none;
+  border-radius: 13px;
+  color: #fff;
+  cursor: pointer;
+  font: normal normal 16px/1 var(--body-font-family-1);
+  text-decoration: none;
+
+  &:hover {
+    background-color: rgba(0 0 0 / 0.8);
+  }
+}
+
+@media screen and (width < 1200px) {
+  .container_header {
+    height: 110px;
+  }
+
+  .headerMenu {
+    margin-right: 29px;
+  }
+}
+
+@media screen and (width < 768px) {
+  .container {
+    &.container_header {
+      height: auto;
+      flex-direction: column;
+      gap: 24px;
+      padding-block: 15px;
+    }
+  }
+
+  .logo {
+    margin: 0 10px 0 0;
+  }
+
+  .headerMenu {
+    margin: 0;
+  }
+
+  .heroDownload {
+    flex-direction: column;
+    gap: 24px;
+  }
+}
