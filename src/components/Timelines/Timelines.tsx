@@ -1,5 +1,5 @@
 import './style.css';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { getSettings, type TimeFormat } from '../../settings';
 import CustomScrollbar from '../CustomScrollbar';
 import { getOrderedFavoriteCities } from '../Cities/fixtures';
@@ -14,25 +14,67 @@ type TimelinesProps = {
   timeFormat: TimeFormat;
 };
 
+const NATIVE_SCROLL_TIMELINE_QUERY = '(max-width: 1023px), (hover: none) and (pointer: coarse)';
+
+function getUsesNativeTimelineScroll() {
+  return typeof window !== 'undefined'
+    && window.matchMedia(NATIVE_SCROLL_TIMELINE_QUERY).matches;
+}
+
+function useUsesNativeTimelineScroll() {
+  const [usesNativeScroll, setUsesNativeScroll] = useState(getUsesNativeTimelineScroll);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia(NATIVE_SCROLL_TIMELINE_QUERY);
+    const updateUsesNativeScroll = () => setUsesNativeScroll(mediaQuery.matches);
+
+    updateUsesNativeScroll();
+    mediaQuery.addEventListener('change', updateUsesNativeScroll);
+
+    return () => {
+      mediaQuery.removeEventListener('change', updateUsesNativeScroll);
+    };
+  }, []);
+
+  return usesNativeScroll;
+}
+
 export default function Timelines({ timeFormat }: TimelinesProps) {
   const { t } = useI18n();
   const baseDate = useMemo(() => new Date(), []);
   const browserTimezone = useMemo(() => getBrowserTimezone(), []);
   const cities = useMemo(() => getOrderedFavoriteCities(getSettings().cityOrder), []);
+  const usesNativeScroll = useUsesNativeTimelineScroll();
+
   const timelineDates = useMemo(
     () => getTimelineDates(browserTimezone, baseDate),
     [baseDate, browserTimezone],
   );
+
   const userCells = useMemo(
     () => getTimelineCells(browserTimezone, baseDate, timelineDates, timeFormat),
     [baseDate, browserTimezone, timelineDates, timeFormat],
   );
+
   const currentUserHourIndex = userCells.findIndex((cell) => cell.isCurrentHour);
+
   const { resetScroll, scrollByHours, setViewportRef, widgetRef } = useTimelineCarousel({
     currentHourIndex: currentUserHourIndex,
+    disableScrollEffects: usesNativeScroll,
     minHourIndex: TIMELINE_EDGE_FADE_HOURS,
     maxHourIndex: TIMELINE_EDGE_FADE_HOURS + TIMELINE_TOTAL_HOURS - 1,
   });
+
+  const timelineRows = cities.map((city) => (
+    <TimelineRow
+      baseDate={baseDate}
+      browserTimezone={browserTimezone}
+      city={city}
+      key={city.id}
+      timelineDates={timelineDates}
+      timeFormat={timeFormat}
+    />
+  ));
 
   return (
     <>
@@ -43,30 +85,36 @@ export default function Timelines({ timeFormat }: TimelinesProps) {
         aria-label={t('common.reset')}
       />
       <div className="timelinesWidgetWrapper">
-        <div className="timelinesWidget" ref={widgetRef}>
+        <div
+          className="timelinesWidget"
+          ref={widgetRef}
+        >
           <div className="timelinesPanel">
             <div className="timelinesHeaderViewport">
               <TimelineHeader userCells={userCells} />
             </div>
-            <CustomScrollbar
-              className="timelinesScroller"
-              contentClassName="timelinesViewport"
-              contentRef={setViewportRef}
-              mode="vertical"
-            >
-              {cities.map((city) => (
-                <TimelineRow
-                  baseDate={baseDate}
-                  browserTimezone={browserTimezone}
-                  city={city}
-                  key={city.id}
-                  timelineDates={timelineDates}
-                  timeFormat={timeFormat}
-                />
-              ))}
-            </CustomScrollbar>
+            {usesNativeScroll ? (
+              <div className="timelinesScroller">
+                <div
+                  className="timelinesViewport"
+                  ref={setViewportRef}
+                >
+                  {timelineRows}
+                </div>
+              </div>
+            ) : (
+              <CustomScrollbar
+                className="timelinesScroller"
+                contentClassName="timelinesViewport"
+                contentRef={setViewportRef}
+                mode="vertical"
+              >
+                {timelineRows}
+              </CustomScrollbar>
+            )}
             <div className="timelinesMiddleMarker" />
           </div>
+
           <button
             className="timelinesNav timelinesNav_prev"
             type="button"

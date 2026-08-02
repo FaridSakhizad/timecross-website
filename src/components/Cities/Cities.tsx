@@ -398,7 +398,7 @@ export default function Cities({ timeFormat }: CitiesProps) {
   return (
     <div className="cities">
       <div className="citiesHeader"></div>
-      <div className="citiesListBox">
+      <div className="citiesListBox scrollControl">
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}

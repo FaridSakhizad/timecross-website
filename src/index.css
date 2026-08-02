@@ -95,6 +95,33 @@ button {
   font-family: var(--body-font-family-1);
 }
 
+.scrollControl {}
+
+.scrollControl::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+  background-color: transparent;
+}
+
+.scrollControl::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+.scrollControl::-webkit-scrollbar-thumb {
+  border-radius: 65536px;
+  border: 3px solid transparent;
+  background-color: rgba(255 255 255 / 0.8);
+  background-clip: padding-box;
+}
+
+.scrollControl::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255 255 255 / 1);
+}
+
+.scrollControl::-webkit-scrollbar-corner {
+  background-color: transparent;
+}
+
 #root {
   display: flex;
   flex-direction: column;
@@ -121,7 +148,6 @@ button {
   font-weight: bold;
   color: #fff;
 }
-
 
 .input,
 .textarea {
@@ -197,4 +223,3 @@ button {
     cursor: default;
   }
 }
-

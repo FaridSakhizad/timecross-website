@@ -10,3 +10,4 @@ export const APP_STORE_URL = 'https://apps.apple.com/ca/app/timecross-world-cloc
 export const GOOGLE_PLAY_URL = '#';
 export const COPYRIGHT_HOLDER = 'Farid Sakhizad';
 export const COPYRIGHT_YEAR = 2026;
+export const ENABLE_FRACTIONAL_TIMELINE_OFFSETS = false;
