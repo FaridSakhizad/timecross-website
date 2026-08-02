@@ -57,5 +57,5 @@
 }
 
 .customScrollbar-thumb_dragging {
-    cursor: grabbing;
+    /*cursor: grabbing;*/
 }

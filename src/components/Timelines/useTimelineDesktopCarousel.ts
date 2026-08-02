@@ -1,76 +1,28 @@
 import { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 import {
-  TIMELINE_HOUR_WIDTH,
   TIMELINE_SCROLL_ANIMATION_MS,
   TIMELINE_SNAP_DELAY_MS,
   TIMELINE_SNAP_RELEASE_MS,
 } from './constants';
+import {
+  getClampedTimelineScrollLeftForHourIndex,
+  getTimelineEaseOutCubic,
+  getTimelineHourIndexAtCenter,
+  getTimelineScrollLeftForHourIndex,
+  getTimelineSidePad,
+} from './timelineScrollMath';
 
-type TimelineCarouselOptions = {
+type TimelineDesktopCarouselOptions = {
   currentHourIndex: number;
-  disableScrollEffects?: boolean;
   maxHourIndex: number;
   minHourIndex: number;
 };
 
-type TouchGesture = {
-  mode: 'pending' | 'horizontal' | 'vertical';
-  startScrollLeft: number;
-  startScrollTop: number;
-  startX: number;
-  startY: number;
-};
-
-const TOUCH_AXIS_LOCK_THRESHOLD = 8;
-const TOUCH_AXIS_LOCK_RATIO = 1.2;
-
-function getSidePad(viewport: HTMLDivElement) {
-  return Math.max(0, viewport.clientWidth / 2 - TIMELINE_HOUR_WIDTH / 2);
-}
-
-function getHourIndexAtCenter(viewport: HTMLDivElement) {
-  const centerX = viewport.scrollLeft + viewport.clientWidth / 2;
-
-  return Math.round((centerX - getSidePad(viewport) - TIMELINE_HOUR_WIDTH / 2) / TIMELINE_HOUR_WIDTH);
-}
-
-function getScrollLeftForHourIndex(viewport: HTMLDivElement, hourIndex: number) {
-  return getSidePad(viewport)
-    + hourIndex * TIMELINE_HOUR_WIDTH
-    + TIMELINE_HOUR_WIDTH / 2
-    - viewport.clientWidth / 2;
-}
-
-function getBoundedHourIndex(hourIndex: number, minHourIndex: number, maxHourIndex: number) {
-  return Math.max(minHourIndex, Math.min(maxHourIndex, hourIndex));
-}
-
-function getClampedScrollLeftForHourIndex(
-  viewport: HTMLDivElement,
-  hourIndex: number,
-  minHourIndex: number,
-  maxHourIndex: number,
-) {
-  const scrollLeft = getScrollLeftForHourIndex(
-    viewport,
-    getBoundedHourIndex(hourIndex, minHourIndex, maxHourIndex),
-  );
-  const minScrollLeft = getScrollLeftForHourIndex(viewport, minHourIndex);
-  const maxScrollLeft = getScrollLeftForHourIndex(viewport, maxHourIndex);
-
-  return Math.max(minScrollLeft, Math.min(maxScrollLeft, scrollLeft));
-}
-
-function easeOutCubic(progress: number) {
-  return 1 - (1 - progress) ** 3;
-}
-
-export function useTimelineCarousel({
+export function useTimelineDesktopCarousel({
   currentHourIndex,
-  disableScrollEffects = false,
   maxHourIndex,
   minHourIndex,
-}: TimelineCarouselOptions) {
+}: TimelineDesktopCarouselOptions) {
   const widgetRef = useRef<HTMLDivElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
   const hasInitialScrollRef = useRef(false);
@@ -80,8 +32,6 @@ export function useTimelineCarousel({
   const animationTokenRef = useRef(0);
   const snapTimerRef = useRef<number | undefined>(undefined);
   const releaseTimerRef = useRef<number | undefined>(undefined);
-  const touchGestureRef = useRef<TouchGesture | null>(null);
-  const isUserInteractingRef = useRef(false);
 
   const setViewportRef = useCallback((element: HTMLDivElement | null) => {
     if (viewportRef.current !== element) {
@@ -99,7 +49,7 @@ export function useTimelineCarousel({
       return;
     }
 
-    widget.style.setProperty('--timeline-side-pad', `${getSidePad(viewport)}px`);
+    widget.style.setProperty('--timeline-side-pad', `${getTimelineSidePad(viewport)}px`);
     widget.style.setProperty('--timeline-scroll-left', `${-viewport.scrollLeft}px`);
     widget.style.setProperty('--timeline-viewport-width', `${viewport.clientWidth}px`);
   }, []);
@@ -186,7 +136,7 @@ export function useTimelineCarousel({
 
       const progress = Math.min((time - startTime) / TIMELINE_SCROLL_ANIMATION_MS, 1);
 
-      viewport.scrollLeft = startScrollLeft + distance * easeOutCubic(progress);
+      viewport.scrollLeft = startScrollLeft + distance * getTimelineEaseOutCubic(progress);
       syncLayout();
 
       if (progress < 1) {
@@ -210,7 +160,7 @@ export function useTimelineCarousel({
       return;
     }
 
-    const targetScrollLeft = getClampedScrollLeftForHourIndex(
+    const targetScrollLeft = getClampedTimelineScrollLeftForHourIndex(
       viewport,
       hourIndex,
       minHourIndex,
@@ -229,7 +179,7 @@ export function useTimelineCarousel({
       return;
     }
 
-    scrollToHourIndex(getHourIndexAtCenter(viewport) + hours);
+    scrollToHourIndex(getTimelineHourIndexAtCenter(viewport) + hours);
   }, [scrollToHourIndex]);
 
   const resetScroll = useCallback(() => {
@@ -247,7 +197,7 @@ export function useTimelineCarousel({
       return;
     }
 
-    viewport.scrollLeft = getClampedScrollLeftForHourIndex(
+    viewport.scrollLeft = getClampedTimelineScrollLeftForHourIndex(
       viewport,
       currentHourIndex,
       minHourIndex,
@@ -265,66 +215,10 @@ export function useTimelineCarousel({
       return;
     }
 
-    if (disableScrollEffects) {
-      const snapToNearestHour = () => {
-        const targetScrollLeft = getClampedScrollLeftForHourIndex(
-          viewport,
-          getHourIndexAtCenter(viewport),
-          minHourIndex,
-          maxHourIndex,
-        );
-
-        snapTimerRef.current = undefined;
-
-        if (Math.abs(targetScrollLeft - viewport.scrollLeft) < 0.5) {
-          return;
-        }
-
-        isProgrammaticScrollRef.current = true;
-        animateScrollLeft(targetScrollLeft);
-      };
-
-      const scheduleSnapToNearestHour = (delay = TIMELINE_SNAP_DELAY_MS) => {
-        if (isProgrammaticScrollRef.current) {
-          return;
-        }
-
-        clearSnapTimer();
-        clearScrollAnimation();
-        snapTimerRef.current = window.setTimeout(snapToNearestHour, delay);
-      };
-
-      const handleNativeScroll = () => {
-        lastScrollLeftRef.current = viewport.scrollLeft;
-        syncLayout();
-
-        scheduleSnapToNearestHour();
-      };
-
-      const handleNativeScrollEnd = () => {
-        scheduleSnapToNearestHour(0);
-      };
-      const resizeObserver = new ResizeObserver(syncLayout);
-
-      cancelProgrammaticMotion();
-      syncLayout();
-      lastScrollLeftRef.current = viewport.scrollLeft;
-      viewport.addEventListener('scroll', handleNativeScroll, { passive: true });
-      viewport.addEventListener('scrollend', handleNativeScrollEnd);
-      resizeObserver.observe(viewport);
-
-      return () => {
-        cancelProgrammaticMotion();
-        resizeObserver.disconnect();
-        viewport.removeEventListener('scroll', handleNativeScroll);
-        viewport.removeEventListener('scrollend', handleNativeScrollEnd);
-      };
-    }
-
     const snapToNearestHour = () => {
-      const targetScrollLeft = getClampedScrollLeftForHourIndex(
+      const targetScrollLeft = getClampedTimelineScrollLeftForHourIndex(
         viewport,
-        getHourIndexAtCenter(viewport),
+        getTimelineHourIndexAtCenter(viewport),
         minHourIndex,
         maxHourIndex,
       );
@@ -351,17 +245,8 @@ export function useTimelineCarousel({
 
     const handleScroll = () => {
       const previousScrollLeft = lastScrollLeftRef.current;
-      const gesture = touchGestureRef.current;
-      const minScrollLeft = getScrollLeftForHourIndex(viewport, minHourIndex);
-      const maxScrollLeft = getScrollLeftForHourIndex(viewport, maxHourIndex);
-
-      if (gesture?.mode === 'horizontal' && viewport.scrollTop !== gesture.startScrollTop) {
-        viewport.scrollTop = gesture.startScrollTop;
-      }
-
-      if (gesture?.mode === 'vertical' && viewport.scrollLeft !== gesture.startScrollLeft) {
-        viewport.scrollLeft = gesture.startScrollLeft;
-      }
+      const minScrollLeft = getTimelineScrollLeftForHourIndex(viewport, minHourIndex);
+      const maxScrollLeft = getTimelineScrollLeftForHourIndex(viewport, maxHourIndex);
 
       if (viewport.scrollLeft < minScrollLeft || viewport.scrollLeft > maxScrollLeft) {
         viewport.scrollLeft = Math.max(minScrollLeft, Math.min(maxScrollLeft, viewport.scrollLeft));
@@ -374,8 +259,7 @@ export function useTimelineCarousel({
       syncLayout();
 
       if (
-        isUserInteractingRef.current
-        || isProgrammaticScrollRef.current
+        isProgrammaticScrollRef.current
         || Math.abs(viewport.scrollLeft - previousScrollLeft) < 0.5
       ) {
         return;
@@ -385,73 +269,15 @@ export function useTimelineCarousel({
     };
 
     const handleScrollEnd = () => {
-      if (isUserInteractingRef.current || isProgrammaticScrollRef.current) {
+      if (isProgrammaticScrollRef.current) {
         return;
       }
 
       scheduleSnapToNearestHour(0);
     };
 
-    const handleTouchStart = (event: TouchEvent) => {
-      if (event.touches.length !== 1) {
-        touchGestureRef.current = null;
-        return;
-      }
-
-      cancelProgrammaticMotion();
-      isUserInteractingRef.current = true;
-
-      const touch = event.touches[0];
-
-      touchGestureRef.current = {
-        mode: 'pending',
-        startScrollLeft: viewport.scrollLeft,
-        startScrollTop: viewport.scrollTop,
-        startX: touch.clientX,
-        startY: touch.clientY,
-      };
-    };
-
-    const handleTouchMove = (event: TouchEvent) => {
-      const gesture = touchGestureRef.current;
-
-      if (!gesture || event.touches.length !== 1) {
-        return;
-      }
-
-      const touch = event.touches[0];
-      const deltaX = touch.clientX - gesture.startX;
-      const deltaY = touch.clientY - gesture.startY;
-      const absoluteX = Math.abs(deltaX);
-      const absoluteY = Math.abs(deltaY);
-
-      if (gesture.mode === 'pending') {
-        if (
-          absoluteX < TOUCH_AXIS_LOCK_THRESHOLD
-          && absoluteY < TOUCH_AXIS_LOCK_THRESHOLD
-        ) {
-          return;
-        }
-
-        gesture.mode = absoluteX > absoluteY * TOUCH_AXIS_LOCK_RATIO
-          ? 'horizontal'
-          : 'vertical';
-      }
-
-      if (gesture.mode === 'vertical') {
-        return;
-      }
-    };
-
-    const handleTouchEnd = () => {
-      touchGestureRef.current = null;
-      isUserInteractingRef.current = false;
-      scheduleSnapToNearestHour();
-    };
-
     const handleWheel = () => {
       cancelProgrammaticMotion();
-      isUserInteractingRef.current = false;
     };
 
     const resizeObserver = new ResizeObserver(syncLayout);
@@ -460,25 +286,14 @@ export function useTimelineCarousel({
     lastScrollLeftRef.current = viewport.scrollLeft;
     viewport.addEventListener('scroll', handleScroll, { passive: true });
     viewport.addEventListener('scrollend', handleScrollEnd);
-    viewport.addEventListener('touchstart', handleTouchStart, { passive: true });
-    viewport.addEventListener('touchmove', handleTouchMove, { passive: true });
-    viewport.addEventListener('touchend', handleTouchEnd);
-    viewport.addEventListener('touchcancel', handleTouchEnd);
     viewport.addEventListener('wheel', handleWheel, { passive: true });
     resizeObserver.observe(viewport);
 
     return () => {
       cancelProgrammaticMotion();
-      isUserInteractingRef.current = false;
-      touchGestureRef.current = null;
-
       resizeObserver.disconnect();
       viewport.removeEventListener('scroll', handleScroll);
       viewport.removeEventListener('scrollend', handleScrollEnd);
-      viewport.removeEventListener('touchstart', handleTouchStart);
-      viewport.removeEventListener('touchmove', handleTouchMove);
-      viewport.removeEventListener('touchend', handleTouchEnd);
-      viewport.removeEventListener('touchcancel', handleTouchEnd);
       viewport.removeEventListener('wheel', handleWheel);
     };
   }, [
@@ -486,7 +301,6 @@ export function useTimelineCarousel({
     cancelProgrammaticMotion,
     clearScrollAnimation,
     clearSnapTimer,
-    disableScrollEffects,
     maxHourIndex,
     minHourIndex,
     syncLayout,

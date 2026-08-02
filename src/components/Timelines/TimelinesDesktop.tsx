@@ -1,0 +1,95 @@
+import type { ReactNode } from 'react';
+import CustomScrollbar from '../CustomScrollbar';
+import { useI18n } from '../../i18n';
+import { TIMELINE_EDGE_FADE_HOURS, TIMELINE_TOTAL_HOURS } from './constants';
+import TimelineHeader from './TimelineHeader';
+import { useTimelineDesktopCarousel } from './useTimelineDesktopCarousel';
+import type { TimelineCell } from './types';
+
+type TimelinesDesktopProps = {
+  currentUserHourIndex: number;
+  timelineRows: ReactNode;
+  userCells: TimelineCell[];
+};
+
+export default function TimelinesDesktop({
+  currentUserHourIndex,
+  timelineRows,
+  userCells,
+}: TimelinesDesktopProps) {
+  const { t } = useI18n();
+  const { resetScroll, scrollByHours, setViewportRef, widgetRef } = useTimelineDesktopCarousel({
+    currentHourIndex: currentUserHourIndex,
+    minHourIndex: TIMELINE_EDGE_FADE_HOURS,
+    maxHourIndex: TIMELINE_EDGE_FADE_HOURS + TIMELINE_TOTAL_HOURS - 1,
+  });
+
+  return (
+    <>
+      <button
+        className="timelinesReset"
+        type="button"
+        onClick={resetScroll}
+        aria-label={t('common.reset')}
+      />
+      <div className="timelinesWidgetWrapper">
+        <div
+          className="timelinesWidget"
+          ref={widgetRef}
+        >
+          <div className="timelinesPanel">
+            <div className="timelinesHeaderViewport">
+              <TimelineHeader userCells={userCells} />
+            </div>
+            <CustomScrollbar
+              className="timelinesScroller"
+              contentClassName="timelinesViewport"
+              contentRef={setViewportRef}
+              mode="vertical"
+            >
+              {timelineRows}
+            </CustomScrollbar>
+            <div className="timelinesMiddleMarker" />
+          </div>
+
+          <button
+            className="timelinesNav timelinesNav_prev"
+            type="button"
+            aria-label={t('common.previousHour')}
+            title={t('common.previousHour')}
+            onClick={() => scrollByHours(-1)}
+          >
+            <svg
+              className="timelinesNavIcon"
+              width="48"
+              height="48"
+              viewBox="0 0 48 48"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path d="M27 14l-10 10 10 10" />
+            </svg>
+          </button>
+          <button
+            className="timelinesNav timelinesNav_next"
+            type="button"
+            aria-label={t('common.nextHour')}
+            title={t('common.nextHour')}
+            onClick={() => scrollByHours(1)}
+          >
+            <svg
+              className="timelinesNavIcon"
+              width="48"
+              height="48"
+              viewBox="0 0 48 48"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path d="M21 14l10 10-10 10" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </>
+  );
+}
