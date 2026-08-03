@@ -45,10 +45,17 @@
   }
 
   .copyright {
-    margin: 0;
+    margin: 20px 0 0 0;
+    order: 1;
   }
 
   .footerMenu {
     margin: 0;
+    order: 0;
+    flex-direction: column;
+  }
+
+  .footerMenu-item {
+    text-align: center;
   }
 }
