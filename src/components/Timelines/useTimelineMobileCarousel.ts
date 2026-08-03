@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 import {
   TIMELINE_HOUR_WIDTH,
-  TIMELINE_SCROLL_ANIMATION_MS,
   TIMELINE_SNAP_RELEASE_MS,
 } from './constants';
 import {
@@ -17,6 +16,8 @@ type TimelineMobileCarouselOptions = {
   maxHourIndex: number;
   minHourIndex: number;
 };
+
+const MOBILE_TIMELINE_SCROLL_ANIMATION_MS = 200;
 
 export function useTimelineMobileCarousel({
   currentHourIndex,
@@ -132,7 +133,7 @@ export function useTimelineMobileCarousel({
         return;
       }
 
-      const progress = Math.min((time - startTime) / TIMELINE_SCROLL_ANIMATION_MS, 1);
+      const progress = Math.min((time - startTime) / MOBILE_TIMELINE_SCROLL_ANIMATION_MS, 1);
       const nextScrollLeft = startScrollLeft + distance * getTimelineEaseOutCubic(progress);
 
       if (freePanMode) {
@@ -209,6 +210,8 @@ export function useTimelineMobileCarousel({
 
     scrollToHourIndex(currentHourIndex);
   }, [currentHourIndex, scrollToHourIndex]);
+
+  const isScrollAnimating = useCallback(() => animationFrameRef.current !== undefined, []);
 
   useLayoutEffect(() => {
     const viewport = viewportRef.current;
@@ -306,6 +309,7 @@ export function useTimelineMobileCarousel({
   ]);
 
   return {
+    isScrollAnimating,
     resetScroll,
     scrollByHours,
     setViewportRef,

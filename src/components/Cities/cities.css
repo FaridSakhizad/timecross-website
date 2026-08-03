@@ -34,10 +34,14 @@
   &:nth-last-child(1 of &) {
     border-bottom: none;
   }
+}
 
-  &:hover {
-    .citiesList-dragButton {
-      opacity: 1;
+@media (hover: hover) {
+  .citiesList-item {
+    &:hover {
+      .citiesList-dragButton {
+        opacity: 1;
+      }
     }
   }
 }

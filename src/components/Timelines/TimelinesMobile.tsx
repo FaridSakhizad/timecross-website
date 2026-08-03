@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useRef, useState, type PointerEvent, type ReactNode } from 'react';
 import { useI18n } from '../../i18n';
 import { TIMELINE_EDGE_FADE_HOURS, TIMELINE_TOTAL_HOURS } from './constants';
 import TimelineHeader from './TimelineHeader';
@@ -11,6 +11,16 @@ type TimelinesMobileProps = {
   userCells: TimelineCell[];
 };
 
+type TimelineSwipeState = {
+  axis: 'pending' | 'horizontal' | 'vertical';
+  pointerId: number;
+  startX: number;
+  startY: number;
+};
+
+const TIMELINE_SWIPE_MIN_DISTANCE = 56;
+const TIMELINE_SWIPE_AXIS_BIAS = 1.35;
+
 export default function TimelinesMobile({
   currentUserHourIndex,
   timelineRows,
@@ -19,8 +29,10 @@ export default function TimelinesMobile({
   const { t } = useI18n();
 
   const [freePanMode, setFreePanMode] = useState(false);
+  const swipeStateRef = useRef<TimelineSwipeState | null>(null);
 
   const {
+    isScrollAnimating,
     resetScroll,
     scrollByHours,
     setViewportRef,
@@ -31,6 +43,98 @@ export default function TimelinesMobile({
     minHourIndex: TIMELINE_EDGE_FADE_HOURS,
     maxHourIndex: TIMELINE_EDGE_FADE_HOURS + TIMELINE_TOTAL_HOURS - 1,
   });
+
+  const resolveSwipeAxis = (
+    swipeState: TimelineSwipeState,
+    clientX: number,
+    clientY: number,
+  ) => {
+    if (swipeState.axis !== 'pending') {
+      return swipeState.axis;
+    }
+
+    const distanceX = clientX - swipeState.startX;
+    const distanceY = clientY - swipeState.startY;
+    const absX = Math.abs(distanceX);
+    const absY = Math.abs(distanceY);
+
+    if (absX < TIMELINE_SWIPE_MIN_DISTANCE && absY < TIMELINE_SWIPE_MIN_DISTANCE) {
+      return 'pending';
+    }
+
+    if (absX >= TIMELINE_SWIPE_MIN_DISTANCE && absX >= absY * TIMELINE_SWIPE_AXIS_BIAS) {
+      return 'horizontal';
+    }
+
+    if (absY >= TIMELINE_SWIPE_MIN_DISTANCE && absY >= absX * TIMELINE_SWIPE_AXIS_BIAS) {
+      return 'vertical';
+    }
+
+    return 'pending';
+  }
+
+  const handleSwipePointerDown = (event: PointerEvent<HTMLDivElement>) => {
+    if (
+      freePanMode
+      || isScrollAnimating()
+      || event.pointerType !== 'touch'
+      || !event.isPrimary
+    ) {
+      return;
+    }
+
+    swipeStateRef.current = {
+      axis: 'pending',
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+    };
+  }
+
+  const handleSwipePointerMove = (event: PointerEvent<HTMLDivElement>) => {
+    const swipeState = swipeStateRef.current;
+
+    if (
+      !swipeState
+      || freePanMode
+      || event.pointerId !== swipeState.pointerId
+      || event.pointerType !== 'touch'
+    ) {
+      return;
+    }
+
+    swipeState.axis = resolveSwipeAxis(swipeState, event.clientX, event.clientY);
+  }
+
+  const finishSwipe = (event: PointerEvent<HTMLDivElement>) => {
+    const swipeState = swipeStateRef.current;
+
+    if (!swipeState || event.pointerId !== swipeState.pointerId) {
+      return;
+    }
+
+    swipeStateRef.current = null;
+
+    if (freePanMode || isScrollAnimating() || swipeState.axis !== 'horizontal') {
+      return;
+    }
+
+    const distanceX = event.clientX - swipeState.startX;
+
+    if (Math.abs(distanceX) < TIMELINE_SWIPE_MIN_DISTANCE) {
+      return;
+    }
+
+    scrollByHours(distanceX < 0 ? 1 : -1);
+  }
+
+  const cancelSwipe = (event: PointerEvent<HTMLDivElement>) => {
+    if (swipeStateRef.current?.pointerId !== event.pointerId) {
+      return;
+    }
+
+    swipeStateRef.current = null;
+  }
 
   return (
     <>
@@ -75,7 +179,13 @@ export default function TimelinesMobile({
           className="timelinesWidget"
           ref={widgetRef}
         >
-          <div className="timelinesPanel">
+          <div
+            className="timelinesPanel"
+            onPointerDown={handleSwipePointerDown}
+            onPointerMove={handleSwipePointerMove}
+            onPointerUp={finishSwipe}
+            onPointerCancel={cancelSwipe}
+          >
             <div className="timelinesHeaderViewport">
               <TimelineHeader userCells={userCells} />
             </div>
