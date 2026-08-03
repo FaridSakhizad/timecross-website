@@ -4,6 +4,14 @@
   }
 }
 
+.timelinesTopControls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 0 auto 14px auto;
+}
+
 .timelinesReset {
   display: flex;
   align-items: center;
@@ -55,6 +63,65 @@
   }
 }
 
+.timelinesTopControls .timelinesReset {
+  margin: 0;
+}
+
+.timelinesMobileStepControls {
+  display: none;
+  align-items: center;
+  gap: 6px;
+}
+
+.timelinesStepButton {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 30px;
+  padding: 0;
+  border: none;
+  border-radius: 15px;
+  background: rgba(var(--accent-color-1), 0.3);
+  color: rgba(var(--accent-color-2), 1);
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1;
+  transition: background-color 0.3s ease, transform 0.16s ease;
+}
+
+.timelinesStepButton:hover {
+  background: rgba(var(--accent-color-1), 0.5);
+}
+
+.timelinesStepButton:active {
+  transform: scale(0.96);
+}
+
+.timelinesPanButton {
+  display: none;
+  min-width: 86px;
+  height: 30px;
+  padding: 0 14px;
+  margin: 12px auto 0 auto;
+  border: none;
+  border-radius: 15px;
+  background: rgba(var(--accent-color-1), 0.3);
+  color: rgba(var(--accent-color-2), 1);
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1;
+  transition: background-color 0.3s ease, transform 0.16s ease;
+}
+
+.timelinesPanButton_active,
+.timelinesPanButton:hover {
+  background: rgba(var(--accent-color-1), 0.5);
+}
+
+.timelinesPanButton:active {
+  transform: scale(0.96);
+}
+
 .timelinesWidgetWrapper {
   padding-inline: 110px;
 }
@@ -96,9 +163,7 @@
   max-height: 372px;
   overflow: auto;
   user-select: none;
-  /*touch-action: pan-x pan-y;*/
   overscroll-behavior: contain;
-  /*scroll-behavior: auto;*/
 }
 
 .timelinesMiddleMarker {
@@ -351,6 +416,14 @@
 }
 
 @media (width < 1024px) {
+  .timelinesMobileStepControls_visible {
+    display: flex;
+  }
+
+  .timelinesPanButton {
+    display: block;
+  }
+
   .timelinesWidgetWrapper {
     padding: 0 15px;
   }
@@ -362,5 +435,29 @@
 
   .timelinesViewport {
     min-height: 70dvh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior-x: contain;
+    touch-action: pan-y pinch-zoom;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .timelinesViewport:not(.timelinesViewport_freePan) .timelines-trackClip {
+    transform: translate3d(var(--timeline-scroll-left, 0px), 0, 0);
+    will-change: transform;
+  }
+
+  .timelinesViewport:not(.timelinesViewport_freePan) .timelines-row {
+    width: 100%;
+    min-width: 100%;
+    overflow: hidden;
+  }
+
+  .timelinesViewport_freePan {
+    overflow-x: auto;
+    overflow-y: auto;
+    overscroll-behavior-x: contain;
+    touch-action: pan-x pan-y pinch-zoom;
+    -webkit-overflow-scrolling: touch;
   }
 }

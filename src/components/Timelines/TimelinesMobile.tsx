@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useI18n } from '../../i18n';
 import { TIMELINE_EDGE_FADE_HOURS, TIMELINE_TOTAL_HOURS } from './constants';
 import TimelineHeader from './TimelineHeader';
@@ -17,20 +17,59 @@ export default function TimelinesMobile({
   userCells,
 }: TimelinesMobileProps) {
   const { t } = useI18n();
-  const { resetScroll, scrollByHours, setViewportRef, widgetRef } = useTimelineMobileCarousel({
+
+  const [freePanMode, setFreePanMode] = useState(false);
+
+  const {
+    resetScroll,
+    scrollByHours,
+    setViewportRef,
+    widgetRef
+  } = useTimelineMobileCarousel({
     currentHourIndex: currentUserHourIndex,
+    freePanMode,
     minHourIndex: TIMELINE_EDGE_FADE_HOURS,
     maxHourIndex: TIMELINE_EDGE_FADE_HOURS + TIMELINE_TOTAL_HOURS - 1,
   });
 
   return (
     <>
-      <button
-        className="timelinesReset"
-        type="button"
-        onClick={resetScroll}
-        aria-label={t('common.reset')}
-      />
+      <div className="timelinesTopControls">
+        <div className="timelinesMobileStepControls timelinesMobileStepControls_visible">
+          {[-3, -2, -1].map((hours) => (
+            <button
+              className="timelinesStepButton"
+              type="button"
+              key={hours}
+              onClick={() => scrollByHours(hours)}
+              aria-label={`${t('common.previousHour')} ${Math.abs(hours)}`}
+              title={`${t('common.previousHour')} ${Math.abs(hours)}`}
+            >
+              {hours}
+            </button>
+          ))}
+        </div>
+        <button
+          className="timelinesReset"
+          type="button"
+          onClick={resetScroll}
+          aria-label={t('common.reset')}
+        />
+        <div className="timelinesMobileStepControls timelinesMobileStepControls_visible">
+          {[1, 2, 3].map((hours) => (
+            <button
+              className="timelinesStepButton"
+              type="button"
+              key={hours}
+              onClick={() => scrollByHours(hours)}
+              aria-label={`${t('common.nextHour')} ${hours}`}
+              title={`${t('common.nextHour')} ${hours}`}
+            >
+              +{hours}
+            </button>
+          ))}
+        </div>
+      </div>
       <div className="timelinesWidgetWrapper">
         <div
           className="timelinesWidget"
@@ -42,7 +81,7 @@ export default function TimelinesMobile({
             </div>
             <div className="timelinesScroller">
               <div
-                className="timelinesViewport"
+                className={`timelinesViewport${freePanMode ? ' timelinesViewport_freePan' : ''}`}
                 ref={setViewportRef}
               >
                 {timelineRows}
@@ -52,40 +91,12 @@ export default function TimelinesMobile({
           </div>
 
           <button
-            className="timelinesNav timelinesNav_prev"
+            className={`timelinesPanButton${freePanMode ? ' timelinesPanButton_active' : ''}`}
             type="button"
-            aria-label={t('common.previousHour')}
-            title={t('common.previousHour')}
-            onClick={() => scrollByHours(-1)}
+            aria-pressed={freePanMode}
+            onClick={() => setFreePanMode((value) => !value)}
           >
-            <svg
-              className="timelinesNavIcon"
-              width="48"
-              height="48"
-              viewBox="0 0 48 48"
-              aria-hidden="true"
-              focusable="false"
-            >
-              <path d="M27 14l-10 10 10 10" />
-            </svg>
-          </button>
-          <button
-            className="timelinesNav timelinesNav_next"
-            type="button"
-            aria-label={t('common.nextHour')}
-            title={t('common.nextHour')}
-            onClick={() => scrollByHours(1)}
-          >
-            <svg
-              className="timelinesNavIcon"
-              width="48"
-              height="48"
-              viewBox="0 0 48 48"
-              aria-hidden="true"
-              focusable="false"
-            >
-              <path d="M21 14l10 10-10 10" />
-            </svg>
+            {t(freePanMode ? 'common.scrollMode' : 'common.panMode')}
           </button>
         </div>
       </div>
