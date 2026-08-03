@@ -21,6 +21,24 @@ type TimelineSwipeState = {
 const TIMELINE_SWIPE_MIN_DISTANCE = 56;
 const TIMELINE_SWIPE_AXIS_BIAS = 1.35;
 
+const renderStepArrows = (hours: number) => {
+  const direction = hours < 0 ? 'prev' : 'next';
+
+  return Array.from({ length: Math.abs(hours) }, (_, index) => (
+    <svg
+      className="timelinesStepButtonIcon"
+      width="8"
+      height="14"
+      viewBox="0 0 8 14"
+      aria-hidden="true"
+      focusable="false"
+      key={`${direction}-${index}`}
+    >
+      <path d={direction === 'prev' ? 'M7 1L1 7l6 6' : 'M1 1l6 6-6 6'} />
+    </svg>
+  ));
+}
+
 export default function TimelinesMobile({
   currentUserHourIndex,
   timelineRows,
@@ -142,14 +160,14 @@ export default function TimelinesMobile({
         <div className="timelinesMobileStepControls timelinesMobileStepControls_visible">
           {[-3, -2, -1].map((hours) => (
             <button
-              className="timelinesStepButton"
+              className="timelinesStepButton timelinesStepButton_prev"
               type="button"
               key={hours}
               onClick={() => scrollByHours(hours)}
               aria-label={`${t('common.previousHour')} ${Math.abs(hours)}`}
               title={`${t('common.previousHour')} ${Math.abs(hours)}`}
             >
-              {hours}
+              {renderStepArrows(hours)}
             </button>
           ))}
         </div>
@@ -162,14 +180,14 @@ export default function TimelinesMobile({
         <div className="timelinesMobileStepControls timelinesMobileStepControls_visible">
           {[1, 2, 3].map((hours) => (
             <button
-              className="timelinesStepButton"
+              className="timelinesStepButton timelinesStepButton_next"
               type="button"
               key={hours}
               onClick={() => scrollByHours(hours)}
               aria-label={`${t('common.nextHour')} ${hours}`}
               title={`${t('common.nextHour')} ${hours}`}
             >
-              +{hours}
+              {renderStepArrows(hours)}
             </button>
           ))}
         </div>

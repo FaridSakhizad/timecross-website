@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-const NATIVE_SCROLL_TIMELINE_QUERY = '(max-width: 1023px), (hover: none) and (pointer: coarse)';
+const NATIVE_SCROLL_TIMELINE_QUERY = '(hover: none) and (pointer: coarse)';
 
 function getUsesNativeTimelineScroll() {
   return typeof window !== 'undefined'

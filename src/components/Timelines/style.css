@@ -76,9 +76,11 @@
 }
 
 .timelinesStepButton {
-  display: grid;
-  place-items: center;
-  width: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  width: 41px;
   height: 30px;
   padding: 0;
   border: none;
@@ -89,6 +91,26 @@
   font-size: 13px;
   line-height: 1;
   transition: background-color 0.3s ease, transform 0.16s ease;
+}
+
+.timelinesStepButton_prev {
+  padding-right: 2px;
+}
+
+.timelinesStepButton_next {
+  padding-left: 2px;
+}
+
+.timelinesStepButtonIcon {
+  display: block;
+  flex: 0 0 auto;
+  width: 8px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .timelinesStepButton:hover {
