@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 import {
+  TIMELINE_DESKTOP_SCROLLBAR_THUMB_WIDTH,
   TIMELINE_SCROLL_ANIMATION_MS,
   TIMELINE_SNAP_DELAY_MS,
   TIMELINE_SNAP_RELEASE_MS,
@@ -27,6 +28,7 @@ export function useTimelineDesktopCarousel({
   const viewportRef = useRef<HTMLDivElement>(null);
   const hasInitialScrollRef = useRef(false);
   const isProgrammaticScrollRef = useRef(false);
+  const isScrollbarThumbDraggingRef = useRef(false);
   const lastScrollLeftRef = useRef(0);
   const animationFrameRef = useRef<number | undefined>(undefined);
   const animationTokenRef = useRef(0);
@@ -190,6 +192,70 @@ export function useTimelineDesktopCarousel({
     scrollToHourIndex(currentHourIndex);
   }, [currentHourIndex, scrollToHourIndex]);
 
+  const getScrollbarMetrics = useCallback((axis: 'horizontal' | 'vertical', viewport: HTMLDivElement) => {
+    if (axis === 'vertical' || currentHourIndex < 0) {
+      return undefined;
+    }
+
+    return {
+      centerScrollOffset: getClampedTimelineScrollLeftForHourIndex(
+        viewport,
+        currentHourIndex,
+        minHourIndex,
+        maxHourIndex,
+      ),
+      maxScrollOffset: getTimelineScrollLeftForHourIndex(viewport, maxHourIndex),
+      minScrollOffset: getTimelineScrollLeftForHourIndex(viewport, minHourIndex),
+      thumbLength: TIMELINE_DESKTOP_SCROLLBAR_THUMB_WIDTH,
+    };
+  }, [currentHourIndex, maxHourIndex, minHourIndex]);
+
+  const snapToNearestHour = useCallback(() => {
+    const viewport = viewportRef.current;
+
+    if (!viewport || isScrollbarThumbDraggingRef.current) {
+      return;
+    }
+
+    const targetScrollLeft = getClampedTimelineScrollLeftForHourIndex(
+      viewport,
+      getTimelineHourIndexAtCenter(viewport),
+      minHourIndex,
+      maxHourIndex,
+    );
+
+    snapTimerRef.current = undefined;
+
+    if (Math.abs(targetScrollLeft - viewport.scrollLeft) < 0.5) {
+      return;
+    }
+
+    isProgrammaticScrollRef.current = true;
+    animateScrollLeft(targetScrollLeft);
+  }, [animateScrollLeft, maxHourIndex, minHourIndex]);
+
+  const handleScrollbarThumbDragStart = useCallback(() => {
+    isScrollbarThumbDraggingRef.current = true;
+    cancelProgrammaticMotion();
+  }, [cancelProgrammaticMotion]);
+
+  const handleScrollbarThumbDragEnd = useCallback((axis: 'horizontal' | 'vertical') => {
+    const viewport = viewportRef.current;
+
+    isScrollbarThumbDraggingRef.current = false;
+
+    if (!viewport) {
+      return;
+    }
+
+    lastScrollLeftRef.current = viewport.scrollLeft;
+    syncLayout();
+
+    if (axis === 'horizontal') {
+      window.requestAnimationFrame(snapToNearestHour);
+    }
+  }, [snapToNearestHour, syncLayout]);
+
   useLayoutEffect(() => {
     const viewport = viewportRef.current;
 
@@ -215,26 +281,8 @@ export function useTimelineDesktopCarousel({
       return;
     }
 
-    const snapToNearestHour = () => {
-      const targetScrollLeft = getClampedTimelineScrollLeftForHourIndex(
-        viewport,
-        getTimelineHourIndexAtCenter(viewport),
-        minHourIndex,
-        maxHourIndex,
-      );
-
-      snapTimerRef.current = undefined;
-
-      if (Math.abs(targetScrollLeft - viewport.scrollLeft) < 0.5) {
-        return;
-      }
-
-      isProgrammaticScrollRef.current = true;
-      animateScrollLeft(targetScrollLeft);
-    };
-
     const scheduleSnapToNearestHour = (delay = TIMELINE_SNAP_DELAY_MS) => {
-      if (isProgrammaticScrollRef.current) {
+      if (isProgrammaticScrollRef.current || isScrollbarThumbDraggingRef.current) {
         return;
       }
 
@@ -260,6 +308,7 @@ export function useTimelineDesktopCarousel({
 
       if (
         isProgrammaticScrollRef.current
+        || isScrollbarThumbDraggingRef.current
         || Math.abs(viewport.scrollLeft - previousScrollLeft) < 0.5
       ) {
         return;
@@ -303,10 +352,14 @@ export function useTimelineDesktopCarousel({
     clearSnapTimer,
     maxHourIndex,
     minHourIndex,
+    snapToNearestHour,
     syncLayout,
   ]);
 
   return {
+    handleScrollbarThumbDragEnd,
+    handleScrollbarThumbDragStart,
+    getScrollbarMetrics,
     resetScroll,
     scrollByHours,
     setViewportRef,

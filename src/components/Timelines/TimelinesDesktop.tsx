@@ -18,7 +18,15 @@ export default function TimelinesDesktop({
   userCells,
 }: TimelinesDesktopProps) {
   const { t } = useI18n();
-  const { resetScroll, scrollByHours, setViewportRef, widgetRef } = useTimelineDesktopCarousel({
+  const {
+    getScrollbarMetrics,
+    handleScrollbarThumbDragEnd,
+    handleScrollbarThumbDragStart,
+    resetScroll,
+    scrollByHours,
+    setViewportRef,
+    widgetRef,
+  } = useTimelineDesktopCarousel({
     currentHourIndex: currentUserHourIndex,
     minHourIndex: TIMELINE_EDGE_FADE_HOURS,
     maxHourIndex: TIMELINE_EDGE_FADE_HOURS + TIMELINE_TOTAL_HOURS - 1,
@@ -45,7 +53,10 @@ export default function TimelinesDesktop({
               className="timelinesScroller"
               contentClassName="timelinesViewport"
               contentRef={setViewportRef}
-              mode="vertical"
+              getScrollbarMetrics={getScrollbarMetrics}
+              mode="both"
+              onThumbDragEnd={handleScrollbarThumbDragEnd}
+              onThumbDragStart={handleScrollbarThumbDragStart}
             >
               {timelineRows}
             </CustomScrollbar>
