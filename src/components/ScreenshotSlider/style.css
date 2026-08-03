@@ -52,6 +52,8 @@
     width: var(--slide-width);
     height: 500px;
     margin: 0 auto;
+    touch-action: pan-y pinch-zoom;
+    user-select: none;
 }
 
 .sliderWrapper {

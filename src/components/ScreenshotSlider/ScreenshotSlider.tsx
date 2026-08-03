@@ -1,5 +1,5 @@
 import './style.css';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState, type PointerEvent } from 'react';
 import { useI18n } from '../../i18n';
 
 import slide1 from '../../assets/1-cities.jpg';
@@ -42,11 +42,22 @@ const SLIDES = [
   }
 ];
 
+const SWIPE_MIN_DISTANCE = 48;
+const SWIPE_AXIS_BIAS = 1.2;
+
+type SwipeState = {
+  axis: 'pending' | 'horizontal' | 'vertical';
+  pointerId: number;
+  startX: number;
+  startY: number;
+};
+
 export default function ScreenshotSlider() {
   const { t } = useI18n();
   const [ activeSlideIdx, setActiveSlideIdx ] = useState<number>(0);
   const [ lockSlideAnimation, setLockSlideAnimation ] = useState<boolean>(false);
   const [ isAnimating, setIsAnimating ] = useState<boolean>(false);
+  const swipeStateRef = useRef<SwipeState | null>(null);
 
   const [ loopPerformed, setLoopPerformed ] = useState<boolean>(false);
 
@@ -82,6 +93,109 @@ export default function ScreenshotSlider() {
     setIsAnimating(true);
 
     setActiveSlideIdx(1 + activeSlideIdx);
+  }
+
+  const resolveSwipeAxis = (swipeState: SwipeState, clientX: number, clientY: number) => {
+    if (swipeState.axis !== 'pending') {
+      return swipeState.axis;
+    }
+
+    const distanceX = clientX - swipeState.startX;
+    const distanceY = clientY - swipeState.startY;
+    const absX = Math.abs(distanceX);
+    const absY = Math.abs(distanceY);
+
+    if (absX < SWIPE_MIN_DISTANCE && absY < SWIPE_MIN_DISTANCE) {
+      return 'pending';
+    }
+
+    if (absX >= SWIPE_MIN_DISTANCE && absX >= absY * SWIPE_AXIS_BIAS) {
+      return 'horizontal';
+    }
+
+    if (absY >= SWIPE_MIN_DISTANCE && absY >= absX * SWIPE_AXIS_BIAS) {
+      return 'vertical';
+    }
+
+    return 'pending';
+  }
+
+  const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
+    if (event.pointerType === 'mouse' || !event.isPrimary || isAnimating) {
+      return;
+    }
+
+    swipeStateRef.current = {
+      axis: 'pending',
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+    };
+  }
+
+  const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
+    const swipeState = swipeStateRef.current;
+
+    if (!swipeState || swipeState.pointerId !== event.pointerId) {
+      return;
+    }
+
+    swipeState.axis = resolveSwipeAxis(swipeState, event.clientX, event.clientY);
+
+    if (swipeState.axis !== 'horizontal') {
+      return;
+    }
+
+    event.preventDefault();
+
+    if (!event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    }
+  }
+
+  const finishSwipe = (event: PointerEvent<HTMLDivElement>) => {
+    const swipeState = swipeStateRef.current;
+
+    if (!swipeState || swipeState.pointerId !== event.pointerId) {
+      return;
+    }
+
+    swipeStateRef.current = null;
+
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+
+    const axis = resolveSwipeAxis(swipeState, event.clientX, event.clientY);
+
+    if (axis !== 'horizontal' || isAnimating) {
+      return;
+    }
+
+    const distanceX = event.clientX - swipeState.startX;
+
+    if (Math.abs(distanceX) < SWIPE_MIN_DISTANCE) {
+      return;
+    }
+
+    if (distanceX > 0) {
+      handleLeftSliderButtonClick();
+      return;
+    }
+
+    handleRightSliderButtonClick();
+  }
+
+  const cancelSwipe = (event: PointerEvent<HTMLDivElement>) => {
+    if (swipeStateRef.current?.pointerId !== event.pointerId) {
+      return;
+    }
+
+    swipeStateRef.current = null;
+
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
   }
 
   const loopBack = () => {
@@ -147,9 +261,15 @@ export default function ScreenshotSlider() {
 
       <div className="screenshotsSliderBox">
 
-        <div className="sliderFrame">
+        <div
+          className="sliderFrame"
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={finishSwipe}
+          onPointerCancel={cancelSwipe}
+        >
           <div
-            className={`sliderWrapper ${lockSlideAnimation ? 'sliderWrapper_lockSlideAnimation' : ''}`} // @ts-expect-error
+            className={`sliderWrapper ${lockSlideAnimation ? 'sliderWrapper_lockSlideAnimation' : ''}`} // @ts-expect-error CSS custom property
             style={{ '--active-slide-idx': activeSlideIdx }}
             data-slider-index={activeSlideIdx}
             onTransitionEnd={handleAnimationEnd}
