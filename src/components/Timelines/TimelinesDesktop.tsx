@@ -40,7 +40,7 @@ export default function TimelinesDesktop({
         onClick={resetScroll}
         aria-label={t('common.reset')}
       />
-      <div className="timelinesWidgetWrapper">
+      <div className="timelinesWidgetWrapper timelinesWidgetWrapper_desktop">
         <div
           className="timelinesWidget"
           ref={widgetRef}

@@ -75,6 +75,10 @@
   gap: 6px;
 }
 
+.timelinesMobileStepControls_visible {
+  display: flex;
+}
+
 .timelinesStepButton {
   display: flex;
   align-items: center;
@@ -137,6 +141,47 @@
   transition: background-color 0.3s ease, transform 0.16s ease;
 }
 
+.timelinesWidgetWrapper_mobile .timelinesPanButton {
+  display: block;
+}
+
+.timelinesWidgetWrapper_mobile .timelinesPanel {
+  touch-action: pan-y pinch-zoom;
+}
+
+.timelinesWidgetWrapper_mobile .timelinesViewport {
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-x: contain;
+  touch-action: pan-y pinch-zoom;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media screen and (orientation: portrait) {
+  .timelinesWidgetWrapper_mobile .timelinesViewport {
+    min-height: 70dvh;
+  }
+}
+
+.timelinesWidgetWrapper_mobile .timelinesViewport:not(.timelinesViewport_freePan) .timelines-trackClip {
+  transform: translate3d(var(--timeline-scroll-left, 0px), 0, 0);
+  will-change: transform;
+}
+
+.timelinesWidgetWrapper_mobile .timelinesViewport:not(.timelinesViewport_freePan) .timelines-row {
+  width: 100%;
+  min-width: 100%;
+  overflow: hidden;
+}
+
+.timelinesWidgetWrapper_mobile .timelinesViewport_freePan {
+  overflow-x: auto;
+  overflow-y: auto;
+  overscroll-behavior-x: contain;
+  touch-action: pan-x pan-y pinch-zoom;
+  -webkit-overflow-scrolling: touch;
+}
+
 .timelinesPanButton_active,
 .timelinesPanButton:hover {
   background: rgba(var(--accent-color-1), 0.5);
@@ -148,6 +193,10 @@
 
 .timelinesWidgetWrapper {
   padding-inline: 110px;
+}
+
+.timelinesWidgetWrapper.timelinesWidgetWrapper_mobile {
+  padding: 0 15px;
 }
 
 .timelinesWidget {
@@ -440,48 +489,16 @@
 }
 
 @media (width < 1024px) {
-  .timelinesMobileStepControls_visible {
-    display: flex;
-  }
-
-  .timelinesPanButton {
-    display: block;
-  }
-
-  .timelinesWidgetWrapper {
+  .timelinesWidgetWrapper_desktop,
+  .timelinesWidgetWrapper_mobile {
     padding: 0 15px;
   }
 
-  .timelinesNav_prev,
-  .timelinesNav_next {
+  .timelinesWidgetWrapper_desktop .timelinesNav_prev,
+  .timelinesWidgetWrapper_desktop .timelinesNav_next,
+  .timelinesWidgetWrapper_mobile .timelinesNav_prev,
+  .timelinesWidgetWrapper_mobile .timelinesNav_next {
     display: none;
   }
 
-  .timelinesViewport {
-    min-height: 70dvh;
-    overflow-x: hidden;
-    overflow-y: auto;
-    overscroll-behavior-x: contain;
-    touch-action: pan-y pinch-zoom;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .timelinesViewport:not(.timelinesViewport_freePan) .timelines-trackClip {
-    transform: translate3d(var(--timeline-scroll-left, 0px), 0, 0);
-    will-change: transform;
-  }
-
-  .timelinesViewport:not(.timelinesViewport_freePan) .timelines-row {
-    width: 100%;
-    min-width: 100%;
-    overflow: hidden;
-  }
-
-  .timelinesViewport_freePan {
-    overflow-x: auto;
-    overflow-y: auto;
-    overscroll-behavior-x: contain;
-    touch-action: pan-x pan-y pinch-zoom;
-    -webkit-overflow-scrolling: touch;
-  }
 }

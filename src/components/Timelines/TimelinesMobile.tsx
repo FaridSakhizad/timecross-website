@@ -192,7 +192,7 @@ export default function TimelinesMobile({
           ))}
         </div>
       </div>
-      <div className="timelinesWidgetWrapper">
+      <div className="timelinesWidgetWrapper timelinesWidgetWrapper_mobile">
         <div
           className="timelinesWidget"
           ref={widgetRef}
