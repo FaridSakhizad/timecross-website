@@ -3,19 +3,29 @@ import './style.css';
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router';
 
-import { SITE_NAME } from '../../config';
+import { SITE_NAME, BUY_ME_A_COFFEE_URL } from '../../config';
 import { SUPPORTED_LANGUAGES, useI18n } from '../../i18n';
 import {
   getCanonicalLanguagePath,
   getLocalizedPathname,
 } from '../../i18n/languageRouting';
-import type { ColorMode, TimeFormat } from '../../settings';
+import type { AppLanguage, ColorMode, TimeFormat } from '../../settings';
 
 type HeaderProps = {
   colorMode: ColorMode;
   timeFormat: TimeFormat;
   onColorModeButtonClick: () => void;
   onTimeFormatButtonClick: () => void;
+};
+
+const SHORT_LANGUAGE_NAMES: Record<AppLanguage, string> = {
+  en: 'En',
+  fr: 'Fr',
+  uk: 'Укр',
+  ru: 'Ру',
+  es: 'Es',
+  pt: 'Pt',
+  de: 'De',
 };
 
 export default function Header({
@@ -69,13 +79,11 @@ export default function Header({
         </Link>
 
         <div className="headerMenu">
-          {/*
-            <a
-              href={BUY_ME_A_COFFEE_URL}
-              className="headerMenu-item"
-              target="_blank"
-            >{t('common.buyMeACoffee')}</a>
-          */}
+          <a
+            href={BUY_ME_A_COFFEE_URL}
+            className="headerMenu-item headerMenu-item_thanks"
+            target="_blank"
+          >{t('common.sayThanks')}</a>
 
           <button type="button" className="headerMenu-item headerMenu-item_ampm" onClick={onTimeFormatButtonClick}>
             {timeFormat === '24h' ? 'AM/PM' : '24H'}
@@ -93,7 +101,10 @@ export default function Header({
               type="button"
               className="headerMenu-item langSelectButton"
               onClick={handleLangSelectorClick}
-            >{t(`languages.${language}`)}</button>
+            >
+              <span className="langSelectButton-name">{t(`languages.${language}`)}</span>
+              <span className="langSelectButton-shortName">{SHORT_LANGUAGE_NAMES[language]}</span>
+            </button>
 
             {isLangSelectorVisible && (
               <div className="langSelectMenu">

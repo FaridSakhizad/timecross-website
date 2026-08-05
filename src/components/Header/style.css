@@ -48,7 +48,7 @@
   display: flex;
   gap: 20px;
   margin-left: auto;
-  margin-right: 1px;
+  margin-right: 29px;
 }
 
 .headerMenu-item {
@@ -72,6 +72,22 @@
 
   &:active {
     translate: 0 2px;
+  }
+}
+
+.headerMenu-item_thanks {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  &:before {
+    content: '';
+    display: block;
+    width: 14px;
+    height: 12px;
+    background-color: #fff;
+    mask: url("../../assets/icon--heart-1.svg");
+    margin-left: -4px;
   }
 }
 
@@ -125,6 +141,10 @@
   }
 }
 
+.langSelectButton-shortName {
+  display: none;
+}
+
 .langSelectMenu {
   background-color: rgba(var(--accent-color-1), 0.95);
   border-radius: 16px;
@@ -165,10 +185,6 @@
   .container_header {
     height: 110px;
   }
-
-  .headerMenu {
-    margin-right: 29px;
-  }
 }
 
 @media screen and (width < 768px) {
@@ -187,6 +203,41 @@
 
   .headerMenu {
     margin: 0;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .headerMenu-item {
+    padding-inline: 14px;
+  }
+
+  .headerMenu-item_thanks {
+    justify-content: center;
+    width: 100%;
+    order: 1;
+    max-width: 375px;
+  }
+
+  .headerMenu-item_ampm {
+    min-width: unset;
+  }
+
+  .headerMenu-item_nightMode {
+    padding: 0;
+  }
+
+  .langSelectButton {
+    padding-right: 30px;
+  }
+
+  .langSelectButton-name {
+    display: none;
+  }
+
+  .langSelectButton-shortName {
+    display: inline;
   }
 
   .heroDownload {
