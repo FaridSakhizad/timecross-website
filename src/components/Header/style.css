@@ -55,6 +55,7 @@
   display: block;
   padding: 6px 16px 7px 16px;
   min-width: 36px;
+  height: 36px;
   margin: 0;
   color: #fff;
   border: 1px solid transparent;
@@ -79,11 +80,14 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  line-height: 13px;
+  text-align: center;
 
   &:before {
     content: '';
     display: block;
     width: 14px;
+    min-width: 14px;
     height: 12px;
     background-color: #fff;
     mask: url("../../assets/icon--heart-1.svg");
@@ -215,7 +219,7 @@
 
   .headerMenu-item_thanks {
     justify-content: center;
-    width: 100%;
+    width: calc(100% - 50px);
     order: 1;
     max-width: 375px;
   }

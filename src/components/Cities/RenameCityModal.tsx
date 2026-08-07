@@ -38,6 +38,17 @@ export default function RenameCityModal({
   const inputRef = useRef<HTMLInputElement>(null);
   const [renameValue, setRenameValue] = useState(() => customName || '');
 
+  const setInputRef = useCallback((input: HTMLInputElement | null) => {
+    inputRef.current = input;
+
+    if (!input || !isOpen) {
+      return;
+    }
+
+    input.focus({ preventScroll: true });
+    input.select();
+  }, [isOpen]);
+
   const handleClose = useCallback(() => {
     setRenameValue('');
     onClose();
@@ -102,7 +113,13 @@ export default function RenameCityModal({
       return;
     }
 
-    window.setTimeout(() => inputRef.current?.focus(), 0);
+    const timeoutId = window.setTimeout(() => {
+      inputRef.current?.focus({ preventScroll: true });
+    }, 0);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
   }, [isOpen]);
 
   if (!isOpen) {
@@ -143,7 +160,7 @@ export default function RenameCityModal({
           <div className="renameCityModal-inputBox">
             <input
               className="renameCityModal-input"
-              ref={inputRef}
+              ref={setInputRef}
               value={renameValue}
               aria-label={title}
               placeholder={placeholder}
