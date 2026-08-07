@@ -7,6 +7,70 @@
 .citiesHeader {
   height: 80px;
   border-bottom: 1px solid rgba(255 255 255 / 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0 25px;
+  gap: 20px;
+}
+
+.citiesHeaderButton {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 2px solid rgba(var(--accent-color-2), 1);
+  cursor: pointer;
+  background-color: transparent;
+
+  &.isActive {
+    background-color: rgba(var(--accent-color-1), 0.3);
+  }
+
+  &:hover,
+  &.isActive:hover {
+    background-color: rgba(var(--accent-color-1), 0.7);
+  }
+}
+
+.citiesHeaderButton_edit {
+  &:before {
+    content: '';
+    display: block;
+    width: 16px;
+    height: 16px;
+    mask: url('../../assets/icon--edit-1.svg');
+    background-color: rgba(var(--accent-color-2), 1);
+  }
+}
+
+.citiesHeaderButton_add {
+  display: flex;
+  position: relative;
+
+  &:before,
+  &:after {
+    content: '';
+    display: block;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+    width: 16px;
+    height: 2px;
+    background-color: #fff;
+    border-radius: 1px;
+  }
+
+  &:after {
+    rotate: 90deg;
+  }
 }
 
 .citiesListBox {
@@ -29,7 +93,7 @@
   align-items: center;
   position: relative;
   z-index: 1;
-  transition: opacity 0.2s ease;
+  transition: opacity 0.2s ease, padding 0.2s ease;
 
   &:nth-last-child(1 of &) {
     border-bottom: none;
@@ -75,6 +139,10 @@
   opacity: 0;
   transition: opacity 0.3s ease 0.1s;
   cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 
   &:before {
     content: '';
@@ -117,12 +185,149 @@
 
 .citiesList-city {
   flex: 1;
+  min-width: 0;
 }
 
-.citiesList-name {
+.citiesList-nameButton {
+  display: block;
+  max-width: 100%;
+  height: 19px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: text;
+  z-index: 100;
+  position: relative;
+}
+
+.citiesList-name,
+.citiesList-nameInput {
   margin: 0;
   font-size: 16px;
   line-height: 1.2;
+}
+
+.citiesList-name {
+  display: block;
+  font-weight: bold;
+}
+
+.citiesList-nameInputBox {
+  width: min(100%, 240px);
+  display: flex;
+  gap: 5px;
+  margin: -4px 0 -3px -7px;
+  position: relative;
+}
+
+.citiesList-nameInput {
+  display: block;
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 26px;
+  padding: 2px 30px 2px 7px;
+  margin: 0;
+  border: none;
+  outline: none;
+  border-radius: 13px;
+  color: #fff;
+  font-family: var(--body-font-family-1);
+
+  &:focus {
+    background: rgba(255 255 255 / 0.16);
+  }
+
+  &::placeholder {
+    color: rgba(255 255 255 / 0.85);
+    opacity: 1;
+  }
+}
+
+.citiesList-nameClear {
+  --main-color: rgba(var(--color-danger-1), 1);
+
+  display: block;
+  position: absolute;
+  z-index: 10;
+  top: 0;
+  bottom: 0;
+  right: 34px;
+  margin: auto;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--main-color);
+  padding: 0;
+  background-color: transparent;
+  border-radius: 15px;
+  cursor: pointer;
+  opacity: 0.5;
+
+  &:before,
+  &:after {
+    content: '';
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+    width: 10px;
+    height: 2px;
+    border-radius: 1px;
+    background: var(--main-color);
+  }
+
+  &:before {
+    rotate: 45deg;
+  }
+
+  &:after {
+    rotate: -45deg;
+  }
+}
+
+@media (hover: hover) {
+  .citiesList-nameClear {
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
+
+.citiesList-nameSave {
+  display: flex;
+  min-width: 26px;
+  width: 26px;
+  height: 26px;
+  border: 1px solid transparent;
+  padding: 0;
+  background-color: #fff;
+  border-radius: 15px;
+  cursor: pointer;
+  opacity: 0.7;
+
+  &:before {
+    content: '';
+    display: block;
+    width: 13px;
+    height: 13px;
+    margin-top: 6px;
+    margin-left: 5px;
+    mask: url(../../assets/icon--checkmark-1.svg);
+    background-color: rgb(var(--accent-color-1));
+  }
+}
+
+@media (hover: hover) {
+  .citiesList-nameSave {
+    &:hover {
+      opacity: 1;
+    }
+  }
 }
 
 .citiesList-originalName {
@@ -152,6 +357,62 @@
   font-weight: 300;
   font-size: 43px;
   line-height: 1;
+}
+
+.citiesList-deleteButton {
+  display: none;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  margin: auto;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: -15px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 2px solid rgba(var(--color-danger-1), 1);
+  cursor: pointer;
+  background-color: transparent;
+
+  &.isActive {
+    background-color: rgba(var(--accent-color-1), 0.3);
+  }
+
+  &:before {
+    content: '';
+    display: block;
+    width: 14px;
+    height: 16px;
+    mask: url("../../assets/icon--delete-1.svg");
+    background-color: rgb(var(--color-danger-1));
+  }
+}
+
+.cities_editMode {
+  .citiesList-item {
+    padding-right: 25px;
+    padding-left: 20px;
+  }
+
+  .citiesList-dragButton {
+    left: 0;
+    opacity: 1;
+  }
+
+  .citiesList-deleteButton {
+    display: flex;
+  }
+}
+
+@media (hover: hover) {
+  .citiesList-deleteButton {
+    &:hover,
+    &.isActive:hover {
+      background-color: rgba(var(--accent-color-1), 0.7);
+    }
+  }
 }
 
 .timeRuler {
@@ -291,4 +552,37 @@
   height: 11px;
   top: 68px;
   background: rgba(255 255 255 / 1);
+}
+
+@media (width < 768px) {
+  .citiesHeader {
+    justify-content: center;
+    gap: 30px;
+  }
+
+  .citiesHeaderButton {
+    width: 40px;
+    height: 40px;
+  }
+
+  .citiesList-dragButton {
+    opacity: 0;
+    left: 0;
+    z-index: 100;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+
+    &:before {
+      display: none;
+    }
+  }
+
+  .cities_editMode {
+    .citiesList-item {
+      padding-left: 2px;
+      padding-right: 25px;
+    }
+  }
 }

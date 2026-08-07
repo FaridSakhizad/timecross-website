@@ -1,7 +1,10 @@
 import './style.css';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { getSettings, type TimeFormat } from '../../settings';
-import { getOrderedFavoriteCities } from '../Cities/fixtures';
+import {
+  getOrderedSelectedCities,
+  SELECTED_CITIES_CHANGED_EVENT,
+} from '../Cities/selectedCities';
 import TimelineRow from './TimelineRow';
 import TimelinesDesktop from './TimelinesDesktop';
 import TimelinesMobile from './TimelinesMobile';
@@ -15,8 +18,20 @@ type TimelinesProps = {
 export default function Timelines({ timeFormat }: TimelinesProps) {
   const baseDate = useMemo(() => new Date(), []);
   const browserTimezone = useMemo(() => getBrowserTimezone(), []);
-  const cities = useMemo(() => getOrderedFavoriteCities(getSettings().cityOrder), []);
+  const [cities, setCities] = useState(() => getOrderedSelectedCities(getSettings().cityOrder));
   const usesNativeScroll = useUsesNativeTimelineScroll();
+
+  useEffect(() => {
+    const handleSelectedCitiesChange = () => {
+      setCities(getOrderedSelectedCities(getSettings().cityOrder));
+    };
+
+    window.addEventListener(SELECTED_CITIES_CHANGED_EVENT, handleSelectedCitiesChange);
+
+    return () => {
+      window.removeEventListener(SELECTED_CITIES_CHANGED_EVENT, handleSelectedCitiesChange);
+    };
+  }, []);
 
   const timelineDates = useMemo(
     () => getTimelineDates(browserTimezone, baseDate),

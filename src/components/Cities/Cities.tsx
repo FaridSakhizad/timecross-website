@@ -2,6 +2,7 @@ import './cities.css';
 import {
   DndContext,
   PointerSensor,
+  TouchSensor,
   closestCenter,
   useSensor,
   useSensors,
@@ -14,10 +15,24 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { useCallback, useMemo, useState } from 'react';
-import { getOrderedFavoriteCities, type FavoriteCity } from './fixtures';
-import { getSettings, updateSettings, type TimeFormat } from '../../settings';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent,
+} from 'react';
+import type { FavoriteCity } from './fixtures';
+import { getSettings, type TimeFormat } from '../../settings';
 import { useI18n } from '../../i18n';
+import { formatPartsInTimezone } from '../../utils/abstractTimezone';
+import AddCityModal from './AddCityModal';
+import {
+  createFavoriteCityFromSearchResult,
+  getOrderedSelectedCities,
+  saveSelectedCities,
+} from './selectedCities';
 import { useTimeRulerScroll } from './useTimeRulerScroll';
 
 const PIXELS_IN_MINUTE = 1;
@@ -25,7 +40,6 @@ const TIME_RULER_RANGE_MINUTES = 24 * 60;
 const TIME_RULER_TICK_STEP_MINUTES = 15;
 const TIME_RULER_HOUR_STEP_MINUTES = 60;
 
-const zonedDatePartsFormatters = new Map<string, Intl.DateTimeFormat>();
 const rulerTimeFormatters = new Map<TimeFormat, Intl.DateTimeFormat>();
 let browserTimezoneCache: string | null = null;
 
@@ -50,49 +64,25 @@ type CitiesProps = {
 };
 
 function getOrderedCities(storedOrder: string[]) {
-  return getOrderedFavoriteCities(storedOrder);
-}
-
-function saveCityOrder(cities: FavoriteCity[]) {
-  updateSettings((settings) => ({
-    ...settings,
-    cityOrder: cities.map((city) => city.id),
-  }));
+  return getOrderedSelectedCities(storedOrder);
 }
 
 type SortableCityItemProps = {
+  deleteLabel: string;
   favoriteCity: CityView;
   moveLabel: string;
+  onDelete: (cityId: string) => void;
+  onRename: (cityId: string, customName: string) => void;
+  clearNameLabel: string;
+  customNamePlaceholder: string;
+  renameLabel: string;
+  saveNameLabel: string;
   tomorrowLabel: string;
   yesterdayLabel: string;
 };
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
-}
-
-function getZonedDatePartsFormatter(timezone: string) {
-  const cachedFormatter = zonedDatePartsFormatters.get(timezone);
-
-  if (cachedFormatter) {
-    return cachedFormatter;
-  }
-
-  const formatter = new Intl.DateTimeFormat('en-US', {
-    timeZone: timezone,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: false,
-    hourCycle: 'h23',
-  });
-
-  zonedDatePartsFormatters.set(timezone, formatter);
-
-  return formatter;
 }
 
 function getRulerTimeFormatter(timeFormat: TimeFormat) {
@@ -115,8 +105,16 @@ function getRulerTimeFormatter(timeFormat: TimeFormat) {
 }
 
 function getZonedDateParts(timezone: string, date: Date): ZonedDateParts {
-  const formatter = getZonedDatePartsFormatter(timezone);
-  const parts = formatter.formatToParts(date);
+  const parts = formatPartsInTimezone(date, timezone, 'en-US', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+    hourCycle: 'h23',
+  });
   const dateParts = Object.fromEntries(
     parts
       .filter((part) => part.type !== 'literal')
@@ -248,11 +246,22 @@ function getDateWithTimeOffset(baseDate: Date, offsetMinutes: number) {
 }
 
 function SortableCityItem({
+  deleteLabel,
   favoriteCity,
   moveLabel,
+  onDelete,
+  onRename,
+  clearNameLabel,
+  customNamePlaceholder,
+  renameLabel,
+  saveNameLabel,
   tomorrowLabel,
   yesterdayLabel,
 }: SortableCityItemProps) {
+  const [isRenaming, setIsRenaming] = useState(false);
+  const [renameValue, setRenameValue] = useState('');
+  const renameBoxRef = useRef<HTMLDivElement>(null);
+  const renameInputRef = useRef<HTMLInputElement>(null);
   const {
     attributes,
     listeners,
@@ -264,6 +273,72 @@ function SortableCityItem({
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
+  };
+  const displayName = favoriteCity.customName || favoriteCity.city;
+
+  useEffect(() => {
+    if (!isRenaming) {
+      return;
+    }
+
+    renameInputRef.current?.focus();
+    renameInputRef.current?.select();
+  }, [isRenaming]);
+
+  useEffect(() => {
+    if (!isRenaming) {
+      return;
+    }
+
+    const handleDocumentPointerDown = (event: PointerEvent) => {
+      if (renameBoxRef.current?.contains(event.target as Node)) {
+        return;
+      }
+
+      setIsRenaming(false);
+      setRenameValue('');
+    };
+
+    document.addEventListener('pointerdown', handleDocumentPointerDown, true);
+
+    return () => {
+      document.removeEventListener('pointerdown', handleDocumentPointerDown, true);
+    };
+  }, [isRenaming]);
+
+  const startRenaming = () => {
+    setRenameValue(favoriteCity.customName || '');
+    setIsRenaming(true);
+  };
+
+  const finishRenaming = () => {
+    const nextCustomName = renameValue.trim();
+
+    onRename(favoriteCity.id, nextCustomName === favoriteCity.city ? '' : nextCustomName);
+    setIsRenaming(false);
+  };
+
+  const cancelRenaming = () => {
+    setIsRenaming(false);
+    setRenameValue('');
+  };
+
+  const handleRenameKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      finishRenaming();
+    }
+
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      cancelRenaming();
+    }
+  };
+
+  const clearCustomName = () => {
+    setRenameValue('');
+    onRename(favoriteCity.id, '');
+    setIsRenaming(false);
   };
 
   return (
@@ -281,10 +356,46 @@ function SortableCityItem({
       />
       <i className={`citiesList-periodIcon citiesList-periodIcon_${favoriteCity.currentPeriod}`} />
       <div className="citiesList-city">
-        <h4 className="citiesList-name">
-          {favoriteCity.customName || favoriteCity.city}
-          {favoriteCity.customName && (<span className="citiesList-originalName"> ({favoriteCity.city})</span>)}
-        </h4>
+        {isRenaming ? (
+          <div className="citiesList-nameInputBox" ref={renameBoxRef}>
+            <input
+              className="citiesList-nameInput"
+              ref={renameInputRef}
+              value={renameValue}
+              aria-label={renameLabel}
+              placeholder={customNamePlaceholder}
+              onChange={(event) => setRenameValue(event.target.value)}
+              onKeyDown={handleRenameKeyDown}
+            />
+            {renameValue.length > 0 && (
+              <button
+                type="button"
+                className="citiesList-nameClear"
+                aria-label={clearNameLabel}
+                onPointerDown={(event) => event.preventDefault()}
+                onClick={clearCustomName}
+              />
+            )}
+            <button
+              type="button"
+              className="citiesList-nameSave"
+              aria-label={saveNameLabel}
+              onClick={finishRenaming}
+            />
+          </div>
+        ) : (
+          <button
+            className="citiesList-nameButton"
+            type="button"
+            onClick={startRenaming}
+            aria-label={renameLabel}
+          >
+            <span className="citiesList-name">
+              {displayName}
+              {favoriteCity.customName && (<span className="citiesList-originalName"> ({favoriteCity.city})</span>)}
+            </span>
+          </button>
+        )}
         <span className="citiesList-timeOffset">
           {favoriteCity.relativeTimeOffset}
           {favoriteCity.dayShift && (
@@ -295,14 +406,23 @@ function SortableCityItem({
         </span>
       </div>
       <span className="citiesList-time">{favoriteCity.currentTime}</span>
+
+      <button
+        className="citiesList-deleteButton"
+        type="button"
+        aria-label={deleteLabel}
+        onClick={() => onDelete(favoriteCity.id)}
+      />
     </div>
   );
 }
 
-export default function Cities({ timeFormat }: CitiesProps) {
-  const { t } = useI18n();
+export default function Cities({timeFormat}: CitiesProps) {
+  const {t} = useI18n();
   const [cities, setCities] = useState(() => getOrderedCities(getSettings().cityOrder));
   const [baseDate] = useState(() => new Date());
+  const [isAddCityModalOpen, setIsAddCityModalOpen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
   const [timeOffsetMinutes, setTimeOffsetMinutes] = useState(0);
 
   const cityIds = useMemo(() => cities.map((city) => city.id), [cities]);
@@ -347,6 +467,14 @@ export default function Cities({ timeFormat }: CitiesProps) {
         distance: 6,
       },
     }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        distance: 6,
+      },
+      onActivation: ({ event }) => {
+        event.preventDefault();
+      },
+    }),
   );
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -356,20 +484,17 @@ export default function Cities({ timeFormat }: CitiesProps) {
       return;
     }
 
-    setCities((currentCities) => {
-      const oldIndex = currentCities.findIndex((city) => city.id === active.id);
-      const newIndex = currentCities.findIndex((city) => city.id === over.id);
+    const oldIndex = cities.findIndex((city) => city.id === String(active.id));
+    const newIndex = cities.findIndex((city) => city.id === String(over.id));
 
-      if (oldIndex === -1 || newIndex === -1) {
-        return currentCities;
-      }
+    if (oldIndex === -1 || newIndex === -1) {
+      return;
+    }
 
-      const nextCities = arrayMove(currentCities, oldIndex, newIndex);
+    const nextCities = arrayMove(cities, oldIndex, newIndex);
 
-      saveCityOrder(nextCities);
-
-      return nextCities;
-    });
+    setCities(nextCities);
+    saveSelectedCities(nextCities);
   };
 
   const updateTimeOffset = useCallback((nextTimeOffsetMinutes: number) => {
@@ -395,9 +520,61 @@ export default function Cities({ timeFormat }: CitiesProps) {
     scrollTimeRulerToOffset(0, true);
   };
 
+  const handleAddCity = (city: Parameters<typeof createFavoriteCityFromSearchResult>[0]) => {
+    if (cities.some((currentCity) => currentCity.id === String(city.id))) {
+      setIsAddCityModalOpen(false);
+      return;
+    }
+
+    const nextCities = [
+      ...cities,
+      createFavoriteCityFromSearchResult(city, cities.length),
+    ];
+
+    setCities(nextCities);
+    saveSelectedCities(nextCities);
+    setIsAddCityModalOpen(false);
+  };
+
+  const handleDeleteCity = useCallback((cityId: string) => {
+    const nextCities = cities.filter((city) => city.id !== cityId);
+
+    if (nextCities.length === cities.length) {
+      return;
+    }
+
+    setCities(nextCities);
+    saveSelectedCities(nextCities);
+  }, [cities]);
+
+  const handleRenameCity = useCallback((cityId: string, customName: string) => {
+    const nextCities = cities.map((city) => (
+      city.id === cityId
+        ? { ...city, customName }
+        : city
+    ));
+
+    setCities(nextCities);
+    saveSelectedCities(nextCities);
+  }, [cities]);
+
   return (
-    <div className="cities">
-      <div className="citiesHeader"></div>
+    <div className={`cities ${isEditMode ? 'cities_editMode' : ''}`}>
+      <div className="citiesHeader">
+        <button
+          className={`citiesHeaderButton citiesHeaderButton_edit ${isEditMode ? 'isActive' : ''}`}
+          type="button"
+          aria-label="edit"
+          aria-pressed={isEditMode}
+          onClick={() => setIsEditMode((currentMode) => !currentMode)}
+        />
+        <button
+          className="citiesHeaderButton citiesHeaderButton_add"
+          type="button"
+          aria-label={t('common.addCity')}
+          onClick={() => setIsAddCityModalOpen(true)}
+        />
+      </div>
       <div className="citiesListBox scrollControl">
         <DndContext
           sensors={sensors}
@@ -408,9 +585,16 @@ export default function Cities({ timeFormat }: CitiesProps) {
             <SortableContext items={cityIds} strategy={verticalListSortingStrategy}>
               {cityViews.map((favoriteCity) => (
                 <SortableCityItem
+                  clearNameLabel={t('cities.clearCustomName', { city: favoriteCity.customName || favoriteCity.city })}
+                  customNamePlaceholder={t('cities.customNamePlaceholder')}
+                  deleteLabel={t('cities.deleteCity', { city: favoriteCity.customName || favoriteCity.city })}
                   favoriteCity={favoriteCity}
                   key={favoriteCity.id}
                   moveLabel={t('cities.moveCity', { city: favoriteCity.customName || favoriteCity.city })}
+                  onDelete={handleDeleteCity}
+                  onRename={handleRenameCity}
+                  renameLabel={t('cities.renameCity', { city: favoriteCity.customName || favoriteCity.city })}
+                  saveNameLabel={t('cities.saveCustomName', { city: favoriteCity.customName || favoriteCity.city })}
                   tomorrowLabel={t('cities.tomorrow')}
                   yesterdayLabel={t('cities.yesterday')}
                 />
@@ -420,12 +604,14 @@ export default function Cities({ timeFormat }: CitiesProps) {
         </DndContext>
       </div>
       <div className="timeRuler">
-        <button
-          className="timeRuler-reset"
-          type="button"
-          aria-label={t('cities.resetSelectedTime')}
-          onClick={handleTimeRulerReset}
-        />
+        {isTimeRulerAdjusted && (
+          <button
+            className="timeRuler-reset"
+            type="button"
+            aria-label={t('cities.resetSelectedTime')}
+            onClick={handleTimeRulerReset}
+          />
+        )}
 
         <div className="timeRuler-info">
           {isTimeRulerAdjusted && (
@@ -469,6 +655,12 @@ export default function Cities({ timeFormat }: CitiesProps) {
           </div>
         </div>
       </div>
+      <AddCityModal
+        isOpen={isAddCityModalOpen}
+        selectedCityIds={cityIds}
+        onClose={() => setIsAddCityModalOpen(false)}
+        onSave={handleAddCity}
+      />
     </div>
   )
 }

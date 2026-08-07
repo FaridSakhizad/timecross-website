@@ -6,6 +6,8 @@
   --accent-color-1: 62, 63, 86;
   --accent-color-2: 255, 255, 255;
 
+  --color-danger-1: 255, 255, 204;
+
   --body-text-color: 51, 51, 51;
   --body-text-color-0: 0, 0, 0;
   --body-text-color-1: rgba(var(--accent-color-1), 1);

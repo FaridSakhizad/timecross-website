@@ -1,6 +1,11 @@
 import type { CSSProperties } from 'react';
 import type { TimeFormat } from '../../settings';
 import {
+  formatInTimezone,
+  formatPartsInTimezone,
+  getAbstractTimezoneOffsetMinutes,
+} from '../../utils/abstractTimezone';
+import {
   TIMELINE_EDGE_FADE_HOURS,
   TIMELINE_EXTRA_DAY_HOURS,
   TIMELINE_HOUR_WIDTH,
@@ -17,6 +22,7 @@ function getUtcDateForZonedTime(
   timezone: string,
   dateParts: { year: number; month: number; day: number; hour: number; minute?: number; second?: number },
 ) {
+  const abstractOffsetMinutes = getAbstractTimezoneOffsetMinutes(timezone);
   const utcTime = Date.UTC(
     dateParts.year,
     dateParts.month - 1,
@@ -25,6 +31,11 @@ function getUtcDateForZonedTime(
     dateParts.minute ?? 0,
     dateParts.second ?? 0,
   );
+
+  if (abstractOffsetMinutes !== null) {
+    return new Date(utcTime - abstractOffsetMinutes * 60000);
+  }
+
   const firstPassDate = new Date(utcTime);
   const firstPassOffset = getTimeZoneOffsetMinutes(timezone, firstPassDate);
   const secondPassDate = new Date(utcTime - firstPassOffset * 60000);
@@ -38,29 +49,26 @@ function formatHour(date: Date, timezone: string, timeFormat: TimeFormat) {
     return String(getZonedDateParts(timezone, date).hour);
   }
 
-  return new Intl.DateTimeFormat('en-US', {
-    timeZone: timezone,
+  return formatInTimezone(date, timezone, 'en-US', {
     hour: 'numeric',
     hour12: true,
-  }).format(date);
+  });
 }
 
 export function formatTime(date: Date, timezone: string, timeFormat: TimeFormat) {
-  return new Intl.DateTimeFormat(timeFormat === '24h' ? 'en-GB' : 'en-US', {
-    timeZone: timezone,
+  return formatInTimezone(date, timezone, timeFormat === '24h' ? 'en-GB' : 'en-US', {
     hour: timeFormat === '24h' ? '2-digit' : 'numeric',
     minute: '2-digit',
     hour12: timeFormat === '12h',
     hourCycle: 'h23',
-  }).format(date);
+  });
 }
 
 function formatDateCell(date: Date, timezone: string) {
-  return new Intl.DateTimeFormat('en-US', {
-    timeZone: timezone,
+  return formatInTimezone(date, timezone, 'en-US', {
     month: 'short',
     day: 'numeric',
-  }).format(date);
+  });
 }
 
 export function formatOffset(offsetMinutes: number, sameLabel: string) {
@@ -97,8 +105,7 @@ export function getRelativeDayMarker(
 }
 
 export function getZonedDateParts(timezone: string, date: Date) {
-  const formatter = new Intl.DateTimeFormat('en-US', {
-    timeZone: timezone,
+  const parts = formatPartsInTimezone(date, timezone, 'en-US', {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
@@ -108,7 +115,6 @@ export function getZonedDateParts(timezone: string, date: Date) {
     hour12: false,
     hourCycle: 'h23',
   });
-  const parts = formatter.formatToParts(date);
 
   return Object.fromEntries(
     parts

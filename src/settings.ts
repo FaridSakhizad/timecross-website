@@ -2,12 +2,27 @@ export type TimeFormat = '24h' | '12h';
 export type AppLanguage = 'en' | 'fr' | 'uk' | 'ru' | 'es' | 'pt' | 'de';
 export type ColorMode = 'day' | 'night';
 
+export type StoredCity = {
+  id: string;
+  order: number;
+  customName: string;
+  city: string;
+  timezone: string;
+  utcOffset: string;
+  timeOffset: string;
+  time: string;
+  period: 'morning' | 'day' | 'evening' | 'night';
+  visible?: boolean;
+  isTomorrow?: boolean;
+};
+
 export type AppSettings = {
   version: 1;
   timeFormat: TimeFormat;
   language: AppLanguage;
   colorMode: ColorMode;
   cityOrder: string[];
+  selectedCities: StoredCity[];
 };
 
 const SETTINGS_STORAGE_KEY = 'timecross:settings';
@@ -19,10 +34,29 @@ const DEFAULT_SETTINGS: AppSettings = {
   language: 'en',
   colorMode: 'day',
   cityOrder: [],
+  selectedCities: [],
 };
 
 function isStringArray(value: unknown): value is string[] {
   return Array.isArray(value) && value.every((item) => typeof item === 'string');
+}
+
+function isStoredCity(value: unknown): value is StoredCity {
+  if (!value || typeof value !== 'object') {
+    return false;
+  }
+
+  const city = value as Partial<StoredCity>;
+
+  return (
+    typeof city.id === 'string' &&
+    typeof city.city === 'string' &&
+    typeof city.timezone === 'string'
+  );
+}
+
+function isStoredCityArray(value: unknown): value is StoredCity[] {
+  return Array.isArray(value) && value.every(isStoredCity);
 }
 
 function getLegacyCityOrder() {
@@ -51,6 +85,9 @@ function normalizeSettings(settings: Partial<AppSettings> | null): AppSettings {
     cityOrder: isStringArray(settings?.cityOrder)
       ? settings.cityOrder
       : getLegacyCityOrder(),
+    selectedCities: isStoredCityArray(settings?.selectedCities)
+      ? settings.selectedCities
+      : [],
   };
 }
 

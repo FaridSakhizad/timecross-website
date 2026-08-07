@@ -5,6 +5,9 @@
     "appStore": "Завантажити в App Store",
     "googlePlay": "Отримати в Google Play",
     "comingSoon": "Незабаром",
+    "addCity": "Додати часовий пояс",
+    "noResults": "Немає результатів",
+    "loading": "Завантаження...",
     "reset": "Скинути",
     "panMode": "Панорама",
     "scrollMode": "Скрол",
@@ -28,11 +31,21 @@
   },
   "cities": {
     "moveCity": "Перемістити {city}",
+    "deleteCity": "Видалити {city}",
+    "renameCity": "Перейменувати {city}",
+    "clearCustomName": "Видалити власну назву для {city}",
+    "customNamePlaceholder": "Введіть власну назву...",
+    "saveCustomName": "Зберегти власну назву для {city}",
     "resetSelectedTime": "Скинути вибраний час",
     "selectedTimeOffset": "Зміщення вибраного часу",
     "sameOffset": "так само",
     "yesterday": "Учора",
     "tomorrow": "Завтра"
+  },
+  "addCity": {
+    "searchPlaceholder": "Назва міста або часовий пояс...",
+    "chooseTimezone": "Обрати GMT / UTC",
+    "databaseUnavailable": "Пошук міст тимчасово недоступний."
   },
   "home": {
     "heroText": "Використовуйте цей застосунок, щоб порівнювати час між містами, упорядковувати їх по-своєму й одразу бачити поточний час у кожному місці.\nСтворюйте нагадування для конкретних міст, щоб люди, плани й рутини залишалися синхронними між часовими поясами.",

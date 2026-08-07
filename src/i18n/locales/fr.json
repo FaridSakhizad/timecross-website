@@ -5,6 +5,9 @@
     "appStore": "Télécharger dans l'App Store",
     "googlePlay": "Disponible sur Google Play",
     "comingSoon": "Bientôt disponible",
+    "addCity": "Ajouter un fuseau horaire",
+    "noResults": "Aucun résultat",
+    "loading": "Chargement...",
     "reset": "Réinitialiser",
     "panMode": "Panorama",
     "scrollMode": "Scroll",
@@ -28,11 +31,21 @@
   },
   "cities": {
     "moveCity": "Déplacer {city}",
+    "deleteCity": "Supprimer {city}",
+    "renameCity": "Renommer {city}",
+    "clearCustomName": "Effacer le nom personnalisé de {city}",
+    "customNamePlaceholder": "Saisissez un nom personnalisé...",
+    "saveCustomName": "Enregistrer le nom personnalisé de {city}",
     "resetSelectedTime": "Réinitialiser l'heure sélectionnée",
     "selectedTimeOffset": "Décalage de l'heure sélectionnée",
     "sameOffset": "idem",
     "yesterday": "Hier",
     "tomorrow": "Demain"
+  },
+  "addCity": {
+    "searchPlaceholder": "Nom de la ville ou fuseau horaire...",
+    "chooseTimezone": "Choisir GMT / UTC",
+    "databaseUnavailable": "La recherche de villes est temporairement indisponible."
   },
   "home": {
     "heroText": "Utilisez cette app pour comparer l'heure entre les villes, les organiser à votre façon et voir l'heure actuelle de chaque lieu en un coup d'œil.\nCréez des rappels pour des villes précises afin de garder les personnes, les projets et les routines synchronisés entre les fuseaux horaires.",

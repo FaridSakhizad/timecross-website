@@ -5,6 +5,9 @@
     "appStore": "Download on the App Store",
     "googlePlay": "Get it on Google Play",
     "comingSoon": "Coming Soon",
+    "addCity": "Add Timezone",
+    "noResults": "No results",
+    "loading": "Loading...",
     "reset": "Reset",
     "panMode": "Pan",
     "scrollMode": "Scroll",
@@ -28,11 +31,21 @@
   },
   "cities": {
     "moveCity": "Move {city}",
+    "deleteCity": "Delete {city}",
+    "renameCity": "Rename {city}",
+    "clearCustomName": "Clear custom name for {city}",
+    "customNamePlaceholder": "Enter custom name...",
+    "saveCustomName": "Save custom name for {city}",
     "resetSelectedTime": "Reset selected time",
     "selectedTimeOffset": "Selected time offset",
     "sameOffset": "same",
     "yesterday": "Yesterday",
     "tomorrow": "Tomorrow"
+  },
+  "addCity": {
+    "searchPlaceholder": "City Name or Time Zone...",
+    "chooseTimezone": "Choose GMT / UTC",
+    "databaseUnavailable": "City search is temporarily unavailable."
   },
   "home": {
     "heroText": "Use this app to compare time across cities, organize them your way, and see the current time in each place at a glance.\nCreate reminders for specific cities to keep people, plans, and routines in sync across time zones.",

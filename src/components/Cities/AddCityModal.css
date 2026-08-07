@@ -1,0 +1,217 @@
+.addCityModal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: max(18px, env(safe-area-inset-top)) max(18px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(18px, env(safe-area-inset-left));
+  color: #fff;
+  overscroll-behavior: contain;
+}
+
+.addCityModal-backdrop {
+  position: absolute;
+  inset: 0;
+  padding: 0;
+  border: none;
+  background: rgba(0 0 0 / 0.42);
+  cursor: pointer;
+}
+
+.addCityModal-panel {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  width: min(534px, 100%);
+  max-height: calc(100dvh - max(36px, env(safe-area-inset-top) + env(safe-area-inset-bottom)));
+  overflow: hidden;
+  border-radius: 20px;
+  background: rgba(var(--accent-color-1), 0.95);
+  box-shadow: 0 10px 50px rgba(0 0 0 / 0.18);
+}
+
+.addCityModal-header {
+  display: grid;
+  grid-template-columns: 40px 1fr 40px;
+  align-items: center;
+  min-height: 64px;
+  padding: 10px 18px;
+  border-bottom: 1px solid rgba(255 255 255 / 0.22);
+}
+
+.addCityModal-title {
+  margin: 0;
+  text-align: center;
+  font-size: 18px;
+  line-height: 1.2;
+}
+
+.addCityModal-close {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 2px solid rgba(var(--accent-color-2), 1);
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+
+  &:before,
+  &:after {
+    content: '';
+    display: block;
+    grid-area: 1 / 1;
+    width: 15px;
+    height: 2px;
+    border-radius: 1px;
+    background: #fff;
+  }
+
+  &:before {
+    rotate: 45deg;
+  }
+
+  &:after {
+    rotate: -45deg;
+  }
+}
+
+.addCityModal-searchBox {
+  position: relative;
+  padding: 16px 22px 10px;
+}
+
+.addCityModal-searchIcon {
+  position: absolute;
+  left: 38px;
+  top: 27px;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255 255 255 / 0.82);
+  border-radius: 50%;
+  pointer-events: none;
+
+  &:after {
+    content: '';
+    position: absolute;
+    right: -6px;
+    bottom: -4px;
+    width: 7px;
+    height: 2px;
+    border-radius: 1px;
+    background: rgba(255 255 255 / 0.82);
+    rotate: 45deg;
+  }
+}
+
+.addCityModal-searchInput {
+  width: 100%;
+  height: 42px;
+  padding: 0 14px 0 44px;
+  border: 1px solid rgba(255 255 255 / 0.3);
+  border-radius: 21px;
+  outline: none;
+  background: rgba(255 255 255 / 0.12);
+  color: #fff;
+  font: normal normal 16px/1 var(--body-font-family-1);
+
+  &::placeholder {
+    color: rgba(255 255 255 / 0.62);
+  }
+
+  &:focus {
+    border-color: rgba(255 255 255 / 0.7);
+    background: rgba(255 255 255 / 0.16);
+  }
+}
+
+.addCityModal-results {
+  min-height: 260px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 4px 22px 22px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.addCityModal-helperText,
+.addCityModal-timezonePickerTitle {
+  margin: 12px 0;
+  color: rgba(255 255 255 / 0.72);
+  font-size: 15px;
+  line-height: 1.3;
+}
+
+.addCityModal-result {
+  display: block;
+  width: 100%;
+  min-height: 64px;
+  padding: 10px 12px;
+  border: none;
+  border-bottom: 1px solid rgba(255 255 255 / 0.18);
+  background: transparent;
+  color: #fff;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(255 255 255 / 0.08);
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.45;
+  }
+}
+
+.addCityModal-resultName,
+.addCityModal-resultOriginalName,
+.addCityModal-resultTimezone {
+  display: block;
+}
+
+.addCityModal-resultName {
+  font-size: 16px;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+.addCityModal-resultOriginalName,
+.addCityModal-resultTimezone {
+  margin-top: 4px;
+  color: rgba(255 255 255 / 0.68);
+  font-size: 13px;
+  line-height: 1.2;
+}
+
+.addCityModal-timezoneGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(94px, 1fr));
+  gap: 8px;
+}
+
+.addCityModal-timezoneGrid .addCityModal-result {
+  min-height: 42px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255 255 255 / 0.2);
+  border-radius: 21px;
+  text-align: center;
+}
+
+.addCityModal-timezoneGrid .addCityModal-resultName {
+  font-weight: 400;
+}
+
+@media (width < 768px) {
+  .addCityModal {
+    align-items: stretch;
+    padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+  }
+
+  .addCityModal-panel {
+    width: 100%;
+    max-height: 100dvh;
+    border-radius: 0;
+  }
+}

@@ -5,6 +5,9 @@
     "appStore": "Im App Store laden",
     "googlePlay": "Bei Google Play erhältlich",
     "comingSoon": "Demnächst",
+    "addCity": "Zeitzone hinzufügen",
+    "noResults": "Keine Ergebnisse",
+    "loading": "Wird geladen...",
     "reset": "Zurücksetzen",
     "panMode": "Panorama",
     "scrollMode": "Scroll",
@@ -28,11 +31,21 @@
   },
   "cities": {
     "moveCity": "{city} verschieben",
+    "deleteCity": "{city} löschen",
+    "renameCity": "{city} umbenennen",
+    "clearCustomName": "Benutzerdefinierten Namen für {city} löschen",
+    "customNamePlaceholder": "Benutzerdefinierten Namen eingeben...",
+    "saveCustomName": "Benutzerdefinierten Namen für {city} speichern",
     "resetSelectedTime": "Ausgewählte Zeit zurücksetzen",
     "selectedTimeOffset": "Ausgewählte Zeitverschiebung",
     "sameOffset": "gleich",
     "yesterday": "Gestern",
     "tomorrow": "Morgen"
+  },
+  "addCity": {
+    "searchPlaceholder": "Stadtname oder Zeitzone...",
+    "chooseTimezone": "GMT / UTC wählen",
+    "databaseUnavailable": "Die Stadtsuche ist vorübergehend nicht verfügbar."
   },
   "home": {
     "heroText": "Nutze diese App, um Zeiten zwischen Städten zu vergleichen, sie nach deinen Wünschen zu ordnen und die aktuelle Uhrzeit an jedem Ort auf einen Blick zu sehen.\nErstelle Erinnerungen für bestimmte Städte, damit Menschen, Pläne und Routinen über Zeitzonen hinweg abgestimmt bleiben.",
