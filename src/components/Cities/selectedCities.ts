@@ -31,7 +31,9 @@ function normalizeSelectedCity(city: FavoriteCity, index: number): FavoriteCity 
 }
 
 export function getSelectedCities() {
-  return getSettings().selectedCities.map(normalizeSelectedCity);
+  return getSettings().selectedCities
+    .filter((city) => city.visible !== false)
+    .map(normalizeSelectedCity);
 }
 
 export function saveSelectedCities(cities: FavoriteCity[]) {

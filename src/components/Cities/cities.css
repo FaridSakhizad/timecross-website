@@ -100,16 +100,6 @@
   }
 }
 
-@media (hover: hover) {
-  .citiesList-item {
-    &:hover {
-      .citiesList-dragButton {
-        opacity: 1;
-      }
-    }
-  }
-}
-
 .citiesList-item_dragging {
   opacity: 0.72;
   z-index: 2;
@@ -135,9 +125,8 @@
   position: absolute;
   top: 0;
   bottom: 0;
-  left: -17px;
+  left: 0;
   opacity: 0;
-  transition: opacity 0.3s ease 0.1s;
   cursor: grab;
   touch-action: none;
   user-select: none;
@@ -155,6 +144,25 @@
   &:hover {
     --main-color: rgba(var(--accent-color-2), 1);
   }
+}
+
+.citiesList-dragButtonMobile {
+  display: none;
+  position: absolute;
+  padding: 0;
+  margin: 0;
+  border: none;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  right: 20px;
+  background-color: rgba(0 0 0 / 0);
+  z-index: 200;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
 
 .citiesList-periodIcon {
@@ -345,7 +353,7 @@
   display: inline-block;
   font-size: 11px;
   margin-left: 12px;
-  padding: 1px 6px 2px;
+  padding: 1px 6px 3px;
   border-radius: 65536px;
   color: var(--body-text-color-1);
   background-color: #fff;
@@ -397,7 +405,6 @@
   }
 
   .citiesList-dragButton {
-    left: 0;
     opacity: 1;
   }
 
@@ -565,24 +572,13 @@
     height: 40px;
   }
 
-  .citiesList-dragButton {
-    opacity: 0;
-    left: 0;
-    z-index: 100;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    border: none;
-
-    &:before {
-      display: none;
-    }
-  }
-
   .cities_editMode {
     .citiesList-item {
-      padding-left: 2px;
       padding-right: 25px;
+    }
+
+    .citiesList-dragButtonMobile {
+      display: block;
     }
   }
 }

@@ -234,6 +234,7 @@
 
 .timelinesViewport {
   min-height: 372px;
+  max-height: 372px;
   overflow: auto;
   user-select: none;
   overscroll-behavior: contain;
