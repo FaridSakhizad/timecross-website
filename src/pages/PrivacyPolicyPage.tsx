@@ -1,48 +1,46 @@
 import LegalPage from '../components/LegalPage';
 import { SITE_NAME, SUPPORT_EMAIL } from '../config';
+import { useI18n } from '../i18n';
 
 export default function PrivacyPolicyPage() {
+  const { t } = useI18n();
+
   return (
-    <LegalPage title="Privacy Policy" updatedAt="July 16, 2026">
+    <LegalPage title={t('legal.privacy.title')} updatedAt="July 16, 2026">
       <section className="legalPage-section">
-        <h2 className="legalPage-sectionTitle">Overview</h2>
-        <p className="legalPage-para">{SITE_NAME} is designed to help you compare time across cities without requiring an
-          account. The app and website aim to keep personal data collection minimal.</p>
+        <h2 className="legalPage-sectionTitle">{t('legal.privacy.overviewTitle')}</h2>
+        <p className="legalPage-para">{t('legal.privacy.overviewText', { siteName: SITE_NAME })}</p>
       </section>
 
       <section className="legalPage-section">
-        <h2 className="legalPage-sectionTitle">Information You Provide</h2>
-        <p className="legalPage-para">If you contact us through the website contact form, your name, email address, and
-          message are sent to {SITE_NAME} support so we can reply to your request.</p>
-        <p className="legalPage-para">The contact form is processed by our website backend and forwarded to our support
-          email address.</p>
-        <p className="legalPage-para">Do not include sensitive information in support messages unless it is necessary for
-          your request.</p>
+        <h2 className="legalPage-sectionTitle">{t('legal.privacy.infoTitle')}</h2>
+        <p className="legalPage-para">{t('legal.privacy.infoText1', { siteName: SITE_NAME })}</p>
+        <p className="legalPage-para">{t('legal.privacy.infoText2')}</p>
+        <p className="legalPage-para">{t('legal.privacy.infoText3')}</p>
       </section>
 
       <section className="legalPage-section">
-        <h2 className="legalPage-sectionTitle">Local App Data</h2>
-        <p className="legalPage-para">{SITE_NAME} may store preferences locally on your device or browser, such as selected
-          cities, city order, and time format. This information is used to make the app feel familiar when you return.</p>
-        <p className="legalPage-para">Local data is not an account backup. Clearing browser storage, deleting the app, or
-          resetting device data may remove these preferences.</p>
+        <h2 className="legalPage-sectionTitle">{t('legal.privacy.localDataTitle')}</h2>
+        <p className="legalPage-para">{t('legal.privacy.localDataText1', { siteName: SITE_NAME })}</p>
+        <p className="legalPage-para">{t('legal.privacy.localDataText2')}</p>
       </section>
 
       <section className="legalPage-section">
-        <h2 className="legalPage-sectionTitle">Notifications</h2>
-        <p className="legalPage-para">If you enable notifications, {SITE_NAME} uses your device notification system to show
-          reminders you choose. You can disable notification permissions in your device settings.</p>
+        <h2 className="legalPage-sectionTitle">{t('legal.privacy.notificationsTitle')}</h2>
+        <p className="legalPage-para">{t('legal.privacy.notificationsText', { siteName: SITE_NAME })}</p>
       </section>
 
       <section className="legalPage-section">
-        <h2 className="legalPage-sectionTitle">Third-Party Services</h2>
-        <p className="legalPage-para">Opening store links, email links, or external support links may take you to services
-          operated by third parties. Their privacy practices are governed by their own policies.</p>
+        <h2 className="legalPage-sectionTitle">{t('legal.privacy.thirdPartyTitle')}</h2>
+        <p className="legalPage-para">{t('legal.privacy.thirdPartyText')}</p>
       </section>
 
       <section className="legalPage-section">
-        <h2 className="legalPage-sectionTitle">Contact</h2>
-        <p className="legalPage-para">For privacy questions, contact us at <a className="legalPage-link" href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>.</p>
+        <h2 className="legalPage-sectionTitle">{t('legal.privacy.contactTitle')}</h2>
+        <p className="legalPage-para">
+          {t('legal.privacy.contactPrefix')}
+          <a className="legalPage-link" href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>.
+        </p>
       </section>
     </LegalPage>
   );

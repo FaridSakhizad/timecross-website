@@ -1,0 +1,188 @@
+.accordion_faq {
+  max-width: 600px;
+  margin: auto;
+  position: relative;
+}
+
+.accordion {
+  border-radius: 30px;
+  background-color: white;
+  padding: 20px 35px;
+
+  interpolate-size: allow-keywords;
+}
+
+.accordion-item {
+  border-bottom: 1px solid rgba(var(--accent-color-1), 0.2);
+
+  &:last-of-type {
+    border-bottom: none;
+  }
+
+  &::details-content {
+    transition: block-size 0.3s ease, content-visibility 0.3s ease;
+    transition-behavior: allow-discrete;
+    block-size: 0;
+    overflow: hidden;
+  }
+
+  &.isOpen {
+    .accordion-header {
+      &:before {
+        transform: rotate(-180deg);
+        background-color: #295fcc;
+      }
+    }
+
+    .accordion-title {
+      color: #295fcc;
+    }
+
+    .accordion-contentWrapper {
+      grid-template-rows: 1fr;
+    }
+
+    .accordion-content {
+      padding-block: 16px 20px;
+      border-top: 1px solid rgba(var(--accent-color-1), 0.05);
+    }
+  }
+}
+
+.accordion-header {
+  position: relative;
+  cursor: pointer;
+  padding: 14px 24px 16px 3px;
+  list-style: none;
+  --main-color: var(--body-text-color-1);
+
+  &:before {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 5px;
+    width: 12px;
+    height: 7px;
+    margin: auto;
+    transition: all 0.2s ease;
+    background-color: var(--main-color);
+    mask: url("../../assets/icon--arrow-1.svg");
+  }
+
+  .accordionTooltip {
+    left: calc(100% + 33px + 35px);
+    top: -20px;
+    translate: 0 -5px;
+    transition: all 0.2s ease 0.1s;
+
+    &.accordionTooltip_platforms {
+      min-width: 180px;
+    }
+
+    &.accordionTooltip_howNotifications {
+      translate: 0 5px;
+      top: unset;
+      bottom: -20px;
+
+      &:before {
+        top: unset;
+        bottom: 42px;
+      }
+    }
+  }
+
+}
+
+@media (hover: hover) {
+  .accordion-header {
+    &:hover {
+      --main-color: #295fcc;
+
+      .accordionTooltip {
+        translate: 0 0;
+        opacity: 1;
+      }
+    }
+  }
+}
+
+.accordion-title {
+  font-size: 24px;
+  line-height: 1.2;
+  font-weight: normal;
+  color: var(--main-color);
+  transition: color 0.3s ease;
+  margin: 0;
+}
+
+.accordion-contentWrapper {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.2s ease-out;
+}
+
+.accordion-content {
+  overflow: hidden;
+  padding-inline: 3px;
+  border-top: 1px solid rgba(var(--accent-color-1), 0);
+  transition: all 0.2s ease-out;
+}
+
+.accordion-para {
+  font-size: 16px;
+  line-height: 1.25;
+  margin: 0 0 10px 0;
+  color: var(--body-text-color-1);
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.accordionTooltip {
+  display: block;
+  position: absolute;
+  border-radius: 30px;
+  padding: 23px 25px 25px 25px;
+  background-color: rgba(255 255 255 / 0.8);
+  min-width: 150px;
+  opacity: 0;
+
+  &:before {
+    content: '';
+    display: block;
+    position: absolute;
+    width: 13px;
+    height: 13px;
+    top: 42px;
+    left: -23px;
+    border-radius: 30px;
+    background: inherit;
+  }
+}
+
+.accordionTooltip-title {
+  font-size: 24px;
+  font-weight: normal;
+  display: block;
+  margin: 0 0 21px 0;
+}
+
+.accordionTooltip-para {
+  margin: 0 0 10px 0;
+  font-size: 16px;
+  line-height: 26px;
+  font-weight: bold;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+@media (width < 1024px) {
+  .accordion {
+    padding: 15px 25px;
+  }
+}

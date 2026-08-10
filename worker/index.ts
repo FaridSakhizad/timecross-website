@@ -10,6 +10,12 @@ type ContactRequest = {
   message: string;
 };
 
+type WorkerEnv = Env & {
+  ASSETS?: {
+    fetch: (request: Request) => Promise<Response>;
+  };
+};
+
 function jsonResponse(
   body: Record<string, unknown>,
   status = 200,
@@ -43,12 +49,45 @@ function serializeForLog(value: unknown): unknown {
   }
 }
 
+function isSpaNavigationRequest(request: Request, url: URL) {
+  if (request.method !== "GET" && request.method !== "HEAD") {
+    return false;
+  }
+
+  if (url.pathname.includes(".")) {
+    return false;
+  }
+
+  return request.headers.get("accept")?.includes("text/html") ?? false;
+}
+
+async function serveStaticAsset(request: Request, env: WorkerEnv, url: URL) {
+  if (!env.ASSETS) {
+    return new Response("Not Found", { status: 404 });
+  }
+
+  const assetResponse = await env.ASSETS.fetch(request);
+
+  if (assetResponse.status !== 404 || !isSpaNavigationRequest(request, url)) {
+    return assetResponse;
+  }
+
+  const indexUrl = new URL("/index.html", url);
+  const indexRequest = new Request(indexUrl, request);
+
+  return env.ASSETS.fetch(indexRequest);
+}
+
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  async fetch(request: Request, env: WorkerEnv): Promise<Response> {
     const url = new URL(request.url);
 
     if (url.pathname !== "/api/contact") {
-      return new Response("Not Found", { status: 404 });
+      if (url.pathname.startsWith("/api/")) {
+        return new Response("Not Found", { status: 404 });
+      }
+
+      return serveStaticAsset(request, env, url);
     }
 
     if (request.method !== "POST") {

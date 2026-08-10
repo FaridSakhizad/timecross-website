@@ -1,0 +1,174 @@
+{
+  "common": {
+    "sitePitch": "Entiende la hora en todo el mundo",
+    "sayThanks": "Dar las gracias",
+    "appStore": "Descargar en App Store",
+    "googlePlay": "Consíguelo en Google Play",
+    "androidPreview": "Descargar Android Preview",
+    "androidPreviewNote": "Mientras preparamos el lanzamiento en Google Play, puedes descargar el APK y probar la app TimeCross ahora mismo.",
+    "comingSoon": "Próximamente",
+    "addCity": "Agregar zona horaria",
+    "noResults": "Sin resultados",
+    "loading": "Cargando...",
+    "close": "Cerrar",
+    "reset": "Restablecer",
+    "panMode": "Panorámica",
+    "scrollMode": "Scroll",
+    "previousHour": "Una hora atrás",
+    "nextHour": "Una hora adelante",
+    "previousScreenshot": "Captura anterior",
+    "nextScreenshot": "Captura siguiente",
+    "lastUpdated": "Última actualización: {date}",
+    "support": "Soporte",
+    "termsOfUse": "Términos de uso",
+    "privacyPolicy": "Política de privacidad"
+  },
+  "languages": {
+    "en": "English",
+    "fr": "Français",
+    "uk": "Українська",
+    "ru": "Русский",
+    "es": "Español",
+    "pt": "Português",
+    "de": "Deutsch"
+  },
+  "cities": {
+    "moveCity": "Mover {city}",
+    "deleteCity": "Eliminar {city}",
+    "renameCity": "Cambiar nombre de {city}",
+    "clearCustomName": "Borrar el nombre personalizado de {city}",
+    "customNamePlaceholder": "Introduce un nombre personalizado...",
+    "saveCustomName": "Guardar el nombre personalizado de {city}",
+    "resetSelectedTime": "Restablecer hora seleccionada",
+    "selectedTimeOffset": "Desplazamiento de hora seleccionado",
+    "sameOffset": "igual",
+    "yesterday": "Ayer",
+    "tomorrow": "Mañana"
+  },
+  "addCity": {
+    "searchPlaceholder": "Nombre de la ciudad o zona horaria...",
+    "chooseTimezone": "Elegir GMT / UTC",
+    "databaseUnavailable": "La búsqueda de ciudades no está disponible temporalmente."
+  },
+  "home": {
+    "heroText": "Usa esta app para comparar la hora entre ciudades, organizarlas a tu manera y ver de un vistazo la hora actual en cada lugar.\nCrea recordatorios para ciudades concretas y mantén personas, planes y rutinas coordinados entre zonas horarias.",
+    "moreFeaturesTitle": "Más funciones",
+    "contactTitle": "Contáctanos",
+    "faqTitle": "FAQ",
+    "realUseCasesTitle": "Casos de uso reales",
+    "realUseCasesSubtitle": "¿Para qué necesitas la app?",
+    "downloadTitle": "Descargar",
+    "features": {
+      "notifications": {
+        "title": "Notificaciones",
+        "paragraph1": "Configura recordatorios por ciudad para llamadas, reuniones, entregas o rutinas diarias sin calcular zonas horarias mentalmente.",
+        "paragraph2": "{siteName} te ayuda primero a elegir el momento local correcto y luego te avisa cuando llega."
+      },
+      "synchronisation": {
+        "title": "Eventos del calendario",
+        "paragraph1": "Consulta eventos del calendario en el contexto de las ciudades que te importan, para ubicar llamadas, reuniones y planes más fácilmente en la línea de tiempo.",
+        "paragraph2": "{siteName} conecta los momentos programados con la hora local, dejando más claro qué ocurre hoy, mañana o más tarde entre zonas horarias."
+      },
+      "countdowns": {
+        "title": "Cuentas regresivas",
+        "paragraph1": "Ve cuánto tiempo falta para una hora concreta en otra ciudad, incluso si allí ya es mañana.",
+        "paragraph2": "Las cuentas regresivas hacen que planificar sea más concreto: ya no tendrás que adivinar si un plazo, directo, vuelo o llamada está a una hora o a medio día."
+      }
+    },
+    "useCases": {
+      "remoteTeams": {
+        "title": "Equipos remotos",
+        "text": "Coordina reuniones entre continentes."
+      },
+      "familyAbroad": {
+        "title": "Familia en el extranjero",
+        "text": "Sabe cuándo es buen momento para llamar."
+      },
+      "travelers": {
+        "title": "Viajeros",
+        "text": "Adáptate más rápido a nuevas zonas horarias."
+      },
+      "freelancers": {
+        "title": "Freelancers",
+        "text": "Agenda trabajo con clientes internacionales."
+      }
+    }
+  },
+  "contactForm": {
+    "name": "Nombre*",
+    "email": "Email*",
+    "message": "Mensaje*",
+    "send": "Enviar",
+    "sending": "Enviando...",
+    "sent": "Mensaje enviado. ¡Gracias!",
+    "error": "No se pudo enviar el mensaje"
+  },
+  "faq": {
+    "short": "Resumen",
+    "yes": "Sí",
+    "no": "No",
+    "platformsShort": "iOS. Android — en progreso",
+    "notificationsShort": "Menú > Ajustes > Notificaciones",
+    "free": {
+      "title": "¿{siteName} es gratis?",
+      "paragraph1": "Sí. {siteName} se puede descargar y usar gratis para la experiencia principal: seguir tus ciudades favoritas, comparar zonas horarias y consultar timelines durante el día.",
+      "paragraph2": "Si más adelante se añaden funciones de pago, estarán claramente marcadas antes de activarlas. La app está pensada para ser útil sin obligarte a crear una cuenta o suscripción."
+    },
+    "offline": {
+      "title": "¿Funciona sin conexión?",
+      "paragraph1": "Sí. {siteName} puede calcular horas de ciudades y diferencias de zona horaria en tu dispositivo, así que la timeline principal y la lista de ciudades siguen funcionando sin internet.",
+      "paragraph2": "Algunas cosas siguen dependiendo de los ajustes del dispositivo, como el reloj del sistema y la base de datos de zonas horarias del sistema operativo."
+    },
+    "account": {
+      "title": "¿Necesito crear una cuenta?",
+      "paragraph1": "No. Puedes empezar a usar {siteName} de inmediato sin registrarte. Tus ciudades, orden, formato de hora y otras preferencias se guardan localmente en tu dispositivo.",
+      "paragraph2": "Eso también mantiene la app ligera: no hay un paso de inicio de sesión solo para comprobar si es buen momento para llamar, reunirte o enviar un mensaje."
+    },
+    "platforms": {
+      "title": "¿Qué plataformas son compatibles?",
+      "paragraph1": "{siteName} está disponible para iOS. La versión de Android está en progreso y se está construyendo para mantener la misma lista simple de ciudades, vista de timeline y flujo de notificaciones.",
+      "paragraph2": "El sitio web también ofrece una vista previa ligera de la experiencia principal, para que puedas explorar cómo funcionan la timeline y la comparación de ciudades antes de instalar la app."
+    },
+    "notifications": {
+      "title": "¿Cómo activo las notificaciones?",
+      "paragraph1": "Abre el menú de la app, ve a Ajustes y elige Notificaciones. Desde ahí puedes activar recordatorios para las ciudades y horas que te importan.",
+      "paragraph2": "Tu dispositivo también puede pedir permiso para enviar notificaciones. Si no aparecen, comprueba que {siteName} tenga permiso para enviar alertas en los ajustes del sistema."
+    }
+  },
+  "legal": {
+    "privacy": {
+      "title": "Política de privacidad",
+      "overviewTitle": "Resumen",
+      "overviewText": "{siteName} está diseñado para ayudarte a comparar horas entre ciudades sin requerir una cuenta. La app y el sitio web buscan mantener la recopilación de datos personales al mínimo.",
+      "infoTitle": "Información que proporcionas",
+      "infoText1": "Si nos contactas a través del formulario del sitio web, tu nombre, email y mensaje se envían al soporte de {siteName} para que podamos responder.",
+      "infoText2": "El formulario de contacto se procesa mediante nuestro backend del sitio web y se reenvía a nuestra dirección de soporte.",
+      "infoText3": "No incluyas información sensible en mensajes de soporte salvo que sea necesaria para tu solicitud.",
+      "localDataTitle": "Datos locales de la app",
+      "localDataText1": "{siteName} puede guardar preferencias localmente en tu dispositivo o navegador, como ciudades seleccionadas, orden de ciudades y formato de hora. Esta información se usa para que la app se sienta familiar cuando vuelves.",
+      "localDataText2": "Los datos locales no son una copia de seguridad de cuenta. Borrar el almacenamiento del navegador, eliminar la app o restablecer el dispositivo puede eliminar estas preferencias.",
+      "notificationsTitle": "Notificaciones",
+      "notificationsText": "Si activas notificaciones, {siteName} usa el sistema de notificaciones de tu dispositivo para mostrar los recordatorios que elijas. Puedes desactivar los permisos de notificación en los ajustes del dispositivo.",
+      "thirdPartyTitle": "Servicios de terceros",
+      "thirdPartyText": "Abrir enlaces de tiendas, emails o soporte externo puede llevarte a servicios operados por terceros. Sus prácticas de privacidad se rigen por sus propias políticas.",
+      "contactTitle": "Contacto",
+      "contactPrefix": "Para preguntas sobre privacidad, contáctanos en "
+    },
+    "terms": {
+      "title": "Términos de uso",
+      "acceptanceTitle": "Aceptación",
+      "acceptanceText": "Al usar {siteName} o este sitio web, aceptas estos Términos de uso. Si no estás de acuerdo, no uses la app ni el sitio web.",
+      "purposeTitle": "Propósito de {siteName}",
+      "purposeText": "{siteName} ayuda a comparar horas entre ciudades, planificar entre zonas horarias y entender diferencias de hora local. Es una herramienta de planificación, no una garantía de que cada horario, calendario o reloj del dispositivo sea siempre correcto.",
+      "responsibilityTitle": "Tu responsabilidad",
+      "responsibilityText1": "Eres responsable de comprobar los horarios importantes antes de confiar en ellos para viajes, trabajo, decisiones médicas, legales, financieras u otras situaciones críticas.",
+      "responsibilityText2": "Las reglas de zonas horarias pueden cambiar, y los ajustes del dispositivo pueden afectar las horas mostradas.",
+      "acceptableUseTitle": "Uso aceptable",
+      "acceptableUseText": "Aceptas no hacer un uso indebido de la app o el sitio web, intentar interrumpir su funcionamiento ni usarlo de forma que infrinja leyes aplicables.",
+      "availabilityTitle": "Disponibilidad y cambios",
+      "availabilityText": "Podemos actualizar, cambiar, pausar o discontinuar partes de {siteName} a medida que el producto evoluciona. Las funciones descritas en el sitio web pueden cambiar con el tiempo.",
+      "contactTitle": "Contacto",
+      "contactPrefix": "Las preguntas sobre estos términos pueden enviarse a "
+    }
+  }
+}

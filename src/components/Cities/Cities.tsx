@@ -2,6 +2,7 @@ import './cities.css';
 import {
   DndContext,
   PointerSensor,
+  TouchSensor,
   closestCenter,
   useSensor,
   useSensors,
@@ -14,21 +15,35 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent } from 'react';
-import CustomScrollbar from '../CustomScrollbar';
-import { getOrderedFavoriteCities, type FavoriteCity } from './fixtures';
-import { getSettings, updateSettings, type TimeFormat } from '../../settings';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent,
+} from 'react';
+import type { FavoriteCity } from './fixtures';
+import { getSettings, type TimeFormat } from '../../settings';
+import { useI18n } from '../../i18n';
+import { formatPartsInTimezone } from '../../utils/abstractTimezone';
+import AddCityModal from './AddCityModal';
+import {
+  createFavoriteCityFromSearchResult,
+  getOrderedSelectedCities,
+  saveSelectedCities,
+} from './selectedCities';
+import { useTimeRulerScroll } from './useTimeRulerScroll';
+import RenameCityModal from './RenameCityModal';
 
 const PIXELS_IN_MINUTE = 1;
 const TIME_RULER_RANGE_MINUTES = 24 * 60;
 const TIME_RULER_TICK_STEP_MINUTES = 15;
 const TIME_RULER_HOUR_STEP_MINUTES = 60;
+const MOBILE_CITIES_QUERY = '(width < 768px)';
 
-type TimeRulerDrag = {
-  pointerId: number;
-  pointerStartX: number;
-  timeOffsetStartMinutes: number;
-};
+const rulerTimeFormatters = new Map<TimeFormat, Intl.DateTimeFormat>();
+let browserTimezoneCache: string | null = null;
 
 type ZonedDateParts = {
   year: number;
@@ -42,7 +57,7 @@ type ZonedDateParts = {
 type CityView = FavoriteCity & {
   currentTime: string;
   currentPeriod: FavoriteCity['period'];
-  dayShiftLabel: 'Yesterday' | 'Tomorrow' | null;
+  dayShift: 'yesterday' | 'tomorrow' | null;
   relativeTimeOffset: string;
 };
 
@@ -51,27 +66,55 @@ type CitiesProps = {
 };
 
 function getOrderedCities(storedOrder: string[]) {
-  return getOrderedFavoriteCities(storedOrder);
+  return getOrderedSelectedCities(storedOrder);
 }
 
-function saveCityOrder(cities: FavoriteCity[]) {
-  updateSettings((settings) => ({
-    ...settings,
-    cityOrder: cities.map((city) => city.id),
-  }));
+function getIsMobileCitiesMode() {
+  return typeof window !== 'undefined'
+    && window.matchMedia(MOBILE_CITIES_QUERY).matches;
 }
 
 type SortableCityItemProps = {
+  deleteLabel: string;
   favoriteCity: CityView;
+  moveLabel: string;
+  onDelete: (cityId: string) => void;
+  onRename: (cityId: string, customName: string) => void;
+  onRequestRename: (city: CityView) => void;
+  clearNameLabel: string;
+  customNamePlaceholder: string;
+  isMobileRenameMode: boolean;
+  renameLabel: string;
+  saveNameLabel: string;
+  tomorrowLabel: string;
+  yesterdayLabel: string;
 };
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
 }
 
+function getRulerTimeFormatter(timeFormat: TimeFormat) {
+  const cachedFormatter = rulerTimeFormatters.get(timeFormat);
+
+  if (cachedFormatter) {
+    return cachedFormatter;
+  }
+
+  const formatter = new Intl.DateTimeFormat(timeFormat === '24h' ? 'en-GB' : 'en-US', {
+    hour: timeFormat === '24h' ? '2-digit' : 'numeric',
+    minute: '2-digit',
+    hour12: timeFormat === '12h',
+    hourCycle: 'h23',
+  });
+
+  rulerTimeFormatters.set(timeFormat, formatter);
+
+  return formatter;
+}
+
 function getZonedDateParts(timezone: string, date: Date): ZonedDateParts {
-  const formatter = new Intl.DateTimeFormat('en-US', {
-    timeZone: timezone,
+  const parts = formatPartsInTimezone(date, timezone, 'en-US', {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
@@ -81,7 +124,6 @@ function getZonedDateParts(timezone: string, date: Date): ZonedDateParts {
     hour12: false,
     hourCycle: 'h23',
   });
-  const parts = formatter.formatToParts(date);
   const dateParts = Object.fromEntries(
     parts
       .filter((part) => part.type !== 'literal')
@@ -93,6 +135,11 @@ function getZonedDateParts(timezone: string, date: Date): ZonedDateParts {
 
 function getTimeZoneOffsetMinutes(timezone: string, date: Date) {
   const dateParts = getZonedDateParts(timezone, date);
+
+  return getTimeZoneOffsetMinutesFromParts(dateParts, date);
+}
+
+function getTimeZoneOffsetMinutesFromParts(dateParts: ZonedDateParts, date: Date) {
   const zonedTime = Date.UTC(
     dateParts.year,
     dateParts.month - 1,
@@ -105,9 +152,9 @@ function getTimeZoneOffsetMinutes(timezone: string, date: Date) {
   return Math.round((zonedTime - date.getTime()) / 60000);
 }
 
-function formatRelativeTimeOffset(offsetMinutes: number) {
+function formatRelativeTimeOffset(offsetMinutes: number, sameLabel: string) {
   if (offsetMinutes === 0) {
-    return 'same';
+    return sameLabel;
   }
 
   const sign = offsetMinutes > 0 ? '+' : '-';
@@ -119,38 +166,28 @@ function formatRelativeTimeOffset(offsetMinutes: number) {
 }
 
 function formatTimeRulerOffset(offsetMinutes: number) {
-  return offsetMinutes === 0 ? '+0' : formatRelativeTimeOffset(offsetMinutes);
+  return offsetMinutes === 0 ? '+0' : formatRelativeTimeOffset(offsetMinutes, 'same');
 }
 
 function getBrowserTimezone() {
-  return Intl.DateTimeFormat().resolvedOptions().timeZone;
-}
-
-function getRelativeTimeOffset(timezone: string, fallback: string, date: Date) {
-  try {
-    const browserTimezone = getBrowserTimezone();
-    const browserOffset = getTimeZoneOffsetMinutes(browserTimezone, date);
-    const cityOffset = getTimeZoneOffsetMinutes(timezone, date);
-
-    return formatRelativeTimeOffset(cityOffset - browserOffset);
-  } catch {
-    return fallback.replace(/h$/i, '');
+  if (!browserTimezoneCache) {
+    browserTimezoneCache = Intl.DateTimeFormat().resolvedOptions().timeZone;
   }
+
+  return browserTimezoneCache;
 }
 
-function formatTimeInTimezone(timezone: string, date: Date, timeFormat: TimeFormat) {
+function formatTimeFromDateParts(dateParts: ZonedDateParts, timeFormat: TimeFormat) {
   if (timeFormat === '24h') {
-    const { hour, minute } = getZonedDateParts(timezone, date);
+    const { hour, minute } = dateParts;
 
     return `${hour === 0 ? '00' : hour}:${String(minute).padStart(2, '0')}`;
   }
 
-  return new Intl.DateTimeFormat('en-US', {
-    timeZone: timezone,
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true,
-  }).format(date);
+  const hour = dateParts.hour % 12 || 12;
+  const dayPeriod = dateParts.hour >= 12 ? 'PM' : 'AM';
+
+  return `${hour}:${String(dateParts.minute).padStart(2, '0')} ${dayPeriod}`;
 }
 
 function getPeriodFromHour(hour: number): FavoriteCity['period'] {
@@ -173,22 +210,15 @@ function getDateSerial(dateParts: Pick<ZonedDateParts, 'year' | 'month' | 'day'>
   return Date.UTC(dateParts.year, dateParts.month - 1, dateParts.day) / 86400000;
 }
 
-function getDayShiftLabel(
-  timezone: string,
-  browserTimezone: string,
-  selectedDate: Date,
-  baseDate: Date,
-) {
-  const baseBrowserDate = getZonedDateParts(browserTimezone, baseDate);
-  const selectedCityDate = getZonedDateParts(timezone, selectedDate);
-  const dayDiff = getDateSerial(selectedCityDate) - getDateSerial(baseBrowserDate);
+function getDayShiftLabel(cityDateParts: ZonedDateParts, baseBrowserDateParts: ZonedDateParts) {
+  const dayDiff = getDateSerial(cityDateParts) - getDateSerial(baseBrowserDateParts);
 
   if (dayDiff > 0) {
-    return 'Tomorrow';
+    return 'tomorrow';
   }
 
   if (dayDiff < 0) {
-    return 'Yesterday';
+    return 'yesterday';
   }
 
   return null;
@@ -197,35 +227,52 @@ function getDayShiftLabel(
 function getCityView(
   city: FavoriteCity,
   selectedDate: Date,
-  baseDate: Date,
-  browserTimezone: string,
+  baseBrowserDateParts: ZonedDateParts,
+  browserOffsetMinutes: number,
   timeFormat: TimeFormat,
+  sameLabel: string,
 ): CityView {
   const cityDateParts = getZonedDateParts(city.timezone, selectedDate);
 
   return {
     ...city,
-    currentTime: formatTimeInTimezone(city.timezone, selectedDate, timeFormat),
+    currentTime: formatTimeFromDateParts(cityDateParts, timeFormat),
     currentPeriod: getPeriodFromHour(cityDateParts.hour),
-    dayShiftLabel: getDayShiftLabel(city.timezone, browserTimezone, selectedDate, baseDate),
-    relativeTimeOffset: getRelativeTimeOffset(city.timezone, city.timeOffset, selectedDate),
+    dayShift: getDayShiftLabel(cityDateParts, baseBrowserDateParts),
+    relativeTimeOffset: formatRelativeTimeOffset(
+      getTimeZoneOffsetMinutesFromParts(cityDateParts, selectedDate) - browserOffsetMinutes,
+      sameLabel,
+    ),
   };
 }
 
 function formatRulerTime(date: Date, timeFormat: TimeFormat) {
-  return new Intl.DateTimeFormat(timeFormat === '24h' ? 'en-GB' : 'en-US', {
-    hour: timeFormat === '24h' ? '2-digit' : 'numeric',
-    minute: '2-digit',
-    hour12: timeFormat === '12h',
-    hourCycle: 'h23',
-  }).format(date);
+  return getRulerTimeFormatter(timeFormat).format(date);
 }
 
 function getDateWithTimeOffset(baseDate: Date, offsetMinutes: number) {
   return new Date(baseDate.getTime() + offsetMinutes * 60000);
 }
 
-function SortableCityItem({ favoriteCity }: SortableCityItemProps) {
+function SortableCityItem({
+  deleteLabel,
+  favoriteCity,
+  moveLabel,
+  onDelete,
+  onRename,
+  onRequestRename,
+  clearNameLabel,
+  customNamePlaceholder,
+  isMobileRenameMode,
+  renameLabel,
+  saveNameLabel,
+  tomorrowLabel,
+  yesterdayLabel,
+}: SortableCityItemProps) {
+  const [isRenaming, setIsRenaming] = useState(false);
+  const [renameValue, setRenameValue] = useState('');
+  const renameBoxRef = useRef<HTMLDivElement>(null);
+  const renameInputRef = useRef<HTMLInputElement>(null);
   const {
     attributes,
     listeners,
@@ -238,6 +285,77 @@ function SortableCityItem({ favoriteCity }: SortableCityItemProps) {
     transform: CSS.Transform.toString(transform),
     transition,
   };
+  const displayName = favoriteCity.customName || favoriteCity.city;
+
+  useEffect(() => {
+    if (!isRenaming) {
+      return;
+    }
+
+    renameInputRef.current?.focus();
+    renameInputRef.current?.select();
+  }, [isRenaming]);
+
+  useEffect(() => {
+    if (!isRenaming) {
+      return;
+    }
+
+    const handleDocumentPointerDown = (event: PointerEvent) => {
+      if (renameBoxRef.current?.contains(event.target as Node)) {
+        return;
+      }
+
+      setIsRenaming(false);
+      setRenameValue('');
+    };
+
+    document.addEventListener('pointerdown', handleDocumentPointerDown, true);
+
+    return () => {
+      document.removeEventListener('pointerdown', handleDocumentPointerDown, true);
+    };
+  }, [isRenaming]);
+
+  const startRenaming = () => {
+    if (isMobileRenameMode) {
+      onRequestRename(favoriteCity);
+      return;
+    }
+
+    setRenameValue(favoriteCity.customName || '');
+    setIsRenaming(true);
+  };
+
+  const finishRenaming = () => {
+    const nextCustomName = renameValue.trim();
+
+    onRename(favoriteCity.id, nextCustomName === favoriteCity.city ? '' : nextCustomName);
+    setIsRenaming(false);
+  };
+
+  const cancelRenaming = () => {
+    setIsRenaming(false);
+    setRenameValue('');
+  };
+
+  const handleRenameKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      finishRenaming();
+    }
+
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      cancelRenaming();
+    }
+  };
+
+  const clearCustomName = () => {
+    setRenameValue('');
+    onRename(favoriteCity.id, '');
+    setIsRenaming(false);
+  };
 
   return (
     <div
@@ -248,35 +366,89 @@ function SortableCityItem({ favoriteCity }: SortableCityItemProps) {
       <button
         className="citiesList-dragButton"
         type="button"
-        aria-label={`Move ${favoriteCity.customName || favoriteCity.city}`}
+        aria-label={moveLabel}
+        {...attributes}
+        {...listeners}
+      />
+      <button
+        className="citiesList-dragButtonMobile"
+        type="button"
+        aria-label={moveLabel}
         {...attributes}
         {...listeners}
       />
       <i className={`citiesList-periodIcon citiesList-periodIcon_${favoriteCity.currentPeriod}`} />
       <div className="citiesList-city">
-        <h4 className="citiesList-name">
-          {favoriteCity.customName || favoriteCity.city}
-          {favoriteCity.customName && (<span className="citiesList-originalName"> ({favoriteCity.city})</span>)}
-        </h4>
+        {isRenaming ? (
+          <div className="citiesList-nameInputBox" ref={renameBoxRef}>
+            <input
+              className="citiesList-nameInput"
+              ref={renameInputRef}
+              value={renameValue}
+              aria-label={renameLabel}
+              placeholder={customNamePlaceholder}
+              onChange={(event) => setRenameValue(event.target.value)}
+              onKeyDown={handleRenameKeyDown}
+            />
+            {renameValue.length > 0 && (
+              <button
+                type="button"
+                className="citiesList-nameClear"
+                aria-label={clearNameLabel}
+                onPointerDown={(event) => event.preventDefault()}
+                onClick={clearCustomName}
+              />
+            )}
+            <button
+              type="button"
+              className="citiesList-nameSave"
+              aria-label={saveNameLabel}
+              onClick={finishRenaming}
+            />
+          </div>
+        ) : (
+          <button
+            className="citiesList-nameButton"
+            type="button"
+            onClick={startRenaming}
+            aria-label={renameLabel}
+          >
+            <span className="citiesList-name">
+              {displayName}
+              {favoriteCity.customName && (<span className="citiesList-originalName"> ({favoriteCity.city})</span>)}
+            </span>
+          </button>
+        )}
         <span className="citiesList-timeOffset">
           {favoriteCity.relativeTimeOffset}
-          {favoriteCity.dayShiftLabel && (
-            <span className="citiesList-dayBadge">{favoriteCity.dayShiftLabel}</span>
+          {favoriteCity.dayShift && (
+            <span className="citiesList-dayBadge">
+              {favoriteCity.dayShift === 'tomorrow' ? tomorrowLabel : yesterdayLabel}
+            </span>
           )}
         </span>
       </div>
       <span className="citiesList-time">{favoriteCity.currentTime}</span>
+
+      <button
+        className="citiesList-deleteButton"
+        type="button"
+        aria-label={deleteLabel}
+        onClick={() => onDelete(favoriteCity.id)}
+      />
     </div>
   );
 }
 
-export default function Cities({ timeFormat }: CitiesProps) {
+export default function Cities({timeFormat}: CitiesProps) {
+  const {t} = useI18n();
   const [cities, setCities] = useState(() => getOrderedCities(getSettings().cityOrder));
   const [baseDate] = useState(() => new Date());
+  const [isAddCityModalOpen, setIsAddCityModalOpen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [isMobileRenameMode, setIsMobileRenameMode] = useState(getIsMobileCitiesMode);
+  const [renamingCityId, setRenamingCityId] = useState<string | null>(null);
   const [timeOffsetMinutes, setTimeOffsetMinutes] = useState(0);
-  const [isTimeRulerDragging, setIsTimeRulerDragging] = useState(false);
-  const timeRulerDragRef = useRef<TimeRulerDrag | null>(null);
-  const timeRulerScaleRef = useRef<HTMLDivElement | null>(null);
 
   const cityIds = useMemo(() => cities.map((city) => city.id), [cities]);
   const selectedDate = useMemo(
@@ -287,9 +459,34 @@ export default function Cities({ timeFormat }: CitiesProps) {
 
   const cityViews = useMemo(() => {
     const browserTimezone = getBrowserTimezone();
+    const baseBrowserDateParts = getZonedDateParts(browserTimezone, baseDate);
+    const browserOffsetMinutes = getTimeZoneOffsetMinutes(browserTimezone, selectedDate);
 
-    return cities.map((city) => getCityView(city, selectedDate, baseDate, browserTimezone, timeFormat));
-  }, [baseDate, cities, selectedDate, timeFormat]);
+    return cities.map((city) => getCityView(
+      city,
+      selectedDate,
+      baseBrowserDateParts,
+      browserOffsetMinutes,
+      timeFormat,
+      t('cities.sameOffset'),
+    ));
+  }, [baseDate, cities, selectedDate, timeFormat, t]);
+  const renamingCity = useMemo(
+    () => cityViews.find((city) => city.id === renamingCityId) ?? null,
+    [cityViews, renamingCityId],
+  );
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia(MOBILE_CITIES_QUERY);
+    const updateMobileMode = () => setIsMobileRenameMode(mediaQuery.matches);
+
+    updateMobileMode();
+    mediaQuery.addEventListener('change', updateMobileMode);
+
+    return () => {
+      mediaQuery.removeEventListener('change', updateMobileMode);
+    };
+  }, []);
 
   const timeRulerTicks = useMemo(() => {
     const ticks = [];
@@ -311,6 +508,14 @@ export default function Cities({ timeFormat }: CitiesProps) {
         distance: 6,
       },
     }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        distance: 6,
+      },
+      onActivation: ({ event }) => {
+        event.preventDefault();
+      },
+    }),
   );
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -320,20 +525,17 @@ export default function Cities({ timeFormat }: CitiesProps) {
       return;
     }
 
-    setCities((currentCities) => {
-      const oldIndex = currentCities.findIndex((city) => city.id === active.id);
-      const newIndex = currentCities.findIndex((city) => city.id === over.id);
+    const oldIndex = cities.findIndex((city) => city.id === String(active.id));
+    const newIndex = cities.findIndex((city) => city.id === String(over.id));
 
-      if (oldIndex === -1 || newIndex === -1) {
-        return currentCities;
-      }
+    if (oldIndex === -1 || newIndex === -1) {
+      return;
+    }
 
-      const nextCities = arrayMove(currentCities, oldIndex, newIndex);
+    const nextCities = arrayMove(cities, oldIndex, newIndex);
 
-      saveCityOrder(nextCities);
-
-      return nextCities;
-    });
+    setCities(nextCities);
+    saveSelectedCities(nextCities);
   };
 
   const updateTimeOffset = useCallback((nextTimeOffsetMinutes: number) => {
@@ -344,128 +546,124 @@ export default function Cities({ timeFormat }: CitiesProps) {
     ));
   }, []);
 
-  const endTimeRulerDrag = useCallback(() => {
-    if (!timeRulerDragRef.current) {
-      return;
-    }
-
-    timeRulerDragRef.current = null;
-    setIsTimeRulerDragging(false);
-  }, []);
-
-  const handleTimeRulerPointerDown = (event: PointerEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    event.currentTarget.setPointerCapture(event.pointerId);
-
-    timeRulerDragRef.current = {
-      pointerId: event.pointerId,
-      pointerStartX: event.clientX,
-      timeOffsetStartMinutes: timeOffsetMinutes,
-    };
-    setIsTimeRulerDragging(true);
-  };
-
-  const handleTimeRulerPointerMove = (event: PointerEvent<HTMLDivElement>) => {
-    const drag = timeRulerDragRef.current;
-
-    if (!drag || drag.pointerId !== event.pointerId) {
-      return;
-    }
-
-    if (event.buttons === 0) {
-      endTimeRulerDrag();
-      return;
-    }
-
-    const pointerDelta = event.clientX - drag.pointerStartX;
-
-    updateTimeOffset(drag.timeOffsetStartMinutes - pointerDelta / PIXELS_IN_MINUTE);
-  };
-
-  const handleTimeRulerPointerUp = (event: PointerEvent<HTMLDivElement>) => {
-    const drag = timeRulerDragRef.current;
-
-    if (!drag || drag.pointerId !== event.pointerId) {
-      return;
-    }
-
-    endTimeRulerDrag();
-
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-      event.currentTarget.releasePointerCapture(event.pointerId);
-    }
-  };
+  const {
+    isDragging: isTimeRulerDragging,
+    scrollToOffset: scrollTimeRulerToOffset,
+    viewportRef: timeRulerScaleRef,
+  } = useTimeRulerScroll({
+    offsetMinutes: timeOffsetMinutes,
+    pixelsInMinute: PIXELS_IN_MINUTE,
+    rangeMinutes: TIME_RULER_RANGE_MINUTES,
+    onOffsetChange: updateTimeOffset,
+  });
 
   const handleTimeRulerReset = () => {
-    updateTimeOffset(0);
+    scrollTimeRulerToOffset(0, true);
   };
 
-  useEffect(() => {
-    if (!isTimeRulerDragging) {
+  const handleAddCity = (city: Parameters<typeof createFavoriteCityFromSearchResult>[0]) => {
+    if (cities.some((currentCity) => currentCity.id === String(city.id))) {
+      setIsAddCityModalOpen(false);
       return;
     }
 
-    const handleWindowPointerUp = () => {
-      endTimeRulerDrag();
-    };
+    const nextCities = [
+      ...cities,
+      createFavoriteCityFromSearchResult(city, cities.length),
+    ];
 
-    window.addEventListener('pointerup', handleWindowPointerUp);
-    window.addEventListener('pointercancel', handleWindowPointerUp);
-    window.addEventListener('blur', handleWindowPointerUp);
+    setCities(nextCities);
+    saveSelectedCities(nextCities);
+    setIsAddCityModalOpen(false);
+  };
 
-    return () => {
-      window.removeEventListener('pointerup', handleWindowPointerUp);
-      window.removeEventListener('pointercancel', handleWindowPointerUp);
-      window.removeEventListener('blur', handleWindowPointerUp);
-    };
-  }, [endTimeRulerDrag, isTimeRulerDragging]);
+  const handleDeleteCity = useCallback((cityId: string) => {
+    const nextCities = cities.filter((city) => city.id !== cityId);
 
-  useEffect(() => {
-    const timeRulerScale = timeRulerScaleRef.current;
-
-    if (!timeRulerScale) {
+    if (nextCities.length === cities.length) {
       return;
     }
 
-    const handleWheel = (event: globalThis.WheelEvent) => {
-      event.preventDefault();
-      event.stopPropagation();
-      updateTimeOffset(timeOffsetMinutes + (event.deltaY + event.deltaX) / PIXELS_IN_MINUTE);
-    };
+    setCities(nextCities);
+    saveSelectedCities(nextCities);
+  }, [cities]);
 
-    timeRulerScale.addEventListener('wheel', handleWheel, { passive: false });
+  const handleRenameCity = useCallback((cityId: string, customName: string) => {
+    const nextCities = cities.map((city) => (
+      city.id === cityId
+        ? { ...city, customName }
+        : city
+    ));
 
-    return () => {
-      timeRulerScale.removeEventListener('wheel', handleWheel);
-    };
-  }, [timeOffsetMinutes, updateTimeOffset]);
+    setCities(nextCities);
+    saveSelectedCities(nextCities);
+  }, [cities]);
+
+  const handleRenameCityFromModal = (customName: string) => {
+    if (!renamingCity) {
+      return;
+    }
+
+    handleRenameCity(renamingCity.id, customName);
+    setRenamingCityId(null);
+  };
 
   return (
-    <div className="cities">
-      <div className="citiesHeader"></div>
-      <CustomScrollbar className="citiesListBox" contentClassName="citiesList">
+    <div className={`cities ${isEditMode ? 'cities_editMode' : ''}`}>
+      <div className="citiesHeader">
+        <button
+          className={`citiesHeaderButton citiesHeaderButton_edit ${isEditMode ? 'isActive' : ''}`}
+          type="button"
+          aria-label="edit"
+          aria-pressed={isEditMode}
+          onClick={() => setIsEditMode((currentMode) => !currentMode)}
+        />
+        <button
+          className="citiesHeaderButton citiesHeaderButton_add"
+          type="button"
+          aria-label={t('common.addCity')}
+          onClick={() => setIsAddCityModalOpen(true)}
+        />
+      </div>
+      <div className="citiesListBox scrollControl">
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
           onDragEnd={handleDragEnd}
         >
-          <SortableContext items={cityIds} strategy={verticalListSortingStrategy}>
-            {cityViews.map((favoriteCity) => (
-              <SortableCityItem
-                favoriteCity={favoriteCity}
-                key={favoriteCity.id}
-              />
-            ))}
-          </SortableContext>
+          <div className="citiesList">
+            <SortableContext items={cityIds} strategy={verticalListSortingStrategy}>
+              {cityViews.map((favoriteCity) => (
+                <SortableCityItem
+                  clearNameLabel={t('cities.clearCustomName', { city: favoriteCity.customName || favoriteCity.city })}
+                  customNamePlaceholder={t('cities.customNamePlaceholder')}
+                  deleteLabel={t('cities.deleteCity', { city: favoriteCity.customName || favoriteCity.city })}
+                  favoriteCity={favoriteCity}
+                  isMobileRenameMode={isMobileRenameMode}
+                  key={favoriteCity.id}
+                  moveLabel={t('cities.moveCity', { city: favoriteCity.customName || favoriteCity.city })}
+                  onDelete={handleDeleteCity}
+                  onRename={handleRenameCity}
+                  onRequestRename={(city) => setRenamingCityId(city.id)}
+                  renameLabel={t('cities.renameCity', { city: favoriteCity.customName || favoriteCity.city })}
+                  saveNameLabel={t('cities.saveCustomName', { city: favoriteCity.customName || favoriteCity.city })}
+                  tomorrowLabel={t('cities.tomorrow')}
+                  yesterdayLabel={t('cities.yesterday')}
+                />
+              ))}
+            </SortableContext>
+          </div>
         </DndContext>
-      </CustomScrollbar>
+      </div>
       <div className="timeRuler">
-        <button
-          className="timeRuler-reset"
-          type="button"
-          aria-label="Reset selected time"
-          onClick={handleTimeRulerReset}
-        />
+        {isTimeRulerAdjusted && (
+          <button
+            className="timeRuler-reset"
+            type="button"
+            aria-label={t('cities.resetSelectedTime')}
+            onClick={handleTimeRulerReset}
+          />
+        )}
 
         <div className="timeRuler-info">
           {isTimeRulerAdjusted && (
@@ -483,20 +681,15 @@ export default function Cities({ timeFormat }: CitiesProps) {
           className={`timeRuler-scale ${isTimeRulerDragging ? 'timeRuler-scale_dragging' : ''}`}
           ref={timeRulerScaleRef}
           role="slider"
-          aria-label="Selected time offset"
+          aria-label={t('cities.selectedTimeOffset')}
           aria-valuemin={-TIME_RULER_RANGE_MINUTES}
           aria-valuemax={TIME_RULER_RANGE_MINUTES}
           aria-valuenow={timeOffsetMinutes}
-          onPointerDown={handleTimeRulerPointerDown}
-          onPointerMove={handleTimeRulerPointerMove}
-          onPointerUp={handleTimeRulerPointerUp}
-          onPointerCancel={handleTimeRulerPointerUp}
         >
           <div
             className="timeRuler-track"
             style={{
               width: `${TIME_RULER_RANGE_MINUTES * 2 * PIXELS_IN_MINUTE}px`,
-              transform: `translate3d(-${(timeOffsetMinutes + TIME_RULER_RANGE_MINUTES) * PIXELS_IN_MINUTE}px, 0, 0)`,
             }}
           >
             {timeRulerTicks.map((minute) => (
@@ -514,6 +707,25 @@ export default function Cities({ timeFormat }: CitiesProps) {
           </div>
         </div>
       </div>
+      <AddCityModal
+        isOpen={isAddCityModalOpen}
+        selectedCityIds={cityIds}
+        onClose={() => setIsAddCityModalOpen(false)}
+        onSave={handleAddCity}
+      />
+      <RenameCityModal
+        key={renamingCity?.id ?? 'rename-city-modal'}
+        isOpen={isMobileRenameMode && !!renamingCity}
+        cityName={renamingCity?.city ?? ''}
+        customName={renamingCity?.customName ?? ''}
+        title={renamingCity ? t('cities.renameCity', { city: renamingCity.customName || renamingCity.city }) : ''}
+        placeholder={t('cities.customNamePlaceholder')}
+        clearLabel={renamingCity ? t('cities.clearCustomName', { city: renamingCity.customName || renamingCity.city }) : ''}
+        closeLabel={t('common.close')}
+        saveLabel={renamingCity ? t('cities.saveCustomName', { city: renamingCity.customName || renamingCity.city }) : ''}
+        onClose={() => setRenamingCityId(null)}
+        onSave={handleRenameCityFromModal}
+      />
     </div>
   )
 }

@@ -36,3 +36,26 @@
         text-decoration: underline;
     }
 }
+
+@media screen and (width < 768px) {
+  .container_footer {
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .copyright {
+    margin: 20px 0 0 0;
+    order: 1;
+  }
+
+  .footerMenu {
+    margin: 0;
+    order: 0;
+    flex-direction: column;
+  }
+
+  .footerMenu-item {
+    text-align: center;
+  }
+}

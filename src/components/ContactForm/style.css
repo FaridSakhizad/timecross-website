@@ -1,0 +1,37 @@
+.contactForm {
+    width: 100%;
+    max-width: 380px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.contactForm-row {
+    display: flex;
+}
+
+.contactForm-input {
+    display: block;
+    width: 100%;
+}
+
+.contactForm-submitButton {
+    min-width: 150px;
+    margin-inline: auto;
+}
+
+.contactForm-status {
+    margin: -4px 0 0 0;
+    font-size: 14px;
+    line-height: 1.4;
+    text-align: center;
+}
+
+.contactForm-status_sent {
+    color: #fff;
+}
+
+.contactForm-status_error {
+    color: #fff;
+}

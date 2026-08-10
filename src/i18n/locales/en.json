@@ -1,0 +1,174 @@
+{
+  "common": {
+    "sitePitch": "Understand Time Across the World",
+    "sayThanks": "Say Thanks",
+    "appStore": "Download on the App Store",
+    "googlePlay": "Get it on Google Play",
+    "androidPreview": "Download Android Preview",
+    "androidPreviewNote": "While we prepare the Google Play release, you can download the APK and try the TimeCross app right now.",
+    "comingSoon": "Coming Soon",
+    "addCity": "Add Timezone",
+    "noResults": "No results",
+    "loading": "Loading...",
+    "close": "Close",
+    "reset": "Reset",
+    "panMode": "Pan",
+    "scrollMode": "Scroll",
+    "previousHour": "One hour back",
+    "nextHour": "One hour forward",
+    "previousScreenshot": "Previous screenshot",
+    "nextScreenshot": "Next screenshot",
+    "lastUpdated": "Last updated: {date}",
+    "support": "Support",
+    "termsOfUse": "Terms Of Use",
+    "privacyPolicy": "Privacy Policy"
+  },
+  "languages": {
+    "en": "English",
+    "fr": "Français",
+    "uk": "Українська",
+    "ru": "Русский",
+    "es": "Español",
+    "pt": "Português",
+    "de": "Deutsch"
+  },
+  "cities": {
+    "moveCity": "Move {city}",
+    "deleteCity": "Delete {city}",
+    "renameCity": "Rename {city}",
+    "clearCustomName": "Clear custom name for {city}",
+    "customNamePlaceholder": "Enter custom name...",
+    "saveCustomName": "Save custom name for {city}",
+    "resetSelectedTime": "Reset selected time",
+    "selectedTimeOffset": "Selected time offset",
+    "sameOffset": "same",
+    "yesterday": "Yesterday",
+    "tomorrow": "Tomorrow"
+  },
+  "addCity": {
+    "searchPlaceholder": "City Name or Time Zone...",
+    "chooseTimezone": "Choose GMT / UTC",
+    "databaseUnavailable": "City search is temporarily unavailable."
+  },
+  "home": {
+    "heroText": "Use this app to compare time across cities, organize them your way, and see the current time in each place at a glance.\nCreate reminders for specific cities to keep people, plans, and routines in sync across time zones.",
+    "moreFeaturesTitle": "More Features",
+    "contactTitle": "Contact Us",
+    "faqTitle": "FAQ",
+    "realUseCasesTitle": "Real Use Cases",
+    "realUseCasesSubtitle": "Why do You even need the app?",
+    "downloadTitle": "Download",
+    "features": {
+      "notifications": {
+        "title": "Notifications",
+        "paragraph1": "Set city-based reminders for calls, meetings, handoffs, or daily routines without doing timezone math in your head.",
+        "paragraph2": "{siteName} helps you choose the right local moment first, then reminds you when that moment arrives."
+      },
+      "synchronisation": {
+        "title": "Calendar Events",
+        "paragraph1": "See calendar events in the context of the cities that matter to you, so calls, meetings, and plans are easier to place on the timeline.",
+        "paragraph2": "{siteName} helps connect scheduled moments with local time, making it clearer what is happening today, tomorrow, or later across time zones."
+      },
+      "countdowns": {
+        "title": "Countdowns",
+        "paragraph1": "See how much time is left until a specific hour in another city, even when that city is already in tomorrow.",
+        "paragraph2": "Countdowns make planning feel concrete: no more guessing whether a deadline, livestream, flight, or call is one hour away or half a day away."
+      }
+    },
+    "useCases": {
+      "remoteTeams": {
+        "title": "Remote Teams",
+        "text": "Coordinate meetings across continents."
+      },
+      "familyAbroad": {
+        "title": "Family Abroad",
+        "text": "Know when it's a good time to call."
+      },
+      "travelers": {
+        "title": "Travelers",
+        "text": "Adapt to new time zones faster."
+      },
+      "freelancers": {
+        "title": "Freelancers",
+        "text": "Schedule work with international clients."
+      }
+    }
+  },
+  "contactForm": {
+    "name": "Name*",
+    "email": "Email*",
+    "message": "Message*",
+    "send": "Send",
+    "sending": "Sending...",
+    "sent": "Message sent. Thank you!",
+    "error": "Unable to send message"
+  },
+  "faq": {
+    "short": "TL;DR",
+    "yes": "Yes",
+    "no": "No",
+    "platformsShort": "iOS. Android — in progress",
+    "notificationsShort": "Menu > Settings > Notifications",
+    "free": {
+      "title": "Is {siteName} free?",
+      "paragraph1": "Yes. {siteName} is free to download and use for the core experience: tracking favorite cities, comparing time zones, and checking timelines across the day.",
+      "paragraph2": "If paid features are added later, they will be clearly marked before you enable them. The app is designed to be useful without forcing you into an account or subscription."
+    },
+    "offline": {
+      "title": "Does it work offline?",
+      "paragraph1": "Yes. {siteName} can calculate city times and time zone offsets on your device, so the main timeline and city list continue to work without an internet connection.",
+      "paragraph2": "Some things still depend on your device settings, such as the system clock and the time zone database provided by the operating system."
+    },
+    "account": {
+      "title": "Do I need to register an account?",
+      "paragraph1": "No. You can start using {siteName} right away without creating an account. Your cities, ordering, display format, and other preferences are kept locally on your device.",
+      "paragraph2": "That also means the app stays lightweight: there is no login step just to check whether it is a good time to call, meet, or send a message."
+    },
+    "platforms": {
+      "title": "Which platforms are supported?",
+      "paragraph1": "{siteName} is available for iOS. The Android version is in progress and is being built to keep the same simple city list, timeline view, and notification flow.",
+      "paragraph2": "The website also provides a lightweight preview of the core experience, so you can explore how the timeline and city comparison work before installing the app."
+    },
+    "notifications": {
+      "title": "How do I enable Notifications?",
+      "paragraph1": "Open the app menu, go to Settings, and choose Notifications. From there you can enable reminders for the cities and times that matter to you.",
+      "paragraph2": "Your device may also ask for notification permission. If notifications do not appear, check that {siteName} is allowed to send alerts in your system settings."
+    }
+  },
+  "legal": {
+    "privacy": {
+      "title": "Privacy Policy",
+      "overviewTitle": "Overview",
+      "overviewText": "{siteName} is designed to help you compare time across cities without requiring an account. The app and website aim to keep personal data collection minimal.",
+      "infoTitle": "Information You Provide",
+      "infoText1": "If you contact us through the website contact form, your name, email address, and message are sent to {siteName} support so we can reply to your request.",
+      "infoText2": "The contact form is processed by our website backend and forwarded to our support email address.",
+      "infoText3": "Do not include sensitive information in support messages unless it is necessary for your request.",
+      "localDataTitle": "Local App Data",
+      "localDataText1": "{siteName} may store preferences locally on your device or browser, such as selected cities, city order, and time format. This information is used to make the app feel familiar when you return.",
+      "localDataText2": "Local data is not an account backup. Clearing browser storage, deleting the app, or resetting device data may remove these preferences.",
+      "notificationsTitle": "Notifications",
+      "notificationsText": "If you enable notifications, {siteName} uses your device notification system to show reminders you choose. You can disable notification permissions in your device settings.",
+      "thirdPartyTitle": "Third-Party Services",
+      "thirdPartyText": "Opening store links, email links, or external support links may take you to services operated by third parties. Their privacy practices are governed by their own policies.",
+      "contactTitle": "Contact",
+      "contactPrefix": "For privacy questions, contact us at "
+    },
+    "terms": {
+      "title": "Terms of Use",
+      "acceptanceTitle": "Acceptance",
+      "acceptanceText": "By using {siteName} or this website, you agree to these Terms of Use. If you do not agree, please do not use the app or website.",
+      "purposeTitle": "Purpose of {siteName}",
+      "purposeText": "{siteName} helps compare times across cities, plan across time zones, and understand local time differences. It is a planning tool, not a guarantee that every schedule, calendar, or device clock is always correct.",
+      "responsibilityTitle": "Your Responsibility",
+      "responsibilityText1": "You are responsible for checking important times before relying on them for travel, work, medical, legal, financial, or other high-stakes decisions.",
+      "responsibilityText2": "Time zone rules can change, and device settings may affect displayed times.",
+      "acceptableUseTitle": "Acceptable Use",
+      "acceptableUseText": "You agree not to misuse the app or website, attempt to disrupt its operation, or use it in a way that violates applicable laws.",
+      "availabilityTitle": "Availability and Changes",
+      "availabilityText": "We may update, change, pause, or discontinue parts of {siteName} as the product evolves. Features described on the website may change over time.",
+      "contactTitle": "Contact",
+      "contactPrefix": "Questions about these terms can be sent to "
+    }
+  }
+}
