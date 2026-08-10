@@ -6,6 +6,7 @@ import ScreenshotSlider from '../components/ScreenshotSlider';
 import Timelines from '../components/Timelines';
 
 import {
+  ANDROID_APK_URL,
   APP_STORE_URL,
   GOOGLE_PLAY_URL,
 } from '../config';
@@ -102,8 +103,14 @@ export default function HomePage({ timeFormat }: HomePageProps) {
               href={GOOGLE_PLAY_URL}
               className="downloadLink downloadLink_googlePlay"
               aria-label={t('common.googlePlay')}
-              data-coming-soon={t('common.comingSoon')}
             ></a>
+            <a
+              href={ANDROID_APK_URL}
+              className="downloadLink downloadLink_apk"
+              aria-label={t('common.androidPreview')}
+            ></a>
+
+            <p className="download-note">{t('common.androidPreviewNote')}</p>
           </div>
         </div>
       </section>

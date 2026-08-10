@@ -243,9 +243,4 @@
   .langSelectButton-shortName {
     display: inline;
   }
-
-  .heroDownload {
-    flex-direction: column;
-    gap: 24px;
-  }
 }

@@ -4,6 +4,8 @@
     "sayThanks": "Сказати дякую",
     "appStore": "Завантажити в App Store",
     "googlePlay": "Отримати в Google Play",
+    "androidPreview": "Завантажити Android Preview",
+    "androidPreviewNote": "Поки ми готуємо публікацію в Google Play, ви можете завантажити APK і спробувати застосунок TimeCross уже зараз.",
     "comingSoon": "Незабаром",
     "addCity": "Додати часовий пояс",
     "noResults": "Немає результатів",

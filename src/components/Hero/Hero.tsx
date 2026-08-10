@@ -6,6 +6,7 @@ import heroImg1 from '../../assets/1-cities.jpg';
 import heroImg2 from '../../assets/2-cities.jpg';
 
 import {
+  ANDROID_APK_URL,
   APP_STORE_URL,
   GOOGLE_PLAY_URL,
 } from '../../config';
@@ -59,6 +60,7 @@ export default function Hero({ timeFormat }: HeroProps) {
             aria-label={t('common.appStore')}
             target="_blank"
           ></a>
+
           <a
             href={GOOGLE_PLAY_URL}
             className="heroDownload-button heroDownload-button_googlePlay"
@@ -66,6 +68,15 @@ export default function Hero({ timeFormat }: HeroProps) {
             data-coming-soon={t('common.comingSoon')}
             target="_blank"
           ></a>
+
+          <a
+            href={ANDROID_APK_URL}
+            className="heroDownload-button heroDownload-buttonApk"
+            aria-label={t('common.androidPreview')}
+            target="_blank"
+          ></a>
+
+          <p className="heroDownload-note">{t('common.androidPreviewNote')}</p>
         </div>
       </div>
     </section>

@@ -4,6 +4,8 @@
     "sayThanks": "Dar las gracias",
     "appStore": "Descargar en App Store",
     "googlePlay": "Consíguelo en Google Play",
+    "androidPreview": "Descargar Android Preview",
+    "androidPreviewNote": "Mientras preparamos el lanzamiento en Google Play, puedes descargar el APK y probar la app TimeCross ahora mismo.",
     "comingSoon": "Próximamente",
     "addCity": "Agregar zona horaria",
     "noResults": "Sin resultados",

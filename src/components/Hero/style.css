@@ -164,7 +164,21 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 73px;
+  flex-wrap: wrap;
+  gap: 23px 73px;
+}
+
+.heroDownload-note {
+  flex-basis: 100%;
+  max-width: 520px;
+  margin: -4px auto 0;
+  color: rgba(255 255 255 / 1);
+  font-size: 13px;
+  line-height: 1.35;
+  font-weight: bold;
+  text-align: center;
+  text-wrap: balance;
+  text-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
 }
 
 .heroDownload-button {
@@ -222,6 +236,11 @@
   }
 }
 
+.heroDownload-buttonApk {
+  background: #000 url("../../assets/img--download-apk-1.svg") center no-repeat;
+  background-size: 186px 55px;
+}
+
 @media screen and (width < 1200px) {
   .container_hero {
     grid-template-columns: 485px 485px;
@@ -266,5 +285,20 @@
 
   .heroPreviewBox {
     display: none;
+  }
+
+  .heroDownload {
+    flex-direction: column;
+    gap: 24px;
+    flex-wrap: nowrap;
+  }
+
+  .heroDownload-button {
+    flex: 1 0 55px;
+  }
+
+  .heroDownload-note {
+    margin-top: -6px;
+    order: 2;
   }
 }
