@@ -1,6 +1,6 @@
 import './style.css';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   DndContext,
   PointerSensor,
@@ -65,6 +65,49 @@ function useUsesMobileTimelineGridLayout() {
   return usesMobileLayout;
 }
 
+function useMobileTimelineGridHorizontalScrollLock(enabled: boolean) {
+  const lockedScrollXRef = useRef(0);
+
+  useEffect(() => {
+    if (!enabled) {
+      return undefined;
+    }
+
+    let animationFrame = 0;
+    lockedScrollXRef.current = window.scrollX;
+
+    const lockScrollX = () => {
+      if (animationFrame) {
+        return;
+      }
+
+      animationFrame = window.requestAnimationFrame(() => {
+        animationFrame = 0;
+
+        if (window.scrollX === lockedScrollXRef.current) {
+          return;
+        }
+
+        window.scrollTo(lockedScrollXRef.current, window.scrollY);
+      });
+    };
+
+    window.addEventListener('scroll', lockScrollX, { passive: true });
+    window.addEventListener('touchmove', lockScrollX, { passive: true });
+
+    lockScrollX();
+
+    return () => {
+      window.removeEventListener('scroll', lockScrollX);
+      window.removeEventListener('touchmove', lockScrollX);
+
+      if (animationFrame) {
+        window.cancelAnimationFrame(animationFrame);
+      }
+    };
+  }, [enabled]);
+}
+
 export default function TimelineGrid({ timeFormat }: TimelineGridProps) {
   const baseDate = useMemo(() => new Date(), []);
   const browserTimezone = useMemo(() => getBrowserTimezone(), []);
@@ -110,6 +153,8 @@ export default function TimelineGrid({ timeFormat }: TimelineGridProps) {
     [baseDate, browserTimezone, timelineDates, timeFormat],
   );
   const currentUserHourIndex = userCells.findIndex((cell) => cell.isCurrentHour);
+
+  useMobileTimelineGridHorizontalScrollLock(usesMobileLayout && isEditMode);
 
   const handleAddCity = (city: Parameters<typeof createFavoriteCityFromSearchResult>[0]) => {
     if (cities.some((currentCity) => currentCity.id === String(city.id))) {
@@ -164,14 +209,6 @@ export default function TimelineGrid({ timeFormat }: TimelineGridProps) {
   const handleDragCancel = () => {
     setIsDragging(false);
   };
-
-  useEffect(() => {
-    document.documentElement.classList.toggle('timelineGridDragActive', isDragging);
-
-    return () => {
-      document.documentElement.classList.remove('timelineGridDragActive');
-    };
-  }, [isDragging]);
 
   const shellProps = {
     baseDate,

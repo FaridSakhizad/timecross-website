@@ -10,7 +10,7 @@ export default function TimelineGridDesktop(props: TimelineGridShellProps) {
   const resetGridScroll = useTimelineGridElementSnap(
     timelineGridViewportRef,
     props.currentUserHourIndex,
-    props.isDragging,
+    props.isDragging || props.isEditMode,
   );
 
   return (
