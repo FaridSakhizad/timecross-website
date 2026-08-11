@@ -3,18 +3,32 @@ import { Link } from 'react-router';
 import { useI18n } from '../../i18n';
 
 type TimelinesTopControlsProps = {
+  isEditMode: boolean;
   onAddCityClick: () => void;
+  onEditModeToggle: () => void;
   onResetClick: () => void;
 };
 
 export default function TimelinesTopControls({
+  isEditMode,
   onAddCityClick,
+  onEditModeToggle,
   onResetClick,
 }: TimelinesTopControlsProps) {
   const { t } = useI18n();
 
   return (
     <div className="gridTopControls">
+      <button
+        className={`gridTopControlsButton gridTopControlsButton_edit ${isEditMode ? 'isActive' : ''}`}
+        type="button"
+        aria-label="edit"
+        aria-pressed={isEditMode}
+        onClick={onEditModeToggle}
+      >
+        <i className="citiesHeaderButton-icon citiesHeaderButton-icon_edit" />
+      </button>
+
       <button
         className="gridTopControlsButton gridTopControlsButton_add"
         type="button"

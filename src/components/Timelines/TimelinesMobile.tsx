@@ -8,7 +8,10 @@ import type { TimelineCell } from './types';
 
 type TimelinesMobileProps = {
   currentUserHourIndex: number;
+  isDragging: boolean;
+  isEditMode: boolean;
   onAddCityClick: () => void;
+  onEditModeToggle: () => void;
   timelineRows: ReactNode;
   userCells: TimelineCell[];
 };
@@ -43,7 +46,10 @@ const renderStepArrows = (hours: number) => {
 
 export default function TimelinesMobile({
   currentUserHourIndex,
+  isDragging,
+  isEditMode,
   onAddCityClick,
+  onEditModeToggle,
   timelineRows,
   userCells,
 }: TimelinesMobileProps) {
@@ -61,7 +67,7 @@ export default function TimelinesMobile({
     widgetRef
   } = useTimelineMobileCarousel({
     currentHourIndex: currentUserHourIndex,
-    freePanMode,
+    freePanMode: freePanMode && !isEditMode,
     minHourIndex: TIMELINE_EDGE_FADE_HOURS,
     maxHourIndex: TIMELINE_EDGE_FADE_HOURS + TIMELINE_TOTAL_HOURS - 1,
   });
@@ -98,6 +104,7 @@ export default function TimelinesMobile({
   const handleSwipePointerDown = (event: PointerEvent<HTMLDivElement>) => {
     if (
       freePanMode
+      || isEditMode
       || event.pointerType !== 'touch'
       || !event.isPrimary
     ) {
@@ -122,6 +129,7 @@ export default function TimelinesMobile({
     if (
       !swipeState
       || freePanMode
+      || isEditMode
       || event.pointerId !== swipeState.pointerId
       || event.pointerType !== 'touch'
     ) {
@@ -140,7 +148,7 @@ export default function TimelinesMobile({
 
     swipeStateRef.current = null;
 
-    if (freePanMode || isScrollAnimating() || swipeState.axis !== 'horizontal') {
+    if (freePanMode || isEditMode || isScrollAnimating() || swipeState.axis !== 'horizontal') {
       return;
     }
 
@@ -164,12 +172,18 @@ export default function TimelinesMobile({
   return (
     <>
       <TimelinesTopControls
+        isEditMode={isEditMode}
         onAddCityClick={onAddCityClick}
+        onEditModeToggle={onEditModeToggle}
         onResetClick={resetScroll}
       />
       <div className="timelinesWidgetWrapper timelinesWidgetWrapper_mobile">
         <div
-          className="timelinesWidget"
+          className={[
+            'timelinesWidget',
+            isEditMode ? 'timelinesWidget_editMode' : '',
+            isDragging ? 'timelinesWidget_dragging' : '',
+          ].filter(Boolean).join(' ')}
           ref={widgetRef}
         >
           <div
@@ -184,7 +198,7 @@ export default function TimelinesMobile({
             </div>
             <div className="timelinesScroller">
               <div
-                className={`timelinesViewport${freePanMode ? ' timelinesViewport_freePan' : ''}`}
+                className={`timelinesViewport${freePanMode && !isEditMode ? ' timelinesViewport_freePan' : ''}`}
                 ref={setViewportRef}
               >
                 {timelineRows}

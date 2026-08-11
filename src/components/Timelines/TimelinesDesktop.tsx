@@ -9,14 +9,20 @@ import type { TimelineCell } from './types';
 
 type TimelinesDesktopProps = {
   currentUserHourIndex: number;
+  isDragging: boolean;
+  isEditMode: boolean;
   onAddCityClick: () => void;
+  onEditModeToggle: () => void;
   timelineRows: ReactNode;
   userCells: TimelineCell[];
 };
 
 export default function TimelinesDesktop({
   currentUserHourIndex,
+  isDragging,
+  isEditMode,
   onAddCityClick,
+  onEditModeToggle,
   timelineRows,
   userCells,
 }: TimelinesDesktopProps) {
@@ -38,12 +44,18 @@ export default function TimelinesDesktop({
   return (
     <>
       <TimelinesTopControls
+        isEditMode={isEditMode}
         onAddCityClick={onAddCityClick}
+        onEditModeToggle={onEditModeToggle}
         onResetClick={resetScroll}
       />
       <div className="timelinesWidgetWrapper timelinesWidgetWrapper_desktop">
         <div
-          className="timelinesWidget"
+          className={[
+            'timelinesWidget',
+            isEditMode ? 'timelinesWidget_editMode' : '',
+            isDragging ? 'timelinesWidget_dragging' : '',
+          ].filter(Boolean).join(' ')}
           ref={widgetRef}
         >
           <div className="timelinesPanel">
