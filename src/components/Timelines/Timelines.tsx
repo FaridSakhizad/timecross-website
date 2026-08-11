@@ -1,8 +1,11 @@
 import './style.css';
 import { useEffect, useMemo, useState } from 'react';
 import { getSettings, type TimeFormat } from '../../settings';
+import AddCityModal from '../Cities/AddCityModal';
 import {
+  createFavoriteCityFromSearchResult,
   getOrderedSelectedCities,
+  saveSelectedCities,
   SELECTED_CITIES_CHANGED_EVENT,
 } from '../Cities/selectedCities';
 import TimelineRow from './TimelineRow';
@@ -19,7 +22,9 @@ export default function Timelines({ timeFormat }: TimelinesProps) {
   const baseDate = useMemo(() => new Date(), []);
   const browserTimezone = useMemo(() => getBrowserTimezone(), []);
   const [cities, setCities] = useState(() => getOrderedSelectedCities(getSettings().cityOrder));
+  const [isAddCityModalOpen, setIsAddCityModalOpen] = useState(false);
   const usesNativeScroll = useUsesNativeTimelineScroll();
+  const cityIds = useMemo(() => cities.map((city) => city.id), [cities]);
 
   useEffect(() => {
     const handleSelectedCitiesChange = () => {
@@ -55,13 +60,41 @@ export default function Timelines({ timeFormat }: TimelinesProps) {
     />
   ));
 
+  const handleAddCity = (city: Parameters<typeof createFavoriteCityFromSearchResult>[0]) => {
+    if (cities.some((currentCity) => currentCity.id === String(city.id))) {
+      setIsAddCityModalOpen(false);
+      return;
+    }
+
+    const nextCities = [
+      ...cities,
+      createFavoriteCityFromSearchResult(city, cities.length),
+    ];
+
+    setCities(nextCities);
+    saveSelectedCities(nextCities);
+    setIsAddCityModalOpen(false);
+  };
+
   const props = {
     currentUserHourIndex,
+    onAddCityClick: () => setIsAddCityModalOpen(true),
     timelineRows,
     userCells,
   };
 
-  return usesNativeScroll
-    ? <TimelinesMobile {...props} />
-    : <TimelinesDesktop {...props} />;
+  return (
+    <>
+      {usesNativeScroll
+        ? <TimelinesMobile {...props} />
+        : <TimelinesDesktop {...props} />}
+
+      <AddCityModal
+        isOpen={isAddCityModalOpen}
+        selectedCityIds={cityIds}
+        onClose={() => setIsAddCityModalOpen(false)}
+        onSave={handleAddCity}
+      />
+    </>
+  );
 }

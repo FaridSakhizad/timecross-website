@@ -11,6 +11,7 @@ export default function CitiesPage({ timeFormat }: CitiesPageProps) {
   return (
     <Cities
       customClassNames="citiesPage"
+      showStandaloneButton={false}
       timeFormat={timeFormat}
     />
   );

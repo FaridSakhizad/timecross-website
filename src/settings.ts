@@ -1,5 +1,3 @@
-import { allFavoriteCities } from './components/Cities/fixtures';
-
 export type TimeFormat = '24h' | '12h';
 export type AppLanguage = 'en' | 'fr' | 'uk' | 'ru' | 'es' | 'pt' | 'de';
 export type ColorMode = 'day' | 'night';
@@ -170,7 +168,7 @@ export const MARKETING_DEFAULT_SELECTED_CITIES: StoredCity[] = [
   },
 ];
 
-const DEFAULT_SELECTED_CITIES: StoredCity[] = allFavoriteCities;
+const DEFAULT_SELECTED_CITIES: StoredCity[] = MARKETING_DEFAULT_SELECTED_CITIES;
 
 const DEFAULT_SETTINGS: AppSettings = {
   version: 1,

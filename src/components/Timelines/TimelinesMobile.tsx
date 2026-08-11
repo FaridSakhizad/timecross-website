@@ -2,11 +2,13 @@ import { useRef, useState, type PointerEvent, type ReactNode } from 'react';
 import { useI18n } from '../../i18n';
 import { TIMELINE_EDGE_FADE_HOURS, TIMELINE_TOTAL_HOURS } from './constants';
 import TimelineHeader from './TimelineHeader';
+import TimelinesTopControls from './TimelinesTopControls';
 import { useTimelineMobileCarousel } from './useTimelineMobileCarousel';
 import type { TimelineCell } from './types';
 
 type TimelinesMobileProps = {
   currentUserHourIndex: number;
+  onAddCityClick: () => void;
   timelineRows: ReactNode;
   userCells: TimelineCell[];
 };
@@ -41,6 +43,7 @@ const renderStepArrows = (hours: number) => {
 
 export default function TimelinesMobile({
   currentUserHourIndex,
+  onAddCityClick,
   timelineRows,
   userCells,
 }: TimelinesMobileProps) {
@@ -160,14 +163,10 @@ export default function TimelinesMobile({
 
   return (
     <>
-      <div className="timelinesTopControls">
-        <button
-          className="timelinesReset"
-          type="button"
-          onClick={resetScroll}
-          aria-label={t('common.reset')}
-        />
-      </div>
+      <TimelinesTopControls
+        onAddCityClick={onAddCityClick}
+        onResetClick={resetScroll}
+      />
       <div className="timelinesWidgetWrapper timelinesWidgetWrapper_mobile">
         <div
           className="timelinesWidget"

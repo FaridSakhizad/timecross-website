@@ -33,6 +33,35 @@
       background-color: rgba(var(--accent-color-1), 0.3);
     }
   }
+
+  &:focus-visible {
+    outline: 1px solid rgba(var(--accent-color-2), 1);
+    outline-offset: 2px;
+  }
+}
+
+.citiesHeaderButton_home {
+  margin-right: auto;
+
+  &:after {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 11px;
+    left: -8px;
+    width: 3px;
+    height: 4px;
+    mask: url('../../assets/icon--arrow-2.svg');
+    background-color: rgba(var(--accent-color-2), 1);
+  }
+}
+
+.citiesHeaderButton_grid {
+  margin-left: auto;
+}
+
+.citiesHeaderButton_cities {
+  margin-left: auto;
 }
 
 @media (hover: hover) {
@@ -50,12 +79,34 @@
   pointer-events: none;
 }
 
+.citiesHeaderButton-icon_home {
+  width: 10px;
+  height: 14px;
+  mask: url('../../assets/icon--home-0.svg');
+  background-color: rgba(var(--accent-color-2), 1);
+}
+
 .citiesHeaderButton-icon_edit {
   width: 16px;
   height: 16px;
   mask: url('../../assets/icon--edit-1.svg');
   background-color: rgba(var(--accent-color-2), 1);
 }
+
+.citiesHeaderButton-icon_open {
+  width: 14px;
+  height: 14px;
+  mask: url('../../assets/icon--open-widget-1.svg');
+  background-color: rgba(var(--accent-color-2), 1);
+}
+
+.citiesHeaderButton-icon_grid {
+  width: 14px;
+  height: 14px;
+  mask: url('../../assets/icon--grid-1.svg');
+  background-color: rgba(var(--accent-color-2), 1);
+}
+
 
 .citiesHeaderButton-icon_add {
   width: 16px;
@@ -80,6 +131,13 @@
   &:after {
     rotate: 90deg;
   }
+}
+
+.citiesHeaderButton-icon_cities {
+  width: 14px;
+  height: 14px;
+  mask: url('../../assets/icon--cities-1.svg');
+  background-color: rgba(var(--accent-color-2), 1);
 }
 
 .citiesListBox {
@@ -573,7 +631,6 @@
 @media (width < 768px) {
   .citiesHeader {
     justify-content: center;
-    gap: 30px;
   }
 
   .citiesHeaderButton {

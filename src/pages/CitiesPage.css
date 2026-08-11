@@ -36,9 +36,7 @@
         left: 0;
         top: 0;
         z-index: 10;
-        background:
-            url("../assets/bg--noise-1.png") center,
-            linear-gradient(90deg, #ff5a5f 0%, #ffd166 100%);
+        backdrop-filter: blur(20px);
       }
 
       html[data-color-mode="night"] {
@@ -56,26 +54,8 @@
         position: sticky;
         left: 0;
         bottom: 0;
-        background: linear-gradient(90deg, #4d7cfe 0%, #06d6a0 100%);
+        backdrop-filter: blur(20px);
         z-index: 10;
-
-        .timeRuler-scale {
-          background: url(/src/assets/bg--noise-1.png) center;
-        }
-      }
-    }
-  }
-
-  html[data-color-mode="night"] {
-    .cities {
-      &.citiesPage {
-        .citiesHeader {
-          background: linear-gradient(90deg, #992ecf 0%, #003e98 100%);
-        }
-
-        .timeRuler {
-          background: linear-gradient(90deg, #1d395a 0%, #058172 100%);
-        }
       }
     }
   }

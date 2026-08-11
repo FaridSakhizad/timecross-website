@@ -1,3 +1,5 @@
+import { Link } from 'react-router';
+
 import './cities.css';
 import {
   DndContext,
@@ -63,6 +65,8 @@ type CityView = FavoriteCity & {
 
 type CitiesProps = {
   customClassNames?: string;
+  showHomeButton?: boolean;
+  showStandaloneButton?: boolean;
   timeFormat: TimeFormat;
 };
 
@@ -441,10 +445,15 @@ function SortableCityItem({
   );
 }
 
-export default function Cities({customClassNames = '', timeFormat}: CitiesProps) {
+export default function Cities({
+  customClassNames = '',
+  showHomeButton = true,
+  showStandaloneButton = true,
+  timeFormat,
+}: CitiesProps) {
   const {t} = useI18n();
   const customClassNameList = customClassNames.split(/\s+/).filter(Boolean);
-  const isStandaloneMode = customClassNameList.includes('citiesPage');
+
   const [cities, setCities] = useState(() => getOrderedCities(getSettings().cityOrder));
   const [baseDate] = useState(() => new Date());
   const [isAddCityModalOpen, setIsAddCityModalOpen] = useState(false);
@@ -614,6 +623,15 @@ export default function Cities({customClassNames = '', timeFormat}: CitiesProps)
   return (
     <div className={['cities', isEditMode ? 'cities_editMode' : '', ...customClassNameList].filter(Boolean).join(' ')}>
       <div className="citiesHeader">
+        {showHomeButton && (
+          <Link
+            to="/"
+            className="citiesHeaderButton citiesHeaderButton_home"
+          >
+            <i className="citiesHeaderButton-icon citiesHeaderButton-icon_home" />
+          </Link>
+        )}
+
         <button
           className={`citiesHeaderButton citiesHeaderButton_edit ${isEditMode ? 'isActive' : ''}`}
           type="button"
@@ -624,15 +642,33 @@ export default function Cities({customClassNames = '', timeFormat}: CitiesProps)
           <i className="citiesHeaderButton-icon citiesHeaderButton-icon_edit" />
         </button>
         <button
-          className="citiesHeaderButton citiesHeaderButton_add"
+          className="citiesHeaderButton"
           type="button"
           aria-label={t('common.addCity')}
           onClick={() => setIsAddCityModalOpen(true)}
         >
           <i className="citiesHeaderButton-icon citiesHeaderButton-icon_add" />
         </button>
+
+        <Link
+          to="/grid"
+          target="_blank"
+          className="citiesHeaderButton citiesHeaderButton_grid"
+        >
+          <i className="citiesHeaderButton-icon citiesHeaderButton-icon_grid" />
+        </Link>
+
+        {showStandaloneButton && (
+          <Link
+            to="/cities"
+            target="_blank"
+            className="citiesHeaderButton"
+          >
+            <i className="citiesHeaderButton-icon citiesHeaderButton-icon_cities" />
+          </Link>
+        )}
       </div>
-      <div className={['citiesListBox', isStandaloneMode ? '' : 'scrollControl'].filter(Boolean).join(' ')}>
+      <div className="citiesListBox scrollControl">
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}

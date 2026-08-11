@@ -24,7 +24,7 @@ export default function Hero({ timeFormat }: HeroProps) {
     <section className="section section_hero">
       <div className="container container_hero">
         <div className="citiesBox">
-          <Cities timeFormat={timeFormat} />
+          <Cities showHomeButton={false} timeFormat={timeFormat} />
         </div>
 
         <div className="heroPreviewBox">

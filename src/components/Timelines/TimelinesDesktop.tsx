@@ -3,17 +3,20 @@ import CustomScrollbar from '../CustomScrollbar';
 import { useI18n } from '../../i18n';
 import { TIMELINE_EDGE_FADE_HOURS, TIMELINE_TOTAL_HOURS } from './constants';
 import TimelineHeader from './TimelineHeader';
+import TimelinesTopControls from './TimelinesTopControls';
 import { useTimelineDesktopCarousel } from './useTimelineDesktopCarousel';
 import type { TimelineCell } from './types';
 
 type TimelinesDesktopProps = {
   currentUserHourIndex: number;
+  onAddCityClick: () => void;
   timelineRows: ReactNode;
   userCells: TimelineCell[];
 };
 
 export default function TimelinesDesktop({
   currentUserHourIndex,
+  onAddCityClick,
   timelineRows,
   userCells,
 }: TimelinesDesktopProps) {
@@ -34,11 +37,9 @@ export default function TimelinesDesktop({
 
   return (
     <>
-      <button
-        className="timelinesReset"
-        type="button"
-        onClick={resetScroll}
-        aria-label={t('common.reset')}
+      <TimelinesTopControls
+        onAddCityClick={onAddCityClick}
+        onResetClick={resetScroll}
       />
       <div className="timelinesWidgetWrapper timelinesWidgetWrapper_desktop">
         <div
