@@ -9,6 +9,7 @@ export type TimelineGridContentProps = {
   browserTimezone: string;
   cities: FavoriteCity[];
   currentUserHourIndex: number;
+  isDragging: boolean;
   isEditMode: boolean;
   mode: TimelineGridMode;
   timelineDates: Date[];

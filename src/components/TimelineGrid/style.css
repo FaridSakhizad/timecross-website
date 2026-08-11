@@ -153,6 +153,12 @@
   scroll-snap-type: x mandatory;
 }
 
+.timelineGrid_dragging .timelineGrid-scrollViewport {
+  overflow-x: hidden;
+  overscroll-behavior-x: none;
+  scroll-snap-type: none;
+}
+
 .timelineGrid-userHours,
 .timelineGrid-cells {
   display: grid;
@@ -210,8 +216,29 @@
   user-select: none;
 }
 
+.timelineGrid-row {
+  display: grid;
+  grid-template-columns: max-content;
+  min-width: max-content;
+  position: relative;
+  z-index: 1;
+}
+
+.timelineGrid-row_dragging {
+  opacity: 0.72;
+  z-index: 20;
+
+  .timelineGrid-dragButton {
+    cursor: grabbing;
+  }
+}
+
 .timelineGrid .timelineGrid-city {
   width: 100%;
+}
+
+.timelineGrid .timelineGrid-row_desktop .timelineGrid-city_desktop {
+  width: min(calc(100vw - 40px), 1440px);
 }
 
 .timelineGrid-cityInner {
@@ -221,6 +248,39 @@
   padding-inline: 16px;
   margin: 0 auto;
   max-width: 700px;
+}
+
+.timelineGrid-dragButton {
+  --main-color: rgba(var(--accent-color-2), 0.7);
+
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  width: 13px;
+  height: 12px;
+  padding: 0;
+  margin: 0 12px 0 0;
+  border: none;
+  border-top: 2px solid var(--main-color);
+  border-bottom: 2px solid var(--main-color);
+  background: transparent;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+
+  &:before {
+    content: '';
+    display: block;
+    width: 100%;
+    height: 2px;
+    background: var(--main-color);
+  }
+
+  &:hover {
+    --main-color: rgba(var(--accent-color-2), 1);
+  }
 }
 
 .timelineGrid-cityName {
@@ -314,6 +374,16 @@ html:has(.timelineGrid-toolbar_mobile) {
   overflow: auto;
   scroll-padding-inline: 0;
   scroll-snap-type: none;
+}
+
+html.timelineGridDragActive {
+  overflow-x: hidden;
+  overscroll-behavior-x: none;
+}
+
+html.timelineGridDragActive body {
+  overflow-x: hidden;
+  overscroll-behavior-x: none;
 }
 
 body:has(.timelineGrid-toolbar_mobile) {

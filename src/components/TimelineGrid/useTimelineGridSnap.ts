@@ -159,6 +159,7 @@ function snapTimelineGridToNearestHour(scrollTarget: TimelineGridScrollTarget) {
 function useTimelineGridSnap(
   getScrollTarget: () => TimelineGridScrollTarget | null,
   currentUserHourIndex: number,
+  disabled = false,
 ) {
   const centeredTargetIndexRef = useRef(currentUserHourIndex);
 
@@ -197,6 +198,10 @@ function useTimelineGridSnap(
   }, [currentUserHourIndex, getScrollTarget]);
 
   useEffect(() => {
+    if (disabled) {
+      return undefined;
+    }
+
     const scrollTarget = getScrollTarget();
 
     if (!scrollTarget) {
@@ -275,20 +280,21 @@ function useTimelineGridSnap(
       window.removeEventListener('resize', recenterAfterResize);
       window.visualViewport?.removeEventListener('resize', recenterAfterResize);
     };
-  }, [getScrollTarget]);
+  }, [disabled, getScrollTarget]);
 
   return resetToCurrentHour;
 }
 
-export function useTimelineGridPageSnap(currentUserHourIndex: number) {
+export function useTimelineGridPageSnap(currentUserHourIndex: number, disabled = false) {
   const getScrollTarget = useCallback(() => ({ type: 'page' }) as const, []);
 
-  return useTimelineGridSnap(getScrollTarget, currentUserHourIndex);
+  return useTimelineGridSnap(getScrollTarget, currentUserHourIndex, disabled);
 }
 
 export function useTimelineGridElementSnap(
   timelineGridRef: RefObject<HTMLDivElement | null>,
   currentUserHourIndex: number,
+  disabled = false,
 ) {
   const getScrollTarget = useCallback(
     () => (
@@ -299,5 +305,5 @@ export function useTimelineGridElementSnap(
     [timelineGridRef],
   ) satisfies () => TimelineGridScrollTarget | null;
 
-  return useTimelineGridSnap(getScrollTarget, currentUserHourIndex);
+  return useTimelineGridSnap(getScrollTarget, currentUserHourIndex, disabled);
 }

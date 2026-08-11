@@ -74,7 +74,7 @@ export function TimelineGridTimeline({
   timeFormat,
   userCells,
   onDeleteCity,
-}: Omit<TimelineGridContentProps, 'onAddCityClick' | 'onEditModeToggle' | 'onResetClick'>) {
+}: Omit<TimelineGridContentProps, 'isDragging' | 'onAddCityClick' | 'onEditModeToggle' | 'onResetClick'>) {
   const userHoursModeClassName = mode === 'mobile'
     ? 'timelineGrid-userHours_mobile'
     : 'timelineGrid-userHours_desktop';

@@ -1,3 +1,6 @@
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+
 import { useI18n } from '../../i18n';
 import type { TimeFormat } from '../../settings';
 import type { FavoriteCity } from '../Cities/fixtures';
@@ -39,11 +42,45 @@ export default function TimelineGridRow({
   const relativeDayMarker = getRelativeDayMarker(city.timezone, browserTimezone, baseDate);
   const cityModeClassName = mode === 'mobile' ? 'timelineGrid-city_mobile' : 'timelineGrid-city_desktop';
   const cellsModeClassName = mode === 'mobile' ? 'timelineGrid-cells_mobile' : 'timelineGrid-cells_desktop';
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: city.id,
+    disabled: !isEditMode,
+  });
+  const verticalTransform = transform ? { ...transform, x: 0 } : null;
+  const style = {
+    transform: CSS.Transform.toString(verticalTransform),
+    transition,
+  };
 
   return (
-    <>
+    <div
+      className={[
+        'timelineGrid-row',
+        mode === 'mobile' ? 'timelineGrid-row_mobile' : 'timelineGrid-row_desktop',
+        isDragging ? 'timelineGrid-row_dragging' : '',
+      ].filter(Boolean).join(' ')}
+      ref={setNodeRef}
+      style={style}
+    >
       <div className={`timelineGrid-city ${cityModeClassName}`}>
         <div className="timelineGrid-cityInner">
+          {isEditMode && (
+            <button
+              className="timelineGrid-dragButton"
+              type="button"
+              aria-label={t('cities.moveCity', { city: city.customName || city.city })}
+              {...attributes}
+              {...listeners}
+            />
+          )}
+
           <span className="timelineGrid-cityName">
             {city.customName || city.city}, <span className="timelineGrid-cityOffset">{offset}</span>
           </span>
@@ -82,6 +119,6 @@ export default function TimelineGridRow({
           </span>
         ))}
       </div>
-    </>
+    </div>
   );
 }

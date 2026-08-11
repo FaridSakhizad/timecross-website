@@ -7,11 +7,19 @@ import { useTimelineGridElementSnap } from './useTimelineGridSnap';
 export default function TimelineGridDesktop(props: TimelineGridShellProps) {
   const timelineGridViewportRef = useRef<HTMLDivElement>(null);
 
-  const resetGridScroll = useTimelineGridElementSnap(timelineGridViewportRef, props.currentUserHourIndex);
+  const resetGridScroll = useTimelineGridElementSnap(
+    timelineGridViewportRef,
+    props.currentUserHourIndex,
+    props.isDragging,
+  );
 
   return (
     <div
-      className={`timelineGrid ${props.isEditMode ? 'timelineGrid_editMode' : ''}`}
+      className={[
+        'timelineGrid',
+        props.isEditMode ? 'timelineGrid_editMode' : '',
+        props.isDragging ? 'timelineGrid_dragging' : '',
+      ].filter(Boolean).join(' ')}
     >
       <TimelineGridToolbar
         isEditMode={props.isEditMode}

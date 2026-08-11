@@ -1,6 +1,21 @@
 import './style.css';
 
 import { useEffect, useMemo, useState } from 'react';
+import {
+  DndContext,
+  PointerSensor,
+  TouchSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+  type Modifier,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  arrayMove,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 import { getSettings, type TimeFormat } from '../../settings';
 import AddCityModal from '../Cities/AddCityModal';
 import {
@@ -18,6 +33,10 @@ import TimelineGridDesktop from './TimelineGridDesktop';
 import TimelineGridMobile from './TimelineGridMobile';
 
 const MOBILE_TIMELINE_GRID_QUERY = '(width < 720px)';
+const restrictTimelineGridDragToVerticalAxis: Modifier = ({ transform }) => ({
+  ...transform,
+  x: 0,
+});
 
 type TimelineGridProps = {
   timeFormat: TimeFormat;
@@ -52,8 +71,22 @@ export default function TimelineGrid({ timeFormat }: TimelineGridProps) {
   const usesMobileLayout = useUsesMobileTimelineGridLayout();
   const [cities, setCities] = useState(() => getOrderedSelectedCities(getSettings().cityOrder));
   const [isAddCityModalOpen, setIsAddCityModalOpen] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const cityIds = useMemo(() => cities.map((city) => city.id), [cities]);
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 180,
+        tolerance: 8,
+      },
+    }),
+  );
 
   useEffect(() => {
     const handleSelectedCitiesChange = () => {
@@ -105,11 +138,47 @@ export default function TimelineGrid({ timeFormat }: TimelineGridProps) {
     saveSelectedCities(nextCities);
   };
 
+  const handleDragEnd = ({ active, over }: DragEndEvent) => {
+    setIsDragging(false);
+
+    if (!over || active.id === over.id) {
+      return;
+    }
+
+    const oldIndex = cities.findIndex((city) => city.id === active.id);
+    const newIndex = cities.findIndex((city) => city.id === over.id);
+
+    if (oldIndex < 0 || newIndex < 0) {
+      return;
+    }
+
+    const nextCities = arrayMove(cities, oldIndex, newIndex).map((city, index) => ({
+      ...city,
+      order: index,
+    }));
+
+    setCities(nextCities);
+    saveSelectedCities(nextCities);
+  };
+
+  const handleDragCancel = () => {
+    setIsDragging(false);
+  };
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('timelineGridDragActive', isDragging);
+
+    return () => {
+      document.documentElement.classList.remove('timelineGridDragActive');
+    };
+  }, [isDragging]);
+
   const shellProps = {
     baseDate,
     browserTimezone,
     cities,
     currentUserHourIndex,
+    isDragging,
     isEditMode,
     timelineDates,
     timeFormat,
@@ -122,7 +191,18 @@ export default function TimelineGrid({ timeFormat }: TimelineGridProps) {
 
   return (
     <>
-      <TimelineGridShell {...shellProps} />
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        modifiers={[restrictTimelineGridDragToVerticalAxis]}
+        onDragCancel={handleDragCancel}
+        onDragEnd={handleDragEnd}
+        onDragStart={() => setIsDragging(true)}
+      >
+        <SortableContext items={cityIds} strategy={verticalListSortingStrategy}>
+          <TimelineGridShell {...shellProps} />
+        </SortableContext>
+      </DndContext>
 
       <AddCityModal
         isOpen={isAddCityModalOpen}
