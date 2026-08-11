@@ -131,7 +131,7 @@
   left: 0;
   z-index: 15;
   width: 100dvw;
-  height: 126px;
+  height: 106px;
   background:
     url("../../assets/bg--noise-1.png") center,
     linear-gradient(90deg, #ff5a5f 0%, #ffd166 100%);
@@ -172,9 +172,11 @@
   border-bottom: 1px solid rgba(255 255 255 / 0.15);
   color: #fff;
   user-select: none;
+  backdrop-filter: blur(30px);
 
   &.timelineGrid-userHours_mobile {
-    top: 80px;
+    top: 60px;
+    backdrop-filter: none;
   }
 }
 
@@ -326,7 +328,7 @@ body:has(.timelineGrid-toolbar_mobile) {
 
 @media (width < 720px) {
   .timelineGridMiddleMarker_mobile {
-    top: 87px;
+    top: 67px;
     bottom: 0;
   }
 }

@@ -28,10 +28,8 @@
   cursor: pointer;
   background-color: transparent;
 
-  .citiesHeaderButton {
-    &.isActive {
-      background-color: rgba(var(--accent-color-1), 0.3);
-    }
+  &.isActive {
+    background-color: rgba(var(--accent-color-1), 0.3);
   }
 
   &:focus-visible {

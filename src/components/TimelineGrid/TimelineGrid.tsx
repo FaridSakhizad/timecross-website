@@ -14,18 +14,42 @@ import {
   getTimelineCells,
   getTimelineDates,
 } from '../Timelines/utils';
-import { useUsesNativeTimelineScroll } from '../Timelines/useTimelineMedia';
 import TimelineGridDesktop from './TimelineGridDesktop';
 import TimelineGridMobile from './TimelineGridMobile';
+
+const MOBILE_TIMELINE_GRID_QUERY = '(width < 720px)';
 
 type TimelineGridProps = {
   timeFormat: TimeFormat;
 };
 
+function getUsesMobileTimelineGridLayout() {
+  return typeof window !== 'undefined'
+    && window.matchMedia(MOBILE_TIMELINE_GRID_QUERY).matches;
+}
+
+function useUsesMobileTimelineGridLayout() {
+  const [usesMobileLayout, setUsesMobileLayout] = useState(getUsesMobileTimelineGridLayout);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia(MOBILE_TIMELINE_GRID_QUERY);
+    const updateUsesMobileLayout = () => setUsesMobileLayout(mediaQuery.matches);
+
+    updateUsesMobileLayout();
+    mediaQuery.addEventListener('change', updateUsesMobileLayout);
+
+    return () => {
+      mediaQuery.removeEventListener('change', updateUsesMobileLayout);
+    };
+  }, []);
+
+  return usesMobileLayout;
+}
+
 export default function TimelineGrid({ timeFormat }: TimelineGridProps) {
   const baseDate = useMemo(() => new Date(), []);
   const browserTimezone = useMemo(() => getBrowserTimezone(), []);
-  const usesBodyScroll = useUsesNativeTimelineScroll();
+  const usesMobileLayout = useUsesMobileTimelineGridLayout();
   const [cities, setCities] = useState(() => getOrderedSelectedCities(getSettings().cityOrder));
   const [isAddCityModalOpen, setIsAddCityModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -94,7 +118,7 @@ export default function TimelineGrid({ timeFormat }: TimelineGridProps) {
     onDeleteCity: handleDeleteCity,
     onEditModeToggle: () => setIsEditMode((currentMode) => !currentMode),
   };
-  const TimelineGridShell = usesBodyScroll ? TimelineGridMobile : TimelineGridDesktop;
+  const TimelineGridShell = usesMobileLayout ? TimelineGridMobile : TimelineGridDesktop;
 
   return (
     <>

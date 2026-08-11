@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, type RefObject } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, type RefObject } from 'react';
 
 const TIMELINE_GRID_SNAP_DELAY_MS = 500;
 const TIMELINE_GRID_SNAP_EPSILON = 0.5;
@@ -61,6 +61,21 @@ function scrollTimelineGridToLeft(scrollTarget: TimelineGridScrollTarget, nextSc
   });
 }
 
+function setTimelineGridScrollLeft(scrollTarget: TimelineGridScrollTarget, nextScrollLeft: number) {
+  if (scrollTarget.type === 'page') {
+    const pageScroller = getTimelineGridPageScroller();
+
+    if (!pageScroller) {
+      return;
+    }
+
+    pageScroller.scrollLeft = nextScrollLeft;
+    return;
+  }
+
+  scrollTarget.element.scrollLeft = nextScrollLeft;
+}
+
 function getTimelineGridRoot(scrollTarget: TimelineGridScrollTarget) {
   return scrollTarget.type === 'page' ? document : scrollTarget.element;
 }
@@ -83,11 +98,11 @@ function getTimelineGridCurrentTarget(scrollTarget: TimelineGridScrollTarget) {
   return firstCellsRow?.querySelector<HTMLElement>('.timelineGrid-cell_current') ?? null;
 }
 
-function snapTimelineGridToNearestHour(scrollTarget: TimelineGridScrollTarget) {
+function getTimelineGridNearestSnapTarget(scrollTarget: TimelineGridScrollTarget) {
   const snapTargets = getTimelineGridSnapTargets(scrollTarget);
 
   if (snapTargets.length === 0) {
-    return;
+    return null;
   }
 
   const centerX = getTimelineGridScrollLeft(scrollTarget)
@@ -105,7 +120,19 @@ function snapTimelineGridToNearestHour(scrollTarget: TimelineGridScrollTarget) {
     }
   });
 
-  const nextScrollLeft = getTimelineGridAnchorScrollLeft(nearestTarget, scrollTarget);
+  return nearestTarget;
+}
+
+function getTimelineGridSnapTargetIndex(target: HTMLElement, scrollTarget: TimelineGridScrollTarget) {
+  return getTimelineGridSnapTargets(scrollTarget).indexOf(target);
+}
+
+function getTimelineGridSnapTargetByIndex(index: number, scrollTarget: TimelineGridScrollTarget) {
+  return getTimelineGridSnapTargets(scrollTarget)[index] ?? null;
+}
+
+function snapTimelineGridToTarget(scrollTarget: TimelineGridScrollTarget, snapTarget: HTMLElement) {
+  const nextScrollLeft = getTimelineGridAnchorScrollLeft(snapTarget, scrollTarget);
 
   if (
     Math.abs(nextScrollLeft - getTimelineGridScrollLeft(scrollTarget))
@@ -117,10 +144,24 @@ function snapTimelineGridToNearestHour(scrollTarget: TimelineGridScrollTarget) {
   scrollTimelineGridToLeft(scrollTarget, nextScrollLeft);
 }
 
+function snapTimelineGridToNearestHour(scrollTarget: TimelineGridScrollTarget) {
+  const nearestTarget = getTimelineGridNearestSnapTarget(scrollTarget);
+
+  if (!nearestTarget) {
+    return null;
+  }
+
+  snapTimelineGridToTarget(scrollTarget, nearestTarget);
+
+  return nearestTarget;
+}
+
 function useTimelineGridSnap(
   getScrollTarget: () => TimelineGridScrollTarget | null,
   currentUserHourIndex: number,
 ) {
+  const centeredTargetIndexRef = useRef(currentUserHourIndex);
+
   useLayoutEffect(() => {
     const scrollTarget = getScrollTarget();
 
@@ -134,18 +175,8 @@ function useTimelineGridSnap(
       return;
     }
 
-    if (scrollTarget.type === 'page') {
-      const pageScroller = getTimelineGridPageScroller();
-
-      if (!pageScroller) {
-        return;
-      }
-
-      pageScroller.scrollLeft = getTimelineGridAnchorScrollLeft(currentTarget, scrollTarget);
-      return;
-    }
-
-    scrollTarget.element.scrollLeft = getTimelineGridAnchorScrollLeft(currentTarget, scrollTarget);
+    centeredTargetIndexRef.current = getTimelineGridSnapTargetIndex(currentTarget, scrollTarget);
+    setTimelineGridScrollLeft(scrollTarget, getTimelineGridAnchorScrollLeft(currentTarget, scrollTarget));
   }, [currentUserHourIndex, getScrollTarget]);
 
   useEffect(() => {
@@ -172,7 +203,11 @@ function useTimelineGridSnap(
       clearSnapTimeout();
       snapTimeoutId = window.setTimeout(() => {
         snapTimeoutId = undefined;
-        snapTimelineGridToNearestHour(scrollTarget);
+        const snapTarget = snapTimelineGridToNearestHour(scrollTarget);
+
+        if (snapTarget) {
+          centeredTargetIndexRef.current = getTimelineGridSnapTargetIndex(snapTarget, scrollTarget);
+        }
       }, TIMELINE_GRID_SNAP_DELAY_MS);
     };
 
@@ -181,6 +216,12 @@ function useTimelineGridSnap(
       const scrollLeftDelta = Math.abs(scrollLeft - lastScrollLeft);
 
       lastScrollLeft = scrollLeft;
+
+      const nearestTarget = getTimelineGridNearestSnapTarget(scrollTarget);
+
+      if (nearestTarget) {
+        centeredTargetIndexRef.current = getTimelineGridSnapTargetIndex(nearestTarget, scrollTarget);
+      }
 
       if (scrollLeftDelta <= TIMELINE_GRID_SNAP_EPSILON) {
         return;
@@ -193,13 +234,29 @@ function useTimelineGridSnap(
       scheduleSnap();
     };
 
+    const recenterAfterResize = () => {
+      const snapTarget = getTimelineGridSnapTargetByIndex(centeredTargetIndexRef.current, scrollTarget);
+
+      if (!snapTarget) {
+        return;
+      }
+
+      clearSnapTimeout();
+      setTimelineGridScrollLeft(scrollTarget, getTimelineGridAnchorScrollLeft(snapTarget, scrollTarget));
+      lastScrollLeft = getTimelineGridScrollLeft(scrollTarget);
+    };
+
     eventTarget.addEventListener('scroll', handleScroll, { passive: true });
     eventTarget.addEventListener('scrollend', handleScrollEnd);
+    window.addEventListener('resize', recenterAfterResize);
+    window.visualViewport?.addEventListener('resize', recenterAfterResize);
 
     return () => {
       clearSnapTimeout();
       eventTarget.removeEventListener('scroll', handleScroll);
       eventTarget.removeEventListener('scrollend', handleScrollEnd);
+      window.removeEventListener('resize', recenterAfterResize);
+      window.visualViewport?.removeEventListener('resize', recenterAfterResize);
     };
   }, [getScrollTarget]);
 }

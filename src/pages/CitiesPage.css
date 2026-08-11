@@ -48,6 +48,7 @@
       .citiesListBox {
         flex: 0 0 auto;
         overflow: visible;
+        margin-bottom: auto;
       }
 
       .timeRuler {

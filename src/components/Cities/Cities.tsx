@@ -42,7 +42,7 @@ const PIXELS_IN_MINUTE = 1;
 const TIME_RULER_RANGE_MINUTES = 24 * 60;
 const TIME_RULER_TICK_STEP_MINUTES = 15;
 const TIME_RULER_HOUR_STEP_MINUTES = 60;
-const MOBILE_CITIES_QUERY = '(width < 768px)';
+const MOBILE_CITIES_QUERY = '(width < 720px)';
 
 const rulerTimeFormatters = new Map<TimeFormat, Intl.DateTimeFormat>();
 let browserTimezoneCache: string | null = null;

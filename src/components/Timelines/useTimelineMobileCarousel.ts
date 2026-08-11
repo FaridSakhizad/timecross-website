@@ -34,6 +34,7 @@ export function useTimelineMobileCarousel({
   const animationFrameRef = useRef<number | undefined>(undefined);
   const animationTokenRef = useRef(0);
   const releaseTimerRef = useRef<number | undefined>(undefined);
+  const centeredHourIndexRef = useRef(currentHourIndex);
 
   const setViewportRef = useCallback((element: HTMLDivElement | null) => {
     if (viewportRef.current !== element) {
@@ -170,6 +171,8 @@ export function useTimelineMobileCarousel({
       return;
     }
 
+    centeredHourIndexRef.current = Math.max(minHourIndex, Math.min(maxHourIndex, hourIndex));
+
     const targetScrollLeft = getClampedTimelineScrollLeftForHourIndex(
       viewport,
       hourIndex,
@@ -235,6 +238,7 @@ export function useTimelineMobileCarousel({
     virtualScrollLeftRef.current = initialScrollLeft;
     viewport.scrollLeft = freePanMode ? initialScrollLeft : 0;
     hasInitialScrollRef.current = true;
+    centeredHourIndexRef.current = currentHourIndex;
     lastScrollLeftRef.current = initialScrollLeft;
     syncLayout();
   }, [currentHourIndex, freePanMode, maxHourIndex, minHourIndex, syncLayout]);
@@ -247,9 +251,10 @@ export function useTimelineMobileCarousel({
     }
 
     const snapToNearestHour = () => {
+      const targetHourIndex = getTimelineHourIndexAtCenter(viewport);
       const targetScrollLeft = getClampedTimelineScrollLeftForHourIndex(
         viewport,
-        getTimelineHourIndexAtCenter(viewport),
+        targetHourIndex,
         minHourIndex,
         maxHourIndex,
       );
@@ -258,12 +263,14 @@ export function useTimelineMobileCarousel({
         return;
       }
 
+      centeredHourIndexRef.current = targetHourIndex;
       isProgrammaticScrollRef.current = true;
       animateScrollLeft(targetScrollLeft);
     };
 
     const handleScroll = () => {
       lastScrollLeftRef.current = viewport.scrollLeft;
+      centeredHourIndexRef.current = getTimelineHourIndexAtCenter(viewport);
       syncLayout();
     };
 
@@ -275,7 +282,28 @@ export function useTimelineMobileCarousel({
       snapToNearestHour();
     };
 
-    const resizeObserver = new ResizeObserver(syncLayout);
+    const recenterAfterResize = () => {
+      cancelProgrammaticMotion();
+
+      const targetScrollLeft = getClampedTimelineScrollLeftForHourIndex(
+        viewport,
+        centeredHourIndexRef.current,
+        minHourIndex,
+        maxHourIndex,
+      );
+
+      if (freePanMode) {
+        viewport.scrollLeft = targetScrollLeft;
+      } else {
+        virtualScrollLeftRef.current = targetScrollLeft;
+        viewport.scrollLeft = 0;
+      }
+
+      lastScrollLeftRef.current = targetScrollLeft;
+      syncLayout();
+    };
+
+    const resizeObserver = new ResizeObserver(recenterAfterResize);
 
     cancelProgrammaticMotion();
 
