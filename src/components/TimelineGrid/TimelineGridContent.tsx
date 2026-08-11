@@ -6,7 +6,7 @@ import type { TimelineGridContentProps } from './types';
 
 type TimelineGridToolbarProps = Pick<
   TimelineGridContentProps,
-  'isEditMode' | 'mode' | 'onAddCityClick' | 'onEditModeToggle'
+  'isEditMode' | 'mode' | 'onAddCityClick' | 'onEditModeToggle' | 'onResetClick'
 >;
 
 export function TimelineGridToolbar({
@@ -14,6 +14,7 @@ export function TimelineGridToolbar({
   mode,
   onAddCityClick,
   onEditModeToggle,
+  onResetClick,
 }: TimelineGridToolbarProps) {
   const { t } = useI18n();
   const modeClassName = mode === 'mobile' ? 'timelineGrid-toolbar_mobile' : 'timelineGrid-toolbar_desktop';
@@ -44,6 +45,14 @@ export function TimelineGridToolbar({
       >
         <i className="citiesHeaderButton-icon citiesHeaderButton-icon_add" />
       </button>
+      <button
+        className="citiesHeaderButton citiesHeaderButton_reset"
+        type="button"
+        aria-label={t('common.reset')}
+        onClick={onResetClick}
+      >
+        <i className="citiesHeaderButton-icon citiesHeaderButton-icon_reset" />
+      </button>
       <Link
         to="/cities"
         className="citiesHeaderButton citiesHeaderButton_cities"
@@ -65,7 +74,7 @@ export function TimelineGridTimeline({
   timeFormat,
   userCells,
   onDeleteCity,
-}: Omit<TimelineGridContentProps, 'onAddCityClick' | 'onEditModeToggle'>) {
+}: Omit<TimelineGridContentProps, 'onAddCityClick' | 'onEditModeToggle' | 'onResetClick'>) {
   const userHoursModeClassName = mode === 'mobile'
     ? 'timelineGrid-userHours_mobile'
     : 'timelineGrid-userHours_desktop';
@@ -125,6 +134,7 @@ export default function TimelineGridContent(props: TimelineGridContentProps) {
         mode={props.mode}
         onAddCityClick={props.onAddCityClick}
         onEditModeToggle={props.onEditModeToggle}
+        onResetClick={props.onResetClick}
       />
       <TimelineGridTimeline
         baseDate={props.baseDate}

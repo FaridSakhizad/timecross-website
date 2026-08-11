@@ -17,6 +17,7 @@ export type TimelineGridContentProps = {
   onAddCityClick: () => void;
   onDeleteCity: (cityId: string) => void;
   onEditModeToggle: () => void;
+  onResetClick: () => void;
 };
 
-export type TimelineGridShellProps = Omit<TimelineGridContentProps, 'mode'>;
+export type TimelineGridShellProps = Omit<TimelineGridContentProps, 'mode' | 'onResetClick'>;

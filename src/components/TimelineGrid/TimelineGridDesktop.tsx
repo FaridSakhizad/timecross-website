@@ -7,7 +7,7 @@ import { useTimelineGridElementSnap } from './useTimelineGridSnap';
 export default function TimelineGridDesktop(props: TimelineGridShellProps) {
   const timelineGridViewportRef = useRef<HTMLDivElement>(null);
 
-  useTimelineGridElementSnap(timelineGridViewportRef, props.currentUserHourIndex);
+  const resetGridScroll = useTimelineGridElementSnap(timelineGridViewportRef, props.currentUserHourIndex);
 
   return (
     <div
@@ -18,6 +18,7 @@ export default function TimelineGridDesktop(props: TimelineGridShellProps) {
         mode="desktop"
         onAddCityClick={props.onAddCityClick}
         onEditModeToggle={props.onEditModeToggle}
+        onResetClick={resetGridScroll}
       />
       <CustomScrollbar
         className="timelineGrid-scroll"

@@ -105,6 +105,13 @@
   background-color: rgba(var(--accent-color-2), 1);
 }
 
+.citiesHeaderButton-icon_reset {
+  width: 12px;
+  height: 12px;
+  mask: url('../../assets/icon--reset-1.svg');
+  background-color: rgba(var(--accent-color-2), 1);
+}
+
 
 .citiesHeaderButton-icon_add {
   width: 16px;

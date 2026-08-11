@@ -3,7 +3,7 @@ import type { TimelineGridShellProps } from './types';
 import { useTimelineGridPageSnap } from './useTimelineGridSnap';
 
 export default function TimelineGridMobile(props: TimelineGridShellProps) {
-  useTimelineGridPageSnap(props.currentUserHourIndex);
+  const resetGridScroll = useTimelineGridPageSnap(props.currentUserHourIndex);
 
-  return <TimelineGridContent {...props} mode="mobile" />;
+  return <TimelineGridContent {...props} mode="mobile" onResetClick={resetGridScroll} />;
 }

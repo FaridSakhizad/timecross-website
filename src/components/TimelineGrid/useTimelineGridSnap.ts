@@ -162,6 +162,23 @@ function useTimelineGridSnap(
 ) {
   const centeredTargetIndexRef = useRef(currentUserHourIndex);
 
+  const resetToCurrentHour = useCallback(() => {
+    const scrollTarget = getScrollTarget();
+
+    if (!scrollTarget || currentUserHourIndex < 0) {
+      return;
+    }
+
+    const currentTarget = getTimelineGridCurrentTarget(scrollTarget);
+
+    if (!currentTarget) {
+      return;
+    }
+
+    centeredTargetIndexRef.current = getTimelineGridSnapTargetIndex(currentTarget, scrollTarget);
+    scrollTimelineGridToLeft(scrollTarget, getTimelineGridAnchorScrollLeft(currentTarget, scrollTarget));
+  }, [currentUserHourIndex, getScrollTarget]);
+
   useLayoutEffect(() => {
     const scrollTarget = getScrollTarget();
 
@@ -259,12 +276,14 @@ function useTimelineGridSnap(
       window.visualViewport?.removeEventListener('resize', recenterAfterResize);
     };
   }, [getScrollTarget]);
+
+  return resetToCurrentHour;
 }
 
 export function useTimelineGridPageSnap(currentUserHourIndex: number) {
   const getScrollTarget = useCallback(() => ({ type: 'page' }) as const, []);
 
-  useTimelineGridSnap(getScrollTarget, currentUserHourIndex);
+  return useTimelineGridSnap(getScrollTarget, currentUserHourIndex);
 }
 
 export function useTimelineGridElementSnap(
@@ -280,5 +299,5 @@ export function useTimelineGridElementSnap(
     [timelineGridRef],
   ) satisfies () => TimelineGridScrollTarget | null;
 
-  useTimelineGridSnap(getScrollTarget, currentUserHourIndex);
+  return useTimelineGridSnap(getScrollTarget, currentUserHourIndex);
 }
