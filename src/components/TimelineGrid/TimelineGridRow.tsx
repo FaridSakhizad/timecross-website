@@ -47,7 +47,6 @@ export default function TimelineGridRow({
     listeners,
     setNodeRef,
     transform,
-    transition,
     isDragging,
   } = useSortable({
     id: city.id,
@@ -56,7 +55,7 @@ export default function TimelineGridRow({
   const verticalTransform = transform ? { ...transform, x: 0 } : null;
   const style = {
     transform: CSS.Transform.toString(verticalTransform),
-    transition,
+    transition: undefined,
   };
 
   return (
