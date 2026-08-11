@@ -19,6 +19,7 @@
   height: 30px;
   padding: 0;
   margin: 0;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -27,30 +28,38 @@
   cursor: pointer;
   background-color: transparent;
 
-  &.isActive {
-    background-color: rgba(var(--accent-color-1), 0.3);
-  }
-
-  &:hover,
-  &.isActive:hover {
-    background-color: rgba(var(--accent-color-1), 0.7);
+  .citiesHeaderButton {
+    &.isActive {
+      background-color: rgba(var(--accent-color-1), 0.3);
+    }
   }
 }
 
-.citiesHeaderButton_edit {
-  &:before {
-    content: '';
-    display: block;
-    width: 16px;
-    height: 16px;
-    mask: url('../../assets/icon--edit-1.svg');
-    background-color: rgba(var(--accent-color-2), 1);
+@media (hover: hover) {
+  .citiesHeaderButton {
+    &:hover,
+    &.isActive:hover {
+      background-color: rgba(var(--accent-color-1), 0.7);
+    }
   }
 }
 
-.citiesHeaderButton_add {
-  display: flex;
+.citiesHeaderButton-icon {
+  display: block;
   position: relative;
+  pointer-events: none;
+}
+
+.citiesHeaderButton-icon_edit {
+  width: 16px;
+  height: 16px;
+  mask: url('../../assets/icon--edit-1.svg');
+  background-color: rgba(var(--accent-color-2), 1);
+}
+
+.citiesHeaderButton-icon_add {
+  width: 16px;
+  height: 16px;
 
   &:before,
   &:after {
@@ -568,8 +577,15 @@
   }
 
   .citiesHeaderButton {
-    width: 40px;
-    height: 40px;
+    &:before {
+      content: '';
+      display: block;
+      width: 40px;
+      height: 40px;
+      position: absolute;
+      left: -7px;
+      top: -7px;
+    }
   }
 
   .cities_editMode {

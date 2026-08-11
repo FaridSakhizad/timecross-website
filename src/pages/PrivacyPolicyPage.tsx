@@ -1,12 +1,32 @@
 import LegalPage from '../components/LegalPage';
 import { SITE_NAME, SUPPORT_EMAIL } from '../config';
 import { useI18n } from '../i18n';
+import type { ColorMode, TimeFormat } from '../settings';
 
-export default function PrivacyPolicyPage() {
+type PrivacyPolicyPageProps = {
+  colorMode: ColorMode;
+  timeFormat: TimeFormat;
+  onColorModeButtonClick: () => void;
+  onTimeFormatButtonClick: () => void;
+};
+
+export default function PrivacyPolicyPage({
+  colorMode,
+  timeFormat,
+  onColorModeButtonClick,
+  onTimeFormatButtonClick,
+}: PrivacyPolicyPageProps) {
   const { t } = useI18n();
 
   return (
-    <LegalPage title={t('legal.privacy.title')} updatedAt="July 16, 2026">
+    <LegalPage
+      colorMode={colorMode}
+      timeFormat={timeFormat}
+      title={t('legal.privacy.title')}
+      updatedAt="July 16, 2026"
+      onColorModeButtonClick={onColorModeButtonClick}
+      onTimeFormatButtonClick={onTimeFormatButtonClick}
+    >
       <section className="legalPage-section">
         <h2 className="legalPage-sectionTitle">{t('legal.privacy.overviewTitle')}</h2>
         <p className="legalPage-para">{t('legal.privacy.overviewText', { siteName: SITE_NAME })}</p>

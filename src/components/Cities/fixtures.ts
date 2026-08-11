@@ -459,6 +459,14 @@ export const favoriteCities: FavoriteCity[] = cityFixtures
   }))
   .sort((cityA, cityB) => cityA.order - cityB.order);
 
+export const allFavoriteCities: FavoriteCity[] = cityFixtures
+  .map((city, index) => ({
+    ...city,
+    visible: true,
+    order: recommendedOrder[city.id] ?? 300 + index,
+  }))
+  .sort((cityA, cityB) => cityA.order - cityB.order);
+
 export function getOrderedFavoriteCities(cityOrder: string[]) {
   if (cityOrder.length === 0) {
     return favoriteCities;

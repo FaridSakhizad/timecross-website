@@ -62,6 +62,7 @@ type CityView = FavoriteCity & {
 };
 
 type CitiesProps = {
+  customClassNames?: string;
   timeFormat: TimeFormat;
 };
 
@@ -440,8 +441,10 @@ function SortableCityItem({
   );
 }
 
-export default function Cities({timeFormat}: CitiesProps) {
+export default function Cities({customClassNames = '', timeFormat}: CitiesProps) {
   const {t} = useI18n();
+  const customClassNameList = customClassNames.split(/\s+/).filter(Boolean);
+  const isStandaloneMode = customClassNameList.includes('citiesPage');
   const [cities, setCities] = useState(() => getOrderedCities(getSettings().cityOrder));
   const [baseDate] = useState(() => new Date());
   const [isAddCityModalOpen, setIsAddCityModalOpen] = useState(false);
@@ -609,7 +612,7 @@ export default function Cities({timeFormat}: CitiesProps) {
   };
 
   return (
-    <div className={`cities ${isEditMode ? 'cities_editMode' : ''}`}>
+    <div className={['cities', isEditMode ? 'cities_editMode' : '', ...customClassNameList].filter(Boolean).join(' ')}>
       <div className="citiesHeader">
         <button
           className={`citiesHeaderButton citiesHeaderButton_edit ${isEditMode ? 'isActive' : ''}`}
@@ -617,15 +620,19 @@ export default function Cities({timeFormat}: CitiesProps) {
           aria-label="edit"
           aria-pressed={isEditMode}
           onClick={() => setIsEditMode((currentMode) => !currentMode)}
-        />
+        >
+          <i className="citiesHeaderButton-icon citiesHeaderButton-icon_edit" />
+        </button>
         <button
           className="citiesHeaderButton citiesHeaderButton_add"
           type="button"
           aria-label={t('common.addCity')}
           onClick={() => setIsAddCityModalOpen(true)}
-        />
+        >
+          <i className="citiesHeaderButton-icon citiesHeaderButton-icon_add" />
+        </button>
       </div>
-      <div className="citiesListBox scrollControl">
+      <div className={['citiesListBox', isStandaloneMode ? '' : 'scrollControl'].filter(Boolean).join(' ')}>
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}

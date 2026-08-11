@@ -22,6 +22,8 @@ const URL_SEGMENT_TO_LANGUAGE: Record<string, AppLanguage> = {
 };
 
 const LOCALIZED_PAGE_PATHS = [
+  '/cities',
+  '/grid',
   '/privacy-policy',
   '/terms-of-use',
 ];

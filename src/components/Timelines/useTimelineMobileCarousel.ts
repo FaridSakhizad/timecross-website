@@ -211,6 +211,11 @@ export function useTimelineMobileCarousel({
     scrollToHourIndex(currentHourIndex);
   }, [currentHourIndex, scrollToHourIndex]);
 
+  const cancelScrollAnimation = useCallback(() => {
+    cancelProgrammaticMotion();
+    syncLayout();
+  }, [cancelProgrammaticMotion, syncLayout]);
+
   const isScrollAnimating = useCallback(() => animationFrameRef.current !== undefined, []);
 
   useLayoutEffect(() => {
@@ -309,6 +314,7 @@ export function useTimelineMobileCarousel({
   ]);
 
   return {
+    cancelScrollAnimation,
     isScrollAnimating,
     resetScroll,
     scrollByHours,

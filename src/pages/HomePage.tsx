@@ -1,6 +1,8 @@
 import ContactForm from '../components/ContactForm';
 import FAQ from '../components/FAQ';
 import FeaturesList from '../components/FeaturesList';
+import Footer from '../components/Footer';
+import Header from '../components/Header';
 import Hero from '../components/Hero';
 import ScreenshotSlider from '../components/ScreenshotSlider';
 import Timelines from '../components/Timelines';
@@ -12,17 +14,32 @@ import {
 } from '../config';
 
 import { useI18n } from '../i18n';
-import type { TimeFormat } from '../settings';
+import type { ColorMode, TimeFormat } from '../settings';
 
 type HomePageProps = {
+  colorMode: ColorMode;
   timeFormat: TimeFormat;
+  onColorModeButtonClick: () => void;
+  onTimeFormatButtonClick: () => void;
 };
 
-export default function HomePage({ timeFormat }: HomePageProps) {
+export default function HomePage({
+  colorMode,
+  timeFormat,
+  onColorModeButtonClick,
+  onTimeFormatButtonClick,
+}: HomePageProps) {
   const { t } = useI18n();
 
   return (
     <>
+      <Header
+        colorMode={colorMode}
+        timeFormat={timeFormat}
+        onColorModeButtonClick={onColorModeButtonClick}
+        onTimeFormatButtonClick={onTimeFormatButtonClick}
+      />
+
       <Hero timeFormat={timeFormat} />
 
       <section className="section section_timelines">
@@ -114,6 +131,8 @@ export default function HomePage({ timeFormat }: HomePageProps) {
           </div>
         </div>
       </section>
+
+      <Footer />
     </>
   );
 }

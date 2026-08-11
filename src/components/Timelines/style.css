@@ -84,11 +84,11 @@
   align-items: center;
   justify-content: center;
   gap: 0;
-  width: 41px;
-  height: 30px;
+  width: 51px;
+  height: 40px;
   padding: 0;
   border: none;
-  border-radius: 15px;
+  border-radius: 20px;
   background: rgba(var(--accent-color-1), 0.3);
   color: rgba(var(--accent-color-2), 1);
   cursor: pointer;
@@ -125,10 +125,25 @@
   transform: scale(0.96);
 }
 
+.timelinesBottomControls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 12px auto 0 auto;
+  padding: 0 15px;
+  max-width: 534px;
+}
+
+.timelinesBottomControls .timelinesReset,
+.timelinesBottomControls .timelinesPanButton {
+  margin: 0 auto;
+}
+
 .timelinesPanButton {
   display: none;
   min-width: 86px;
-  height: 30px;
+  height: 40px;
   padding: 0 14px;
   margin: 12px auto 0 auto;
   border: none;

@@ -50,6 +50,7 @@ export default function TimelinesMobile({
   const swipeStateRef = useRef<TimelineSwipeState | null>(null);
 
   const {
+    cancelScrollAnimation,
     isScrollAnimating,
     resetScroll,
     scrollByHours,
@@ -94,11 +95,14 @@ export default function TimelinesMobile({
   const handleSwipePointerDown = (event: PointerEvent<HTMLDivElement>) => {
     if (
       freePanMode
-      || isScrollAnimating()
       || event.pointerType !== 'touch'
       || !event.isPrimary
     ) {
       return;
+    }
+
+    if (isScrollAnimating()) {
+      cancelScrollAnimation();
     }
 
     swipeStateRef.current = {
@@ -157,40 +161,12 @@ export default function TimelinesMobile({
   return (
     <>
       <div className="timelinesTopControls">
-        <div className="timelinesMobileStepControls timelinesMobileStepControls_visible">
-          {[-3, -2, -1].map((hours) => (
-            <button
-              className="timelinesStepButton timelinesStepButton_prev"
-              type="button"
-              key={hours}
-              onClick={() => scrollByHours(hours)}
-              aria-label={`${t('common.previousHour')} ${Math.abs(hours)}`}
-              title={`${t('common.previousHour')} ${Math.abs(hours)}`}
-            >
-              {renderStepArrows(hours)}
-            </button>
-          ))}
-        </div>
         <button
           className="timelinesReset"
           type="button"
           onClick={resetScroll}
           aria-label={t('common.reset')}
         />
-        <div className="timelinesMobileStepControls timelinesMobileStepControls_visible">
-          {[1, 2, 3].map((hours) => (
-            <button
-              className="timelinesStepButton timelinesStepButton_next"
-              type="button"
-              key={hours}
-              onClick={() => scrollByHours(hours)}
-              aria-label={`${t('common.nextHour')} ${hours}`}
-              title={`${t('common.nextHour')} ${hours}`}
-            >
-              {renderStepArrows(hours)}
-            </button>
-          ))}
-        </div>
       </div>
       <div className="timelinesWidgetWrapper timelinesWidgetWrapper_mobile">
         <div
@@ -217,16 +193,36 @@ export default function TimelinesMobile({
             </div>
             <div className="timelinesMiddleMarker" />
           </div>
-
-          <button
-            className={`timelinesPanButton${freePanMode ? ' timelinesPanButton_active' : ''}`}
-            type="button"
-            aria-pressed={freePanMode}
-            onClick={() => setFreePanMode((value) => !value)}
-          >
-            {t(freePanMode ? 'common.scrollMode' : 'common.panMode')}
-          </button>
         </div>
+      </div>
+
+      <div className="timelinesBottomControls timelinesWidgetWrapper_mobile">
+        <button
+          className="timelinesStepButton timelinesStepButton_prev"
+          type="button"
+          onClick={() => scrollByHours(-1)}
+          aria-label={t('common.previousHour')}
+          title={t('common.previousHour')}
+        >
+          {renderStepArrows(-1)}
+        </button>
+        <button
+          className={`timelinesPanButton${freePanMode ? ' timelinesPanButton_active' : ''}`}
+          type="button"
+          aria-pressed={freePanMode}
+          onClick={() => setFreePanMode((value) => !value)}
+        >
+          {t(freePanMode ? 'common.scrollMode' : 'common.panMode')}
+        </button>
+        <button
+          className="timelinesStepButton timelinesStepButton_next"
+          type="button"
+          onClick={() => scrollByHours(1)}
+          aria-label={t('common.nextHour')}
+          title={t('common.nextHour')}
+        >
+          {renderStepArrows(1)}
+        </button>
       </div>
     </>
   );

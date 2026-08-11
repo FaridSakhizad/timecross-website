@@ -1,8 +1,8 @@
 import { Navigate, Route, Routes, useLocation, useParams } from 'react-router';
 import { useEffect, useLayoutEffect, useState, type ReactNode } from 'react';
 
-import Footer from './components/Footer';
-import Header from './components/Header';
+import CitiesPage from './pages/CitiesPage';
+import GridPage from './pages/GridPage';
 import HomePage from './pages/HomePage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import TermsOfUsePage from './pages/TermsOfUsePage';
@@ -83,69 +83,120 @@ function App() {
   }
 
   return (
-    <>
-      <Header
-        colorMode={colorMode}
-        timeFormat={timeFormat}
-        onColorModeButtonClick={handleColorModeButtonClick}
-        onTimeFormatButtonClick={handleTimeFormatButtonClick}
+    <Routes>
+      <Route
+        index
+        element={(
+          <LocalizedRoute>
+            <HomePage
+              colorMode={colorMode}
+              timeFormat={timeFormat}
+              onColorModeButtonClick={handleColorModeButtonClick}
+              onTimeFormatButtonClick={handleTimeFormatButtonClick}
+            />
+          </LocalizedRoute>
+        )}
       />
-
-      <Routes>
-        <Route
-          index
-          element={(
-            <LocalizedRoute>
-              <HomePage timeFormat={timeFormat} />
-            </LocalizedRoute>
-          )}
-        />
-        <Route
-          path="privacy-policy"
-          element={(
-            <LocalizedRoute>
-              <PrivacyPolicyPage />
-            </LocalizedRoute>
-          )}
-        />
-        <Route
-          path="terms-of-use"
-          element={(
-            <LocalizedRoute>
-              <TermsOfUsePage />
-            </LocalizedRoute>
-          )}
-        />
-        <Route
-          path=":lang"
-          element={(
-            <LocalizedRoute>
-              <HomePage timeFormat={timeFormat} />
-            </LocalizedRoute>
-          )}
-        />
-        <Route
-          path=":lang/privacy-policy"
-          element={(
-            <LocalizedRoute>
-              <PrivacyPolicyPage />
-            </LocalizedRoute>
-          )}
-        />
-        <Route
-          path=":lang/terms-of-use"
-          element={(
-            <LocalizedRoute>
-              <TermsOfUsePage />
-            </LocalizedRoute>
-          )}
-        />
-        <Route path="api/*" element={null} />
-        <Route path="*" element={<Navigate replace to="/" />} />
-      </Routes>
-
-      <Footer />
-    </>
+      <Route
+        path="privacy-policy"
+        element={(
+          <LocalizedRoute>
+            <PrivacyPolicyPage
+              colorMode={colorMode}
+              timeFormat={timeFormat}
+              onColorModeButtonClick={handleColorModeButtonClick}
+              onTimeFormatButtonClick={handleTimeFormatButtonClick}
+            />
+          </LocalizedRoute>
+        )}
+      />
+      <Route
+        path="terms-of-use"
+        element={(
+          <LocalizedRoute>
+            <TermsOfUsePage
+              colorMode={colorMode}
+              timeFormat={timeFormat}
+              onColorModeButtonClick={handleColorModeButtonClick}
+              onTimeFormatButtonClick={handleTimeFormatButtonClick}
+            />
+          </LocalizedRoute>
+        )}
+      />
+      <Route
+        path="cities"
+        element={(
+          <LocalizedRoute>
+            <CitiesPage timeFormat={timeFormat} />
+          </LocalizedRoute>
+        )}
+      />
+      <Route
+        path="grid"
+        element={(
+          <LocalizedRoute>
+            <GridPage timeFormat={timeFormat} />
+          </LocalizedRoute>
+        )}
+      />
+      <Route
+        path=":lang"
+        element={(
+          <LocalizedRoute>
+            <HomePage
+              colorMode={colorMode}
+              timeFormat={timeFormat}
+              onColorModeButtonClick={handleColorModeButtonClick}
+              onTimeFormatButtonClick={handleTimeFormatButtonClick}
+            />
+          </LocalizedRoute>
+        )}
+      />
+      <Route
+        path=":lang/privacy-policy"
+        element={(
+          <LocalizedRoute>
+            <PrivacyPolicyPage
+              colorMode={colorMode}
+              timeFormat={timeFormat}
+              onColorModeButtonClick={handleColorModeButtonClick}
+              onTimeFormatButtonClick={handleTimeFormatButtonClick}
+            />
+          </LocalizedRoute>
+        )}
+      />
+      <Route
+        path=":lang/terms-of-use"
+        element={(
+          <LocalizedRoute>
+            <TermsOfUsePage
+              colorMode={colorMode}
+              timeFormat={timeFormat}
+              onColorModeButtonClick={handleColorModeButtonClick}
+              onTimeFormatButtonClick={handleTimeFormatButtonClick}
+            />
+          </LocalizedRoute>
+        )}
+      />
+      <Route
+        path=":lang/cities"
+        element={(
+          <LocalizedRoute>
+            <CitiesPage timeFormat={timeFormat} />
+          </LocalizedRoute>
+        )}
+      />
+      <Route
+        path=":lang/grid"
+        element={(
+          <LocalizedRoute>
+            <GridPage timeFormat={timeFormat} />
+          </LocalizedRoute>
+        )}
+      />
+      <Route path="api/*" element={null} />
+      <Route path="*" element={<Navigate replace to="/" />} />
+    </Routes>
   );
 }
 
