@@ -652,7 +652,6 @@ export default function Cities({
 
         <Link
           to="/grid"
-          target="_blank"
           className="citiesHeaderButton citiesHeaderButton_grid"
         >
           <i className="citiesHeaderButton-icon citiesHeaderButton-icon_grid" />
@@ -661,7 +660,6 @@ export default function Cities({
         {showStandaloneButton && (
           <Link
             to="/cities"
-            target="_blank"
             className="citiesHeaderButton"
           >
             <i className="citiesHeaderButton-icon citiesHeaderButton-icon_cities" />

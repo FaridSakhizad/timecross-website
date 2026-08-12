@@ -74,7 +74,13 @@ function useMobileTimelineGridHorizontalScrollLock(enabled: boolean) {
     }
 
     let animationFrame = 0;
-    lockedScrollXRef.current = window.scrollX;
+    const pageScroller = document.scrollingElement;
+
+    if (!pageScroller) {
+      return undefined;
+    }
+
+    lockedScrollXRef.current = pageScroller.scrollLeft;
 
     const lockScrollX = () => {
       if (animationFrame) {
@@ -84,22 +90,20 @@ function useMobileTimelineGridHorizontalScrollLock(enabled: boolean) {
       animationFrame = window.requestAnimationFrame(() => {
         animationFrame = 0;
 
-        if (window.scrollX === lockedScrollXRef.current) {
+        if (Math.abs(pageScroller.scrollLeft - lockedScrollXRef.current) <= 0.5) {
           return;
         }
 
-        window.scrollTo(lockedScrollXRef.current, window.scrollY);
+        pageScroller.scrollLeft = lockedScrollXRef.current;
       });
     };
 
     window.addEventListener('scroll', lockScrollX, { passive: true });
-    window.addEventListener('touchmove', lockScrollX, { passive: true });
 
     lockScrollX();
 
     return () => {
       window.removeEventListener('scroll', lockScrollX);
-      window.removeEventListener('touchmove', lockScrollX);
 
       if (animationFrame) {
         window.cancelAnimationFrame(animationFrame);

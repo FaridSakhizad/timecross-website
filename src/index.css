@@ -60,7 +60,10 @@ html {
   #ffffff;
 
   background-attachment: fixed;
-  overflow-x: hidden;
+
+  &[data-route="index"] {
+    overflow-x: hidden;
+  }
 }
 
 html[data-color-mode="night"] {

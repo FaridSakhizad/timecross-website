@@ -21,6 +21,27 @@ type LocalizedRouteProps = {
   children: ReactNode;
 };
 
+function getRouteName(pathname: string) {
+  const pagePath = stripLanguageFromPathname(pathname);
+  const firstPathPart = pagePath.split('/').filter(Boolean)[0];
+
+  switch (firstPathPart) {
+    case undefined:
+      return 'index';
+    case 'cities':
+    case 'grid':
+      return firstPathPart;
+    case 'privacy-policy':
+      return 'privacy';
+    case 'terms-of-use':
+      return 'terms';
+    case 'api':
+      return 'api';
+    default:
+      return 'index';
+  }
+}
+
 function LocalizedRoute({ children }: LocalizedRouteProps) {
   const { lang } = useParams();
   const location = useLocation();
@@ -59,6 +80,10 @@ function App() {
   useEffect(() => {
     document.documentElement.dataset.colorMode = colorMode;
   }, [colorMode]);
+
+  useEffect(() => {
+    document.documentElement.dataset.route = getRouteName(location.pathname);
+  }, [location.pathname]);
 
   const handleTimeFormatButtonClick = () => {
     const nextSettings = updateSettings((settings) => ({

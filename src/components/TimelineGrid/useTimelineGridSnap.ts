@@ -210,6 +210,7 @@ function useTimelineGridSnap(
 
     const eventTarget = scrollTarget.type === 'page' ? window : scrollTarget.element;
     let lastScrollLeft = getTimelineGridScrollLeft(scrollTarget);
+    let lastViewportWidth = getTimelineGridViewportWidth(scrollTarget);
     let snapTimeoutId: number | undefined;
 
     const clearSnapTimeout = () => {
@@ -239,11 +240,24 @@ function useTimelineGridSnap(
 
       lastScrollLeft = scrollLeft;
 
+      if (scrollLeftDelta <= TIMELINE_GRID_SNAP_EPSILON) {
+        return;
+      }
+
       const nearestTarget = getTimelineGridNearestSnapTarget(scrollTarget);
 
       if (nearestTarget) {
         centeredTargetIndexRef.current = getTimelineGridSnapTargetIndex(nearestTarget, scrollTarget);
       }
+
+      scheduleSnap();
+    };
+
+    const handleScrollEnd = () => {
+      const scrollLeft = getTimelineGridScrollLeft(scrollTarget);
+      const scrollLeftDelta = Math.abs(scrollLeft - lastScrollLeft);
+
+      lastScrollLeft = scrollLeft;
 
       if (scrollLeftDelta <= TIMELINE_GRID_SNAP_EPSILON) {
         return;
@@ -252,11 +266,15 @@ function useTimelineGridSnap(
       scheduleSnap();
     };
 
-    const handleScrollEnd = () => {
-      scheduleSnap();
-    };
-
     const recenterAfterResize = () => {
+      const viewportWidth = getTimelineGridViewportWidth(scrollTarget);
+
+      if (Math.abs(viewportWidth - lastViewportWidth) <= TIMELINE_GRID_SNAP_EPSILON) {
+        return;
+      }
+
+      lastViewportWidth = viewportWidth;
+
       const snapTarget = getTimelineGridSnapTargetByIndex(centeredTargetIndexRef.current, scrollTarget);
 
       if (!snapTarget) {
@@ -271,14 +289,12 @@ function useTimelineGridSnap(
     eventTarget.addEventListener('scroll', handleScroll, { passive: true });
     eventTarget.addEventListener('scrollend', handleScrollEnd);
     window.addEventListener('resize', recenterAfterResize);
-    window.visualViewport?.addEventListener('resize', recenterAfterResize);
 
     return () => {
       clearSnapTimeout();
       eventTarget.removeEventListener('scroll', handleScroll);
       eventTarget.removeEventListener('scrollend', handleScrollEnd);
       window.removeEventListener('resize', recenterAfterResize);
-      window.visualViewport?.removeEventListener('resize', recenterAfterResize);
     };
   }, [disabled, getScrollTarget]);
 

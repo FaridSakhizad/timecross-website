@@ -475,12 +475,6 @@
   background: rgba(var(--accent-color-1), 0.28);
 }
 
-html:has(.timelineGrid-toolbar_mobile) {
-  overflow: auto;
-  scroll-padding-inline: 0;
-  scroll-snap-type: none;
-}
-
 body:has(.timelineGrid-toolbar_mobile) {
   min-width: max-content;
   overflow: visible;
