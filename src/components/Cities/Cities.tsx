@@ -1,6 +1,5 @@
-import { Link } from 'react-router';
-
 import './cities.css';
+
 import {
   DndContext,
   PointerSensor,
@@ -624,12 +623,12 @@ export default function Cities({
     <div className={['cities', isEditMode ? 'cities_editMode' : '', ...customClassNameList].filter(Boolean).join(' ')}>
       <div className="citiesHeader">
         {showHomeButton && (
-          <Link
-            to="/"
+          <a
+            href="/"
             className="citiesHeaderButton citiesHeaderButton_home"
           >
             <i className="citiesHeaderButton-icon citiesHeaderButton-icon_home" />
-          </Link>
+          </a>
         )}
 
         <button
@@ -650,20 +649,20 @@ export default function Cities({
           <i className="citiesHeaderButton-icon citiesHeaderButton-icon_add" />
         </button>
 
-        <Link
-          to="/grid"
+        <a
+          href="/grid"
           className="citiesHeaderButton citiesHeaderButton_grid"
         >
           <i className="citiesHeaderButton-icon citiesHeaderButton-icon_grid" />
-        </Link>
+        </a>
 
         {showStandaloneButton && (
-          <Link
-            to="/cities"
+          <a
+            href="/cities"
             className="citiesHeaderButton"
           >
             <i className="citiesHeaderButton-icon citiesHeaderButton-icon_cities" />
-          </Link>
+          </a>
         )}
       </div>
       <div className="citiesListBox scrollControl">

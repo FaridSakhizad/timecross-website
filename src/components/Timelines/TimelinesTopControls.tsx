@@ -1,5 +1,3 @@
-import { Link } from 'react-router';
-
 import { useI18n } from '../../i18n';
 
 type TimelinesTopControlsProps = {
@@ -45,23 +43,21 @@ export default function TimelinesTopControls({
         aria-label={t('common.reset')}
       />
 
-      <Link
-        to="/cities"
-        target="_blank"
+      <a
+        href="/cities"
         className="gridTopControlsButton"
         aria-label={t('common.openGrid')}
       >
         <i className="citiesHeaderButton-icon citiesHeaderButton-icon_cities" />
-      </Link>
+      </a>
 
-      <Link
-        to="/grid"
-        target="_blank"
+      <a
+        href="/grid"
         className="gridTopControlsButton"
         aria-label={t('common.openCities')}
       >
         <i className="citiesHeaderButton-icon citiesHeaderButton-icon_grid" />
-      </Link>
+      </a>
     </div>
   );
 }

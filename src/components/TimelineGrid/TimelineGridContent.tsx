@@ -1,5 +1,3 @@
-import { Link } from 'react-router';
-
 import { useI18n } from '../../i18n';
 import TimelineCellLabel from '../Timelines/TimelineCellLabel';
 import TimelineGridRow from './TimelineGridRow';
@@ -22,13 +20,13 @@ export function TimelineGridToolbar({
 
   return (
     <div className={`timelineGrid-toolbar ${modeClassName}`}>
-      <Link
-        to="/"
+      <a
+        href="/"
         className="citiesHeaderButton citiesHeaderButton_home"
         aria-label={t('common.home')}
       >
         <i className="citiesHeaderButton-icon citiesHeaderButton-icon_home" />
-      </Link>
+      </a>
       <button
         className={`citiesHeaderButton citiesHeaderButton_edit ${isEditMode ? 'isActive' : ''}`}
         type="button"
@@ -54,13 +52,13 @@ export function TimelineGridToolbar({
       >
         <i className="citiesHeaderButton-icon citiesHeaderButton-icon_reset" />
       </button>
-      <Link
-        to="/cities"
+      <a
+        href="/cities"
         className="citiesHeaderButton citiesHeaderButton_cities"
         aria-label={t('common.openCities')}
       >
         <i className="citiesHeaderButton-icon citiesHeaderButton-icon_cities" />
-      </Link>
+      </a>
     </div>
   );
 }

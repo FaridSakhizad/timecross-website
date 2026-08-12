@@ -186,3 +186,9 @@
     padding: 15px 25px;
   }
 }
+
+@media (width < 720px) {
+  .accordion_faq {
+    overflow: hidden;
+  }
+}
