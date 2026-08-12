@@ -119,6 +119,7 @@ export default function HomePage({
             <a
               href={GOOGLE_PLAY_URL}
               className="downloadLink downloadLink_googlePlay"
+              data-coming-soon={t('common.comingSoon')}
               aria-label={t('common.googlePlay')}
             ></a>
             <a

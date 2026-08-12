@@ -231,6 +231,11 @@
   will-change: transform;
 }
 
+.timelineGrid-row_mobile {
+  content-visibility: auto;
+  contain-intrinsic-size: calc(72 * var(--timeline-grid-hour-width)) 112px;
+}
+
 .timelineGrid-row_reorder {
   margin-bottom: 6px;
 
