@@ -587,8 +587,10 @@
 .timelines-cell {
   width: 64px;
   height: 64px;
-  display: grid;
-  place-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   justify-self: center;
   border-radius: 10px;
   background: rgba(255 255 255 / 0.1);
@@ -596,7 +598,14 @@
   font-size: 36px;
   line-height: 1;
   font-weight: 300;
+
+  .timelines-periodMarker {
+    font-size: 12px;
+    line-height: 1;
+  }
 }
+
+.timelines-periodMarker {}
 
 .timelines-cell_date {
   font-size: 16px;

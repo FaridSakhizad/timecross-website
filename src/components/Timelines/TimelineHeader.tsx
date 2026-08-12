@@ -1,4 +1,5 @@
 import type { TimelineCell } from './types';
+import TimelineCellLabel from './TimelineCellLabel';
 import { getTimelineCellsStyle } from './utils';
 
 type TimelineHeaderProps = {
@@ -19,7 +20,7 @@ export default function TimelineHeader({ userCells }: TimelineHeaderProps) {
               ].filter(Boolean).join(' ')}
               key={`user-${cell.date.toISOString()}-${index}`}
             >
-              {cell.label}
+              <TimelineCellLabel label={cell.label} periodClassName="timelines-periodMarker" />
             </span>
           ))}
         </div>

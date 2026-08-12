@@ -102,7 +102,6 @@ export default function Header({
               className="headerMenu-item langSelectButton"
               onClick={handleLangSelectorClick}
             >
-              <span className="langSelectButton-name">{t(`languages.${language}`)}</span>
               <span className="langSelectButton-shortName">{SHORT_LANGUAGE_NAMES[language]}</span>
             </button>
 

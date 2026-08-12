@@ -193,8 +193,9 @@
 
 
 .timelineGrid-hour {
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   justify-self: center;
   width: 64px;
   height: 24px;
@@ -385,8 +386,10 @@
 }
 
 .timelineGrid-cell {
-  display: grid;
-  place-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   justify-self: center;
   width: var(--timeline-grid-cell-size);
   height: var(--timeline-grid-cell-size);
@@ -445,6 +448,22 @@
 .timelineGrid-cell_date {
   font-size: 16px;
   line-height: 18px;
+}
+
+.timelineGrid-hour {
+  font-size: 12px;
+
+  .timelineGrid-periodMarker {
+    font-size: 10px;
+  }
+}
+
+.timelineGrid-cell {
+  .timelineGrid-periodMarker {
+    font-size: 0.42em;
+    line-height: 1;
+    font-weight: 400;
+  }
 }
 
 .timelineGrid-cell_adjacentDay {

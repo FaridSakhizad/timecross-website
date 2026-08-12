@@ -146,7 +146,7 @@
 }
 
 .langSelectButton-shortName {
-  display: none;
+  display: inline;
 }
 
 .langSelectMenu {
@@ -236,11 +236,4 @@
     padding-right: 30px;
   }
 
-  .langSelectButton-name {
-    display: none;
-  }
-
-  .langSelectButton-shortName {
-    display: inline;
-  }
 }

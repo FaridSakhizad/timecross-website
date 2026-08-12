@@ -1,6 +1,7 @@
 import { Link } from 'react-router';
 
 import { useI18n } from '../../i18n';
+import TimelineCellLabel from '../Timelines/TimelineCellLabel';
 import TimelineGridRow from './TimelineGridRow';
 import type { TimelineGridContentProps } from './types';
 
@@ -95,7 +96,7 @@ export function TimelineGridTimeline({
             ].filter(Boolean).join(' ')}
             key={`user-${cell.date.toISOString()}-${index}`}
           >
-            {cell.label}
+            <TimelineCellLabel label={cell.label} periodClassName="timelineGrid-periodMarker" />
           </span>
         ))}
       </div>

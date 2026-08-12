@@ -4,6 +4,10 @@ import Cities from '../Cities';
 
 import heroImg1 from '../../assets/1-cities.jpg';
 import heroImg2 from '../../assets/2-cities.jpg';
+import heroImg3 from '../../assets/3-timelines.jpg';
+import heroImg4 from '../../assets/4-add-city.jpg';
+import heroImg5 from '../../assets/5-add-timezone.jpg';
+import heroImg6 from '../../assets/6-notifications.jpg';
 
 import {
   ANDROID_APK_URL,
@@ -16,6 +20,9 @@ import type { TimeFormat } from '../../settings';
 type HeroProps = {
   timeFormat: TimeFormat;
 };
+
+const IPHONE_PREVIEW_IMAGES = [heroImg1, heroImg3, heroImg5];
+const ANDROID_PREVIEW_IMAGES = [heroImg2, heroImg4, heroImg6];
 
 export default function Hero({ timeFormat }: HeroProps) {
   const { t } = useI18n();
@@ -30,14 +37,18 @@ export default function Hero({ timeFormat }: HeroProps) {
         <div className="heroPreviewBox">
           <div className="iphonePreviewContainer">
             <div className="iphonePreviewBox">
-              <img src={heroImg1} className="iphonePreview-image" alt="" />
+              {IPHONE_PREVIEW_IMAGES.map((image) => (
+                <img src={image} className="iphonePreview-image" alt="" key={image} />
+              ))}
             </div>
             <i className="iphonePreviewShadow" />
           </div>
 
           <div className="androidPreviewContainer">
             <div className="androidPreviewBox">
-              <img src={heroImg2} className="androidPreview-image" alt="" />
+              {ANDROID_PREVIEW_IMAGES.map((image) => (
+                <img src={image} className="androidPreview-image" alt="" key={image} />
+              ))}
             </div>
           </div>
         </div>

@@ -5,6 +5,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { useI18n } from '../../i18n';
 import type { TimeFormat } from '../../settings';
 import type { FavoriteCity } from '../Cities/fixtures';
+import TimelineCellLabel from '../Timelines/TimelineCellLabel';
 import {
   formatOffset,
   formatTime,
@@ -166,7 +167,7 @@ export default function TimelineGridRow({
               ].filter(Boolean).join(' ')}
               key={`${city.id}-${cell.date.toISOString()}-${index}`}
             >
-              {cell.label}
+              <TimelineCellLabel label={cell.label} periodClassName="timelineGrid-periodMarker" />
             </span>
           ))}
         </div>

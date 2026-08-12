@@ -5,6 +5,7 @@ import type { TimeFormat } from '../../settings';
 import { ENABLE_FRACTIONAL_TIMELINE_OFFSETS } from '../../config';
 import { useI18n } from '../../i18n';
 import type { FavoriteCity } from '../Cities/fixtures';
+import TimelineCellLabel from './TimelineCellLabel';
 import {
   formatOffset,
   formatTime,
@@ -161,11 +162,11 @@ export default function TimelineRow({
                   cell.isCurrentHour ? 'timelines-cell_current' : '',
                   cell.isDateLabel ? 'timelines-cell_date' : '',
                 ].filter(Boolean).join(' ')}
-                key={`${city.id}-${cell.date.toISOString()}-${index}`}
-              >
-                {cell.label}
-              </span>
-            ))}
+              key={`${city.id}-${cell.date.toISOString()}-${index}`}
+            >
+              <TimelineCellLabel label={cell.label} periodClassName="timelines-periodMarker" />
+            </span>
+          ))}
           </div>
         )}
 
