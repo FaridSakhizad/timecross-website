@@ -1,13 +1,15 @@
 {
   "common": {
     "sitePitch": "Понимайте время по всему миру",
-    "sayThanks": "Сказать спасибо",
+    "sayThanks": "Поблагодарить",
     "appStore": "Загрузить в App Store",
     "googlePlay": "Скачать в Google Play",
     "androidPreview": "Скачать Android Preview",
     "androidPreviewNote": "Пока мы готовим публикацию в Google Play, вы можете скачать APK и попробовать приложение TimeCross прямо сейчас.",
     "comingSoon": "Скоро",
     "home": "Главная",
+    "citiesLabel": "Города",
+    "gridLabel": "Часы",
     "addCity": "Добавить часовой пояс",
     "openGrid": "Открыть таймлайны",
     "openCities": "Открыть города",

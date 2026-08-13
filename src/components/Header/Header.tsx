@@ -80,6 +80,20 @@ export default function Header({
 
         <div className="headerMenu">
           <a
+            href="/cities"
+            className="headerMenu-item headerMenu-item_link"
+          >{t('common.citiesLabel')}</a>
+
+          <a
+            href="/grid"
+            className="headerMenu-item headerMenu-item_link"
+          >{t('common.gridLabel')}</a>
+
+          <i className="headerMenu-separator" />
+
+          <i className="headerMenu-separator headerMenu-separator_mobile" />
+
+          <a
             href={BUY_ME_A_COFFEE_URL}
             className="headerMenu-item headerMenu-item_thanks"
             target="_blank"

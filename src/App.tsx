@@ -13,7 +13,13 @@ import {
   getLanguageFromUrlSegment,
   stripLanguageFromPathname,
 } from './i18n/languageRouting';
-import { getSettings, updateSettings, type ColorMode, type TimeFormat } from './settings';
+import {
+  getSettings,
+  getStoredLanguageSetting,
+  updateSettings,
+  type ColorMode,
+  type TimeFormat,
+} from './settings';
 
 import './App.css';
 
@@ -47,7 +53,7 @@ function LocalizedRoute({ children }: LocalizedRouteProps) {
   const location = useLocation();
   const { language, setLanguage } = useI18n();
   const routeLanguage = getLanguageFromUrlSegment(lang);
-  const fallbackLanguage = getBrowserLanguage();
+  const fallbackLanguage = getStoredLanguageSetting() ?? getBrowserLanguage();
   const effectiveRouteLanguage = routeLanguage ?? fallbackLanguage;
   const pagePath = stripLanguageFromPathname(location.pathname);
 

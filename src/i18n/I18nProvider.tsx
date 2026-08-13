@@ -7,7 +7,7 @@ import {
   type ReactNode,
 } from 'react';
 
-import { updateSettings, type AppLanguage } from '../settings';
+import { getStoredLanguageSetting, updateSettings, type AppLanguage } from '../settings';
 import { getBrowserLanguage, getLanguageFromPathname } from './languageRouting';
 import en from './locales/en.json';
 import fr from './locales/fr.json';
@@ -61,7 +61,9 @@ type I18nProviderProps = {
 };
 
 function getInitialLanguage() {
-  return getLanguageFromPathname(window.location.pathname) ?? getBrowserLanguage();
+  return getLanguageFromPathname(window.location.pathname)
+    ?? getStoredLanguageSetting()
+    ?? getBrowserLanguage();
 }
 
 export function I18nProvider({ children }: I18nProviderProps) {

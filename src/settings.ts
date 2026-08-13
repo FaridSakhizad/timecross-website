@@ -273,6 +273,22 @@ export function getSettings(): AppSettings {
   }
 }
 
+export function getStoredLanguageSetting(): AppLanguage | null {
+  try {
+    const storedSettings = window.localStorage.getItem(SETTINGS_STORAGE_KEY);
+
+    if (!storedSettings) {
+      return null;
+    }
+
+    const language = (JSON.parse(storedSettings) as Partial<AppSettings>).language;
+
+    return isSupportedLanguage(language) ? language : null;
+  } catch {
+    return null;
+  }
+}
+
 export function saveSettings(settings: AppSettings) {
   window.localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
 }

@@ -1,13 +1,15 @@
 {
   "common": {
     "sitePitch": "Entiende la hora en todo el mundo",
-    "sayThanks": "Dar las gracias",
+    "sayThanks": "Agradecer",
     "appStore": "Descargar en App Store",
     "googlePlay": "Consíguelo en Google Play",
     "androidPreview": "Descargar Android Preview",
     "androidPreviewNote": "Mientras preparamos el lanzamiento en Google Play, puedes descargar el APK y probar la app TimeCross ahora mismo.",
     "comingSoon": "Próximamente",
     "home": "Inicio",
+    "citiesLabel": "Ciudades",
+    "gridLabel": "Horas",
     "addCity": "Agregar zona horaria",
     "openGrid": "Abrir timelines",
     "openCities": "Abrir ciudades",

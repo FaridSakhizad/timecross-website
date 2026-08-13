@@ -8,6 +8,8 @@
     "androidPreviewNote": "While we prepare the Google Play release, you can download the APK and try the TimeCross app right now.",
     "comingSoon": "Coming Soon",
     "home": "Home",
+    "citiesLabel": "Cities",
+    "gridLabel": "Grid",
     "addCity": "Add Timezone",
     "openGrid": "Open timelines",
     "openCities": "Open cities",
