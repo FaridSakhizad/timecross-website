@@ -146,8 +146,12 @@ function buildCitySearchData(data: CitiesSearchJson): CitySearchData {
   const distinctTimezones = Array.from(new Set(data.cities.map((city) => city[5])));
 
   data.aliases
-    .filter((alias) => alias[4] === 1)
-    .sort((aliasA, aliasB) => aliasA[2].localeCompare(aliasB[2]))
+    .sort((aliasA, aliasB) => (
+      aliasA[0] - aliasB[0]
+      || aliasA[1].localeCompare(aliasB[1])
+      || aliasB[4] - aliasA[4]
+      || aliasA[2].localeCompare(aliasB[2])
+    ))
     .forEach(([cityId, locale, name]) => {
       const key = getLocalizedNameKey(cityId, locale);
 
@@ -179,6 +183,27 @@ export async function loadCitySearchData() {
   }
 
   return citiesSearchDataPromise;
+}
+
+export async function getLocalizedCityNamesByIds(cityIds: string[], language: AppLanguage) {
+  const data = await loadCitySearchData();
+  const localizedNames = new Map<string, string>();
+
+  cityIds.forEach((cityId) => {
+    const cityIdNumber = Number(cityId);
+
+    if (!Number.isInteger(cityIdNumber)) {
+      return;
+    }
+
+    const localizedName = data.localizedNames.get(getLocalizedNameKey(cityIdNumber, language));
+
+    if (localizedName) {
+      localizedNames.set(cityId, localizedName);
+    }
+  });
+
+  return localizedNames;
 }
 
 function parseOffsetValue(value: string) {

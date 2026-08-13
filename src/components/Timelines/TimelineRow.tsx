@@ -5,6 +5,7 @@ import type { TimeFormat } from '../../settings';
 import { ENABLE_FRACTIONAL_TIMELINE_OFFSETS } from '../../config';
 import { useI18n } from '../../i18n';
 import type { FavoriteCity } from '../Cities/fixtures';
+import { getCityDisplayName } from '../Cities/useLocalizedCities';
 import TimelineCellLabel from './TimelineCellLabel';
 import {
   formatOffset,
@@ -42,6 +43,7 @@ export default function TimelineRow({
 }: TimelineRowProps) {
   const { t } = useI18n();
   const [isPressed, setIsPressed] = useState(false);
+  const displayName = getCityDisplayName(city);
   const shouldRenderCells = !isEditMode;
   const cells = shouldRenderCells
     ? getTimelineCells(city.timezone, baseDate, timelineDates, timeFormat)
@@ -122,14 +124,14 @@ export default function TimelineRow({
             <button
               className="timelines-dragButton"
               type="button"
-              aria-label={t('cities.moveCity', { city: city.customName || city.city })}
+              aria-label={t('cities.moveCity', { city: displayName })}
               {...attributes}
               {...listeners}
             />
           )}
 
           <span className="timelines-cityName">
-            {city.customName || city.city}, <span className="timelines-cityOffset">{offset}</span>
+            {displayName}, <span className="timelines-cityOffset">{offset}</span>
           </span>
           {relativeDayMarker && (
             <span
@@ -145,7 +147,7 @@ export default function TimelineRow({
             <button
               className="timelines-deleteButton"
               type="button"
-              aria-label={t('cities.deleteCity', { city: city.customName || city.city })}
+              aria-label={t('cities.deleteCity', { city: displayName })}
               onClick={() => onDelete(city.id)}
             />
           )}
@@ -173,7 +175,7 @@ export default function TimelineRow({
         {!shouldRenderCells && (
           <div
             className="timelines-cellsSpacer"
-            aria-label={t('cities.moveCity', { city: city.customName || city.city })}
+            aria-label={t('cities.moveCity', { city: displayName })}
             style={{
               width: `calc(${timelineDates.length} * 74px)`,
             }}

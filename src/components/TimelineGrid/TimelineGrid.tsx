@@ -24,6 +24,7 @@ import {
   saveSelectedCities,
   SELECTED_CITIES_CHANGED_EVENT,
 } from '../Cities/selectedCities';
+import { useLocalizedCities } from '../Cities/useLocalizedCities';
 import {
   getBrowserTimezone,
   getTimelineCells,
@@ -120,6 +121,7 @@ export default function TimelineGrid({ timeFormat }: TimelineGridProps) {
   const [isAddCityModalOpen, setIsAddCityModalOpen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
+  const localizedCities = useLocalizedCities(cities);
   const cityIds = useMemo(() => cities.map((city) => city.id), [cities]);
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -217,7 +219,7 @@ export default function TimelineGrid({ timeFormat }: TimelineGridProps) {
   const shellProps = {
     baseDate,
     browserTimezone,
-    cities,
+    cities: localizedCities,
     currentUserHourIndex,
     isDragging,
     isEditMode,

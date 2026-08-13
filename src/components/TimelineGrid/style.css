@@ -5,7 +5,7 @@
 }
 
 .timelineGrid {
-  max-width: 1440px;
+  max-width: 1880px;
   margin: 20px auto;
   width: calc(100% - 40px);
   height: calc(100dvh - 40px);

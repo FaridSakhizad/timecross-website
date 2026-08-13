@@ -23,6 +23,13 @@ function getCityResultKey(city: CitySearchRow) {
   return `${city.id}-${city.name}-${city.country}`;
 }
 
+function getLocalizedCountryName(
+  displayNames: Intl.DisplayNames | null,
+  countryCode: string,
+) {
+  return displayNames?.of(countryCode) || countryCode;
+}
+
 export default function AddCityModal({
   isOpen,
   selectedCityIds,
@@ -31,6 +38,13 @@ export default function AddCityModal({
 }: AddCityModalProps) {
   const { language, t } = useI18n();
   const inputRef = useRef<HTMLInputElement>(null);
+  const countryDisplayNames = useMemo(() => {
+    try {
+      return new Intl.DisplayNames([language], { type: 'region' });
+    } catch {
+      return null;
+    }
+  }, [language]);
   const selectedCityIdsSet = useMemo(() => new Set(selectedCityIds), [selectedCityIds]);
   const abstractTimezoneRows = useMemo(() => getAbstractTimezoneRows(), []);
   const [query, setQuery] = useState('');
@@ -163,6 +177,9 @@ export default function AddCityModal({
 
   const renderCityButton = (city: CitySearchRow) => {
     const isSelected = selectedCityIdsSet.has(String(city.id));
+    const countryName = city.country
+      ? getLocalizedCountryName(countryDisplayNames, city.country)
+      : '';
 
     return (
       <button
@@ -174,7 +191,7 @@ export default function AddCityModal({
       >
         <span className="addCityModal-resultName">
           {city.localizedName || city.name}
-          {!!city.country && `, ${city.country}`}
+          {!!countryName && `, ${countryName}`}
         </span>
 
         {!city.isAbstractTimezone && !!city.localizedName && city.localizedName !== city.name && (

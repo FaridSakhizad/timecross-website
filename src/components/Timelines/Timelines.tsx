@@ -23,6 +23,7 @@ import {
   saveSelectedCities,
   SELECTED_CITIES_CHANGED_EVENT,
 } from '../Cities/selectedCities';
+import { useLocalizedCities } from '../Cities/useLocalizedCities';
 import TimelineRow from './TimelineRow';
 import TimelinesDesktop from './TimelinesDesktop';
 import TimelinesMobile from './TimelinesMobile';
@@ -46,6 +47,7 @@ export default function Timelines({ timeFormat }: TimelinesProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const usesNativeScroll = useUsesNativeTimelineScroll();
+  const localizedCities = useLocalizedCities(cities);
   const cityIds = useMemo(() => cities.map((city) => city.id), [cities]);
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -97,7 +99,7 @@ export default function Timelines({ timeFormat }: TimelinesProps) {
   };
 
   const currentUserHourIndex = userCells.findIndex((cell) => cell.isCurrentHour);
-  const timelineRows = cities.map((city) => (
+  const timelineRows = localizedCities.map((city) => (
     <TimelineRow
       baseDate={baseDate}
       browserTimezone={browserTimezone}

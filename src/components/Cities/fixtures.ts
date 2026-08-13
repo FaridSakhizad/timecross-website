@@ -1,8 +1,10 @@
 export type FavoriteCity = {
   id: string;
+  cityId?: string;
   order: number;
   customName: string;
   city: string;
+  displayCity?: string;
   timezone: string;
   utcOffset: string;
   timeOffset: string;

@@ -54,6 +54,7 @@ export function createFavoriteCityFromSearchResult(
 ): FavoriteCity {
   return {
     id: normalizeCityId(city.id),
+    cityId: normalizeCityId(city.id),
     order,
     customName: '',
     city: city.name,

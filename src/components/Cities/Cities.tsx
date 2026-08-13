@@ -36,6 +36,7 @@ import {
 } from './selectedCities';
 import { useTimeRulerScroll } from './useTimeRulerScroll';
 import RenameCityModal from './RenameCityModal';
+import { getCityBaseName, getCityDisplayName, useLocalizedCities } from './useLocalizedCities';
 
 const PIXELS_IN_MINUTE = 1;
 const TIME_RULER_RANGE_MINUTES = 24 * 60;
@@ -289,7 +290,8 @@ function SortableCityItem({
     transform: CSS.Transform.toString(transform),
     transition,
   };
-  const displayName = favoriteCity.customName || favoriteCity.city;
+  const displayName = getCityDisplayName(favoriteCity);
+  const baseName = getCityBaseName(favoriteCity);
 
   useEffect(() => {
     if (!isRenaming) {
@@ -334,7 +336,7 @@ function SortableCityItem({
   const finishRenaming = () => {
     const nextCustomName = renameValue.trim();
 
-    onRename(favoriteCity.id, nextCustomName === favoriteCity.city ? '' : nextCustomName);
+    onRename(favoriteCity.id, nextCustomName === baseName ? '' : nextCustomName);
     setIsRenaming(false);
   };
 
@@ -419,7 +421,7 @@ function SortableCityItem({
           >
             <span className="citiesList-name">
               {displayName}
-              {favoriteCity.customName && (<span className="citiesList-originalName"> ({favoriteCity.city})</span>)}
+              {favoriteCity.customName && (<span className="citiesList-originalName"> ({baseName})</span>)}
             </span>
           </button>
         )}
@@ -461,6 +463,7 @@ export default function Cities({
   const [renamingCityId, setRenamingCityId] = useState<string | null>(null);
   const [timeOffsetMinutes, setTimeOffsetMinutes] = useState(0);
 
+  const localizedCities = useLocalizedCities(cities);
   const cityIds = useMemo(() => cities.map((city) => city.id), [cities]);
   const selectedDate = useMemo(
     () => getDateWithTimeOffset(baseDate, timeOffsetMinutes),
@@ -473,7 +476,7 @@ export default function Cities({
     const baseBrowserDateParts = getZonedDateParts(browserTimezone, baseDate);
     const browserOffsetMinutes = getTimeZoneOffsetMinutes(browserTimezone, selectedDate);
 
-    return cities.map((city) => getCityView(
+    return localizedCities.map((city) => getCityView(
       city,
       selectedDate,
       baseBrowserDateParts,
@@ -481,7 +484,7 @@ export default function Cities({
       timeFormat,
       t('cities.sameOffset'),
     ));
-  }, [baseDate, cities, selectedDate, timeFormat, t]);
+  }, [baseDate, localizedCities, selectedDate, timeFormat, t]);
   const renamingCity = useMemo(
     () => cityViews.find((city) => city.id === renamingCityId) ?? null,
     [cityViews, renamingCityId],
@@ -675,18 +678,18 @@ export default function Cities({
             <SortableContext items={cityIds} strategy={verticalListSortingStrategy}>
               {cityViews.map((favoriteCity) => (
                 <SortableCityItem
-                  clearNameLabel={t('cities.clearCustomName', { city: favoriteCity.customName || favoriteCity.city })}
+                  clearNameLabel={t('cities.clearCustomName', { city: getCityDisplayName(favoriteCity) })}
                   customNamePlaceholder={t('cities.customNamePlaceholder')}
-                  deleteLabel={t('cities.deleteCity', { city: favoriteCity.customName || favoriteCity.city })}
+                  deleteLabel={t('cities.deleteCity', { city: getCityDisplayName(favoriteCity) })}
                   favoriteCity={favoriteCity}
                   isMobileRenameMode={isMobileRenameMode}
                   key={favoriteCity.id}
-                  moveLabel={t('cities.moveCity', { city: favoriteCity.customName || favoriteCity.city })}
+                  moveLabel={t('cities.moveCity', { city: getCityDisplayName(favoriteCity) })}
                   onDelete={handleDeleteCity}
                   onRename={handleRenameCity}
                   onRequestRename={(city) => setRenamingCityId(city.id)}
-                  renameLabel={t('cities.renameCity', { city: favoriteCity.customName || favoriteCity.city })}
-                  saveNameLabel={t('cities.saveCustomName', { city: favoriteCity.customName || favoriteCity.city })}
+                  renameLabel={t('cities.renameCity', { city: getCityDisplayName(favoriteCity) })}
+                  saveNameLabel={t('cities.saveCustomName', { city: getCityDisplayName(favoriteCity) })}
                   tomorrowLabel={t('cities.tomorrow')}
                   yesterdayLabel={t('cities.yesterday')}
                 />
@@ -756,13 +759,13 @@ export default function Cities({
       <RenameCityModal
         key={renamingCity?.id ?? 'rename-city-modal'}
         isOpen={isMobileRenameMode && !!renamingCity}
-        cityName={renamingCity?.city ?? ''}
+        cityName={renamingCity ? getCityBaseName(renamingCity) : ''}
         customName={renamingCity?.customName ?? ''}
-        title={renamingCity ? t('cities.renameCity', { city: renamingCity.customName || renamingCity.city }) : ''}
+        title={renamingCity ? t('cities.renameCity', { city: getCityDisplayName(renamingCity) }) : ''}
         placeholder={t('cities.customNamePlaceholder')}
-        clearLabel={renamingCity ? t('cities.clearCustomName', { city: renamingCity.customName || renamingCity.city }) : ''}
+        clearLabel={renamingCity ? t('cities.clearCustomName', { city: getCityDisplayName(renamingCity) }) : ''}
         closeLabel={t('common.close')}
-        saveLabel={renamingCity ? t('cities.saveCustomName', { city: renamingCity.customName || renamingCity.city }) : ''}
+        saveLabel={renamingCity ? t('cities.saveCustomName', { city: getCityDisplayName(renamingCity) }) : ''}
         onClose={() => setRenamingCityId(null)}
         onSave={handleRenameCityFromModal}
       />

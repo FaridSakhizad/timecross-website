@@ -4,9 +4,11 @@ export type ColorMode = 'day' | 'night';
 
 export type StoredCity = {
   id: string;
+  cityId?: string;
   order: number;
   customName: string;
   city: string;
+  displayCity?: string;
   timezone: string;
   utcOffset: string;
   timeOffset: string;
@@ -31,6 +33,7 @@ const LEGACY_CITIES_ORDER_STORAGE_KEY = 'timecross:cities-order';
 export const MARKETING_DEFAULT_SELECTED_CITIES: StoredCity[] = [
   {
     id: 'new-york',
+    cityId: '5128581',
     order: 0,
     customName: '',
     city: 'New York',
@@ -42,6 +45,7 @@ export const MARKETING_DEFAULT_SELECTED_CITIES: StoredCity[] = [
   },
   {
     id: 'london',
+    cityId: '2643743',
     order: 1,
     customName: '',
     city: 'London',
@@ -53,6 +57,7 @@ export const MARKETING_DEFAULT_SELECTED_CITIES: StoredCity[] = [
   },
   {
     id: 'paris',
+    cityId: '2988507',
     order: 2,
     customName: '',
     city: 'Paris',
@@ -64,6 +69,7 @@ export const MARKETING_DEFAULT_SELECTED_CITIES: StoredCity[] = [
   },
   {
     id: 'dubai',
+    cityId: '292223',
     order: 3,
     customName: '',
     city: 'Dubai',
@@ -75,6 +81,7 @@ export const MARKETING_DEFAULT_SELECTED_CITIES: StoredCity[] = [
   },
   {
     id: 'singapore',
+    cityId: '1880252',
     order: 4,
     customName: '',
     city: 'Singapore',
@@ -86,6 +93,7 @@ export const MARKETING_DEFAULT_SELECTED_CITIES: StoredCity[] = [
   },
   {
     id: 'tokyo',
+    cityId: '1850147',
     order: 5,
     customName: '',
     city: 'Tokyo',
@@ -97,6 +105,7 @@ export const MARKETING_DEFAULT_SELECTED_CITIES: StoredCity[] = [
   },
   {
     id: 'sydney',
+    cityId: '2147714',
     order: 6,
     customName: '',
     city: 'Sydney',
@@ -109,6 +118,7 @@ export const MARKETING_DEFAULT_SELECTED_CITIES: StoredCity[] = [
   },
   {
     id: 'los-angeles',
+    cityId: '5368361',
     order: 7,
     customName: '',
     city: 'Los Angeles',
@@ -120,6 +130,7 @@ export const MARKETING_DEFAULT_SELECTED_CITIES: StoredCity[] = [
   },
   {
     id: 'honolulu',
+    cityId: '5856195',
     order: 8,
     customName: '',
     city: 'Honolulu',
@@ -132,6 +143,7 @@ export const MARKETING_DEFAULT_SELECTED_CITIES: StoredCity[] = [
   },
   {
     id: 'rio-de-janeiro',
+    cityId: '3451190',
     order: 9,
     customName: '',
     city: 'Rio de Janeiro',
@@ -144,6 +156,7 @@ export const MARKETING_DEFAULT_SELECTED_CITIES: StoredCity[] = [
   },
   {
     id: 'cape-town',
+    cityId: '3369157',
     order: 10,
     customName: '',
     city: 'Cape Town',
@@ -156,6 +169,7 @@ export const MARKETING_DEFAULT_SELECTED_CITIES: StoredCity[] = [
   },
   {
     id: 'auckland',
+    cityId: '2193733',
     order: 11,
     customName: '',
     city: 'Auckland',
