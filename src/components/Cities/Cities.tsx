@@ -25,10 +25,11 @@ import {
   type KeyboardEvent,
 } from 'react';
 import type { FavoriteCity } from './fixtures';
-import { getSettings, type TimeFormat } from '../../settings';
+import { getSettings, type ColorMode, type TimeFormat } from '../../settings';
 import { useI18n } from '../../i18n';
 import { formatPartsInTimezone } from '../../utils/abstractTimezone';
 import AddCityModal from './AddCityModal';
+import StandaloneMenuModal from '../StandaloneMenuModal';
 import {
   createFavoriteCityFromSearchResult,
   getOrderedSelectedCities,
@@ -64,10 +65,13 @@ type CityView = FavoriteCity & {
 };
 
 type CitiesProps = {
+  colorMode?: ColorMode;
   customClassNames?: string;
   showHomeButton?: boolean;
   showStandaloneButton?: boolean;
   timeFormat: TimeFormat;
+  onColorModeButtonClick?: () => void;
+  onTimeFormatButtonClick?: () => void;
 };
 
 function getOrderedCities(storedOrder: string[]) {
@@ -447,10 +451,13 @@ function SortableCityItem({
 }
 
 export default function Cities({
+  colorMode = 'day',
   customClassNames = '',
   showHomeButton = true,
   showStandaloneButton = true,
   timeFormat,
+  onColorModeButtonClick,
+  onTimeFormatButtonClick,
 }: CitiesProps) {
   const {t} = useI18n();
   const customClassNameList = customClassNames.split(/\s+/).filter(Boolean);
@@ -459,6 +466,7 @@ export default function Cities({
   const [baseDate] = useState(() => new Date());
   const [isAddCityModalOpen, setIsAddCityModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [isMenuModalOpen, setIsMenuModalOpen] = useState(false);
   const [isMobileRenameMode, setIsMobileRenameMode] = useState(getIsMobileCitiesMode);
   const [renamingCityId, setRenamingCityId] = useState<string | null>(null);
   const [timeOffsetMinutes, setTimeOffsetMinutes] = useState(0);
@@ -470,6 +478,11 @@ export default function Cities({
     [baseDate, timeOffsetMinutes],
   );
   const isTimeRulerAdjusted = timeOffsetMinutes !== 0;
+  const hasStandaloneMenu = Boolean(
+    showHomeButton
+    && onColorModeButtonClick
+    && onTimeFormatButtonClick,
+  );
 
   const cityViews = useMemo(() => {
     const browserTimezone = getBrowserTimezone();
@@ -621,12 +634,18 @@ export default function Cities({
     <div className={['cities', isEditMode ? 'cities_editMode' : '', ...customClassNameList].filter(Boolean).join(' ')}>
       <div className="citiesHeader">
         {showHomeButton && (
-          <a
-            href="/"
-            className="citiesHeaderButton citiesHeaderButton_home"
-          >
-            <i className="citiesHeaderButton-icon citiesHeaderButton-icon_home" />
-          </a>
+          <>
+            {hasStandaloneMenu && (
+              <button
+                className="citiesHeaderButton citiesHeaderButton_menu"
+                type="button"
+                aria-label={t('common.menu')}
+                onClick={() => setIsMenuModalOpen(true)}
+              >
+                <i className="citiesHeaderButton-icon citiesHeaderButton-icon_menu" />
+              </button>
+            )}
+          </>
         )}
 
         <button
@@ -771,6 +790,16 @@ export default function Cities({
         onClose={() => setRenamingCityId(null)}
         onSave={handleRenameCityFromModal}
       />
+      {hasStandaloneMenu && (
+        <StandaloneMenuModal
+          colorMode={colorMode}
+          isOpen={isMenuModalOpen}
+          timeFormat={timeFormat}
+          onClose={() => setIsMenuModalOpen(false)}
+          onColorModeButtonClick={onColorModeButtonClick!}
+          onTimeFormatButtonClick={onTimeFormatButtonClick!}
+        />
+      )}
     </div>
   )
 }

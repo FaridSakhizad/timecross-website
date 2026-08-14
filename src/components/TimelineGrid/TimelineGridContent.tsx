@@ -1,65 +1,106 @@
+import { useState } from 'react';
 import { useI18n } from '../../i18n';
+import StandaloneMenuModal from '../StandaloneMenuModal';
 import TimelineCellLabel from '../Timelines/TimelineCellLabel';
 import TimelineGridRow from './TimelineGridRow';
 import type { TimelineGridContentProps } from './types';
 
 type TimelineGridToolbarProps = Pick<
   TimelineGridContentProps,
-  'isEditMode' | 'mode' | 'onAddCityClick' | 'onEditModeToggle' | 'onResetClick'
+  | 'colorMode'
+  | 'isEditMode'
+  | 'mode'
+  | 'timeFormat'
+  | 'onAddCityClick'
+  | 'onColorModeButtonClick'
+  | 'onEditModeToggle'
+  | 'onResetClick'
+  | 'onTimeFormatButtonClick'
+>;
+
+type TimelineGridTimelineProps = Pick<
+  TimelineGridContentProps,
+  | 'baseDate'
+  | 'browserTimezone'
+  | 'cities'
+  | 'currentUserHourIndex'
+  | 'isEditMode'
+  | 'mode'
+  | 'timelineDates'
+  | 'timeFormat'
+  | 'userCells'
+  | 'onAddCityClick'
+  | 'onDeleteCity'
 >;
 
 export function TimelineGridToolbar({
+  colorMode,
   isEditMode,
   mode,
+  timeFormat,
   onAddCityClick,
+  onColorModeButtonClick,
   onEditModeToggle,
   onResetClick,
+  onTimeFormatButtonClick,
 }: TimelineGridToolbarProps) {
+  const [isMenuModalOpen, setIsMenuModalOpen] = useState(false);
   const { t } = useI18n();
   const modeClassName = mode === 'mobile' ? 'timelineGrid-toolbar_mobile' : 'timelineGrid-toolbar_desktop';
 
   return (
-    <div className={`timelineGrid-toolbar ${modeClassName}`}>
-      <a
-        href="/"
-        className="citiesHeaderButton citiesHeaderButton_home"
-        aria-label={t('common.home')}
-      >
-        <i className="citiesHeaderButton-icon citiesHeaderButton-icon_home" />
-      </a>
-      <button
-        className={`citiesHeaderButton citiesHeaderButton_edit ${isEditMode ? 'isActive' : ''}`}
-        type="button"
-        aria-label="edit"
-        aria-pressed={isEditMode}
-        onClick={onEditModeToggle}
-      >
-        <i className="citiesHeaderButton-icon citiesHeaderButton-icon_edit" />
-      </button>
-      <button
-        className="citiesHeaderButton citiesHeaderButton_add"
-        type="button"
-        aria-label={t('common.addCity')}
-        onClick={onAddCityClick}
-      >
-        <i className="citiesHeaderButton-icon citiesHeaderButton-icon_add" />
-      </button>
-      <button
-        className="citiesHeaderButton citiesHeaderButton_reset"
-        type="button"
-        aria-label={t('common.reset')}
-        onClick={onResetClick}
-      >
-        <i className="citiesHeaderButton-icon citiesHeaderButton-icon_reset" />
-      </button>
-      <a
-        href="/cities"
-        className="citiesHeaderButton citiesHeaderButton_cities"
-        aria-label={t('common.openCities')}
-      >
-        <i className="citiesHeaderButton-icon citiesHeaderButton-icon_cities" />
-      </a>
-    </div>
+    <>
+      <div className={`timelineGrid-toolbar ${modeClassName}`}>
+        <button
+          className="citiesHeaderButton citiesHeaderButton_menu"
+          type="button"
+          aria-label={t('common.menu')}
+          onClick={() => setIsMenuModalOpen(true)}
+        >
+          <i className="citiesHeaderButton-icon citiesHeaderButton-icon_menu" />
+        </button>
+        <button
+          className={`citiesHeaderButton citiesHeaderButton_edit ${isEditMode ? 'isActive' : ''}`}
+          type="button"
+          aria-label="edit"
+          aria-pressed={isEditMode}
+          onClick={onEditModeToggle}
+        >
+          <i className="citiesHeaderButton-icon citiesHeaderButton-icon_edit" />
+        </button>
+        <button
+          className="citiesHeaderButton citiesHeaderButton_add"
+          type="button"
+          aria-label={t('common.addCity')}
+          onClick={onAddCityClick}
+        >
+          <i className="citiesHeaderButton-icon citiesHeaderButton-icon_add" />
+        </button>
+        <button
+          className="citiesHeaderButton citiesHeaderButton_reset"
+          type="button"
+          aria-label={t('common.reset')}
+          onClick={onResetClick}
+        >
+          <i className="citiesHeaderButton-icon citiesHeaderButton-icon_reset" />
+        </button>
+        <a
+          href="/cities"
+          className="citiesHeaderButton citiesHeaderButton_cities"
+          aria-label={t('common.openCities')}
+        >
+          <i className="citiesHeaderButton-icon citiesHeaderButton-icon_cities" />
+        </a>
+      </div>
+      <StandaloneMenuModal
+        colorMode={colorMode}
+        isOpen={isMenuModalOpen}
+        timeFormat={timeFormat}
+        onClose={() => setIsMenuModalOpen(false)}
+        onColorModeButtonClick={onColorModeButtonClick}
+        onTimeFormatButtonClick={onTimeFormatButtonClick}
+      />
+    </>
   );
 }
 
@@ -74,7 +115,7 @@ export function TimelineGridTimeline({
   userCells,
   onAddCityClick,
   onDeleteCity,
-}: Omit<TimelineGridContentProps, 'isDragging' | 'onEditModeToggle' | 'onResetClick'>) {
+}: TimelineGridTimelineProps) {
   const { t } = useI18n();
   const userHoursModeClassName = mode === 'mobile'
     ? 'timelineGrid-userHours_mobile'
@@ -145,9 +186,13 @@ export default function TimelineGridContent(props: TimelineGridContentProps) {
       <TimelineGridToolbar
         isEditMode={props.isEditMode}
         mode={props.mode}
+        colorMode={props.colorMode}
+        timeFormat={props.timeFormat}
         onAddCityClick={props.onAddCityClick}
+        onColorModeButtonClick={props.onColorModeButtonClick}
         onEditModeToggle={props.onEditModeToggle}
         onResetClick={props.onResetClick}
+        onTimeFormatButtonClick={props.onTimeFormatButtonClick}
       />
       <TimelineGridTimeline
         baseDate={props.baseDate}

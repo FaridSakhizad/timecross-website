@@ -1,12 +1,25 @@
 import TimelineGrid from '../components/TimelineGrid';
-import type { TimeFormat } from '../settings';
+import type { ColorMode, TimeFormat } from '../settings';
 
 type GridPageProps = {
+  colorMode: ColorMode;
   timeFormat: TimeFormat;
+  onColorModeButtonClick: () => void;
+  onTimeFormatButtonClick: () => void;
 };
 
-export default function GridPage({ timeFormat }: GridPageProps) {
+export default function GridPage({
+  colorMode,
+  timeFormat,
+  onColorModeButtonClick,
+  onTimeFormatButtonClick,
+}: GridPageProps) {
   return (
-    <TimelineGrid timeFormat={timeFormat} />
+    <TimelineGrid
+      colorMode={colorMode}
+      timeFormat={timeFormat}
+      onColorModeButtonClick={onColorModeButtonClick}
+      onTimeFormatButtonClick={onTimeFormatButtonClick}
+    />
   );
 }

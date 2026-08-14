@@ -1,3 +1,4 @@
+import '../Modal/style.css';
 import './AddCityModal.css';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -202,28 +203,28 @@ export default function AddCityModal({
 
   return createPortal(
     <div
-      className="addCityModal"
+      className="appModal addCityModal"
       role="dialog"
       aria-modal="true"
       aria-labelledby="add-city-modal-title"
     >
       <button
-        className="addCityModal-backdrop"
+        className="appModal-backdrop"
         type="button"
         aria-label={t('common.close')}
         onClick={handleClose}
       />
 
-      <div className="addCityModal-panel">
-        <div className="addCityModal-header">
-          <span className="addCityModal-headerPlaceholder" />
+      <div className="appModal-panel addCityModal-panel">
+        <div className="appModal-header">
+          <span className="appModal-headerPlaceholder" />
 
-          <h3 className="addCityModal-title" id="add-city-modal-title">
+          <h3 className="appModal-title" id="add-city-modal-title">
             {t('common.addCity')}
           </h3>
 
           <button
-            className="addCityModal-close"
+            className="appModal-close"
             type="button"
             aria-label={t('common.close')}
             onClick={handleClose}

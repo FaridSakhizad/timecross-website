@@ -1,4 +1,4 @@
-import type { TimeFormat } from '../../settings';
+import type { ColorMode, TimeFormat } from '../../settings';
 import type { FavoriteCity } from '../Cities/fixtures';
 import type { TimelineCell } from '../Timelines/types';
 
@@ -8,6 +8,7 @@ export type TimelineGridContentProps = {
   baseDate: Date;
   browserTimezone: string;
   cities: FavoriteCity[];
+  colorMode: ColorMode;
   currentUserHourIndex: number;
   isDragging: boolean;
   isEditMode: boolean;
@@ -16,8 +17,10 @@ export type TimelineGridContentProps = {
   timeFormat: TimeFormat;
   userCells: TimelineCell[];
   onAddCityClick: () => void;
+  onColorModeButtonClick: () => void;
   onDeleteCity: (cityId: string) => void;
   onEditModeToggle: () => void;
+  onTimeFormatButtonClick: () => void;
   onResetClick: () => void;
 };
 

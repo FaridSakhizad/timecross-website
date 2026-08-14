@@ -22,11 +22,15 @@ export default function TimelineGridDesktop(props: TimelineGridShellProps) {
       ].filter(Boolean).join(' ')}
     >
       <TimelineGridToolbar
+        colorMode={props.colorMode}
         isEditMode={props.isEditMode}
         mode="desktop"
+        timeFormat={props.timeFormat}
         onAddCityClick={props.onAddCityClick}
+        onColorModeButtonClick={props.onColorModeButtonClick}
         onEditModeToggle={props.onEditModeToggle}
         onResetClick={resetGridScroll}
+        onTimeFormatButtonClick={props.onTimeFormatButtonClick}
       />
       <CustomScrollbar
         className="timelineGrid-scroll"

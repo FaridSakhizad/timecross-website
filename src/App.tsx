@@ -158,7 +158,12 @@ function App() {
         path="cities"
         element={(
           <LocalizedRoute>
-            <CitiesPage timeFormat={timeFormat} />
+            <CitiesPage
+              colorMode={colorMode}
+              timeFormat={timeFormat}
+              onColorModeButtonClick={handleColorModeButtonClick}
+              onTimeFormatButtonClick={handleTimeFormatButtonClick}
+            />
           </LocalizedRoute>
         )}
       />
@@ -166,7 +171,12 @@ function App() {
         path="grid"
         element={(
           <LocalizedRoute>
-            <GridPage timeFormat={timeFormat} />
+            <GridPage
+              colorMode={colorMode}
+              timeFormat={timeFormat}
+              onColorModeButtonClick={handleColorModeButtonClick}
+              onTimeFormatButtonClick={handleTimeFormatButtonClick}
+            />
           </LocalizedRoute>
         )}
       />
@@ -213,7 +223,12 @@ function App() {
         path=":lang/cities"
         element={(
           <LocalizedRoute>
-            <CitiesPage timeFormat={timeFormat} />
+            <CitiesPage
+              colorMode={colorMode}
+              timeFormat={timeFormat}
+              onColorModeButtonClick={handleColorModeButtonClick}
+              onTimeFormatButtonClick={handleTimeFormatButtonClick}
+            />
           </LocalizedRoute>
         )}
       />
@@ -221,7 +236,12 @@ function App() {
         path=":lang/grid"
         element={(
           <LocalizedRoute>
-            <GridPage timeFormat={timeFormat} />
+            <GridPage
+              colorMode={colorMode}
+              timeFormat={timeFormat}
+              onColorModeButtonClick={handleColorModeButtonClick}
+              onTimeFormatButtonClick={handleTimeFormatButtonClick}
+            />
           </LocalizedRoute>
         )}
       />

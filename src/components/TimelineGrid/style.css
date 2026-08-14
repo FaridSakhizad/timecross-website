@@ -451,39 +451,30 @@
 }
 
 .timelineGrid-addTimezoneButton {
-  min-height: 64px;
-  padding: 0 16px;
-  margin: 0;
-  border: none;
-  border-top: 1px solid rgba(255 255 255 / 0.12);
+  min-height: 38px;
+  border-radius: 19px;
+  padding: 0 15px 0 10px;
+  margin: 25px auto 30px auto;
+  border: 2px solid rgba(255 255 255 / 1);
   display: flex;
   align-items: center;
   gap: 12px;
   position: sticky;
-  left: 0;
-  z-index: 10;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
   color: #fff;
-  background: transparent;
+  background-color: rgba(var(--accent-color-1), 0.18);
   font-family: var(--body-font-family-1);
   font-size: 16px;
-  font-weight: 700;
+  font-weight: 500;
   line-height: 1.2;
-  text-align: left;
   cursor: pointer;
-  user-select: none;
 
   &:focus-visible {
     outline: 1px solid rgba(var(--accent-color-2), 1);
     outline-offset: -3px;
   }
-}
-
-.timelineGrid-addTimezoneButton_desktop {
-  width: min(calc(100vw - 40px), 1440px);
-}
-
-.timelineGrid-addTimezoneButton_mobile {
-  width: 100dvw;
 }
 
 .timelineGrid-addTimezoneButtonIcon {
@@ -557,6 +548,7 @@ body:has(.timelineGrid-toolbar_mobile) {
   min-width: max-content;
   overflow: visible;
   color: #fff;
+  padding-bottom: 1px;
 
   #root {
     display: contents;

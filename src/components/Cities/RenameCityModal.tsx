@@ -1,4 +1,4 @@
-import './AddCityModal.css';
+import '../Modal/style.css';
 import './RenameCityModal.css';
 
 import {
@@ -128,28 +128,28 @@ export default function RenameCityModal({
 
   return createPortal(
     <div
-      className="addCityModal renameCityModal"
+      className="appModal renameCityModal"
       role="dialog"
       aria-modal="true"
       aria-labelledby="rename-city-modal-title"
     >
       <button
-        className="addCityModal-backdrop"
+        className="appModal-backdrop"
         type="button"
         aria-label={closeLabel}
         onClick={handleClose}
       />
 
-      <div className="addCityModal-panel renameCityModal-panel">
-        <div className="addCityModal-header">
-          <span className="addCityModal-headerPlaceholder" />
+      <div className="appModal-panel renameCityModal-panel">
+        <div className="appModal-header">
+          <span className="appModal-headerPlaceholder" />
 
-          <h3 className="addCityModal-title" id="rename-city-modal-title">
+          <h3 className="appModal-title" id="rename-city-modal-title">
             {title}
           </h3>
 
           <button
-            className="addCityModal-close"
+            className="appModal-close"
             type="button"
             aria-label={closeLabel}
             onClick={handleClose}

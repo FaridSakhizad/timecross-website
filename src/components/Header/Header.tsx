@@ -9,23 +9,14 @@ import {
   getCanonicalLanguagePath,
   getLocalizedPathname,
 } from '../../i18n/languageRouting';
-import type { AppLanguage, ColorMode, TimeFormat } from '../../settings';
+import { SHORT_LANGUAGE_NAMES } from '../../i18n/languageLabels';
+import type { ColorMode, TimeFormat } from '../../settings';
 
 type HeaderProps = {
   colorMode: ColorMode;
   timeFormat: TimeFormat;
   onColorModeButtonClick: () => void;
   onTimeFormatButtonClick: () => void;
-};
-
-const SHORT_LANGUAGE_NAMES: Record<AppLanguage, string> = {
-  en: 'En',
-  fr: 'Fr',
-  uk: 'Укр',
-  ru: 'Ру',
-  es: 'Es',
-  pt: 'Pt',
-  de: 'De',
 };
 
 export default function Header({
@@ -106,7 +97,7 @@ export default function Header({
           <button
             type="button"
             className={`headerMenu-item headerMenu-item_nightMode ${colorMode === 'night' ? 'isActive' : ''}`}
-            aria-label="Night mode"
+            aria-label={t(colorMode === 'night' ? 'common.lightMode' : 'common.darkMode')}
             onClick={onColorModeButtonClick}
           />
 

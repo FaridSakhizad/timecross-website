@@ -16,7 +16,7 @@ import {
   arrayMove,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { getSettings, type TimeFormat } from '../../settings';
+import { getSettings, type ColorMode, type TimeFormat } from '../../settings';
 import AddCityModal from '../Cities/AddCityModal';
 import {
   createFavoriteCityFromSearchResult,
@@ -40,7 +40,10 @@ const restrictTimelineGridDragToVerticalAxis: Modifier = ({ transform }) => ({
 });
 
 type TimelineGridProps = {
+  colorMode: ColorMode;
   timeFormat: TimeFormat;
+  onColorModeButtonClick: () => void;
+  onTimeFormatButtonClick: () => void;
 };
 
 function getUsesMobileTimelineGridLayout() {
@@ -113,7 +116,12 @@ function useMobileTimelineGridHorizontalScrollLock(enabled: boolean) {
   }, [enabled]);
 }
 
-export default function TimelineGrid({ timeFormat }: TimelineGridProps) {
+export default function TimelineGrid({
+  colorMode,
+  timeFormat,
+  onColorModeButtonClick,
+  onTimeFormatButtonClick,
+}: TimelineGridProps) {
   const baseDate = useMemo(() => new Date(), []);
   const browserTimezone = useMemo(() => getBrowserTimezone(), []);
   const usesMobileLayout = useUsesMobileTimelineGridLayout();
@@ -215,6 +223,7 @@ export default function TimelineGrid({ timeFormat }: TimelineGridProps) {
     baseDate,
     browserTimezone,
     cities: localizedCities,
+    colorMode,
     currentUserHourIndex,
     isDragging,
     isEditMode,
@@ -222,8 +231,10 @@ export default function TimelineGrid({ timeFormat }: TimelineGridProps) {
     timeFormat,
     userCells,
     onAddCityClick: () => setIsAddCityModalOpen(true),
+    onColorModeButtonClick,
     onDeleteCity: handleDeleteCity,
     onEditModeToggle: () => setIsEditMode((currentMode) => !currentMode),
+    onTimeFormatButtonClick,
   };
   const TimelineGridShell = usesMobileLayout ? TimelineGridMobile : TimelineGridDesktop;
 
