@@ -166,9 +166,67 @@
   position: relative;
   z-index: 1;
   transition: opacity 0.2s ease, padding 0.2s ease;
+}
 
-  &:nth-last-child(1 of &) {
-    border-bottom: none;
+.citiesList-addButton {
+  min-height: 38px;
+  border-radius: 19px;
+  padding: 0 16px 0 8px;
+  margin: 25px auto 20px auto;
+  border: 2px solid rgba(255 255 255 / 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: #fff;
+  background-color: transparent;
+  font-family: var(--body-font-family-1);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.2;
+  text-align: center;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 1px solid rgba(var(--accent-color-2), 1);
+    outline-offset: -3px;
+  }
+}
+
+.citiesList-addButtonIcon {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(var(--accent-color-2), 1);
+  border-radius: 50%;
+  display: block;
+  position: relative;
+  flex: 0 0 auto;
+
+  &:before,
+  &:after {
+    content: '';
+    display: block;
+    width: 10px;
+    height: 2px;
+    border-radius: 1px;
+    background: #fff;
+    position: absolute;
+    inset: 0;
+    margin: auto;
+  }
+
+  &:after {
+    rotate: 90deg;
+  }
+}
+
+.citiesList-addButtonText {
+  display: block;
+}
+
+@media (hover: hover) {
+  .citiesList-addButton:hover {
+    background-color: rgba(var(--accent-color-1), 0.28);
   }
 }
 

@@ -113,11 +113,6 @@ export default function Timelines({ timeFormat }: TimelinesProps) {
   ));
 
   const handleAddCity = (city: Parameters<typeof createFavoriteCityFromSearchResult>[0]) => {
-    if (cities.some((currentCity) => currentCity.id === String(city.id))) {
-      setIsAddCityModalOpen(false);
-      return;
-    }
-
     const nextCities = [
       ...cities,
       createFavoriteCityFromSearchResult(city, cities.length),
@@ -180,7 +175,6 @@ export default function Timelines({ timeFormat }: TimelinesProps) {
 
       <AddCityModal
         isOpen={isAddCityModalOpen}
-        selectedCityIds={cityIds}
         onClose={() => setIsAddCityModalOpen(false)}
         onSave={handleAddCity}
       />

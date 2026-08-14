@@ -72,6 +72,16 @@ export default function TimelinesDesktop({
               onThumbDragStart={handleScrollbarThumbDragStart}
             >
               {timelineRows}
+
+              <button
+                className="timelinesAddTimezoneButton"
+                type="button"
+                onClick={onAddCityClick}
+              >
+                <i className="timelinesAddTimezoneButtonIcon" />
+                <span className="timelinesAddTimezoneButtonText">{t('common.addCity')}</span>
+              </button>
+
             </CustomScrollbar>
             <div className="timelinesMiddleMarker" />
           </div>

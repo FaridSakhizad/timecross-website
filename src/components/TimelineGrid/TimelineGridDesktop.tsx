@@ -46,6 +46,7 @@ export default function TimelineGridDesktop(props: TimelineGridShellProps) {
           timelineDates={props.timelineDates}
           timeFormat={props.timeFormat}
           userCells={props.userCells}
+          onAddCityClick={props.onAddCityClick}
           onDeleteCity={props.onDeleteCity}
         />
       </CustomScrollbar>

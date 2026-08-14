@@ -576,11 +576,6 @@ export default function Cities({
   };
 
   const handleAddCity = (city: Parameters<typeof createFavoriteCityFromSearchResult>[0]) => {
-    if (cities.some((currentCity) => currentCity.id === String(city.id))) {
-      setIsAddCityModalOpen(false);
-      return;
-    }
-
     const nextCities = [
       ...cities,
       createFavoriteCityFromSearchResult(city, cities.length),
@@ -695,6 +690,14 @@ export default function Cities({
                 />
               ))}
             </SortableContext>
+            <button
+              className="citiesList-addButton"
+              type="button"
+              onClick={() => setIsAddCityModalOpen(true)}
+            >
+              <i className="citiesList-addButtonIcon" />
+              <span className="citiesList-addButtonText">{t('common.addCity')}</span>
+            </button>
           </div>
         </DndContext>
       </div>
@@ -752,7 +755,6 @@ export default function Cities({
       </div>
       <AddCityModal
         isOpen={isAddCityModalOpen}
-        selectedCityIds={cityIds}
         onClose={() => setIsAddCityModalOpen(false)}
         onSave={handleAddCity}
       />

@@ -12,7 +12,6 @@ import {
 
 type AddCityModalProps = {
   isOpen: boolean;
-  selectedCityIds: string[];
   onClose: () => void;
   onSave: (city: CitySearchRow) => void;
 };
@@ -32,7 +31,6 @@ function getLocalizedCountryName(
 
 export default function AddCityModal({
   isOpen,
-  selectedCityIds,
   onClose,
   onSave,
 }: AddCityModalProps) {
@@ -45,7 +43,6 @@ export default function AddCityModal({
       return null;
     }
   }, [language]);
-  const selectedCityIdsSet = useMemo(() => new Set(selectedCityIds), [selectedCityIds]);
   const abstractTimezoneRows = useMemo(() => getAbstractTimezoneRows(), []);
   const [query, setQuery] = useState('');
   const [cities, setCities] = useState<CitySearchRow[]>([]);
@@ -176,18 +173,16 @@ export default function AddCityModal({
   };
 
   const renderCityButton = (city: CitySearchRow) => {
-    const isSelected = selectedCityIdsSet.has(String(city.id));
     const countryName = city.country
       ? getLocalizedCountryName(countryDisplayNames, city.country)
       : '';
 
     return (
       <button
-        className={`addCityModal-result ${isSelected ? 'addCityModal-result_selected' : ''}`}
+        className="addCityModal-result"
         type="button"
         key={getCityResultKey(city)}
         onClick={() => handleSave(city)}
-        disabled={isSelected}
       >
         <span className="addCityModal-resultName">
           {city.localizedName || city.name}

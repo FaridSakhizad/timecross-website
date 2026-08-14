@@ -80,6 +80,14 @@ export default function Header({
 
         <div className="headerMenu">
           <a
+            href={BUY_ME_A_COFFEE_URL}
+            className="headerMenu-item headerMenu-item_thanks"
+            target="_blank"
+          >{t('common.sayThanks')}</a>
+
+          <i className="headerMenu-separator headerMenu-separator_1" />
+
+          <a
             href="/cities"
             className="headerMenu-item headerMenu-item_link"
           >{t('common.citiesLabel')}</a>
@@ -89,15 +97,7 @@ export default function Header({
             className="headerMenu-item headerMenu-item_link"
           >{t('common.gridLabel')}</a>
 
-          <i className="headerMenu-separator" />
-
-          <i className="headerMenu-separator headerMenu-separator_mobile" />
-
-          <a
-            href={BUY_ME_A_COFFEE_URL}
-            className="headerMenu-item headerMenu-item_thanks"
-            target="_blank"
-          >{t('common.sayThanks')}</a>
+          <i className="headerMenu-separator headerMenu-separator_2" />
 
           <button type="button" className="headerMenu-item headerMenu-item_ampm" onClick={onTimeFormatButtonClick}>
             {timeFormat === '24h' ? 'AM/PM' : '24H'}

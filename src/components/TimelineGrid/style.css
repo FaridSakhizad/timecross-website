@@ -450,6 +450,79 @@
   cursor: grabbing;
 }
 
+.timelineGrid-addTimezoneButton {
+  min-height: 64px;
+  padding: 0 16px;
+  margin: 0;
+  border: none;
+  border-top: 1px solid rgba(255 255 255 / 0.12);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: sticky;
+  left: 0;
+  z-index: 10;
+  color: #fff;
+  background: transparent;
+  font-family: var(--body-font-family-1);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: left;
+  cursor: pointer;
+  user-select: none;
+
+  &:focus-visible {
+    outline: 1px solid rgba(var(--accent-color-2), 1);
+    outline-offset: -3px;
+  }
+}
+
+.timelineGrid-addTimezoneButton_desktop {
+  width: min(calc(100vw - 40px), 1440px);
+}
+
+.timelineGrid-addTimezoneButton_mobile {
+  width: 100dvw;
+}
+
+.timelineGrid-addTimezoneButtonIcon {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(var(--accent-color-2), 1);
+  border-radius: 50%;
+  display: block;
+  position: relative;
+  flex: 0 0 auto;
+
+  &:before,
+  &:after {
+    content: '';
+    display: block;
+    width: 10px;
+    height: 2px;
+    border-radius: 1px;
+    background: #fff;
+    position: absolute;
+    inset: 0;
+    margin: auto;
+  }
+
+  &:after {
+    rotate: 90deg;
+  }
+}
+
+.timelineGrid-addTimezoneButtonText {
+  display: block;
+}
+
+@media (hover: hover) {
+  .timelineGrid-addTimezoneButton:hover {
+    background-color: rgba(var(--accent-color-1), 0.18);
+  }
+}
+
 .timelineGrid-cell_date {
   font-size: 16px;
   line-height: 18px;

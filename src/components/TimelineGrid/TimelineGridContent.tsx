@@ -72,8 +72,10 @@ export function TimelineGridTimeline({
   timelineDates,
   timeFormat,
   userCells,
+  onAddCityClick,
   onDeleteCity,
-}: Omit<TimelineGridContentProps, 'isDragging' | 'onAddCityClick' | 'onEditModeToggle' | 'onResetClick'>) {
+}: Omit<TimelineGridContentProps, 'isDragging' | 'onEditModeToggle' | 'onResetClick'>) {
+  const { t } = useI18n();
   const userHoursModeClassName = mode === 'mobile'
     ? 'timelineGrid-userHours_mobile'
     : 'timelineGrid-userHours_desktop';
@@ -113,6 +115,18 @@ export function TimelineGridTimeline({
         />
       ))}
 
+      <button
+        className={[
+          'timelineGrid-addTimezoneButton',
+          mode === 'mobile' ? 'timelineGrid-addTimezoneButton_mobile' : 'timelineGrid-addTimezoneButton_desktop',
+        ].join(' ')}
+        type="button"
+        onClick={onAddCityClick}
+      >
+        <i className="timelineGrid-addTimezoneButtonIcon" />
+        <span className="timelineGrid-addTimezoneButtonText">{t('common.addCity')}</span>
+      </button>
+
       <div className={`timelineGridMiddleMarker ${middleMarkerModeClassName}`} />
       <div className={`timelineGridMiddleHoursMarker ${middleMarkerModeClassName}`} />
     </>
@@ -145,6 +159,7 @@ export default function TimelineGridContent(props: TimelineGridContentProps) {
         timelineDates={props.timelineDates}
         timeFormat={props.timeFormat}
         userCells={props.userCells}
+        onAddCityClick={props.onAddCityClick}
         onDeleteCity={props.onDeleteCity}
       />
     </>

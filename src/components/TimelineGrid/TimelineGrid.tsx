@@ -163,11 +163,6 @@ export default function TimelineGrid({ timeFormat }: TimelineGridProps) {
   useMobileTimelineGridHorizontalScrollLock(usesMobileLayout && isEditMode);
 
   const handleAddCity = (city: Parameters<typeof createFavoriteCityFromSearchResult>[0]) => {
-    if (cities.some((currentCity) => currentCity.id === String(city.id))) {
-      setIsAddCityModalOpen(false);
-      return;
-    }
-
     const nextCities = [
       ...cities,
       createFavoriteCityFromSearchResult(city, cities.length),
@@ -249,7 +244,6 @@ export default function TimelineGrid({ timeFormat }: TimelineGridProps) {
 
       <AddCityModal
         isOpen={isAddCityModalOpen}
-        selectedCityIds={cityIds}
         onClose={() => setIsAddCityModalOpen(false)}
         onSave={handleAddCity}
       />

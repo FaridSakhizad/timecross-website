@@ -202,6 +202,14 @@ export default function TimelinesMobile({
                 ref={setViewportRef}
               >
                 {timelineRows}
+                <button
+                  className="timelinesAddTimezoneButton"
+                  type="button"
+                  onClick={onAddCityClick}
+                >
+                  <i className="timelinesAddTimezoneButtonIcon" />
+                  <span className="timelinesAddTimezoneButtonText">{t('common.addCity')}</span>
+                </button>
               </div>
             </div>
             <div className="timelinesMiddleMarker" />

@@ -20,6 +20,10 @@ function normalizeCityId(cityId: number | string) {
   return String(cityId);
 }
 
+function createSelectedCityInstanceId(cityId: number | string) {
+  return `${normalizeCityId(cityId)}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
 function normalizeSelectedCity(city: FavoriteCity, index: number): FavoriteCity {
   return {
     ...city,
@@ -52,9 +56,11 @@ export function createFavoriteCityFromSearchResult(
   city: SelectedCityInput,
   order: number,
 ): FavoriteCity {
+  const cityId = normalizeCityId(city.id);
+
   return {
-    id: normalizeCityId(city.id),
-    cityId: normalizeCityId(city.id),
+    id: createSelectedCityInstanceId(cityId),
+    cityId,
     order,
     customName: '',
     city: city.name,
