@@ -548,6 +548,13 @@
   }
 }
 
+.timelinesWidgetWrapper_mobile {
+  .timelinesAddTimezoneButton {
+    left: unset;
+    transform: unset;
+  }
+}
+
 .timelinesAddTimezoneButtonIcon {
   width: 20px;
   height: 20px;
