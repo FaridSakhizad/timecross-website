@@ -24,6 +24,7 @@
     "scrollMode": "Скрол",
     "previousHour": "На годину назад",
     "nextHour": "На годину вперед",
+    "showCurrentHour": "Показати поточну годину",
     "previousScreenshot": "Попередній скриншот",
     "nextScreenshot": "Наступний скриншот",
     "lastUpdated": "Останнє оновлення: {date}",

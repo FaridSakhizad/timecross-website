@@ -9,14 +9,20 @@ export default function TimelineGridMobile(props: TimelineGridShellProps) {
     props.currentUserHourIndex,
     props.isDragging || props.isEditMode,
   );
-  const activeHourDirection = useTimelineGridPageActiveHourIndicator(
+  const {
+    direction: activeHourDirection,
+    scrollActiveHourIntoView,
+  } = useTimelineGridPageActiveHourIndicator(
     props.isDragging || props.isEditMode,
   );
 
   return (
     <>
       <TimelineGridContent {...props} mode="mobile" onResetClick={resetGridScroll} />
-      <TimelineGridActiveHourIndicator direction={activeHourDirection} />
+      <TimelineGridActiveHourIndicator
+        direction={activeHourDirection}
+        onClick={scrollActiveHourIntoView}
+      />
     </>
   );
 }

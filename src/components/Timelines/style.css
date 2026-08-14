@@ -282,6 +282,43 @@
   border-top-left-radius: 16px;
 }
 
+.timelineActiveHourIndicator {
+  width: 24px;
+  height: 100px;
+  padding: 0;
+  border: none;
+  position: absolute;
+  top: 50%;
+  z-index: 9;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: transparent;
+  cursor: pointer;
+  translate: 0 -50%;
+}
+
+.timelineActiveHourIndicator_left {
+  left: 16px;
+}
+
+.timelineActiveHourIndicator_right {
+  right: 16px;
+}
+
+.timelineActiveHourIndicator-icon {
+  display: block;
+  width: 24px;
+  height: 100px;
+  fill: none;
+  stroke: rgba(var(--accent-color-1), 0.75);
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 2px 8px rgba(0 0 0 / 0.22));
+  pointer-events: none;
+}
+
 .timelinesNav {
   display: grid;
   place-items: center;
@@ -732,5 +769,14 @@
   .timelinesWidgetWrapper_mobile .timelinesNav_next {
     display: none;
   }
+}
 
+@media (width < 1024px) {
+  .timelineActiveHourIndicator_left {
+    left: -14px;
+  }
+
+  .timelineActiveHourIndicator_right {
+    right: -14px;
+  }
 }

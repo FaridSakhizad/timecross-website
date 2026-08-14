@@ -17,6 +17,19 @@ function getTimelineGridActiveHour(scrollTarget: TimelineGridScrollTarget) {
     .querySelector<HTMLElement>('.timelineGrid-userHours .timelineGrid-hour_current');
 }
 
+function getTimelineGridSnapTargets(scrollTarget: TimelineGridScrollTarget) {
+  const firstCellsRow = getTimelineGridRoot(scrollTarget).querySelector<HTMLElement>('.timelineGrid-cells');
+
+  return firstCellsRow
+    ? Array.from(firstCellsRow.querySelectorAll<HTMLElement>('.timelineGrid-cell'))
+    : [];
+}
+
+function getTimelineGridActiveSnapTarget(scrollTarget: TimelineGridScrollTarget) {
+  return getTimelineGridRoot(scrollTarget)
+    .querySelector<HTMLElement>('.timelineGrid-cells .timelineGrid-cell_current');
+}
+
 function getElementActiveHourDirection(
   element: HTMLDivElement,
   activeHour: HTMLElement,
@@ -65,6 +78,79 @@ function getTimelineGridActiveHourDirection(
   return scrollTarget.type === 'page'
     ? getPageActiveHourDirection(activeHour)
     : getElementActiveHourDirection(scrollTarget.element, activeHour);
+}
+
+function getSnapTargetDocumentCenter(target: HTMLElement) {
+  const targetRect = target.getBoundingClientRect();
+
+  return window.scrollX + targetRect.left + targetRect.width / 2;
+}
+
+function getSnapTargetElementCenter(target: HTMLElement) {
+  return target.offsetLeft + target.offsetWidth / 2;
+}
+
+function getSnapStep(targets: HTMLElement[]) {
+  if (targets.length < 2) {
+    return targets[0]?.offsetWidth || 1;
+  }
+
+  return Math.max(1, Math.abs(targets[1].offsetLeft - targets[0].offsetLeft));
+}
+
+function getEdgeTargetIndex(
+  targets: HTMLElement[],
+  activeTargetIndex: number,
+  viewportWidth: number,
+  direction: Exclude<TimelineGridActiveHourDirection, null>,
+) {
+  const activeTarget = targets[activeTargetIndex];
+  const step = getSnapStep(targets);
+  const edgeDistance = Math.max(
+    0,
+    Math.floor((viewportWidth / 2 - activeTarget.offsetWidth / 2) / step),
+  );
+  const targetIndex = direction === 'left'
+    ? activeTargetIndex + edgeDistance
+    : activeTargetIndex - edgeDistance;
+
+  return Math.max(0, Math.min(targets.length - 1, targetIndex));
+}
+
+function scrollTimelineGridActiveHourToEdge(
+  scrollTarget: TimelineGridScrollTarget,
+  direction: Exclude<TimelineGridActiveHourDirection, null>,
+) {
+  const targets = getTimelineGridSnapTargets(scrollTarget);
+  const activeTarget = getTimelineGridActiveSnapTarget(scrollTarget);
+  const activeTargetIndex = activeTarget ? targets.indexOf(activeTarget) : -1;
+
+  if (activeTargetIndex < 0) {
+    return;
+  }
+
+  const viewportWidth = scrollTarget.type === 'page'
+    ? window.innerWidth
+    : scrollTarget.element.clientWidth;
+  const target = targets[getEdgeTargetIndex(targets, activeTargetIndex, viewportWidth, direction)];
+  const targetScrollLeft = scrollTarget.type === 'page'
+    ? getSnapTargetDocumentCenter(target) - window.innerWidth / 2
+    : getSnapTargetElementCenter(target) - scrollTarget.element.clientWidth / 2;
+
+  if (scrollTarget.type === 'page') {
+    document.scrollingElement?.scrollTo({
+      left: targetScrollLeft,
+      top: window.scrollY,
+      behavior: 'smooth',
+    });
+    return;
+  }
+
+  scrollTarget.element.scrollTo({
+    left: targetScrollLeft,
+    top: scrollTarget.element.scrollTop,
+    behavior: 'smooth',
+  });
 }
 
 function useTimelineGridActiveHourIndicator(
@@ -128,7 +214,22 @@ function useTimelineGridActiveHourIndicator(
     };
   }, [disabled, getScrollTarget, updateDirection]);
 
-  return direction;
+  const scrollActiveHourIntoView = useCallback(() => {
+    if (!direction) {
+      return;
+    }
+
+    const scrollTarget = getScrollTarget();
+
+    if (scrollTarget) {
+      scrollTimelineGridActiveHourToEdge(scrollTarget, direction);
+    }
+  }, [direction, getScrollTarget]);
+
+  return {
+    direction,
+    scrollActiveHourIntoView,
+  };
 }
 
 export function useTimelineGridPageActiveHourIndicator(disabled = false) {

@@ -14,7 +14,10 @@ export default function TimelineGridDesktop(props: TimelineGridShellProps) {
     props.currentUserHourIndex,
     props.isDragging || props.isEditMode,
   );
-  const activeHourDirection = useTimelineGridElementActiveHourIndicator(
+  const {
+    direction: activeHourDirection,
+    scrollActiveHourIntoView,
+  } = useTimelineGridElementActiveHourIndicator(
     timelineGridViewportRef,
     props.isDragging || props.isEditMode,
   );
@@ -60,7 +63,10 @@ export default function TimelineGridDesktop(props: TimelineGridShellProps) {
           onDeleteCity={props.onDeleteCity}
         />
       </CustomScrollbar>
-      <TimelineGridActiveHourIndicator direction={activeHourDirection} />
+      <TimelineGridActiveHourIndicator
+        direction={activeHourDirection}
+        onClick={scrollActiveHourIntoView}
+      />
     </div>
   );
 }

@@ -1,15 +1,15 @@
 import { useI18n } from '../../i18n';
-import type { TimelineGridActiveHourDirection } from './useTimelineGridActiveHourIndicator';
+import type { TimelineActiveHourDirection } from './useTimelineActiveHourIndicator';
 
-type TimelineGridActiveHourIndicatorProps = {
-  direction: TimelineGridActiveHourDirection;
+type TimelineActiveHourIndicatorProps = {
+  direction: TimelineActiveHourDirection;
   onClick: () => void;
 };
 
-export default function TimelineGridActiveHourIndicator({
+export default function TimelineActiveHourIndicator({
   direction,
   onClick,
-}: TimelineGridActiveHourIndicatorProps) {
+}: TimelineActiveHourIndicatorProps) {
   const { t } = useI18n();
 
   if (!direction) {
@@ -19,17 +19,17 @@ export default function TimelineGridActiveHourIndicator({
   return (
     <button
       className={[
-        'timelineGridActiveHourIndicator',
+        'timelineActiveHourIndicator',
         direction === 'left'
-          ? 'timelineGridActiveHourIndicator_left'
-          : 'timelineGridActiveHourIndicator_right',
+          ? 'timelineActiveHourIndicator_left'
+          : 'timelineActiveHourIndicator_right',
       ].join(' ')}
       type="button"
       aria-label={t('common.showCurrentHour')}
       onClick={onClick}
     >
       <svg
-        className="timelineGridActiveHourIndicator-icon"
+        className="timelineActiveHourIndicator-icon"
         width="24"
         height="100"
         viewBox="0 0 24 100"

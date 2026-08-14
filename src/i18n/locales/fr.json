@@ -24,6 +24,7 @@
     "scrollMode": "Scroll",
     "previousHour": "Une heure en arrière",
     "nextHour": "Une heure en avant",
+    "showCurrentHour": "Afficher l'heure actuelle",
     "previousScreenshot": "Capture précédente",
     "nextScreenshot": "Capture suivante",
     "lastUpdated": "Dernière mise à jour : {date}",

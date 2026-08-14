@@ -214,6 +214,24 @@ export function useTimelineMobileCarousel({
     scrollToHourIndex(currentHourIndex);
   }, [currentHourIndex, scrollToHourIndex]);
 
+  const scrollCurrentHourToEdge = useCallback((direction: 'left' | 'right') => {
+    const viewport = viewportRef.current;
+
+    if (!viewport || currentHourIndex < 0) {
+      return;
+    }
+
+    const edgeDistance = Math.max(
+      0,
+      Math.floor((viewport.clientWidth / 2 - TIMELINE_HOUR_WIDTH / 2) / TIMELINE_HOUR_WIDTH),
+    );
+    const targetHourIndex = direction === 'left'
+      ? currentHourIndex + edgeDistance
+      : currentHourIndex - edgeDistance;
+
+    scrollToHourIndex(targetHourIndex);
+  }, [currentHourIndex, scrollToHourIndex]);
+
   const cancelScrollAnimation = useCallback(() => {
     cancelProgrammaticMotion();
     syncLayout();
@@ -345,6 +363,7 @@ export function useTimelineMobileCarousel({
     cancelScrollAnimation,
     isScrollAnimating,
     resetScroll,
+    scrollCurrentHourToEdge,
     scrollByHours,
     setViewportRef,
     widgetRef,

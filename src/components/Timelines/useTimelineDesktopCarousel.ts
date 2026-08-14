@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 import {
   TIMELINE_DESKTOP_SCROLLBAR_THUMB_WIDTH,
+  TIMELINE_HOUR_WIDTH,
   TIMELINE_SCROLL_ANIMATION_MS,
   TIMELINE_SNAP_DELAY_MS,
   TIMELINE_SNAP_RELEASE_MS,
@@ -195,6 +196,24 @@ export function useTimelineDesktopCarousel({
     scrollToHourIndex(currentHourIndex);
   }, [currentHourIndex, scrollToHourIndex]);
 
+  const scrollCurrentHourToEdge = useCallback((direction: 'left' | 'right') => {
+    const viewport = viewportRef.current;
+
+    if (!viewport || currentHourIndex < 0) {
+      return;
+    }
+
+    const edgeDistance = Math.max(
+      0,
+      Math.floor((viewport.clientWidth / 2 - TIMELINE_HOUR_WIDTH / 2) / TIMELINE_HOUR_WIDTH),
+    );
+    const targetHourIndex = direction === 'left'
+      ? currentHourIndex + edgeDistance
+      : currentHourIndex - edgeDistance;
+
+    scrollToHourIndex(targetHourIndex);
+  }, [currentHourIndex, scrollToHourIndex]);
+
   const getScrollbarMetrics = useCallback((axis: 'horizontal' | 'vertical', viewport: HTMLDivElement) => {
     if (axis === 'vertical' || currentHourIndex < 0) {
       return undefined;
@@ -381,6 +400,7 @@ export function useTimelineDesktopCarousel({
     handleScrollbarThumbDragStart,
     getScrollbarMetrics,
     resetScroll,
+    scrollCurrentHourToEdge,
     scrollByHours,
     setViewportRef,
     widgetRef,

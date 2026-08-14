@@ -1,8 +1,10 @@
 import { useRef, useState, type PointerEvent, type ReactNode } from 'react';
 import { useI18n } from '../../i18n';
 import { TIMELINE_EDGE_FADE_HOURS, TIMELINE_TOTAL_HOURS } from './constants';
+import TimelineActiveHourIndicator from './TimelineActiveHourIndicator';
 import TimelineHeader from './TimelineHeader';
 import TimelinesTopControls from './TimelinesTopControls';
+import { useTimelineActiveHourIndicator } from './useTimelineActiveHourIndicator';
 import { useTimelineMobileCarousel } from './useTimelineMobileCarousel';
 import type { TimelineCell } from './types';
 
@@ -62,6 +64,7 @@ export default function TimelinesMobile({
     cancelScrollAnimation,
     isScrollAnimating,
     resetScroll,
+    scrollCurrentHourToEdge,
     scrollByHours,
     setViewportRef,
     widgetRef
@@ -71,6 +74,10 @@ export default function TimelinesMobile({
     minHourIndex: TIMELINE_EDGE_FADE_HOURS,
     maxHourIndex: TIMELINE_EDGE_FADE_HOURS + TIMELINE_TOTAL_HOURS - 1,
   });
+  const activeHourDirection = useTimelineActiveHourIndicator(
+    widgetRef,
+    isDragging || isEditMode,
+  );
 
   const resolveSwipeAxis = (
     swipeState: TimelineSwipeState,
@@ -214,6 +221,14 @@ export default function TimelinesMobile({
             </div>
             <div className="timelinesMiddleMarker" />
           </div>
+          <TimelineActiveHourIndicator
+            direction={activeHourDirection}
+            onClick={() => {
+              if (activeHourDirection) {
+                scrollCurrentHourToEdge(activeHourDirection);
+              }
+            }}
+          />
         </div>
       </div>
 

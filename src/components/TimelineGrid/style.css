@@ -60,15 +60,18 @@
 }
 
 .timelineGridActiveHourIndicator {
-  width: 48px;
+  width: 24px;
   height: 100px;
+  padding: 0;
+  border: none;
   position: fixed;
   top: 50%;
   z-index: 40;
   display: grid;
   place-items: center;
-  pointer-events: none;
   color: #fff;
+  background: transparent;
+  cursor: pointer;
   translate: 0 -50%;
   transition: opacity 0.15s linear;
   opacity: 1;
@@ -83,11 +86,11 @@
 }
 
 .timelineGridActiveHourIndicator_left {
-  left: 8px;
+  left: 0;
 }
 
 .timelineGridActiveHourIndicator_right {
-  right: 8px;
+  right: 0;
 }
 
 .timelineGridActiveHourIndicator-icon {
@@ -95,11 +98,12 @@
   width: 24px;
   height: 100px;
   fill: none;
-  stroke:rgba(var(--accent-color-1), 1);
+  stroke:rgba(var(--accent-color-1), 0.75);
   stroke-width: 5;
   stroke-linecap: round;
   stroke-linejoin: round;
   filter: drop-shadow(0 2px 8px rgba(0 0 0 / 0.22));
+  pointer-events: none;
 }
 
 .timelineGrid .timelineGridMiddleMarker {
@@ -339,7 +343,7 @@
   display: flex;
   align-items: center;
   min-height: 22px;
-  padding-inline: 16px;
+  padding-inline: 26px;
   margin: 0 auto;
   max-width: 700px;
   position: relative;
@@ -403,7 +407,7 @@
 
 .timelineGrid-cityTime {
   margin-left: auto;
-  color: rgba(255 255 255 / 0.82);
+  color: rgba(255 255 255 / 1);
   font-size: 16px;
   line-height: 1.2;
 }

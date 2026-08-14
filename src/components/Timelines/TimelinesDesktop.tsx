@@ -2,8 +2,10 @@ import type { ReactNode } from 'react';
 import CustomScrollbar from '../CustomScrollbar';
 import { useI18n } from '../../i18n';
 import { TIMELINE_EDGE_FADE_HOURS, TIMELINE_TOTAL_HOURS } from './constants';
+import TimelineActiveHourIndicator from './TimelineActiveHourIndicator';
 import TimelineHeader from './TimelineHeader';
 import TimelinesTopControls from './TimelinesTopControls';
+import { useTimelineActiveHourIndicator } from './useTimelineActiveHourIndicator';
 import { useTimelineDesktopCarousel } from './useTimelineDesktopCarousel';
 import type { TimelineCell } from './types';
 
@@ -32,6 +34,7 @@ export default function TimelinesDesktop({
     handleScrollbarThumbDragEnd,
     handleScrollbarThumbDragStart,
     resetScroll,
+    scrollCurrentHourToEdge,
     scrollByHours,
     setViewportRef,
     widgetRef,
@@ -40,6 +43,10 @@ export default function TimelinesDesktop({
     minHourIndex: TIMELINE_EDGE_FADE_HOURS,
     maxHourIndex: TIMELINE_EDGE_FADE_HOURS + TIMELINE_TOTAL_HOURS - 1,
   });
+  const activeHourDirection = useTimelineActiveHourIndicator(
+    widgetRef,
+    isDragging || isEditMode,
+  );
 
   return (
     <>
@@ -85,6 +92,14 @@ export default function TimelinesDesktop({
             </CustomScrollbar>
             <div className="timelinesMiddleMarker" />
           </div>
+          <TimelineActiveHourIndicator
+            direction={activeHourDirection}
+            onClick={() => {
+              if (activeHourDirection) {
+                scrollCurrentHourToEdge(activeHourDirection);
+              }
+            }}
+          />
 
           <button
             className="timelinesNav timelinesNav_prev"
