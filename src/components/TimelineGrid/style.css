@@ -59,6 +59,49 @@
   }
 }
 
+.timelineGridActiveHourIndicator {
+  width: 48px;
+  height: 100px;
+  position: fixed;
+  top: 50%;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  color: #fff;
+  translate: 0 -50%;
+  transition: opacity 0.15s linear;
+  opacity: 1;
+
+  @starting-style {
+    opacity: 0;
+  }
+}
+
+.timelineGrid .timelineGridActiveHourIndicator {
+  position: absolute;
+}
+
+.timelineGridActiveHourIndicator_left {
+  left: 8px;
+}
+
+.timelineGridActiveHourIndicator_right {
+  right: 8px;
+}
+
+.timelineGridActiveHourIndicator-icon {
+  display: block;
+  width: 24px;
+  height: 100px;
+  fill: none;
+  stroke:rgba(var(--accent-color-1), 1);
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 2px 8px rgba(0 0 0 / 0.22));
+}
+
 .timelineGrid .timelineGridMiddleMarker {
   position: absolute;
 }

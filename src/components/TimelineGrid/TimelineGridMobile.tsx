@@ -1,5 +1,7 @@
+import TimelineGridActiveHourIndicator from './TimelineGridActiveHourIndicator';
 import TimelineGridContent from './TimelineGridContent';
 import type { TimelineGridShellProps } from './types';
+import { useTimelineGridPageActiveHourIndicator } from './useTimelineGridActiveHourIndicator';
 import { useTimelineGridPageSnap } from './useTimelineGridSnap';
 
 export default function TimelineGridMobile(props: TimelineGridShellProps) {
@@ -7,6 +9,14 @@ export default function TimelineGridMobile(props: TimelineGridShellProps) {
     props.currentUserHourIndex,
     props.isDragging || props.isEditMode,
   );
+  const activeHourDirection = useTimelineGridPageActiveHourIndicator(
+    props.isDragging || props.isEditMode,
+  );
 
-  return <TimelineGridContent {...props} mode="mobile" onResetClick={resetGridScroll} />;
+  return (
+    <>
+      <TimelineGridContent {...props} mode="mobile" onResetClick={resetGridScroll} />
+      <TimelineGridActiveHourIndicator direction={activeHourDirection} />
+    </>
+  );
 }

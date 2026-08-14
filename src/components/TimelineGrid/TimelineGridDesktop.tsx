@@ -1,7 +1,9 @@
 import { useRef } from 'react';
 import CustomScrollbar from '../CustomScrollbar';
+import TimelineGridActiveHourIndicator from './TimelineGridActiveHourIndicator';
 import { TimelineGridTimeline, TimelineGridToolbar } from './TimelineGridContent';
 import type { TimelineGridShellProps } from './types';
+import { useTimelineGridElementActiveHourIndicator } from './useTimelineGridActiveHourIndicator';
 import { useTimelineGridElementSnap } from './useTimelineGridSnap';
 
 export default function TimelineGridDesktop(props: TimelineGridShellProps) {
@@ -10,6 +12,10 @@ export default function TimelineGridDesktop(props: TimelineGridShellProps) {
   const resetGridScroll = useTimelineGridElementSnap(
     timelineGridViewportRef,
     props.currentUserHourIndex,
+    props.isDragging || props.isEditMode,
+  );
+  const activeHourDirection = useTimelineGridElementActiveHourIndicator(
+    timelineGridViewportRef,
     props.isDragging || props.isEditMode,
   );
 
@@ -54,6 +60,7 @@ export default function TimelineGridDesktop(props: TimelineGridShellProps) {
           onDeleteCity={props.onDeleteCity}
         />
       </CustomScrollbar>
+      <TimelineGridActiveHourIndicator direction={activeHourDirection} />
     </div>
   );
 }
