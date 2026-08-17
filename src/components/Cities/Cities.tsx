@@ -26,6 +26,7 @@ import {
 } from 'react';
 import type { FavoriteCity } from './fixtures';
 import { getSettings, type ColorMode, type TimeFormat } from '../../settings';
+import { useCurrentMinuteDate } from '../../useCurrentMinuteDate';
 import { useI18n } from '../../i18n';
 import { formatPartsInTimezone } from '../../utils/abstractTimezone';
 import AddCityModal from './AddCityModal';
@@ -463,7 +464,7 @@ export default function Cities({
   const customClassNameList = customClassNames.split(/\s+/).filter(Boolean);
 
   const [cities, setCities] = useState(() => getOrderedCities(getSettings().cityOrder));
-  const [baseDate] = useState(() => new Date());
+  const baseDate = useCurrentMinuteDate();
   const [isAddCityModalOpen, setIsAddCityModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [isMenuModalOpen, setIsMenuModalOpen] = useState(false);

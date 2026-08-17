@@ -17,6 +17,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { getSettings, type ColorMode, type TimeFormat } from '../../settings';
+import { useCurrentMinuteDate } from '../../useCurrentMinuteDate';
 import AddCityModal from '../Cities/AddCityModal';
 import {
   createFavoriteCityFromSearchResult,
@@ -122,7 +123,7 @@ export default function TimelineGrid({
   onColorModeButtonClick,
   onTimeFormatButtonClick,
 }: TimelineGridProps) {
-  const baseDate = useMemo(() => new Date(), []);
+  const baseDate = useCurrentMinuteDate();
   const browserTimezone = useMemo(() => getBrowserTimezone(), []);
   const usesMobileLayout = useUsesMobileTimelineGridLayout();
   const [cities, setCities] = useState(() => getOrderedSelectedCities(getSettings().cityOrder));

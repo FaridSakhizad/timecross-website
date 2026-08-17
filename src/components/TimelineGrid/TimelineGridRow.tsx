@@ -16,6 +16,8 @@ import {
 } from '../Timelines/utils';
 import type { TimelineGridMode } from './types';
 
+const DAY_PERIOD_SUFFIX_PATTERN = /\s(?:AM|PM)$/;
+
 type TimelineGridRowProps = {
   baseDate: Date;
   browserTimezone: string;
@@ -159,19 +161,60 @@ export default function TimelineGridRow({
 
       {shouldRenderCells && (
         <div className={`timelineGrid-cells ${cellsModeClassName}`}>
-          {cells.map((cell, index) => (
-            <span
-              className={[
-                'timelineGrid-cell',
-                cell.isAdjacentDay ? 'timelineGrid-cell_adjacentDay' : '',
-                cell.isCurrentHour ? 'timelineGrid-cell_current' : '',
-                cell.isDateLabel ? 'timelineGrid-cell_date' : '',
-              ].filter(Boolean).join(' ')}
-              key={`${city.id}-${cell.date.toISOString()}-${index}`}
-            >
-              <TimelineCellLabel label={cell.label} periodClassName="timelineGrid-periodMarker" />
-            </span>
-          ))}
+          {cells.map((cell, index) => {
+            const shouldShowFullCurrentTime = cell.isCurrentHour && Boolean(cell.dateCellDetails);
+            const cellLabel = cell.isCurrentHour
+              ? cell.label.replace(DAY_PERIOD_SUFFIX_PATTERN, '')
+              : cell.label;
+            const fullCurrentTimeLabel = cell.periodLabel
+              ? cell.currentTimeLabel.replace(cell.periodLabel, '')
+              : cell.currentTimeLabel;
+
+            return (
+              <span
+                className={[
+                  'timelineGrid-cell',
+                  cell.isAdjacentDay ? 'timelineGrid-cell_adjacentDay' : '',
+                  cell.isCurrentHour ? 'timelineGrid-cell_current' : '',
+                  cell.isDateLabel ? 'timelineGrid-cell_date' : '',
+                  shouldShowFullCurrentTime ? 'timelineGrid-cell_fullTime' : '',
+                ].filter(Boolean).join(' ')}
+                key={`${city.id}-${cell.date.toISOString()}-${index}`}
+              >
+                {cell.dateCellDetails ? (
+                  <span className="timelineGrid-cellDateDetails">
+                    <span className="timelineGrid-cellDateWeekday">
+                      {cell.dateCellDetails.weekdayLabel}
+                    </span>
+                    <span className="timelineGrid-cellDateDay">
+                      {cell.dateCellDetails.dateLabel}
+                    </span>
+                  </span>
+                ) : (
+                  <TimelineCellLabel
+                    label={cellLabel}
+                    periodClassName="timelineGrid-periodMarker"
+                  />
+                )}
+                {shouldShowFullCurrentTime && (
+                  <span className="timelineGrid-cellCurrentTime">
+                    <span className="timelineGrid-cellCurrentMinutes">{fullCurrentTimeLabel}</span>
+                    {cell.periodLabel && (
+                      <span className="timelineGrid-cellCurrentPeriod">{cell.periodLabel}</span>
+                    )}
+                  </span>
+                )}
+                {cell.isCurrentHour && !shouldShowFullCurrentTime && (
+                  <span className="timelineGrid-cellCurrentTime">
+                    <span className="timelineGrid-cellCurrentMinutes">{cell.minuteLabel}</span>
+                    {cell.periodLabel && (
+                      <span className="timelineGrid-cellCurrentPeriod">{cell.periodLabel}</span>
+                    )}
+                  </span>
+                )}
+              </span>
+            );
+          })}
         </div>
       )}
 

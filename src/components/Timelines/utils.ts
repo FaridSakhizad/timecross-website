@@ -55,6 +55,28 @@ function formatHour(date: Date, timezone: string, timeFormat: TimeFormat) {
   });
 }
 
+function formatDayPeriod(date: Date, timezone: string) {
+  return formatPartsInTimezone(date, timezone, 'en-US', {
+    hour: 'numeric',
+    hour12: true,
+  }).find((part) => part.type === 'dayPeriod')?.value ?? null;
+}
+
+function formatCurrentTimelineCellTime(
+  dateParts: ReturnType<typeof getZonedDateParts>,
+  minuteLabel: string,
+  periodLabel: string | null,
+  timeFormat: TimeFormat,
+) {
+  if (timeFormat === '24h') {
+    return `${String(dateParts.hour).padStart(2, '0')}:${minuteLabel}`;
+  }
+
+  const hourLabel = dateParts.hour % 12 || 12;
+
+  return `${hourLabel}:${minuteLabel}${periodLabel ?? ''}`;
+}
+
 export function formatTime(date: Date, timezone: string, timeFormat: TimeFormat) {
   return formatInTimezone(date, timezone, timeFormat === '24h' ? 'en-GB' : 'en-US', {
     hour: timeFormat === '24h' ? '2-digit' : 'numeric',
@@ -69,6 +91,23 @@ function formatDateCell(date: Date, timezone: string) {
     month: 'short',
     day: 'numeric',
   });
+}
+
+function formatCurrentDateCellParts(date: Date, timezone: string) {
+  const parts = Object.fromEntries(
+    formatPartsInTimezone(date, timezone, 'en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+    })
+      .filter((part) => part.type !== 'literal')
+      .map((part) => [part.type, part.value]),
+  ) as { weekday: string; month: string; day: string };
+
+  return {
+    weekdayLabel: parts.weekday,
+    dateLabel: `${parts.day} ${parts.month.toLowerCase()}`,
+  };
 }
 
 export function formatOffset(offsetMinutes: number, sameLabel: string) {
@@ -169,6 +208,15 @@ export function getTimelineCells(
   timeFormat: TimeFormat,
 ) {
   const todaySerial = getDateSerialFromParts(getZonedDateParts(timezone, baseDate));
+  const baseDateParts = getZonedDateParts(timezone, baseDate);
+  const currentMinuteLabel = String(baseDateParts.minute).padStart(2, '0');
+  const currentPeriodLabel = timeFormat === '12h' ? formatDayPeriod(baseDate, timezone) : null;
+  const currentTimeLabel = formatCurrentTimelineCellTime(
+    baseDateParts,
+    currentMinuteLabel,
+    currentPeriodLabel,
+    timeFormat,
+  );
 
   return timelineDates.map((date): TimelineCell => {
     const dateTime = date.getTime();
@@ -179,6 +227,10 @@ export function getTimelineCells(
     return {
       date,
       label: isDateLabel ? formatDateCell(date, timezone) : formatHour(date, timezone, timeFormat),
+      dateCellDetails: isDateLabel ? formatCurrentDateCellParts(date, timezone) : null,
+      currentTimeLabel,
+      minuteLabel: currentMinuteLabel,
+      periodLabel: currentPeriodLabel,
       isAdjacentDay: dateSerial !== todaySerial,
       isCurrentHour: dateTime <= baseDate.getTime() && baseDate.getTime() < dateTime + 3600000,
       isDateLabel,

@@ -225,7 +225,6 @@
   width: max-content;
   min-width: 100%;
   min-height: 46px;
-  padding-block: 10px;
   border-bottom: 1px solid rgba(255 255 255 / 0.15);
   color: #fff;
   user-select: none;
@@ -256,6 +255,49 @@
 .timelineGrid-hour_current {
   background: rgba(var(--accent-color-1), 0.38);
   border-color: transparent;
+}
+
+.timelineGrid-hour_withTime {
+  height: 24px;
+  line-height: 1;
+}
+
+.timelineGrid-hour_withDateTime {
+  height: 34px;
+  flex-direction: column;
+  gap: 1px;
+  line-height: 1;
+
+  margin-bottom: -10px;
+  border-bottom-right-radius: 3px;
+  border-bottom-left-radius: 3px;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
+.timelineGrid-hourDateValue {
+  display: block;
+  max-width: 58px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.timelineGrid-hourCurrentTime {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 2px;
+  font-size: 13px;
+  line-height: 1;
+  font-weight: 400;
+}
+
+.timelineGrid-hourCurrentValue,
+.timelineGrid-hourCurrentPeriod {
+  display: block;
 }
 
 .timelineGrid-city {
@@ -318,7 +360,7 @@
 }
 
 .timelineGrid .timelineGrid-row_desktop .timelineGrid-city_desktop {
-  width: min(calc(100vw - 40px), 1440px);
+  width: min(calc(100vw - 40px), 1870px);
 }
 
 .timelineGrid .timelineGrid-row_reorder .timelineGrid-city_desktop {
@@ -501,7 +543,7 @@
   min-height: 38px;
   border-radius: 19px;
   padding: 0 15px 0 10px;
-  margin: 25px auto 30px auto;
+  margin: 25px auto 35px auto;
   border: 2px solid rgba(255 255 255 / 1);
   display: flex;
   align-items: center;
@@ -566,6 +608,10 @@
   line-height: 18px;
 }
 
+.timelineGrid-cell_fullTime {
+  font-size: 13px;
+}
+
 .timelineGrid-hour {
   font-size: 12px;
 
@@ -582,9 +628,39 @@
   }
 }
 
+.timelineGrid-cellDateDetails {
+  display: block;
+  max-width: 58px;
+  font-size: 15px;
+  line-height: 1.3;
+}
+
+.timelineGrid-cellDateWeekday,
+.timelineGrid-cellDateDay {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.timelineGrid-cellCurrentTime {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 3px;
+  font-size: 14px;
+  line-height: 1.3;
+  font-weight: 400;
+}
+
+.timelineGrid-cellCurrentMinutes,
+.timelineGrid-cellCurrentPeriod {
+  display: block;
+}
+
 .timelineGrid-cell_adjacentDay {
   background: rgba(255 255 255 / 0.03);
-  color: rgba(255 255 255 / 0.7);
 }
 
 .timelineGrid-cell_current {

@@ -16,6 +16,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { getSettings, type TimeFormat } from '../../settings';
+import { useCurrentMinuteDate } from '../../useCurrentMinuteDate';
 import AddCityModal from '../Cities/AddCityModal';
 import {
   createFavoriteCityFromSearchResult,
@@ -40,7 +41,7 @@ const restrictTimelinesDragToVerticalAxis: Modifier = ({ transform }) => ({
 });
 
 export default function Timelines({ timeFormat }: TimelinesProps) {
-  const baseDate = useMemo(() => new Date(), []);
+  const baseDate = useCurrentMinuteDate();
   const browserTimezone = useMemo(() => getBrowserTimezone(), []);
   const [cities, setCities] = useState(() => getOrderedSelectedCities(getSettings().cityOrder));
   const [isAddCityModalOpen, setIsAddCityModalOpen] = useState(false);
