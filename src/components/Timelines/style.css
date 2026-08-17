@@ -252,6 +252,8 @@
 .timelinesHeaderViewport {
   overflow: hidden;
   border-bottom: 1px solid rgba(255 255 255 / 0.15);
+  position: relative;
+  z-index: 1;
 }
 
 .timelinesHeaderViewport .timelines-row_header {
@@ -374,7 +376,8 @@
 
 .timelines-row_header {
   z-index: 4;
-  padding: 10px 0;
+  padding: 10px 0 0 0;
+  min-height: 44px;
 }
 
 .timelines-row_reorder {
@@ -687,10 +690,52 @@
   justify-self: center;
   height: 24px;
   width: 64px;
-  border-radius: 65536px;
+  border-radius: 12px;
   border: 1px solid rgba(255 255 255 / 0.3);
-  font-size: 16px;
+  font-size: 15px;
   line-height: 18px;
+}
+
+.timelines-hour_withTime {
+  height: 24px;
+  line-height: 1;
+}
+
+.timelines-hour_withDateTime {
+  height: 34px;
+  flex-direction: column;
+  gap: 2px;
+  line-height: 1;
+
+  border-bottom-right-radius: 3px;
+  border-bottom-left-radius: 3px;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
+.timelines-hourDateValue {
+  display: block;
+  max-width: 58px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.timelines-hourCurrentTime {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 2px;
+  font-size: 13px;
+  line-height: 1;
+  font-weight: 400;
+}
+
+.timelines-hourCurrentValue,
+.timelines-hourCurrentPeriod {
+  display: block;
 }
 
 .timelines-cell {
@@ -719,6 +764,41 @@
 .timelines-cell_date {
   font-size: 16px;
   line-height: 18px;
+}
+
+.timelines-cell_fullTime {
+  font-size: 13px;
+}
+
+.timelines-cellDateDetails {
+  display: block;
+  max-width: 58px;
+  font-size: 15px;
+  line-height: 1.3;
+}
+
+.timelines-cellDateWeekday,
+.timelines-cellDateDay {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.timelines-cellCurrentTime {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 3px;
+  font-size: 14px;
+  line-height: 1.3;
+  font-weight: 400;
+}
+
+.timelines-cellCurrentValue,
+.timelines-cellCurrentPeriod {
+  display: block;
 }
 
 .timelines-cell_adjacentDay {

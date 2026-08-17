@@ -17,6 +17,8 @@ import {
   getTimeZoneOffsetMinutes,
 } from './utils';
 
+const DAY_PERIOD_SUFFIX_PATTERN = /\s(?:AM|PM)$/;
+
 type TimelineRowProps = {
   city: FavoriteCity;
   baseDate: Date;
@@ -156,19 +158,51 @@ export default function TimelineRow({
       <div className="timelines-trackClip">
         {shouldRenderCells && (
           <div className="timelines-cells" style={getTimelineCellsStyle(timelineShiftMinutes)}>
-            {cells.map((cell, index) => (
-              <span
-                className={[
-                  'timelines-cell',
-                  cell.isAdjacentDay ? 'timelines-cell_adjacentDay' : '',
-                  cell.isCurrentHour ? 'timelines-cell_current' : '',
-                  cell.isDateLabel ? 'timelines-cell_date' : '',
-                ].filter(Boolean).join(' ')}
-              key={`${city.id}-${cell.date.toISOString()}-${index}`}
-            >
-              <TimelineCellLabel label={cell.label} periodClassName="timelines-periodMarker" />
-            </span>
-          ))}
+            {cells.map((cell, index) => {
+              const shouldShowFullCurrentTime = cell.isCurrentHour && Boolean(cell.dateCellDetails);
+              const cellLabel = cell.isCurrentHour
+                ? cell.label.replace(DAY_PERIOD_SUFFIX_PATTERN, '')
+                : cell.label;
+              const fullCurrentTimeLabel = cell.periodLabel
+                ? cell.currentTimeLabel.replace(cell.periodLabel, '')
+                : cell.currentTimeLabel;
+
+              return (
+                <span
+                  className={[
+                    'timelines-cell',
+                    cell.isAdjacentDay ? 'timelines-cell_adjacentDay' : '',
+                    cell.isCurrentHour ? 'timelines-cell_current' : '',
+                    cell.isDateLabel ? 'timelines-cell_date' : '',
+                    shouldShowFullCurrentTime ? 'timelines-cell_fullTime' : '',
+                  ].filter(Boolean).join(' ')}
+                  key={`${city.id}-${cell.date.toISOString()}-${index}`}
+                >
+                  {cell.dateCellDetails ? (
+                    <span className="timelines-cellDateDetails">
+                      <span className="timelines-cellDateWeekday">
+                        {cell.dateCellDetails.weekdayLabel}
+                      </span>
+                      <span className="timelines-cellDateDay">
+                        {cell.dateCellDetails.dateLabel}
+                      </span>
+                    </span>
+                  ) : (
+                    <TimelineCellLabel label={cellLabel} periodClassName="timelines-periodMarker" />
+                  )}
+                  {cell.isCurrentHour && (
+                    <span className="timelines-cellCurrentTime">
+                      <span className="timelines-cellCurrentValue">
+                        {cell.dateCellDetails ? fullCurrentTimeLabel : cell.minuteLabel}
+                      </span>
+                      {cell.periodLabel && (
+                        <span className="timelines-cellCurrentPeriod">{cell.periodLabel}</span>
+                      )}
+                    </span>
+                  )}
+                </span>
+              );
+            })}
           </div>
         )}
 
