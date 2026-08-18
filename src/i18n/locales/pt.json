@@ -179,5 +179,53 @@
       "contactTitle": "Contato",
       "contactPrefix": "Perguntas sobre estes termos podem ser enviadas para "
     }
+  },
+  "seo": {
+    "pages": {
+      "home": {
+        "title": "TimeCross — Relógio mundial e planejador de fusos horários",
+        "description": "Compare horários entre cidades, organize seus fusos favoritos e planeje chamadas, reuniões, viagens e lembretes com o TimeCross.",
+        "ogTitle": "TimeCross — Entenda o horário pelo mundo",
+        "ogDescription": "Um relógio mundial claro e timelines para pessoas, equipes e famílias que vivem entre fusos horários."
+      },
+      "cities": {
+        "title": "Cidades — TimeCross",
+        "description": "Crie uma lista de cidades e fusos horários, reordene, personalize nomes e veja o horário local rapidamente.",
+        "ogTitle": "Cidades no TimeCross",
+        "ogDescription": "Monte sua própria lista de cidades e mantenha os fusos horários importantes sempre à mão."
+      },
+      "grid": {
+        "title": "Timelines — TimeCross",
+        "description": "Explore uma grade em tela cheia que alinha os horários locais das suas cidades e deixa as diferenças de fuso mais fáceis de entender.",
+        "ogTitle": "Grade de timelines do TimeCross",
+        "ogDescription": "Veja hoje, ontem e amanhã para suas cidades em uma única grade de tempo."
+      },
+      "privacy": {
+        "title": "Política de privacidade — TimeCross",
+        "description": "Veja como o TimeCross lida com mensagens do formulário de contato, dados locais do app, notificações e links externos.",
+        "ogTitle": "Política de privacidade do TimeCross",
+        "ogDescription": "Como o TimeCross mantém a coleta de dados mínima e explica as informações usadas pelo app e pelo site."
+      },
+      "terms": {
+        "title": "Termos de uso — TimeCross",
+        "description": "Leia os termos aplicáveis ao usar o app e o site do TimeCross.",
+        "ogTitle": "Termos de uso do TimeCross",
+        "ogDescription": "As regras e responsabilidades básicas para usar o TimeCross como ferramenta de planejamento de tempo."
+      }
+    },
+    "images": {
+      "heroIphoneCities": "Prévia do TimeCross no iPhone mostrando uma lista personalizada de cidades com horários locais.",
+      "heroAndroidCities": "Prévia do TimeCross no Android mostrando cidades e diferenças de fuso horário.",
+      "heroIphoneTimelines": "Prévia do TimeCross no iPhone mostrando timelines de várias cidades.",
+      "heroAndroidAddCity": "Prévia do TimeCross no Android mostrando busca de cidade e seleção de fuso horário.",
+      "heroIphoneAddTimezone": "Prévia do TimeCross no iPhone mostrando a tela de adicionar fuso horário.",
+      "heroAndroidNotifications": "Prévia do TimeCross no Android mostrando lembretes de notificação.",
+      "screenshotCities": "Captura do TimeCross com cidades favoritas, horários locais e marcadores de dia.",
+      "screenshotCitiesAndroid": "Captura do TimeCross no Android com lista de cidades e diferenças de horário.",
+      "screenshotTimelines": "Captura do TimeCross com timelines alinhadas para cidades em diferentes fusos horários.",
+      "screenshotAddCity": "Captura do TimeCross mostrando busca e controles para adicionar cidade.",
+      "screenshotAddTimezone": "Captura do TimeCross mostrando seleção de fuso horário GMT e UTC.",
+      "screenshotNotifications": "Captura do TimeCross mostrando configuração de notificação para um horário local escolhido."
+    }
   }
 }

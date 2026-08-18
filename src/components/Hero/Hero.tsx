@@ -21,8 +21,16 @@ type HeroProps = {
   timeFormat: TimeFormat;
 };
 
-const IPHONE_PREVIEW_IMAGES = [heroImg1, heroImg3, heroImg5];
-const ANDROID_PREVIEW_IMAGES = [heroImg2, heroImg4, heroImg6];
+const IPHONE_PREVIEW_IMAGES = [
+  { image: heroImg1, altKey: 'seo.images.heroIphoneCities' },
+  { image: heroImg3, altKey: 'seo.images.heroIphoneTimelines' },
+  { image: heroImg5, altKey: 'seo.images.heroIphoneAddTimezone' },
+];
+const ANDROID_PREVIEW_IMAGES = [
+  { image: heroImg2, altKey: 'seo.images.heroAndroidCities' },
+  { image: heroImg4, altKey: 'seo.images.heroAndroidAddCity' },
+  { image: heroImg6, altKey: 'seo.images.heroAndroidNotifications' },
+];
 
 export default function Hero({ timeFormat }: HeroProps) {
   const { t } = useI18n();
@@ -37,8 +45,8 @@ export default function Hero({ timeFormat }: HeroProps) {
         <div className="heroPreviewBox">
           <div className="iphonePreviewContainer">
             <div className="iphonePreviewBox">
-              {IPHONE_PREVIEW_IMAGES.map((image) => (
-                <img src={image} className="iphonePreview-image" alt="" key={image} />
+              {IPHONE_PREVIEW_IMAGES.map(({ image, altKey }) => (
+                <img src={image} className="iphonePreview-image" alt={t(altKey)} key={image} />
               ))}
             </div>
             <i className="iphonePreviewShadow" />
@@ -46,8 +54,8 @@ export default function Hero({ timeFormat }: HeroProps) {
 
           <div className="androidPreviewContainer">
             <div className="androidPreviewBox">
-              {ANDROID_PREVIEW_IMAGES.map((image) => (
-                <img src={image} className="androidPreview-image" alt="" key={image} />
+              {ANDROID_PREVIEW_IMAGES.map(({ image, altKey }) => (
+                <img src={image} className="androidPreview-image" alt={t(altKey)} key={image} />
               ))}
             </div>
           </div>

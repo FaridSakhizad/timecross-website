@@ -179,5 +179,53 @@
       "contactTitle": "Contact",
       "contactPrefix": "Les questions concernant ces conditions peuvent être envoyées à "
     }
+  },
+  "seo": {
+    "pages": {
+      "home": {
+        "title": "TimeCross — Horloge mondiale et planificateur de fuseaux horaires",
+        "description": "Comparez l’heure entre les villes, organisez vos fuseaux horaires favoris et planifiez appels, réunions, voyages et rappels avec TimeCross.",
+        "ogTitle": "TimeCross — Comprendre l’heure partout dans le monde",
+        "ogDescription": "Une horloge mondiale claire et des timelines pour les personnes, équipes et familles réparties sur plusieurs fuseaux horaires."
+      },
+      "cities": {
+        "title": "Villes — TimeCross",
+        "description": "Créez une liste de villes et de fuseaux horaires, réorganisez-la, renommez les entrées et consultez l’heure locale en un coup d’œil.",
+        "ogTitle": "Villes TimeCross",
+        "ogDescription": "Créez votre propre liste de villes et gardez les fuseaux horaires importants à portée de main."
+      },
+      "grid": {
+        "title": "Timelines — TimeCross",
+        "description": "Explorez une grille plein écran qui aligne les heures locales de vos villes et rend les décalages horaires plus faciles à comprendre.",
+        "ogTitle": "Grille de timelines TimeCross",
+        "ogDescription": "Voyez aujourd’hui, hier et demain pour vos villes dans une seule grille temporelle."
+      },
+      "privacy": {
+        "title": "Politique de confidentialité — TimeCross",
+        "description": "Découvrez comment TimeCross traite les messages du formulaire de contact, les données locales de l’app, les notifications et les liens externes.",
+        "ogTitle": "Politique de confidentialité TimeCross",
+        "ogDescription": "Comment TimeCross limite la collecte de données et explique les informations utilisées par l’app et le site."
+      },
+      "terms": {
+        "title": "Conditions d’utilisation — TimeCross",
+        "description": "Lisez les conditions applicables à l’utilisation de l’app et du site TimeCross.",
+        "ogTitle": "Conditions d’utilisation TimeCross",
+        "ogDescription": "Les règles et responsabilités de base pour utiliser TimeCross comme outil de planification du temps."
+      }
+    },
+    "images": {
+      "heroIphoneCities": "Aperçu TimeCross sur iPhone montrant une liste personnalisée de villes avec les heures locales.",
+      "heroAndroidCities": "Aperçu TimeCross sur Android montrant des villes et des décalages horaires.",
+      "heroIphoneTimelines": "Aperçu TimeCross sur iPhone montrant les timelines de plusieurs villes.",
+      "heroAndroidAddCity": "Aperçu TimeCross sur Android montrant la recherche de ville et le choix du fuseau horaire.",
+      "heroIphoneAddTimezone": "Aperçu TimeCross sur iPhone montrant l’écran d’ajout de fuseau horaire.",
+      "heroAndroidNotifications": "Aperçu TimeCross sur Android montrant des rappels de notification.",
+      "screenshotCities": "Capture TimeCross avec les villes favorites, les heures locales et les marqueurs de jour.",
+      "screenshotCitiesAndroid": "Capture Android de TimeCross avec une liste de villes et les décalages horaires.",
+      "screenshotTimelines": "Capture TimeCross avec des lignes temporelles alignées pour des villes de différents fuseaux horaires.",
+      "screenshotAddCity": "Capture TimeCross montrant la recherche et l’ajout d’une ville.",
+      "screenshotAddTimezone": "Capture TimeCross montrant le choix d’un fuseau horaire GMT ou UTC.",
+      "screenshotNotifications": "Capture TimeCross montrant la configuration d’une notification pour une heure locale choisie."
+    }
   }
 }

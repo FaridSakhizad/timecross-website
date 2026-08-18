@@ -5,6 +5,7 @@ import Footer from '../components/Footer';
 import Header from '../components/Header';
 import Hero from '../components/Hero';
 import ScreenshotSlider from '../components/ScreenshotSlider';
+import Seo from '../components/Seo';
 import Timelines from '../components/Timelines';
 
 import {
@@ -33,6 +34,8 @@ export default function HomePage({
 
   return (
     <>
+      <Seo page="home" />
+
       <Header
         colorMode={colorMode}
         timeFormat={timeFormat}

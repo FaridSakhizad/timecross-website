@@ -179,5 +179,53 @@
       "contactTitle": "Contact",
       "contactPrefix": "Questions about these terms can be sent to "
     }
+  },
+  "seo": {
+    "pages": {
+      "home": {
+        "title": "TimeCross — World Clock and Time Zone Planner",
+        "description": "Compare time across cities, organize favorite time zones, and plan calls, meetings, travel, and reminders with TimeCross.",
+        "ogTitle": "TimeCross — Understand Time Across the World",
+        "ogDescription": "A clear world clock and timeline planner for people, teams, and families living across time zones."
+      },
+      "cities": {
+        "title": "Cities — TimeCross",
+        "description": "Create a focused list of cities and time zones, reorder them, rename them, and check local time at a glance.",
+        "ogTitle": "TimeCross Cities",
+        "ogDescription": "Build your own city list and keep the time zones that matter most within reach."
+      },
+      "grid": {
+        "title": "Timeline Grid — TimeCross",
+        "description": "Explore a full-screen timeline grid that lines up local hours across cities and makes time differences easier to understand.",
+        "ogTitle": "TimeCross Timeline Grid",
+        "ogDescription": "See today, yesterday, and tomorrow across your cities in one timeline grid."
+      },
+      "privacy": {
+        "title": "Privacy Policy — TimeCross",
+        "description": "Read how TimeCross handles contact form messages, local app data, notifications, and third-party links.",
+        "ogTitle": "TimeCross Privacy Policy",
+        "ogDescription": "How TimeCross keeps data collection minimal and explains the information used by the app and website."
+      },
+      "terms": {
+        "title": "Terms of Use — TimeCross",
+        "description": "Read the terms that apply when using the TimeCross app and website.",
+        "ogTitle": "TimeCross Terms of Use",
+        "ogDescription": "The basic rules and responsibilities for using TimeCross as a time planning tool."
+      }
+    },
+    "images": {
+      "heroIphoneCities": "TimeCross iPhone preview showing a personalized city list with local times.",
+      "heroAndroidCities": "TimeCross Android preview showing cities and time zone differences.",
+      "heroIphoneTimelines": "TimeCross iPhone preview showing timelines for multiple cities.",
+      "heroAndroidAddCity": "TimeCross Android preview showing city search and timezone selection.",
+      "heroIphoneAddTimezone": "TimeCross iPhone preview showing the add timezone screen.",
+      "heroAndroidNotifications": "TimeCross Android preview showing notification reminders.",
+      "screenshotCities": "TimeCross screenshot with favorite cities, local times, and day markers.",
+      "screenshotCitiesAndroid": "TimeCross Android screenshot with a mobile city list and time offsets.",
+      "screenshotTimelines": "TimeCross screenshot with aligned timeline rows for cities across time zones.",
+      "screenshotAddCity": "TimeCross screenshot showing city search and add city controls.",
+      "screenshotAddTimezone": "TimeCross screenshot showing GMT and UTC timezone selection.",
+      "screenshotNotifications": "TimeCross screenshot showing notification setup for a selected city time."
+    }
   }
 }

@@ -1,3 +1,4 @@
+import Seo from '../components/Seo';
 import TimelineGrid from '../components/TimelineGrid';
 import type { ColorMode, TimeFormat } from '../settings';
 
@@ -15,11 +16,15 @@ export default function GridPage({
   onTimeFormatButtonClick,
 }: GridPageProps) {
   return (
-    <TimelineGrid
-      colorMode={colorMode}
-      timeFormat={timeFormat}
-      onColorModeButtonClick={onColorModeButtonClick}
-      onTimeFormatButtonClick={onTimeFormatButtonClick}
-    />
+    <>
+      <Seo page="grid" />
+
+      <TimelineGrid
+        colorMode={colorMode}
+        timeFormat={timeFormat}
+        onColorModeButtonClick={onColorModeButtonClick}
+        onTimeFormatButtonClick={onTimeFormatButtonClick}
+      />
+    </>
   );
 }

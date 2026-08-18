@@ -8,6 +8,7 @@ import slide3 from '../../assets/3-timelines.jpg';
 import slide4 from '../../assets/4-add-city.jpg';
 import slide5 from '../../assets/5-add-timezone.jpg';
 import slide6 from '../../assets/6-notifications.jpg';
+import { useI18n } from '../../i18n';
 
 import './style.css';
 
@@ -15,37 +16,38 @@ const SLIDES = [
   {
     id: 1,
     img: slide1,
-    alt: '',
+    altKey: 'seo.images.screenshotCities',
   },
   {
     id: 2,
     img: slide2,
-    alt: '',
+    altKey: 'seo.images.screenshotCitiesAndroid',
   },
   {
     id: 3,
     img: slide3,
-    alt: '',
+    altKey: 'seo.images.screenshotTimelines',
   },
   {
     id: 4,
     img: slide4,
-    alt: '',
+    altKey: 'seo.images.screenshotAddCity',
   },
   {
     id: 5,
     img: slide5,
-    alt: '',
+    altKey: 'seo.images.screenshotAddTimezone',
   },
   {
     id: 6,
     img: slide6,
-    alt: '',
+    altKey: 'seo.images.screenshotNotifications',
   }
 ];
 
 
 export default function ScreenshotSlider() {
+  const { t } = useI18n();
   const [ activeSlideIdx, setActiveSlideIdx ] = useState<number>(0);
 
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true })
@@ -101,7 +103,7 @@ export default function ScreenshotSlider() {
             return (
               <div key={item.id} id={`${item.id}`} className="screenshotsSlider-item">
                 <div className="screenshotsSlider-imageBox">
-                  <img className="screenshotsSlider-image" src={item.img} alt={item.alt} />
+                  <img className="screenshotsSlider-image" src={item.img} alt={t(item.altKey)} />
                 </div>
               </div>
             )

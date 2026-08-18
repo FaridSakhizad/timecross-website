@@ -1,6 +1,7 @@
 import './CitiesPage.css';
 
 import Cities from '../components/Cities';
+import Seo from '../components/Seo';
 import type { ColorMode, TimeFormat } from '../settings';
 
 type CitiesPageProps = {
@@ -17,13 +18,17 @@ export default function CitiesPage({
   onTimeFormatButtonClick,
 }: CitiesPageProps) {
   return (
-    <Cities
-      colorMode={colorMode}
-      customClassNames="citiesPage"
-      showStandaloneButton={false}
-      timeFormat={timeFormat}
-      onColorModeButtonClick={onColorModeButtonClick}
-      onTimeFormatButtonClick={onTimeFormatButtonClick}
-    />
+    <>
+      <Seo page="cities" />
+
+      <Cities
+        colorMode={colorMode}
+        customClassNames="citiesPage"
+        showStandaloneButton={false}
+        timeFormat={timeFormat}
+        onColorModeButtonClick={onColorModeButtonClick}
+        onTimeFormatButtonClick={onTimeFormatButtonClick}
+      />
+    </>
   );
 }

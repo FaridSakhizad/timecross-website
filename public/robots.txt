@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /data/
+
+Sitemap: https://timecross.app/sitemap.xml
