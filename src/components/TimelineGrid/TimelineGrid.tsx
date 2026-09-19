@@ -18,6 +18,7 @@ import {
 } from '@dnd-kit/sortable';
 import { getSettings, type ColorMode, type TimeFormat } from '../../settings';
 import { useCurrentMinuteDate } from '../../useCurrentMinuteDate';
+import { useMobileWidgetLayout } from '../../useMobileWidgetLayout';
 import AddCityModal from '../Cities/AddCityModal';
 import {
   createFavoriteCityFromSearchResult,
@@ -34,8 +35,6 @@ import {
 import TimelineGridDesktop from './TimelineGridDesktop';
 import TimelineGridMobile from './TimelineGridMobile';
 
-const MOBILE_TIMELINE_GRID_QUERY = '(width < 720px)';
-const TOUCH_TIMELINE_GRID_QUERY = '(hover: none) and (pointer: coarse)';
 const restrictTimelineGridDragToVerticalAxis: Modifier = ({ transform }) => ({
   ...transform,
   x: 0,
@@ -47,29 +46,6 @@ type TimelineGridProps = {
   onColorModeButtonClick: () => void;
   onTimeFormatButtonClick: () => void;
 };
-
-function useUsesMobileTimelineGridLayout() {
-  const [usesMobileLayout, setUsesMobileLayout] = useState(false);
-
-  useEffect(() => {
-    const mobileMediaQuery = window.matchMedia(MOBILE_TIMELINE_GRID_QUERY);
-    const touchMediaQuery = window.matchMedia(TOUCH_TIMELINE_GRID_QUERY);
-    const updateUsesMobileLayout = () => {
-      setUsesMobileLayout(mobileMediaQuery.matches || touchMediaQuery.matches);
-    };
-
-    updateUsesMobileLayout();
-    mobileMediaQuery.addEventListener('change', updateUsesMobileLayout);
-    touchMediaQuery.addEventListener('change', updateUsesMobileLayout);
-
-    return () => {
-      mobileMediaQuery.removeEventListener('change', updateUsesMobileLayout);
-      touchMediaQuery.removeEventListener('change', updateUsesMobileLayout);
-    };
-  }, []);
-
-  return usesMobileLayout;
-}
 
 function useMobileTimelineGridHorizontalScrollLock(enabled: boolean) {
   const lockedScrollXRef = useRef(0);
@@ -126,7 +102,7 @@ export default function TimelineGrid({
 }: TimelineGridProps) {
   const baseDate = useCurrentMinuteDate();
   const browserTimezone = useMemo(() => getBrowserTimezone(), []);
-  const usesMobileLayout = useUsesMobileTimelineGridLayout();
+  const usesMobileLayout = useMobileWidgetLayout();
   const [cities, setCities] = useState(() => getOrderedSelectedCities(getSettings().cityOrder));
   const [isAddCityModalOpen, setIsAddCityModalOpen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
