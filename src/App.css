@@ -119,25 +119,6 @@
 
 .downloadLink_googlePlay {
   background: #000 url("./assets/img--download-google-play.svg") center / cover no-repeat;
-  pointer-events: none;
-
-  &:before {
-    content: attr(data-coming-soon);
-    font-weight: bold;
-    text-transform: uppercase;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0 0 0 / 0.6);
-    backdrop-filter: blur(3px);
-    border-radius: 8px;
-  }
 }
 
 .downloadLink_apk {

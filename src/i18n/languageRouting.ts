@@ -37,6 +37,10 @@ function trimSlashes(value: string) {
 }
 
 export function getBrowserLanguage(): AppLanguage {
+  if (typeof navigator === 'undefined') {
+    return 'en';
+  }
+
   const browserLanguages = navigator.languages?.length
     ? navigator.languages
     : [navigator.language];

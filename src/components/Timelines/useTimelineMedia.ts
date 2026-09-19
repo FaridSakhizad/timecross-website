@@ -2,13 +2,8 @@ import { useEffect, useState } from 'react';
 
 const NATIVE_SCROLL_TIMELINE_QUERY = '(hover: none) and (pointer: coarse)';
 
-function getUsesNativeTimelineScroll() {
-  return typeof window !== 'undefined'
-    && window.matchMedia(NATIVE_SCROLL_TIMELINE_QUERY).matches;
-}
-
 export function useUsesNativeTimelineScroll() {
-  const [usesNativeScroll, setUsesNativeScroll] = useState(getUsesNativeTimelineScroll);
+  const [usesNativeScroll, setUsesNativeScroll] = useState(false);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia(NATIVE_SCROLL_TIMELINE_QUERY);

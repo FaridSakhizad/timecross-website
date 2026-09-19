@@ -15,8 +15,10 @@ import {
 } from './i18n/languageRouting';
 import {
   getSettings,
+  getDefaultSettings,
   getStoredLanguageSetting,
   updateSettings,
+  type AppSettings,
   type ColorMode,
   type TimeFormat,
 } from './settings';
@@ -26,6 +28,13 @@ import './App.css';
 type LocalizedRouteProps = {
   children: ReactNode;
 };
+
+type AppProps = {
+  hydrateStoredSettings?: boolean;
+  initialSettings?: AppSettings;
+};
+
+const useIsomorphicLayoutEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect;
 
 function getRouteName(pathname: string) {
   const pagePath = stripLanguageFromPathname(pathname);
@@ -57,7 +66,7 @@ function LocalizedRoute({ children }: LocalizedRouteProps) {
   const effectiveRouteLanguage = routeLanguage ?? fallbackLanguage;
   const pagePath = stripLanguageFromPathname(location.pathname);
 
-  useLayoutEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     if (effectiveRouteLanguage !== language) {
       setLanguage(effectiveRouteLanguage);
     }
@@ -78,10 +87,24 @@ function LocalizedRoute({ children }: LocalizedRouteProps) {
   return children;
 }
 
-function App() {
-  const [timeFormat, setTimeFormat] = useState<TimeFormat>(() => getSettings().timeFormat);
-  const [colorMode, setColorMode] = useState<ColorMode>(() => getSettings().colorMode);
+function App({
+  hydrateStoredSettings = true,
+  initialSettings = getDefaultSettings(),
+}: AppProps) {
+  const [timeFormat, setTimeFormat] = useState<TimeFormat>(() => initialSettings.timeFormat);
+  const [colorMode, setColorMode] = useState<ColorMode>(() => initialSettings.colorMode);
   const location = useLocation();
+
+  useEffect(() => {
+    if (!hydrateStoredSettings) {
+      return;
+    }
+
+    const storedSettings = getSettings();
+
+    setTimeFormat(storedSettings.timeFormat);
+    setColorMode(storedSettings.colorMode);
+  }, [hydrateStoredSettings]);
 
   useEffect(() => {
     document.documentElement.dataset.colorMode = colorMode;

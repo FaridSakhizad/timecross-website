@@ -1,3 +1,4 @@
+import ClientOnly from '../components/ClientOnly';
 import Seo from '../components/Seo';
 import TimelineGrid from '../components/TimelineGrid';
 import type { ColorMode, TimeFormat } from '../settings';
@@ -19,12 +20,14 @@ export default function GridPage({
     <>
       <Seo page="grid" />
 
-      <TimelineGrid
-        colorMode={colorMode}
-        timeFormat={timeFormat}
-        onColorModeButtonClick={onColorModeButtonClick}
-        onTimeFormatButtonClick={onTimeFormatButtonClick}
-      />
+      <ClientOnly>
+        <TimelineGrid
+          colorMode={colorMode}
+          timeFormat={timeFormat}
+          onColorModeButtonClick={onColorModeButtonClick}
+          onTimeFormatButtonClick={onTimeFormatButtonClick}
+        />
+      </ClientOnly>
     </>
   );
 }

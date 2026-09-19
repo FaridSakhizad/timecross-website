@@ -9,7 +9,7 @@ export const PRIVACY_POLICY_PATH = '/privacy-policy';
 export const TERMS_OF_USE_PATH = '/terms-of-use';
 export const BUY_ME_A_COFFEE_URL = 'https://buy.stripe.com/fZu4gsf6z0M6bROfrrasg00';
 export const APP_STORE_URL = 'https://apps.apple.com/ca/app/timecross-world-clock/id6770122132';
-export const GOOGLE_PLAY_URL = '#';
+export const GOOGLE_PLAY_URL = 'https://play.google.com/store/apps/details?id=com.faridsakhizad.timecross';
 export const ANDROID_APK_URL = 'https://pub-38082d37764b4709b5dd898662301c5e.r2.dev/TimeCross_v1.0.1.apk';
 export const COPYRIGHT_HOLDER = 'Farid Sakhizad';
 export const COPYRIGHT_YEAR = 2026;

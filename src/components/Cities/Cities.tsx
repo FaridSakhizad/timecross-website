@@ -79,11 +79,6 @@ function getOrderedCities(storedOrder: string[]) {
   return getOrderedSelectedCities(storedOrder);
 }
 
-function getIsMobileCitiesMode() {
-  return typeof window !== 'undefined'
-    && window.matchMedia(MOBILE_CITIES_QUERY).matches;
-}
-
 type SortableCityItemProps = {
   deleteLabel: string;
   favoriteCity: CityView;
@@ -468,7 +463,7 @@ export default function Cities({
   const [isAddCityModalOpen, setIsAddCityModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [isMenuModalOpen, setIsMenuModalOpen] = useState(false);
-  const [isMobileRenameMode, setIsMobileRenameMode] = useState(getIsMobileCitiesMode);
+  const [isMobileRenameMode, setIsMobileRenameMode] = useState(false);
   const [renamingCityId, setRenamingCityId] = useState<string | null>(null);
   const [timeOffsetMinutes, setTimeOffsetMinutes] = useState(0);
 

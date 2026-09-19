@@ -58,16 +58,21 @@ function interpolate(value: string, values: TranslationValues = {}) {
 
 type I18nProviderProps = {
   children: ReactNode;
+  initialLanguage?: AppLanguage;
 };
 
 function getInitialLanguage() {
+  if (typeof window === 'undefined') {
+    return 'en';
+  }
+
   return getLanguageFromPathname(window.location.pathname)
     ?? getStoredLanguageSetting()
     ?? getBrowserLanguage();
 }
 
-export function I18nProvider({ children }: I18nProviderProps) {
-  const [language, setLanguageState] = useState<AppLanguage>(getInitialLanguage);
+export function I18nProvider({ children, initialLanguage }: I18nProviderProps) {
+  const [language, setLanguageState] = useState<AppLanguage>(() => initialLanguage ?? getInitialLanguage());
 
   const setLanguage = useCallback((nextLanguage: AppLanguage) => {
     setLanguageState((currentLanguage) => (

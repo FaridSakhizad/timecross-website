@@ -193,6 +193,14 @@ const DEFAULT_SETTINGS: AppSettings = {
   selectedCities: DEFAULT_SELECTED_CITIES,
 };
 
+export function getDefaultSettings(): AppSettings {
+  return {
+    ...DEFAULT_SETTINGS,
+    cityOrder: [...DEFAULT_SETTINGS.cityOrder],
+    selectedCities: DEFAULT_SETTINGS.selectedCities.map((city) => ({ ...city })),
+  };
+}
+
 function isStringArray(value: unknown): value is string[] {
   return Array.isArray(value) && value.every((item) => typeof item === 'string');
 }
@@ -216,6 +224,10 @@ function isStoredCityArray(value: unknown): value is StoredCity[] {
 }
 
 function getLegacyCityOrder() {
+  if (typeof window === 'undefined') {
+    return [];
+  }
+
   try {
     const storedOrder = window.localStorage.getItem(LEGACY_CITIES_ORDER_STORAGE_KEY);
 
@@ -260,6 +272,10 @@ function isSupportedLanguage(value: unknown): value is AppLanguage {
 }
 
 export function getSettings(): AppSettings {
+  if (typeof window === 'undefined') {
+    return normalizeSettings(null);
+  }
+
   try {
     const storedSettings = window.localStorage.getItem(SETTINGS_STORAGE_KEY);
 
@@ -274,6 +290,10 @@ export function getSettings(): AppSettings {
 }
 
 export function getStoredLanguageSetting(): AppLanguage | null {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
   try {
     const storedSettings = window.localStorage.getItem(SETTINGS_STORAGE_KEY);
 
@@ -290,6 +310,10 @@ export function getStoredLanguageSetting(): AppLanguage | null {
 }
 
 export function saveSettings(settings: AppSettings) {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
   window.localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
 }
 

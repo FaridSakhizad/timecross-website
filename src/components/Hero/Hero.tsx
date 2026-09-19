@@ -1,5 +1,6 @@
 import './style.css';
 
+import ClientOnly from '../ClientOnly';
 import Cities from '../Cities';
 
 import heroImg1 from '../../assets/1-cities.jpg';
@@ -10,10 +11,10 @@ import heroImg5 from '../../assets/5-add-timezone.jpg';
 import heroImg6 from '../../assets/6-notifications.jpg';
 
 import {
-  ANDROID_APK_URL,
   APP_STORE_URL,
   GOOGLE_PLAY_URL,
 } from '../../config';
+
 import { useI18n } from '../../i18n';
 import type { TimeFormat } from '../../settings';
 
@@ -39,7 +40,9 @@ export default function Hero({ timeFormat }: HeroProps) {
     <section className="section section_hero">
       <div className="container container_hero">
         <div className="citiesBox">
-          <Cities showHomeButton={false} timeFormat={timeFormat} />
+          <ClientOnly>
+            <Cities showHomeButton={false} timeFormat={timeFormat} />
+          </ClientOnly>
         </div>
 
         <div className="heroPreviewBox">
@@ -83,19 +86,10 @@ export default function Hero({ timeFormat }: HeroProps) {
           <a
             href={GOOGLE_PLAY_URL}
             className="heroDownload-button heroDownload-button_googlePlay"
-            aria-label={t('common.googlePlay')}
             data-coming-soon={t('common.comingSoon')}
             target="_blank"
           ></a>
 
-          <a
-            href={ANDROID_APK_URL}
-            className="heroDownload-button heroDownload-buttonApk"
-            aria-label={t('common.androidPreview')}
-            target="_blank"
-          ></a>
-
-          <p className="heroDownload-note">{t('common.androidPreviewNote')}</p>
         </div>
       </div>
     </section>

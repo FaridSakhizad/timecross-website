@@ -1,4 +1,5 @@
 import ContactForm from '../components/ContactForm';
+import ClientOnly from '../components/ClientOnly';
 import FAQ from '../components/FAQ';
 import FeaturesList from '../components/FeaturesList';
 import Footer from '../components/Footer';
@@ -9,7 +10,6 @@ import Seo from '../components/Seo';
 import Timelines from '../components/Timelines';
 
 import {
-  ANDROID_APK_URL,
   APP_STORE_URL,
   GOOGLE_PLAY_URL,
 } from '../config';
@@ -46,7 +46,9 @@ export default function HomePage({
       <Hero timeFormat={timeFormat} />
 
       <section className="section section_timelines">
-        <Timelines timeFormat={timeFormat} />
+        <ClientOnly>
+          <Timelines timeFormat={timeFormat} />
+        </ClientOnly>
       </section>
 
       <section className="section">
@@ -125,13 +127,6 @@ export default function HomePage({
               data-coming-soon={t('common.comingSoon')}
               aria-label={t('common.googlePlay')}
             ></a>
-            <a
-              href={ANDROID_APK_URL}
-              className="downloadLink downloadLink_apk"
-              aria-label={t('common.androidPreview')}
-            ></a>
-
-            <p className="download-note">{t('common.androidPreviewNote')}</p>
           </div>
         </div>
       </section>

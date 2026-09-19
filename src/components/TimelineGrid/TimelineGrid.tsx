@@ -47,13 +47,8 @@ type TimelineGridProps = {
   onTimeFormatButtonClick: () => void;
 };
 
-function getUsesMobileTimelineGridLayout() {
-  return typeof window !== 'undefined'
-    && window.matchMedia(MOBILE_TIMELINE_GRID_QUERY).matches;
-}
-
 function useUsesMobileTimelineGridLayout() {
-  const [usesMobileLayout, setUsesMobileLayout] = useState(getUsesMobileTimelineGridLayout);
+  const [usesMobileLayout, setUsesMobileLayout] = useState(false);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia(MOBILE_TIMELINE_GRID_QUERY);

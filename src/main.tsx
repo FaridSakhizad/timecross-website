@@ -1,16 +1,24 @@
 import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
+import { createRoot, hydrateRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router'
 import './index.css'
 import App from './App.tsx'
 import { I18nProvider } from './i18n'
+import { getDefaultSettings } from './settings'
 
-createRoot(document.getElementById('root')!).render(
+const rootElement = document.getElementById('root')!
+const app = (
   <StrictMode>
     <I18nProvider>
       <BrowserRouter>
-        <App />
+        <App initialSettings={getDefaultSettings()} />
       </BrowserRouter>
     </I18nProvider>
-  </StrictMode>,
+  </StrictMode>
 )
+
+if (rootElement.hasChildNodes()) {
+  hydrateRoot(rootElement, app)
+} else {
+  createRoot(rootElement).render(app)
+}
