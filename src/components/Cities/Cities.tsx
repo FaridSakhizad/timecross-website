@@ -28,6 +28,7 @@ import { Link } from 'react-router';
 import type { FavoriteCity } from './fixtures';
 import { getSettings, type ColorMode, type TimeFormat } from '../../settings';
 import { useCurrentMinuteDate } from '../../useCurrentMinuteDate';
+import { useMobileWidgetLayout } from '../../useMobileWidgetLayout';
 import { useI18n } from '../../i18n';
 import { getCanonicalLanguagePath } from '../../i18n/languageRouting';
 import { formatPartsInTimezone } from '../../utils/abstractTimezone';
@@ -46,7 +47,6 @@ const PIXELS_IN_MINUTE = 1;
 const TIME_RULER_RANGE_MINUTES = 24 * 60;
 const TIME_RULER_TICK_STEP_MINUTES = 15;
 const TIME_RULER_HOUR_STEP_MINUTES = 60;
-const MOBILE_CITIES_QUERY = '(width < 720px)';
 
 const rulerTimeFormatters = new Map<TimeFormat, Intl.DateTimeFormat>();
 let browserTimezoneCache: string | null = null;
@@ -465,7 +465,7 @@ export default function Cities({
   const [isAddCityModalOpen, setIsAddCityModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [isMenuModalOpen, setIsMenuModalOpen] = useState(false);
-  const [isMobileRenameMode, setIsMobileRenameMode] = useState(false);
+  const isMobileRenameMode = useMobileWidgetLayout();
   const [renamingCityId, setRenamingCityId] = useState<string | null>(null);
   const [timeOffsetMinutes, setTimeOffsetMinutes] = useState(0);
 
@@ -500,18 +500,6 @@ export default function Cities({
     () => cityViews.find((city) => city.id === renamingCityId) ?? null,
     [cityViews, renamingCityId],
   );
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia(MOBILE_CITIES_QUERY);
-    const updateMobileMode = () => setIsMobileRenameMode(mediaQuery.matches);
-
-    updateMobileMode();
-    mediaQuery.addEventListener('change', updateMobileMode);
-
-    return () => {
-      mediaQuery.removeEventListener('change', updateMobileMode);
-    };
-  }, []);
 
   const timeRulerTicks = useMemo(() => {
     const ticks = [];
