@@ -1,4 +1,6 @@
+import { Link } from 'react-router';
 import { useI18n } from '../../i18n';
+import { getCanonicalLanguagePath } from '../../i18n/languageRouting';
 
 type TimelinesTopControlsProps = {
   isEditMode: boolean;
@@ -13,7 +15,7 @@ export default function TimelinesTopControls({
   onEditModeToggle,
   onResetClick,
 }: TimelinesTopControlsProps) {
-  const { t } = useI18n();
+  const { language, t } = useI18n();
 
   return (
     <div className="gridTopControls">
@@ -43,21 +45,21 @@ export default function TimelinesTopControls({
         aria-label={t('common.reset')}
       />
 
-      <a
-        href="/cities"
-        className="gridTopControlsButton"
-        aria-label={t('common.openGrid')}
-      >
-        <i className="citiesHeaderButton-icon citiesHeaderButton-icon_cities" />
-      </a>
-
-      <a
-        href="/grid"
+      <Link
+        to={getCanonicalLanguagePath(language, '/cities')}
         className="gridTopControlsButton"
         aria-label={t('common.openCities')}
       >
+        <i className="citiesHeaderButton-icon citiesHeaderButton-icon_cities" />
+      </Link>
+
+      <Link
+        to={getCanonicalLanguagePath(language, '/grid')}
+        className="gridTopControlsButton"
+        aria-label={t('common.openGrid')}
+      >
         <i className="citiesHeaderButton-icon citiesHeaderButton-icon_grid" />
-      </a>
+      </Link>
     </div>
   );
 }
