@@ -35,6 +35,7 @@ import TimelineGridDesktop from './TimelineGridDesktop';
 import TimelineGridMobile from './TimelineGridMobile';
 
 const MOBILE_TIMELINE_GRID_QUERY = '(width < 720px)';
+const TOUCH_TIMELINE_GRID_QUERY = '(hover: none) and (pointer: coarse)';
 const restrictTimelineGridDragToVerticalAxis: Modifier = ({ transform }) => ({
   ...transform,
   x: 0,
@@ -51,14 +52,19 @@ function useUsesMobileTimelineGridLayout() {
   const [usesMobileLayout, setUsesMobileLayout] = useState(false);
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia(MOBILE_TIMELINE_GRID_QUERY);
-    const updateUsesMobileLayout = () => setUsesMobileLayout(mediaQuery.matches);
+    const mobileMediaQuery = window.matchMedia(MOBILE_TIMELINE_GRID_QUERY);
+    const touchMediaQuery = window.matchMedia(TOUCH_TIMELINE_GRID_QUERY);
+    const updateUsesMobileLayout = () => {
+      setUsesMobileLayout(mobileMediaQuery.matches || touchMediaQuery.matches);
+    };
 
     updateUsesMobileLayout();
-    mediaQuery.addEventListener('change', updateUsesMobileLayout);
+    mobileMediaQuery.addEventListener('change', updateUsesMobileLayout);
+    touchMediaQuery.addEventListener('change', updateUsesMobileLayout);
 
     return () => {
-      mediaQuery.removeEventListener('change', updateUsesMobileLayout);
+      mobileMediaQuery.removeEventListener('change', updateUsesMobileLayout);
+      touchMediaQuery.removeEventListener('change', updateUsesMobileLayout);
     };
   }, []);
 

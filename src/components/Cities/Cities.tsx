@@ -24,10 +24,12 @@ import {
   useState,
   type KeyboardEvent,
 } from 'react';
+import { Link } from 'react-router';
 import type { FavoriteCity } from './fixtures';
 import { getSettings, type ColorMode, type TimeFormat } from '../../settings';
 import { useCurrentMinuteDate } from '../../useCurrentMinuteDate';
 import { useI18n } from '../../i18n';
+import { getCanonicalLanguagePath } from '../../i18n/languageRouting';
 import { formatPartsInTimezone } from '../../utils/abstractTimezone';
 import AddCityModal from './AddCityModal';
 import StandaloneMenuModal from '../StandaloneMenuModal';
@@ -455,7 +457,7 @@ export default function Cities({
   onColorModeButtonClick,
   onTimeFormatButtonClick,
 }: CitiesProps) {
-  const {t} = useI18n();
+  const {language, t} = useI18n();
   const customClassNameList = customClassNames.split(/\s+/).filter(Boolean);
 
   const [cities, setCities] = useState(() => getOrderedCities(getSettings().cityOrder));
@@ -662,20 +664,20 @@ export default function Cities({
           <i className="citiesHeaderButton-icon citiesHeaderButton-icon_add" />
         </button>
 
-        <a
-          href="/grid"
+        <Link
+          to={getCanonicalLanguagePath(language, '/grid')}
           className="citiesHeaderButton citiesHeaderButton_grid"
         >
           <i className="citiesHeaderButton-icon citiesHeaderButton-icon_grid" />
-        </a>
+        </Link>
 
         {showStandaloneButton && (
-          <a
-            href="/cities"
+          <Link
+            to={getCanonicalLanguagePath(language, '/cities')}
             className="citiesHeaderButton"
           >
             <i className="citiesHeaderButton-icon citiesHeaderButton-icon_cities" />
-          </a>
+          </Link>
         )}
       </div>
       <div className="citiesListBox scrollControl">

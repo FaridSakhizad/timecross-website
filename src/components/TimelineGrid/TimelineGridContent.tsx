@@ -1,5 +1,7 @@
 import { useState } from 'react';
+import { Link } from 'react-router';
 import { useI18n } from '../../i18n';
+import { getCanonicalLanguagePath } from '../../i18n/languageRouting';
 import StandaloneMenuModal from '../StandaloneMenuModal';
 import TimelineCellLabel from '../Timelines/TimelineCellLabel';
 import TimelineGridRow from './TimelineGridRow';
@@ -47,7 +49,7 @@ export function TimelineGridToolbar({
   onTimeFormatButtonClick,
 }: TimelineGridToolbarProps) {
   const [isMenuModalOpen, setIsMenuModalOpen] = useState(false);
-  const { t } = useI18n();
+  const { language, t } = useI18n();
   const modeClassName = mode === 'mobile' ? 'timelineGrid-toolbar_mobile' : 'timelineGrid-toolbar_desktop';
 
   return (
@@ -86,13 +88,13 @@ export function TimelineGridToolbar({
         >
           <i className="citiesHeaderButton-icon citiesHeaderButton-icon_reset" />
         </button>
-        <a
-          href="/cities"
+        <Link
+          to={getCanonicalLanguagePath(language, '/cities')}
           className="citiesHeaderButton citiesHeaderButton_cities"
           aria-label={t('common.openCities')}
         >
           <i className="citiesHeaderButton-icon citiesHeaderButton-icon_cities" />
-        </a>
+        </Link>
       </div>
       <StandaloneMenuModal
         colorMode={colorMode}

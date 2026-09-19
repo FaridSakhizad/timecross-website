@@ -156,12 +156,12 @@ function getRedirectResponse(request: Request, url: URL) {
     return Response.redirect(new URL(getCanonicalLanguagePath(routeLanguage ?? "en", pagePath), url), 302);
   }
 
-  if (firstPathPart && !routeLanguage && !url.pathname.startsWith("/api/") && !url.pathname.includes(".")) {
-    return Response.redirect(new URL(getCanonicalLanguagePath(getPreferredLanguage(request)), url), 302);
-  }
-
   if (!routeLanguage && isLocalizedPagePath(url.pathname)) {
     return Response.redirect(new URL(getCanonicalLanguagePath(getPreferredLanguage(request), pagePath), url), 302);
+  }
+
+  if (firstPathPart && !routeLanguage && !url.pathname.startsWith("/api/") && !url.pathname.includes(".")) {
+    return Response.redirect(new URL(getCanonicalLanguagePath(getPreferredLanguage(request)), url), 302);
   }
 
   return null;

@@ -78,15 +78,15 @@ export default function Header({
 
           <i className="headerMenu-separator headerMenu-separator_1" />
 
-          <a
-            href="/cities"
+          <Link
+            to={getCanonicalLanguagePath(language, '/cities')}
             className="headerMenu-item headerMenu-item_link"
-          >{t('common.citiesLabel')}</a>
+          >{t('common.citiesLabel')}</Link>
 
-          <a
-            href="/grid"
+          <Link
+            to={getCanonicalLanguagePath(language, '/grid')}
             className="headerMenu-item headerMenu-item_link"
-          >{t('common.gridLabel')}</a>
+          >{t('common.gridLabel')}</Link>
 
           <i className="headerMenu-separator headerMenu-separator_2" />
 
