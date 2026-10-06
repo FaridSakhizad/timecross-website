@@ -289,6 +289,47 @@
     "convertText": "Time zones change with daylight saving rules and local dates. The converter works from a specific city and time so the result stays tied to a real moment.",
     "contextTitle": "Keep the result in context",
     "contextText": "See whether another city is still on the same day, already tomorrow, or behind you yesterday before you schedule, call, or travel.",
+    "useCasesTitle": "Common time zone conversion use cases",
+    "useCasesLead": "Use TimeCross for the time conversions people search for every day: city to city, UTC to local time, and meeting times across time zones.",
+    "useCases": {
+      "cityToCity": {
+        "title": "Convert time between cities",
+        "text": "Convert London time to New York, Tokyo, Dubai, Sydney, or the cities saved in your TimeCross list."
+      },
+      "utc": {
+        "title": "Compare UTC with local time",
+        "text": "Check UTC time against real city time, or use fixed GMT and UTC offsets when a schedule is written as UTC+3 or UTC-5."
+      },
+      "meeting": {
+        "title": "Plan meetings across time zones",
+        "text": "See whether a chosen time lands today, tomorrow, or yesterday in another city before you send an invite."
+      }
+    },
+    "examplesTitle": "Example time zone conversions by city",
+    "examplesLead": "These examples are calculated from 10:00 in each city using current time zone rules, so daylight saving changes stay accurate.",
+    "examples": {
+      "newYork": {
+        "title": "New York time conversion"
+      },
+      "london": {
+        "title": "London time conversion"
+      },
+      "paris": {
+        "title": "Paris time conversion"
+      },
+      "dubai": {
+        "title": "Dubai time conversion"
+      },
+      "singapore": {
+        "title": "Singapore time conversion"
+      },
+      "tokyo": {
+        "title": "Tokyo time conversion"
+      },
+      "losAngeles": {
+        "title": "Los Angeles time conversion"
+      }
+    },
     "faqTitle": "Time zone converter FAQ",
     "faq": {
       "what": {
@@ -315,6 +356,21 @@
     "inLabel": "in",
     "itsLabel": "it’s",
     "onLabel": "on",
-    "todayLabel": "Today"
+    "todayLabel": "Today",
+    "exampleSource": "When it’s {time} in {city}",
+    "exampleResult": {
+      "same": "{time} in {city}",
+      "tomorrow": "{time} tomorrow in {city}",
+      "yesterday": "{time} yesterday in {city}"
+    },
+    "exampleCityNames": {
+      "newYork": "New York",
+      "london": "London",
+      "paris": "Paris",
+      "dubai": "Dubai",
+      "singapore": "Singapore",
+      "tokyo": "Tokyo",
+      "losAngeles": "Los Angeles"
+    }
   }
 }

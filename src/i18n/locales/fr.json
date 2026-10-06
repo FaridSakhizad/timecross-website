@@ -289,6 +289,47 @@
     "convertText": "Les fuseaux horaires changent avec l’heure d’été et les dates locales. Le convertisseur part d’une ville et d’une heure précises pour rester lié à un moment réel.",
     "contextTitle": "Gardez le résultat dans son contexte",
     "contextText": "Voyez si une autre ville est encore le même jour, déjà demain ou derrière vous hier avant de planifier, appeler ou voyager.",
+    "useCasesTitle": "Cas courants de conversion de fuseaux horaires",
+    "useCasesLead": "Utilisez TimeCross pour les conversions recherchées au quotidien : ville à ville, UTC vers heure locale et réunions entre fuseaux horaires.",
+    "useCases": {
+      "cityToCity": {
+        "title": "Convertir l’heure entre villes",
+        "text": "Convertissez l’heure de Londres vers New York, Tokyo, Dubaï, Sydney ou les villes enregistrées dans votre liste TimeCross."
+      },
+      "utc": {
+        "title": "Comparer UTC avec l’heure locale",
+        "text": "Vérifiez l’heure UTC par rapport à l’heure réelle d’une ville, ou utilisez des décalages GMT et UTC fixes lorsqu’un horaire est écrit comme UTC+3 ou UTC-5."
+      },
+      "meeting": {
+        "title": "Planifier des réunions entre fuseaux horaires",
+        "text": "Voyez si une heure choisie tombe aujourd’hui, demain ou hier dans une autre ville avant d’envoyer une invitation."
+      }
+    },
+    "examplesTitle": "Exemples de conversion d’heure par ville",
+    "examplesLead": "Ces exemples sont calculés à partir de 10:00 dans chaque ville avec les règles de fuseau horaire actuelles, afin que les changements d’heure d’été restent corrects.",
+    "examples": {
+      "newYork": {
+        "title": "Conversion de l’heure de New York"
+      },
+      "london": {
+        "title": "Conversion de l’heure de Londres"
+      },
+      "paris": {
+        "title": "Conversion de l’heure de Paris"
+      },
+      "dubai": {
+        "title": "Conversion de l’heure de Dubaï"
+      },
+      "singapore": {
+        "title": "Conversion de l’heure de Singapour"
+      },
+      "tokyo": {
+        "title": "Conversion de l’heure de Tokyo"
+      },
+      "losAngeles": {
+        "title": "Conversion de l’heure de Los Angeles"
+      }
+    },
     "faqTitle": "FAQ du convertisseur de fuseaux horaires",
     "faq": {
       "what": {
@@ -315,6 +356,21 @@
     "inLabel": "à",
     "itsLabel": "il est",
     "onLabel": "le",
-    "todayLabel": "Aujourd’hui"
+    "todayLabel": "Aujourd’hui",
+    "exampleSource": "Quand il est {time} à {city}",
+    "exampleResult": {
+      "same": "{time} à {city}",
+      "tomorrow": "{time} demain à {city}",
+      "yesterday": "{time} hier à {city}"
+    },
+    "exampleCityNames": {
+      "newYork": "New York",
+      "london": "Londres",
+      "paris": "Paris",
+      "dubai": "Dubaï",
+      "singapore": "Singapour",
+      "tokyo": "Tokyo",
+      "losAngeles": "Los Angeles"
+    }
   }
 }

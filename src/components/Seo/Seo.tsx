@@ -106,7 +106,7 @@ export default function Seo({ page }: SeoProps) {
     getSeoJsonLd(language, location.pathname).forEach((schema) => {
       upsertJsonLd(schema.id, schema.value);
     });
-    if (metadata.page !== 'home') {
+    if (metadata.page !== 'home' && metadata.page !== 'timeZoneConverter') {
       removeJsonLd('faq');
     }
   }, [language, location.pathname, page]);

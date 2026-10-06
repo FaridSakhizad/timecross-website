@@ -289,6 +289,47 @@
     "convertText": "Zeitzonen ändern sich durch Sommerzeitregeln und lokale Daten. Der Konverter geht von einer konkreten Stadt und Zeit aus, damit das Ergebnis an einen realen Moment gebunden bleibt.",
     "contextTitle": "Behalte den Kontext des Ergebnisses",
     "contextText": "Sieh, ob eine andere Stadt noch am selben Tag ist, schon morgen hat oder hinter dir gestern liegt, bevor du planst, anrufst oder reist.",
+    "useCasesTitle": "Häufige Anwendungsfälle für Zeitzonen-Umrechnung",
+    "useCasesLead": "Nutze TimeCross für Zeitumrechnungen, die täglich gesucht werden: Stadt zu Stadt, UTC zu Ortszeit und Meetings über Zeitzonen hinweg.",
+    "useCases": {
+      "cityToCity": {
+        "title": "Zeit zwischen Städten umrechnen",
+        "text": "Rechne London-Zeit nach New York, Tokio, Dubai, Sydney oder in die Städte deiner TimeCross-Liste um."
+      },
+      "utc": {
+        "title": "UTC mit Ortszeit vergleichen",
+        "text": "Vergleiche UTC-Zeit mit echter Stadtzeit oder nutze feste GMT- und UTC-Offsets, wenn ein Zeitplan als UTC+3 oder UTC-5 geschrieben ist."
+      },
+      "meeting": {
+        "title": "Meetings über Zeitzonen planen",
+        "text": "Sieh vor dem Senden einer Einladung, ob eine gewählte Zeit in einer anderen Stadt heute, morgen oder gestern liegt."
+      }
+    },
+    "examplesTitle": "Beispiele für Zeitumrechnung nach Stadt",
+    "examplesLead": "Diese Beispiele werden ab 10:00 in jeder Stadt mit den aktuellen Zeitzonenregeln berechnet, damit Sommerzeitwechsel korrekt bleiben.",
+    "examples": {
+      "newYork": {
+        "title": "Zeitumrechnung für New York"
+      },
+      "london": {
+        "title": "Zeitumrechnung für London"
+      },
+      "paris": {
+        "title": "Zeitumrechnung für Paris"
+      },
+      "dubai": {
+        "title": "Zeitumrechnung für Dubai"
+      },
+      "singapore": {
+        "title": "Zeitumrechnung für Singapur"
+      },
+      "tokyo": {
+        "title": "Zeitumrechnung für Tokio"
+      },
+      "losAngeles": {
+        "title": "Zeitumrechnung für Los Angeles"
+      }
+    },
     "faqTitle": "FAQ zum Zeitzonen-Konverter",
     "faq": {
       "what": {
@@ -315,6 +356,21 @@
     "inLabel": "in",
     "itsLabel": "ist es",
     "onLabel": "am",
-    "todayLabel": "Heute"
+    "todayLabel": "Heute",
+    "exampleSource": "Wenn es {time} in {city} ist",
+    "exampleResult": {
+      "same": "{time} in {city}",
+      "tomorrow": "{time} morgen in {city}",
+      "yesterday": "{time} gestern in {city}"
+    },
+    "exampleCityNames": {
+      "newYork": "New York",
+      "london": "London",
+      "paris": "Paris",
+      "dubai": "Dubai",
+      "singapore": "Singapur",
+      "tokyo": "Tokio",
+      "losAngeles": "Los Angeles"
+    }
   }
 }

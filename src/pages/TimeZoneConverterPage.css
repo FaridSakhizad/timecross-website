@@ -90,6 +90,105 @@
   text-shadow: 0 0 3px rgba(0, 0, 0, 0.18);
 }
 
+.timeZoneConverterUseCases-container {
+  display: grid;
+  gap: 24px;
+}
+
+.timeZoneConverterUseCases-lead {
+  max-width: 760px;
+  margin: -16px auto 0;
+  color: var(--body-text-color-2);
+  font-size: 18px;
+  line-height: 1.5;
+  text-align: center;
+  text-shadow: 0 0 3px rgba(0, 0, 0, 0.18);
+}
+
+.timeZoneConverterUseCases-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px;
+}
+
+.timeZoneConverterUseCases-item {
+  min-width: 0;
+}
+
+.timeZoneConverterUseCases-title {
+  margin: 0 0 10px;
+  color: #fff;
+  font-size: 22px;
+  line-height: 1.2;
+}
+
+.timeZoneConverterUseCases-text {
+  margin: 0;
+  color: var(--body-text-color-2);
+  font-size: 17px;
+  line-height: 1.45;
+  text-shadow: 0 0 3px rgba(0, 0, 0, 0.18);
+}
+
+.timeZoneConverterExamples-container {
+  display: grid;
+  gap: 24px;
+}
+
+.timeZoneConverterExamples-lead {
+  max-width: 760px;
+  margin: -16px auto 0;
+  color: var(--body-text-color-2);
+  font-size: 18px;
+  line-height: 1.5;
+  text-align: center;
+  text-shadow: 0 0 3px rgba(0, 0, 0, 0.18);
+}
+
+.timeZoneConverterExamples-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.timeZoneConverterExamples-item {
+  min-width: 0;
+  padding: 18px 18px 20px;
+  border: 1px solid rgba(255 255 255 / 0.32);
+  border-radius: 8px;
+  background-color: rgba(var(--accent-color-1), 0.12);
+}
+
+.timeZoneConverterExamples-title {
+  margin: 0 0 12px;
+  color: #fff;
+  font-size: 20px;
+  line-height: 1.2;
+}
+
+.timeZoneConverterExamples-source {
+  margin: 0 0 14px;
+  color: #fff;
+  font-size: 18px;
+  line-height: 1.35;
+  font-weight: 700;
+}
+
+.timeZoneConverterExamples-results {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.timeZoneConverterExamples-result {
+  color: var(--body-text-color-2);
+  font-size: 16px;
+  line-height: 1.35;
+  text-shadow: 0 0 3px rgba(0, 0, 0, 0.18);
+}
+
 .timeZoneConverterLinks-container {
   text-align: center;
 }
@@ -169,6 +268,14 @@
   }
 
   .timeZoneConverterInfo-container {
+    grid-template-columns: 1fr;
+  }
+
+  .timeZoneConverterUseCases-list {
+    grid-template-columns: 1fr;
+  }
+
+  .timeZoneConverterExamples-list {
     grid-template-columns: 1fr;
   }
 }

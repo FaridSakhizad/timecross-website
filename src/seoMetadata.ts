@@ -21,9 +21,11 @@ import ru from './i18n/locales/ru.json';
 import uk from './i18n/locales/uk.json';
 
 type SeoPage = 'home' | 'cities' | 'grid' | 'worldClock' | 'meetingTimePlanner' | 'timeZoneConverter' | 'privacy' | 'terms';
+type Dictionary = Record<string, unknown>;
 type TranslationValues = Record<string, string | number>;
+type SeoJsonLdSchema = { id: string; value: unknown };
 
-const DICTIONARIES = {
+const DICTIONARIES: Record<AppLanguage, Dictionary> = {
   en,
   fr,
   uk,
@@ -33,7 +35,7 @@ const DICTIONARIES = {
   de,
 };
 
-function getNestedValue(dictionary: typeof en, key: string) {
+function getNestedValue(dictionary: Dictionary, key: string) {
   return key.split('.').reduce<unknown>((value, part) => {
     if (!value || typeof value !== 'object') {
       return undefined;
@@ -115,7 +117,7 @@ export function getSeoMetadata(language: AppLanguage, pathname: string) {
 
 export function getSeoJsonLd(language: AppLanguage, pathname: string) {
   const metadata = getSeoMetadata(language, pathname);
-  const schemas: { id: string; value: unknown }[] = [
+  const schemas: SeoJsonLdSchema[] = [
     {
       id: 'website',
       value: {
@@ -199,6 +201,26 @@ export function getSeoJsonLd(language: AppLanguage, pathname: string) {
             },
           },
         ],
+      },
+    });
+  }
+
+  if (metadata.page === 'timeZoneConverter') {
+    const faqIds = ['what', 'dst', 'cities', 'offsets'];
+
+    schemas.push({
+      id: 'faq',
+      value: {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: faqIds.map((faqId) => ({
+          '@type': 'Question',
+          name: translate(language, `timeZoneConverter.faq.${faqId}.title`),
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: translate(language, `timeZoneConverter.faq.${faqId}.text`),
+          },
+        })),
       },
     });
   }

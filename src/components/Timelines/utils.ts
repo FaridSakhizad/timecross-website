@@ -18,7 +18,7 @@ export function getBrowserTimezone() {
   return Intl.DateTimeFormat().resolvedOptions().timeZone;
 }
 
-function getUtcDateForZonedTime(
+export function getUtcDateForZonedTime(
   timezone: string,
   dateParts: { year: number; month: number; day: number; hour: number; minute?: number; second?: number },
 ) {

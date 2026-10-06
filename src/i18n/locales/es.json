@@ -289,6 +289,47 @@
     "convertText": "Las zonas horarias cambian con el horario de verano y las fechas locales. El conversor parte de una ciudad y hora concretas para mantener el resultado ligado a un momento real.",
     "contextTitle": "Mantén el resultado en contexto",
     "contextText": "Ve si otra ciudad sigue en el mismo día, ya está en mañana o quedó en ayer antes de planificar, llamar o viajar.",
+    "useCasesTitle": "Casos comunes para convertir zonas horarias",
+    "useCasesLead": "Usa TimeCross para conversiones que la gente busca a diario: ciudad a ciudad, UTC a hora local y reuniones entre zonas horarias.",
+    "useCases": {
+      "cityToCity": {
+        "title": "Convertir hora entre ciudades",
+        "text": "Convierte la hora de Londres a Nueva York, Tokio, Dubái, Sídney o las ciudades guardadas en tu lista de TimeCross."
+      },
+      "utc": {
+        "title": "Comparar UTC con hora local",
+        "text": "Comprueba la hora UTC frente a la hora real de una ciudad, o usa offsets GMT y UTC fijos cuando un horario esté escrito como UTC+3 o UTC-5."
+      },
+      "meeting": {
+        "title": "Planificar reuniones entre zonas horarias",
+        "text": "Ve si una hora elegida cae hoy, mañana o ayer en otra ciudad antes de enviar una invitación."
+      }
+    },
+    "examplesTitle": "Ejemplos de conversión de hora por ciudad",
+    "examplesLead": "Estos ejemplos se calculan desde las 10:00 en cada ciudad con las reglas horarias actuales, para mantener correctos los cambios de horario de verano.",
+    "examples": {
+      "newYork": {
+        "title": "Conversión de hora de Nueva York"
+      },
+      "london": {
+        "title": "Conversión de hora de Londres"
+      },
+      "paris": {
+        "title": "Conversión de hora de París"
+      },
+      "dubai": {
+        "title": "Conversión de hora de Dubái"
+      },
+      "singapore": {
+        "title": "Conversión de hora de Singapur"
+      },
+      "tokyo": {
+        "title": "Conversión de hora de Tokio"
+      },
+      "losAngeles": {
+        "title": "Conversión de hora de Los Ángeles"
+      }
+    },
     "faqTitle": "FAQ del conversor de zonas horarias",
     "faq": {
       "what": {
@@ -315,6 +356,21 @@
     "inLabel": "en",
     "itsLabel": "son",
     "onLabel": "el",
-    "todayLabel": "Hoy"
+    "todayLabel": "Hoy",
+    "exampleSource": "Cuando son las {time} en {city}",
+    "exampleResult": {
+      "same": "{time} en {city}",
+      "tomorrow": "{time} mañana en {city}",
+      "yesterday": "{time} ayer en {city}"
+    },
+    "exampleCityNames": {
+      "newYork": "Nueva York",
+      "london": "Londres",
+      "paris": "París",
+      "dubai": "Dubái",
+      "singapore": "Singapur",
+      "tokyo": "Tokio",
+      "losAngeles": "Los Ángeles"
+    }
   }
 }

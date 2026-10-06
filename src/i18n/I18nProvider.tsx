@@ -17,7 +17,9 @@ import es from './locales/es.json';
 import pt from './locales/pt.json';
 import de from './locales/de.json';
 
-const DICTIONARIES = {
+type Dictionary = Record<string, unknown>;
+
+const DICTIONARIES: Record<AppLanguage, Dictionary> = {
   en,
   fr,
   uk,
@@ -29,7 +31,6 @@ const DICTIONARIES = {
 
 export const SUPPORTED_LANGUAGES: AppLanguage[] = ['en', 'fr', 'uk', 'ru', 'es', 'pt', 'de'];
 
-type Dictionary = typeof en;
 type TranslationValues = Record<string, string | number>;
 
 type I18nContextValue = {
