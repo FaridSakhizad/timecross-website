@@ -116,9 +116,10 @@ export default function StandaloneMenuModal({
 
         <div className="standaloneMenuModal-content">
           <a
-            href="/"
-            className="standaloneMenuModal-item standaloneMenuModal-item_home"
-          >{t('common.home')}</a>
+            href={BUY_ME_A_COFFEE_URL}
+            className="standaloneMenuModal-item standaloneMenuModal-item_thanks"
+            target="_blank"
+          >{t('common.sayThanks')}</a>
 
           <Link
             to={getCanonicalLanguagePath(language, '/cities')}
@@ -132,11 +133,11 @@ export default function StandaloneMenuModal({
             onClick={onClose}
           >{t('common.gridLabel')}</Link>
 
-          <a
-            href={BUY_ME_A_COFFEE_URL}
-            className="standaloneMenuModal-item standaloneMenuModal-item_thanks"
-            target="_blank"
-          >{t('common.sayThanks')}</a>
+          <Link
+            to={getCanonicalLanguagePath(language, '/time-zone-converter')}
+            className="standaloneMenuModal-item"
+            onClick={onClose}
+          >{t('common.timeZoneConverterLabel')}</Link>
 
           <button
             type="button"

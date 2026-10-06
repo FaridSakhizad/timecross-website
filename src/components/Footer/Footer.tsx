@@ -21,6 +21,30 @@ export default function Footer() {
         <ul className="footerMenu">
           <li className="footerMenu-item">
             <Link
+              to={getCanonicalLanguagePath(language, '/world-clock')}
+              className="footerMenu-link"
+            >
+              {t('common.worldClockLabel')}
+            </Link>
+          </li>
+          <li className="footerMenu-item">
+            <Link
+              to={getCanonicalLanguagePath(language, '/meeting-time-planner')}
+              className="footerMenu-link"
+            >
+              {t('common.meetingPlannerLabel')}
+            </Link>
+          </li>
+          <li className="footerMenu-item">
+            <Link
+              to={getCanonicalLanguagePath(language, '/time-zone-converter')}
+              className="footerMenu-link"
+            >
+              {t('common.timeZoneConverterLabel')}
+            </Link>
+          </li>
+          <li className="footerMenu-item">
+            <Link
               to={getCanonicalLanguagePath(language, TERMS_OF_USE_PATH)}
               className="footerMenu-link"
             >

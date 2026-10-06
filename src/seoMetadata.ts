@@ -1,6 +1,6 @@
 import {
-  ANDROID_APK_URL,
   APP_STORE_URL,
+  GOOGLE_PLAY_URL,
   SEO_IMAGE_PATH,
   SITE_NAME,
   SITE_URL,
@@ -20,7 +20,7 @@ import pt from './i18n/locales/pt.json';
 import ru from './i18n/locales/ru.json';
 import uk from './i18n/locales/uk.json';
 
-type SeoPage = 'home' | 'cities' | 'grid' | 'privacy' | 'terms';
+type SeoPage = 'home' | 'cities' | 'grid' | 'worldClock' | 'meetingTimePlanner' | 'timeZoneConverter' | 'privacy' | 'terms';
 type TranslationValues = Record<string, string | number>;
 
 const DICTIONARIES = {
@@ -73,6 +73,12 @@ export function getSeoPageFromPathname(pathname: string): SeoPage {
       return 'cities';
     case 'grid':
       return 'grid';
+    case 'world-clock':
+      return 'worldClock';
+    case 'meeting-time-planner':
+      return 'meetingTimePlanner';
+    case 'time-zone-converter':
+      return 'timeZoneConverter';
     case 'privacy-policy':
       return 'privacy';
     case 'terms-of-use':
@@ -139,7 +145,7 @@ export function getSeoJsonLd(language: AppLanguage, pathname: string) {
         },
         downloadUrl: [
           APP_STORE_URL,
-          ANDROID_APK_URL,
+          GOOGLE_PLAY_URL,
         ],
       },
     },

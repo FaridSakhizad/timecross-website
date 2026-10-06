@@ -4,8 +4,6 @@
     "sayThanks": "Remercier",
     "appStore": "Télécharger dans l'App Store",
     "googlePlay": "Disponible sur Google Play",
-    "androidPreview": "Télécharger Android Preview",
-    "androidPreviewNote": "Pendant que nous préparons la sortie sur Google Play, vous pouvez télécharger l'APK et essayer l'application TimeCross dès maintenant.",
     "comingSoon": "Bientôt disponible",
     "home": "Accueil",
     "menu": "Menu",
@@ -30,7 +28,10 @@
     "lastUpdated": "Dernière mise à jour : {date}",
     "support": "Support",
     "termsOfUse": "Conditions d'utilisation",
-    "privacyPolicy": "Politique de confidentialité"
+    "privacyPolicy": "Politique de confidentialité",
+    "worldClockLabel": "Horloge mondiale",
+    "meetingPlannerLabel": "Réunions",
+    "timeZoneConverterLabel": "Convertisseur"
   },
   "languages": {
     "en": "English",
@@ -56,7 +57,9 @@
   },
   "addCity": {
     "searchPlaceholder": "Nom de la ville ou fuseau horaire...",
-    "chooseTimezone": "Choisir GMT / UTC",
+    "fixedTimezonesTitle": "Fuseaux horaires fixes",
+    "chooseTimezone": "GMT / UTC",
+    "chooseAbbreviation": "Fuseau horaire États-Unis/Canada",
     "databaseUnavailable": "La recherche de villes est temporairement indisponible."
   },
   "home": {
@@ -211,6 +214,24 @@
         "description": "Lisez les conditions applicables à l’utilisation de l’app et du site TimeCross.",
         "ogTitle": "Conditions d’utilisation TimeCross",
         "ogDescription": "Les règles et responsabilités de base pour utiliser TimeCross comme outil de planification du temps."
+      },
+      "worldClock": {
+        "title": "Horloge mondiale — TimeCross",
+        "description": "Créez une horloge mondiale personnelle avec vos villes favorites, l’heure locale, les marqueurs de jour et les décalages horaires.",
+        "ogTitle": "Horloge mondiale TimeCross",
+        "ogDescription": "Comparez l’heure locale actuelle dans les villes et fuseaux horaires qui comptent pour vous."
+      },
+      "meetingTimePlanner": {
+        "title": "Planificateur de réunions — TimeCross",
+        "description": "Planifiez des réunions entre fuseaux horaires avec une timeline visuelle pour les villes, les heures locales, les jours et les écarts horaires.",
+        "ogTitle": "Planificateur de réunions TimeCross",
+        "ogDescription": "Trouvez de meilleurs horaires de réunion entre villes et fuseaux horaires avec une timeline visuelle."
+      },
+      "timeZoneConverter": {
+        "title": "Convertisseur de fuseaux horaires — TimeCross",
+        "description": "Convertissez une heure choisie entre villes et fuseaux horaires avec dates locales, marqueurs de jour et écarts horaires dans TimeCross.",
+        "ogTitle": "Convertisseur de fuseaux horaires TimeCross",
+        "ogDescription": "Choisissez une ville, une date et une heure, puis voyez le même moment dans vos villes et fuseaux horaires."
       }
     },
     "images": {
@@ -227,5 +248,73 @@
       "screenshotAddTimezone": "Capture TimeCross montrant le choix d’un fuseau horaire GMT ou UTC.",
       "screenshotNotifications": "Capture TimeCross montrant la configuration d’une notification pour une heure locale choisie."
     }
+  },
+  "worldClock": {
+    "title": "Horloge mondiale",
+    "lead": "Comparez l’heure locale actuelle dans les villes qui comptent pour vous.",
+    "description": "TimeCross vous donne une horloge mondiale personnelle pour les proches, les voyages, les appels et les routines à travers les fuseaux horaires. Ajoutez des villes, renommez-les à votre façon et gardez les heures importantes sous les yeux.",
+    "personalClockTitle": "Une horloge mondiale centrée sur vos villes",
+    "personalClockText": "Gardez une liste ciblée de lieux au lieu de parcourir un immense tableau de fuseaux horaires. TimeCross vous aide à organiser, renommer et comparer les villes qui comptent vraiment.",
+    "compareCitiesTitle": "Aujourd’hui, demain et les décalages en un coup d’œil",
+    "compareCitiesText": "Les marqueurs de jour et les décalages relatifs aident à voir où l’on est déjà demain, quand quelqu’un est probablement réveillé et combien d’heures séparent deux villes.",
+    "nextTitle": "Explorer plus d’outils de temps",
+    "gridLink": "Ouvrir la grille horaire",
+    "citiesLink": "Ouvrir la liste des villes"
+  },
+  "meetingTimePlanner": {
+    "title": "Planificateur de réunions",
+    "lead": "Trouvez des heures de réunion qui ont du sens entre plusieurs villes et fuseaux horaires.",
+    "description": "Utilisez TimeCross pour comparer les heures locales avant de planifier un appel, un relais, un livestream, un cours ou une conversation familiale. Alignez le même moment entre les villes et repérez plus vite les bons créneaux.",
+    "previewTitle": "Essayez la frise horaire",
+    "previewText": "La vue timeline aligne les heures des villes pour parcourir aujourd’hui, hier et demain sans calculer les fuseaux horaires.",
+    "compareTitle": "Comparez les villes avant d’envoyer l’invitation",
+    "compareText": "Voyez où chaque ville se situe dans la journée et évitez de deviner si une heure est trop tôt, trop tard ou déjà demain.",
+    "planTitle": "Planifiez autour des personnes, pas des décalages",
+    "planText": "Renommez les villes pour vos clients, amis, proches ou routines et gardez les lieux importants dans un ordre clair.",
+    "nextTitle": "Explorer d’autres outils de temps",
+    "gridLink": "Ouvrir la grille plein écran",
+    "worldClockLink": "Ouvrir l’horloge mondiale"
+  },
+  "timeZoneConverter": {
+    "title": "Convertisseur de fuseaux horaires pour les villes",
+    "lead": "Choisissez n’importe quelle ville, saisissez une heure et voyez l’heure locale correspondante dans vos villes et fuseaux horaires enregistrés.",
+    "description": "Choisissez une ville, une date et une heure. TimeCross affiche le même moment dans les lieux qui comptent pour vous, avec les dates locales, les écarts horaires et les marqueurs de jour.",
+    "toolTitle": "Convertir l’heure entre villes",
+    "toolText": "Utilisez vos villes TimeCross enregistrées comme liste de conversion. Changez la ville source ou l’heure et les résultats se mettent à jour pour chaque ville.",
+    "fromLabel": "Ville source",
+    "dateLabel": "Date",
+    "timeLabel": "Heure",
+    "emptyText": "Ajoutez une ville pour commencer à convertir les fuseaux horaires.",
+    "convertTitle": "Convertir un moment, pas seulement un décalage",
+    "convertText": "Les fuseaux horaires changent avec l’heure d’été et les dates locales. Le convertisseur part d’une ville et d’une heure précises pour rester lié à un moment réel.",
+    "contextTitle": "Gardez le résultat dans son contexte",
+    "contextText": "Voyez si une autre ville est encore le même jour, déjà demain ou derrière vous hier avant de planifier, appeler ou voyager.",
+    "faqTitle": "FAQ du convertisseur de fuseaux horaires",
+    "faq": {
+      "what": {
+        "title": "Qu’est-ce qu’un convertisseur de fuseaux horaires ?",
+        "text": "Un convertisseur de fuseaux horaires montre ce que le même moment signifie dans différentes villes. Par exemple, 10:00 à Londres peut devenir 05:00 à New York et 18:00 à Tokyo, selon la date et les règles locales."
+      },
+      "dst": {
+        "title": "TimeCross prend-il en compte l’heure d’été ?",
+        "text": "Oui, lorsque vous choisissez de vraies villes. TimeCross utilise les fuseaux horaires des villes, donc les changements d’heure d’été suivent les règles locales de la ville sélectionnée. Les décalages UTC/GMT fixes restent fixes."
+      },
+      "cities": {
+        "title": "Puis-je convertir l’heure entre villes plutôt qu’entre décalages UTC ?",
+        "text": "Oui. Choisissez une ville source et une heure, puis TimeCross affiche l’heure locale correspondante dans vos villes enregistrées. C’est généralement plus simple que de comparer des décalages bruts comme UTC+1 ou UTC-5."
+      },
+      "offsets": {
+        "title": "Quelle différence entre un fuseau horaire de ville et un décalage UTC fixe ?",
+        "text": "Un fuseau horaire de ville, comme Londres ou New York, peut changer de décalage pendant l’année à cause de l’heure d’été. Un décalage fixe, comme UTC+3, ne change jamais."
+      }
+    },
+    "nextTitle": "Explorer d’autres outils de temps",
+    "worldClockLink": "Ouvrir l’horloge mondiale",
+    "meetingPlannerLink": "Ouvrir le planificateur de réunions",
+    "whenItsLabel": "Quand il est",
+    "inLabel": "à",
+    "itsLabel": "il est",
+    "onLabel": "le",
+    "todayLabel": "Aujourd’hui"
   }
 }

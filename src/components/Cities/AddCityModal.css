@@ -45,6 +45,10 @@
     border-color: rgba(255 255 255 / 0.7);
     background: rgba(255 255 255 / 0.16);
   }
+
+  &:hover {
+    background: rgba(255 255 255 / 0.16);
+  }
 }
 
 .addCityModal-results {
@@ -55,8 +59,26 @@
   -webkit-overflow-scrolling: touch;
 }
 
-.addCityModal-helperText,
-.addCityModal-timezonePickerTitle {
+.addCityModal-searchResults,
+.addCityModal-fixedTimezones {
+  min-width: 0;
+}
+
+.addCityModal-sectionTitle {
+  margin: 12px 0 10px;
+  color: rgba(255 255 255 / 1);
+  font: normal 700 13px/1.2 var(--body-font-family-1);
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.addCityModal-timezonePickerControls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.addCityModal-helperText {
   margin: 12px 0;
   color: rgba(255 255 255 / 0.72);
   font-size: 15px;
@@ -75,19 +97,30 @@
   text-align: left;
   cursor: pointer;
 
+  &:last-child {
+    border-bottom: 1px solid rgba(255 255 255 / 0);
+  }
+
   &:hover {
+    border-radius: 2px;
     background: rgba(255 255 255 / 0.08);
+    border-bottom: 1px solid rgba(255 255 255 / 0);
   }
 
   &:disabled {
     cursor: default;
     opacity: 0.45;
   }
+
+  &:has(+ :hover) {
+    border-bottom: 1px solid rgba(255 255 255 / 0);
+  }
 }
 
 .addCityModal-resultName,
 .addCityModal-resultOriginalName,
-.addCityModal-resultTimezone {
+.addCityModal-resultTimezone,
+.addCityModal-resultAbbreviationFullName {
   display: block;
 }
 
@@ -109,6 +142,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(94px, 1fr));
   gap: 8px;
+  margin-top: 12px;
 }
 
 .addCityModal-timezoneGrid .addCityModal-result {
@@ -121,4 +155,101 @@
 
 .addCityModal-timezoneGrid .addCityModal-resultName {
   font-weight: 400;
+}
+
+.addCityModal-timezonePickerPanel {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    grid-template-rows 0.2s linear,
+    opacity 0.2s linear;
+}
+
+.addCityModal-timezonePickerPanel.isOpen {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.addCityModal-timezonePickerPanelInner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.addCityModal-timezoneAbbreviations {
+  margin-top: 12px;
+}
+
+.addCityModal-timezoneAbbreviations .addCityModal-result {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 42px;
+  text-align: left;
+}
+
+.addCityModal-resultAbbreviationName {
+  width: 35px;
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 1.2;
+}
+
+.addCityModal-resultAbbreviationFullName {
+  min-width: 0;
+  color: rgba(255 255 255 / 0.82);
+  font-size: 15px;
+  line-height: 1.2;
+}
+
+.addCityModal-timezonePickerToggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  width: 100%;
+  height: 42px;
+  margin: 10px 0 0;
+  padding: 0 14px;
+  border: 1px solid rgba(255 255 255 / 0);
+  border-radius: 21px;
+  background: rgba(255 255 255 / 0.12);
+  color: #fff;
+  font: normal normal 16px/1 var(--body-font-family-1);
+  text-align: left;
+  cursor: pointer;
+}
+
+.addCityModal-timezonePickerToggle:hover {
+  background: rgba(255 255 255 / 0.16);
+}
+
+.addCityModal-timezonePickerToggle:focus-visible {
+  border-color: rgba(255 255 255 / 0.7);
+  outline: none;
+  background: rgba(255 255 255 / 0.16);
+}
+
+.addCityModal-timezonePickerToggleIcon {
+  display: block;
+  width: 12px;
+  height: 7px;
+  flex: 0 0 auto;
+  background-color: rgba(255 255 255 / 0.82);
+  mask: url("../../assets/icon--arrow-1.svg") center / contain no-repeat;
+  transition: transform 0.2s ease;
+  position: relative;
+  top: 1px;
+}
+
+.addCityModal-timezonePickerToggle[aria-expanded="true"] .addCityModal-timezonePickerToggleIcon {
+  transform: rotate(-180deg);
+}
+
+@media screen and (width < 560px) {
+  .addCityModal-timezonePickerControls {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }

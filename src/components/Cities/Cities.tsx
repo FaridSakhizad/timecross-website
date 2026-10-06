@@ -620,18 +620,12 @@ export default function Cities({
     <div className={['cities', isEditMode ? 'cities_editMode' : '', ...customClassNameList].filter(Boolean).join(' ')}>
       <div className="citiesHeader">
         {showHomeButton && (
-          <>
-            {hasStandaloneMenu && (
-              <button
-                className="citiesHeaderButton citiesHeaderButton_menu"
-                type="button"
-                aria-label={t('common.menu')}
-                onClick={() => setIsMenuModalOpen(true)}
-              >
-                <i className="citiesHeaderButton-icon citiesHeaderButton-icon_menu" />
-              </button>
-            )}
-          </>
+          <Link
+            to={getCanonicalLanguagePath(language, '/')}
+            className="citiesHeaderButton citiesHeaderButton_home"
+          >
+            <i className="citiesHeaderButton-icon citiesHeaderButton-icon_home" />
+          </Link>
         )}
 
         <button
@@ -652,20 +646,24 @@ export default function Cities({
           <i className="citiesHeaderButton-icon citiesHeaderButton-icon_add" />
         </button>
 
-        <Link
-          to={getCanonicalLanguagePath(language, '/grid')}
-          className="citiesHeaderButton citiesHeaderButton_grid"
-        >
-          <i className="citiesHeaderButton-icon citiesHeaderButton-icon_grid" />
-        </Link>
-
         {showStandaloneButton && (
           <Link
             to={getCanonicalLanguagePath(language, '/cities')}
-            className="citiesHeaderButton"
+            className="citiesHeaderButton citiesHeaderButton_cities"
           >
             <i className="citiesHeaderButton-icon citiesHeaderButton-icon_cities" />
           </Link>
+        )}
+
+        {hasStandaloneMenu && (
+          <button
+            className="citiesHeaderButton citiesHeaderButton_menu"
+            type="button"
+            aria-label={t('common.menu')}
+            onClick={() => setIsMenuModalOpen(true)}
+          >
+            <i className="citiesHeaderButton-icon citiesHeaderButton-icon_menu" />
+          </button>
         )}
       </div>
       <div className="citiesListBox scrollControl">

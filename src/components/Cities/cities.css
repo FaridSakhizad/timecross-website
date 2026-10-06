@@ -39,6 +39,8 @@
 }
 
 .citiesHeaderButton_home {
+  margin-right: auto;
+
   &:after {
     content: '';
     display: block;
@@ -57,7 +59,7 @@
 }
 
 .citiesHeaderButton_menu {
-  margin-right: auto;
+  margin-left: auto;
 }
 
 .citiesHeaderButton_grid {
@@ -84,9 +86,9 @@
 }
 
 .citiesHeaderButton-icon_home {
-  width: 10px;
-  height: 14px;
-  mask: url('../../assets/icon--home-0.svg');
+  width: 16px;
+  height: 15px;
+  mask: url('../../assets/icon--home-1.svg');
   background-color: rgba(var(--accent-color-2), 1);
 }
 

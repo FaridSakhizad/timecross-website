@@ -8,7 +8,7 @@ import {
   getSeoMetadata,
 } from '../../seoMetadata';
 
-type SeoPage = 'home' | 'cities' | 'grid' | 'privacy' | 'terms';
+type SeoPage = 'home' | 'cities' | 'grid' | 'worldClock' | 'meetingTimePlanner' | 'timeZoneConverter' | 'privacy' | 'terms';
 
 type SeoProps = {
   page: SeoPage;

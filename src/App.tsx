@@ -4,8 +4,11 @@ import { useEffect, useLayoutEffect, useState, type ReactNode } from 'react';
 import CitiesPage from './pages/CitiesPage';
 import GridPage from './pages/GridPage';
 import HomePage from './pages/HomePage';
+import MeetingTimePlannerPage from './pages/MeetingTimePlannerPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import TermsOfUsePage from './pages/TermsOfUsePage';
+import TimeZoneConverterPage from './pages/TimeZoneConverterPage';
+import WorldClockPage from './pages/WorldClockPage';
 import { useI18n } from './i18n';
 import {
   getBrowserLanguage,
@@ -45,6 +48,9 @@ function getRouteName(pathname: string) {
       return 'index';
     case 'cities':
     case 'grid':
+    case 'meeting-time-planner':
+    case 'time-zone-converter':
+    case 'world-clock':
       return firstPathPart;
     case 'privacy-policy':
       return 'privacy';
@@ -204,6 +210,45 @@ function App({
         )}
       />
       <Route
+        path="world-clock"
+        element={(
+          <LocalizedRoute>
+            <WorldClockPage
+              colorMode={colorMode}
+              timeFormat={timeFormat}
+              onColorModeButtonClick={handleColorModeButtonClick}
+              onTimeFormatButtonClick={handleTimeFormatButtonClick}
+            />
+          </LocalizedRoute>
+        )}
+      />
+      <Route
+        path="meeting-time-planner"
+        element={(
+          <LocalizedRoute>
+            <MeetingTimePlannerPage
+              colorMode={colorMode}
+              timeFormat={timeFormat}
+              onColorModeButtonClick={handleColorModeButtonClick}
+              onTimeFormatButtonClick={handleTimeFormatButtonClick}
+            />
+          </LocalizedRoute>
+        )}
+      />
+      <Route
+        path="time-zone-converter"
+        element={(
+          <LocalizedRoute>
+            <TimeZoneConverterPage
+              colorMode={colorMode}
+              timeFormat={timeFormat}
+              onColorModeButtonClick={handleColorModeButtonClick}
+              onTimeFormatButtonClick={handleTimeFormatButtonClick}
+            />
+          </LocalizedRoute>
+        )}
+      />
+      <Route
         path=":lang"
         element={(
           <LocalizedRoute>
@@ -260,6 +305,45 @@ function App({
         element={(
           <LocalizedRoute>
             <GridPage
+              colorMode={colorMode}
+              timeFormat={timeFormat}
+              onColorModeButtonClick={handleColorModeButtonClick}
+              onTimeFormatButtonClick={handleTimeFormatButtonClick}
+            />
+          </LocalizedRoute>
+        )}
+      />
+      <Route
+        path=":lang/world-clock"
+        element={(
+          <LocalizedRoute>
+            <WorldClockPage
+              colorMode={colorMode}
+              timeFormat={timeFormat}
+              onColorModeButtonClick={handleColorModeButtonClick}
+              onTimeFormatButtonClick={handleTimeFormatButtonClick}
+            />
+          </LocalizedRoute>
+        )}
+      />
+      <Route
+        path=":lang/meeting-time-planner"
+        element={(
+          <LocalizedRoute>
+            <MeetingTimePlannerPage
+              colorMode={colorMode}
+              timeFormat={timeFormat}
+              onColorModeButtonClick={handleColorModeButtonClick}
+              onTimeFormatButtonClick={handleTimeFormatButtonClick}
+            />
+          </LocalizedRoute>
+        )}
+      />
+      <Route
+        path=":lang/time-zone-converter"
+        element={(
+          <LocalizedRoute>
+            <TimeZoneConverterPage
               colorMode={colorMode}
               timeFormat={timeFormat}
               onColorModeButtonClick={handleColorModeButtonClick}

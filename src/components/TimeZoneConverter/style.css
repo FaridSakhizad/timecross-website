@@ -1,0 +1,223 @@
+.timeZoneConverter {
+  display: flex;
+  flex-direction: column;
+  width: max-content;
+  margin: 0 auto;
+  border: 3px solid rgba(var(--accent-color-2), 1);
+  border-radius: 40px;
+  background-color: rgba(var(--accent-color-1), 0.1);
+  box-shadow: 0 10px 50px 0 rgba(0 0 0 / 0.15);
+  overflow: hidden;
+}
+
+.timeZoneConverter-statement {
+  padding: 22px 25px 15px 25px;
+}
+
+.timeZoneConverter-mainLine {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.timeZoneConverter-statementText {
+  display: block;
+  color: #fff;
+  font-size: 24px;
+  line-height: 1.4;
+}
+
+.timeZoneConverter-resultsLead {
+  display: block;
+  color: #fff;
+  font-size: 48px;
+  line-height: 48px;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 0 25px;
+}
+
+.timeZoneConverter-inLabel,
+.timeZoneConverter-onLabel {
+  color: rgba(255 255 255 / 0.9);
+  font-size: 24px;
+  line-height: 1;
+  font-weight: 800;
+}
+
+.timeZoneConverter-select,
+.timeZoneConverter-input,
+.timeZoneConverter-timeButton,
+.timeZoneConverter-dateButton {
+  width: auto;
+  height: 44px;
+  padding: 4px 16px;
+  border: 1px solid transparent;
+  border-radius: 65536px;
+  color: #fff;
+  font: inherit;
+  font-size: 24px;
+  line-height: 34px;
+  background-color: rgba(var(--accent-color-1), 0.4);
+  outline: none;
+}
+
+.timeZoneConverter-timeNativeInput {
+  &::-webkit-calendar-picker-indicator {
+    background: none;
+  }
+}
+
+.timeZoneConverter-timeControl,
+.timeZoneConverter-dateControl {
+  position: relative;
+  min-width: 0;
+}
+
+.timeZoneConverter-timeButton,
+.timeZoneConverter-dateButton {
+  display: block;
+  cursor: pointer;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.timeZoneConverter-timeNativeInput,
+.timeZoneConverter-dateNativeInput {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.timeZoneConverter-select {
+  appearance: none;
+  cursor: pointer;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.timeZoneConverter-select option {
+  color: #111;
+}
+
+
+.timeZoneConverter-listBox {
+  flex: 0 1 auto;
+  max-height: 620px;
+}
+
+.timeZoneConverter-listItem {
+
+}
+
+.timeZoneConverter-resultPhrase {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  min-width: 0;
+  color: #fff;
+  font-size: 24px;
+  line-height: 29px;
+}
+
+.timeZoneConverter-resultTime {
+  font-weight: 600;
+}
+
+.timeZoneConverter-resultIcon {
+  margin: 0 2px 0 0;
+  align-self: center;
+}
+
+.timeZoneConverter-resultIn {
+  font-weight: 400;
+  opacity: 0.86;
+}
+
+.timeZoneConverter-resultCity {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.timeZoneConverter-resultMeta {
+  margin-left: auto;
+  font-size: 24px;
+}
+
+.timeZoneConverter-empty {
+  color: rgba(255 255 255 / 0.82);
+  font-size: 16px;
+  line-height: 1.35;
+  font-weight: 700;
+  margin: 0;
+  padding: 28px;
+  text-align: center;
+}
+
+@media screen and (width < 860px) {
+  .timeZoneConverter-mainLine {
+    grid-template-columns: auto minmax(112px, 1fr);
+  }
+
+  .timeZoneConverter-inLabel {
+    grid-column: 1;
+  }
+
+  .timeZoneConverter-select {
+    grid-column: 2;
+  }
+}
+
+@media screen and (width < 720px) {
+  .timeZoneConverter {
+    border-radius: 28px;
+  }
+
+  .timeZoneConverter-mainLine {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .timeZoneConverter-dateLine {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .timeZoneConverter-dateLine:has(.timeZoneConverter-onLabel) {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .timeZoneConverter-statement {
+    padding: 20px 18px 18px;
+  }
+
+  .timeZoneConverter-inLabel,
+  .timeZoneConverter-onLabel {
+    font-size: 24px;
+  }
+
+  .timeZoneConverter-statementLead {
+    grid-column: 1 / -1;
+  }
+
+  .timeZoneConverter-inLabel {
+    justify-self: end;
+  }
+
+  .timeZoneConverter-select,
+  .timeZoneConverter-input,
+  .timeZoneConverter-timeButton,
+  .timeZoneConverter-dateButton {
+    height: 44px;
+    padding-right: 10px;
+    padding-left: 10px;
+    font-size: 24px;
+  }
+}

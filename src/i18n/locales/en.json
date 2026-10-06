@@ -4,8 +4,6 @@
     "sayThanks": "Say Thanks",
     "appStore": "Download on the App Store",
     "googlePlay": "Get it on Google Play",
-    "androidPreview": "Download Android Preview",
-    "androidPreviewNote": "While we prepare the Google Play release, you can download the APK and try the TimeCross app right now.",
     "comingSoon": "Coming Soon",
     "home": "Home",
     "menu": "Menu",
@@ -30,7 +28,10 @@
     "lastUpdated": "Last updated: {date}",
     "support": "Support",
     "termsOfUse": "Terms Of Use",
-    "privacyPolicy": "Privacy Policy"
+    "privacyPolicy": "Privacy Policy",
+    "worldClockLabel": "World Clock",
+    "meetingPlannerLabel": "Meeting Planner",
+    "timeZoneConverterLabel": "Converter"
   },
   "languages": {
     "en": "English",
@@ -56,7 +57,9 @@
   },
   "addCity": {
     "searchPlaceholder": "City Name or Time Zone...",
-    "chooseTimezone": "Choose GMT / UTC",
+    "fixedTimezonesTitle": "Fixed time zones",
+    "chooseTimezone": "GMT / UTC",
+    "chooseAbbreviation": "US/Canada Time Zone",
     "databaseUnavailable": "City search is temporarily unavailable."
   },
   "home": {
@@ -102,6 +105,18 @@
         "text": "Schedule work with international clients."
       }
     }
+  },
+  "worldClock": {
+    "title": "World Clock",
+    "lead": "Compare current local time across the cities that matter to you.",
+    "description": "TimeCross gives you a personal world clock for people, trips, calls, and routines across time zones. Add cities, rename them your way, and keep the important hours close at hand.",
+    "personalClockTitle": "A world clock built around your cities",
+    "personalClockText": "Keep a focused list of places instead of scanning a giant table of time zones. TimeCross lets you order, rename, and compare the cities you actually care about.",
+    "compareCitiesTitle": "See today, tomorrow, and time differences at a glance",
+    "compareCitiesText": "Day markers and relative offsets make it easier to know when a city has moved into tomorrow, when someone is likely awake, and how far apart two places are.",
+    "nextTitle": "Explore more time tools",
+    "gridLink": "Open timeline grid",
+    "citiesLink": "Open full-screen city list"
   },
   "contactForm": {
     "name": "Name*",
@@ -200,6 +215,12 @@
         "ogTitle": "TimeCross Timeline Grid",
         "ogDescription": "See today, yesterday, and tomorrow across your cities in one timeline grid."
       },
+      "worldClock": {
+        "title": "World Clock — TimeCross",
+        "description": "Create a personal world clock with favorite cities, local times, day markers, and time zone offsets.",
+        "ogTitle": "TimeCross World Clock",
+        "ogDescription": "Compare current local time across the cities and time zones that matter to you."
+      },
       "privacy": {
         "title": "Privacy Policy — TimeCross",
         "description": "Read how TimeCross handles contact form messages, local app data, notifications, and third-party links.",
@@ -211,6 +232,18 @@
         "description": "Read the terms that apply when using the TimeCross app and website.",
         "ogTitle": "TimeCross Terms of Use",
         "ogDescription": "The basic rules and responsibilities for using TimeCross as a time planning tool."
+      },
+      "meetingTimePlanner": {
+        "title": "Meeting Time Planner — TimeCross",
+        "description": "Plan meetings across time zones with a visual timeline for cities, local hours, day markers, and time differences.",
+        "ogTitle": "TimeCross Meeting Time Planner",
+        "ogDescription": "Find better meeting times across cities and time zones with a visual timeline planner."
+      },
+      "timeZoneConverter": {
+        "title": "Time Zone Converter — TimeCross",
+        "description": "Convert a chosen time across cities and time zones with local dates, day markers, and time differences in TimeCross.",
+        "ogTitle": "TimeCross Time Zone Converter",
+        "ogDescription": "Pick a city, date, and time, then see the same moment across your saved cities and time zones."
       }
     },
     "images": {
@@ -227,5 +260,61 @@
       "screenshotAddTimezone": "TimeCross screenshot showing GMT and UTC timezone selection.",
       "screenshotNotifications": "TimeCross screenshot showing notification setup for a selected city time."
     }
+  },
+  "meetingTimePlanner": {
+    "title": "Meeting Time Planner",
+    "lead": "Find meeting hours that make sense across cities and time zones.",
+    "description": "Use TimeCross to compare local hours before you schedule a call, handoff, livestream, class, or family chat. Line up the same moment across cities and spot better meeting windows faster.",
+    "previewTitle": "Try the timeline planner",
+    "previewText": "The timeline view lines up city hours so you can scan today, yesterday, and tomorrow without doing timezone math.",
+    "compareTitle": "Compare cities before you send the invite",
+    "compareText": "See where each city is in the day and avoid guessing whether a time is too early, too late, or already tomorrow.",
+    "planTitle": "Plan around people, not offsets",
+    "planText": "Rename cities for clients, friends, family, or routines and keep the places you coordinate with in a clear order.",
+    "nextTitle": "Explore more time tools",
+    "gridLink": "Open full-screen grid",
+    "worldClockLink": "Open world clock"
+  },
+  "timeZoneConverter": {
+    "title": "Time Zone Converter for Cities",
+    "lead": "Pick any city, enter a time, and see the matching local time across your saved cities and time zones.",
+    "description": "Pick a city, date, and time. TimeCross shows the same moment in the places you care about, with local dates, time differences, and day markers.",
+    "toolTitle": "Convert time between cities",
+    "toolText": "Use your saved TimeCross cities as the conversion list. Change the source city or time and the results update across every city below.",
+    "fromLabel": "From city",
+    "dateLabel": "Date",
+    "timeLabel": "Time",
+    "emptyText": "Add a city to start converting time zones.",
+    "convertTitle": "Convert one moment, not just an offset",
+    "convertText": "Time zones change with daylight saving rules and local dates. The converter works from a specific city and time so the result stays tied to a real moment.",
+    "contextTitle": "Keep the result in context",
+    "contextText": "See whether another city is still on the same day, already tomorrow, or behind you yesterday before you schedule, call, or travel.",
+    "faqTitle": "Time zone converter FAQ",
+    "faq": {
+      "what": {
+        "title": "What is a time zone converter?",
+        "text": "A time zone converter shows what the same moment means in different cities. For example, 10:00 in London can become 05:00 in New York and 18:00 in Tokyo, depending on the date and local time zone rules."
+      },
+      "dst": {
+        "title": "Does TimeCross handle daylight saving time?",
+        "text": "Yes, when you choose real cities. TimeCross uses city time zones, so daylight saving changes are handled through the selected city’s local rules. Fixed UTC/GMT offsets stay fixed."
+      },
+      "cities": {
+        "title": "Can I convert time between cities instead of UTC offsets?",
+        "text": "Yes. Choose a source city and time, then TimeCross shows the matching local time across your saved cities. This is usually easier than comparing raw offsets like UTC+1 or UTC-5."
+      },
+      "offsets": {
+        "title": "What is the difference between a city time zone and a fixed UTC offset?",
+        "text": "A city time zone, such as London or New York, can change offset during the year because of daylight saving time. A fixed offset, such as UTC+3, never changes."
+      }
+    },
+    "nextTitle": "Explore more time tools",
+    "worldClockLink": "Open world clock",
+    "meetingPlannerLink": "Open meeting planner",
+    "whenItsLabel": "When it’s",
+    "inLabel": "in",
+    "itsLabel": "it’s",
+    "onLabel": "on",
+    "todayLabel": "Today"
   }
 }

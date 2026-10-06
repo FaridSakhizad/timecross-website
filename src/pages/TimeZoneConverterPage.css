@@ -1,0 +1,174 @@
+.timeZoneConverterHero {
+  padding-top: 56px;
+}
+
+.timeZoneConverterHero-container {
+  display: grid;
+  grid-template-columns: minmax(0, 760px);
+  justify-content: center;
+}
+
+.timeZoneConverterHero-text {
+  color: #fff;
+  text-align: center;
+  text-shadow: 0 0 3px rgba(0, 0, 0, 0.18);
+}
+
+.timeZoneConverterHero-title {
+  margin: 0 0 24px;
+  font-size: 64px;
+  line-height: 1;
+  font-weight: 900;
+}
+
+.timeZoneConverterHero-lead {
+  margin: 0;
+  font-size: 24px;
+  line-height: 1.35;
+  font-weight: 700;
+  color: var(--body-text-color-2);
+}
+
+.timeZoneConverterToolSection-container {
+  display: grid;
+  gap: 26px;
+}
+
+.timeZoneConverterToolSection-title {
+  order: 1;
+}
+
+.timeZoneConverterToolSection-text {
+  order: 2;
+  max-width: 760px;
+  margin: -22px auto 0;
+  color: var(--body-text-color-2);
+  font-size: 18px;
+  line-height: 1.5;
+  text-align: center;
+  text-shadow: 0 0 3px rgba(0, 0, 0, 0.18);
+}
+
+.timeZoneConverterToolSection-widget {
+  order: 3;
+}
+
+.timeZoneConverterToolSection-description {
+  order: 4;
+  max-width: 760px;
+  margin: 0 auto;
+  color: rgba(255 255 255 / 0.92);
+  font-size: 18px;
+  line-height: 1.5;
+  text-align: center;
+  text-shadow: 0 0 3px rgba(0, 0, 0, 0.18);
+}
+
+.timeZoneConverterToolSection-cta {
+  order: 5;
+  justify-content: center;
+}
+
+.timeZoneConverterInfo-container {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 36px;
+}
+
+.timeZoneConverterInfo-title {
+  margin: 0 0 12px;
+  color: #fff;
+  font-size: 28px;
+  line-height: 1.2;
+}
+
+.timeZoneConverterInfo-text {
+  margin: 0;
+  color: var(--body-text-color-2);
+  font-size: 18px;
+  line-height: 1.5;
+  text-shadow: 0 0 3px rgba(0, 0, 0, 0.18);
+}
+
+.timeZoneConverterLinks-container {
+  text-align: center;
+}
+
+.timeZoneConverterFaq-container {
+  display: grid;
+  gap: 28px;
+}
+
+.timeZoneConverterLinks-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 18px;
+}
+
+.timeZoneConverterLinks-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 22px;
+  border: 2px solid rgba(var(--accent-color-2), 1);
+  border-radius: 999px;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  text-decoration: none;
+  background-color: rgba(var(--accent-color-1), 0.18);
+}
+
+@media (hover: hover) {
+  .timeZoneConverterLinks-link:hover {
+    background-color: rgba(var(--accent-color-1), 0.55);
+  }
+}
+
+@media screen and (width < 720px) {
+  .timeZoneConverterHero {
+    padding-top: 36px;
+    padding-bottom: 22px;
+  }
+
+  .timeZoneConverterHero-title {
+    margin-bottom: 14px;
+    font-size: 44px;
+  }
+
+  .timeZoneConverterHero-lead {
+    font-size: 20px;
+  }
+
+  .timeZoneConverterToolSection {
+    padding-top: 20px;
+  }
+
+  .timeZoneConverterToolSection-title {
+    order: 2;
+    margin-bottom: 0;
+  }
+
+  .timeZoneConverterToolSection-text {
+    order: 3;
+    margin-top: -14px;
+  }
+
+  .timeZoneConverterToolSection-widget {
+    order: 1;
+  }
+
+  .timeZoneConverterToolSection-description {
+    order: 4;
+  }
+
+  .timeZoneConverterToolSection-cta {
+    order: 5;
+  }
+
+  .timeZoneConverterInfo-container {
+    grid-template-columns: 1fr;
+  }
+}

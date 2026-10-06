@@ -46,14 +46,6 @@ export default function TimelinesTopControls({
       />
 
       <Link
-        to={getCanonicalLanguagePath(language, '/cities')}
-        className="gridTopControlsButton"
-        aria-label={t('common.openCities')}
-      >
-        <i className="citiesHeaderButton-icon citiesHeaderButton-icon_cities" />
-      </Link>
-
-      <Link
         to={getCanonicalLanguagePath(language, '/grid')}
         className="gridTopControlsButton"
         aria-label={t('common.openGrid')}

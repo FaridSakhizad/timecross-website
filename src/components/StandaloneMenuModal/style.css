@@ -37,6 +37,7 @@
 }
 
 .standaloneMenuModal-item_thanks {
+  width: 68%;
   color: rgba(var(--color-danger-1), 1);
   gap: 10px;
 

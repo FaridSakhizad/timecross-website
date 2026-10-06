@@ -4,8 +4,6 @@
     "sayThanks": "Danke sagen",
     "appStore": "Im App Store laden",
     "googlePlay": "Bei Google Play erhältlich",
-    "androidPreview": "Android Preview herunterladen",
-    "androidPreviewNote": "Während wir die Veröffentlichung bei Google Play vorbereiten, kannst du die APK herunterladen und die TimeCross App direkt ausprobieren.",
     "comingSoon": "Demnächst",
     "home": "Startseite",
     "menu": "Menü",
@@ -30,7 +28,10 @@
     "lastUpdated": "Zuletzt aktualisiert: {date}",
     "support": "Support",
     "termsOfUse": "Nutzungsbedingungen",
-    "privacyPolicy": "Datenschutzerklärung"
+    "privacyPolicy": "Datenschutzerklärung",
+    "worldClockLabel": "Weltuhr",
+    "meetingPlannerLabel": "Meetings",
+    "timeZoneConverterLabel": "Konverter"
   },
   "languages": {
     "en": "English",
@@ -56,7 +57,9 @@
   },
   "addCity": {
     "searchPlaceholder": "Stadtname oder Zeitzone...",
-    "chooseTimezone": "GMT / UTC wählen",
+    "fixedTimezonesTitle": "Feste Zeitzonen",
+    "chooseTimezone": "GMT / UTC",
+    "chooseAbbreviation": "US-/Kanada-Zeitzone",
     "databaseUnavailable": "Die Stadtsuche ist vorübergehend nicht verfügbar."
   },
   "home": {
@@ -211,6 +214,24 @@
         "description": "Lies die Bedingungen für die Nutzung der TimeCross App und Website.",
         "ogTitle": "TimeCross Nutzungsbedingungen",
         "ogDescription": "Die grundlegenden Regeln und Verantwortlichkeiten für die Nutzung von TimeCross als Zeitplanungstool."
+      },
+      "worldClock": {
+        "title": "Weltuhr — TimeCross",
+        "description": "Erstelle eine persönliche Weltuhr mit Lieblingsstädten, Ortszeiten, Tagesmarkern und Zeitzonen-Abständen.",
+        "ogTitle": "TimeCross Weltuhr",
+        "ogDescription": "Vergleiche die aktuelle Ortszeit in den Städten und Zeitzonen, die dir wichtig sind."
+      },
+      "meetingTimePlanner": {
+        "title": "Meeting-Zeitplaner — TimeCross",
+        "description": "Plane Meetings über Zeitzonen hinweg mit einer visuellen Timeline für Städte, lokale Stunden, Tagesmarker und Zeitunterschiede.",
+        "ogTitle": "TimeCross Meeting-Zeitplaner",
+        "ogDescription": "Finde bessere Meeting-Zeiten zwischen Städten und Zeitzonen mit einem visuellen Timeline-Planer."
+      },
+      "timeZoneConverter": {
+        "title": "Zeitzonen-Konverter — TimeCross",
+        "description": "Konvertiere eine gewählte Zeit zwischen Städten und Zeitzonen mit lokalen Daten, Tagesmarkern und Zeitunterschieden in TimeCross.",
+        "ogTitle": "TimeCross Zeitzonen-Konverter",
+        "ogDescription": "Wähle Stadt, Datum und Uhrzeit und sieh denselben Moment in deinen Städten und Zeitzonen."
       }
     },
     "images": {
@@ -227,5 +248,73 @@
       "screenshotAddTimezone": "TimeCross Screenshot mit GMT- und UTC-Zeitzonenauswahl.",
       "screenshotNotifications": "TimeCross Screenshot mit Benachrichtigungseinstellung für eine ausgewählte Ortszeit."
     }
+  },
+  "worldClock": {
+    "title": "Weltuhr",
+    "lead": "Vergleiche die aktuelle Ortszeit in den Städten, die dir wichtig sind.",
+    "description": "TimeCross gibt dir eine persönliche Weltuhr für Menschen, Reisen, Anrufe und Routinen über Zeitzonen hinweg. Füge Städte hinzu, benenne sie frei um und behalte wichtige Uhrzeiten im Blick.",
+    "personalClockTitle": "Eine Weltuhr rund um deine Städte",
+    "personalClockText": "Behalte eine fokussierte Liste deiner Orte statt einer riesigen Zeitzonentabelle. TimeCross hilft dir, die Städte zu ordnen, umzubenennen und zu vergleichen, die wirklich wichtig sind.",
+    "compareCitiesTitle": "Heute, morgen und Zeitunterschiede auf einen Blick",
+    "compareCitiesText": "Tagesmarker und relative Abstände zeigen, wo bereits morgen ist, wann jemand wahrscheinlich wach ist und wie weit zwei Städte zeitlich auseinanderliegen.",
+    "nextTitle": "Weitere Zeit-Tools entdecken",
+    "gridLink": "Timeline-Grid öffnen",
+    "citiesLink": "Städteliste öffnen"
+  },
+  "meetingTimePlanner": {
+    "title": "Meeting-Zeitplaner",
+    "lead": "Finde Meeting-Zeiten, die über Städte und Zeitzonen hinweg sinnvoll sind.",
+    "description": "Nutze TimeCross, um lokale Zeiten vor einem Anruf, Handoff, Livestream, Kurs oder Familiengespräch zu vergleichen. Richte denselben Moment zwischen Städten aus und finde schneller gute Zeitfenster.",
+    "previewTitle": "Probiere den Timeline-Planer aus",
+    "previewText": "Die Timeline richtet Stadtzeiten aus, damit du heute, gestern und morgen scannen kannst, ohne Zeitzonen im Kopf umzurechnen.",
+    "compareTitle": "Vergleiche Städte, bevor du die Einladung sendest",
+    "compareText": "Sieh, wo jede Stadt im Tagesverlauf steht, und rate nicht mehr, ob eine Zeit zu früh, zu spät oder dort schon morgen ist.",
+    "planTitle": "Plane für Menschen, nicht für Offsets",
+    "planText": "Benenne Städte für Kunden, Freunde, Familie oder Routinen um und halte wichtige Orte in einer klaren Reihenfolge.",
+    "nextTitle": "Weitere Zeit-Tools entdecken",
+    "gridLink": "Vollbild-Raster öffnen",
+    "worldClockLink": "Weltuhr öffnen"
+  },
+  "timeZoneConverter": {
+    "title": "Zeitzonen-Konverter für Städte",
+    "lead": "Wähle eine beliebige Stadt, gib eine Uhrzeit ein und sieh die passende Ortszeit in deinen gespeicherten Städten und Zeitzonen.",
+    "description": "Wähle eine Stadt, ein Datum und eine Uhrzeit. TimeCross zeigt denselben Moment an den Orten, die dir wichtig sind, mit lokalen Daten, Zeitunterschieden und Tagesmarkern.",
+    "toolTitle": "Zeit zwischen Städten konvertieren",
+    "toolText": "Nutze deine gespeicherten TimeCross-Städte als Konvertierungsliste. Ändere die Ausgangsstadt oder Uhrzeit und die Ergebnisse aktualisieren sich für jede Stadt.",
+    "fromLabel": "Ausgangsstadt",
+    "dateLabel": "Datum",
+    "timeLabel": "Uhrzeit",
+    "emptyText": "Füge eine Stadt hinzu, um Zeitzonen zu konvertieren.",
+    "convertTitle": "Konvertiere einen Moment, nicht nur einen Offset",
+    "convertText": "Zeitzonen ändern sich durch Sommerzeitregeln und lokale Daten. Der Konverter geht von einer konkreten Stadt und Zeit aus, damit das Ergebnis an einen realen Moment gebunden bleibt.",
+    "contextTitle": "Behalte den Kontext des Ergebnisses",
+    "contextText": "Sieh, ob eine andere Stadt noch am selben Tag ist, schon morgen hat oder hinter dir gestern liegt, bevor du planst, anrufst oder reist.",
+    "faqTitle": "FAQ zum Zeitzonen-Konverter",
+    "faq": {
+      "what": {
+        "title": "Was ist ein Zeitzonen-Konverter?",
+        "text": "Ein Zeitzonen-Konverter zeigt, was derselbe Moment in verschiedenen Städten bedeutet. Zum Beispiel kann 10:00 in London je nach Datum und lokalen Regeln 05:00 in New York und 18:00 in Tokio sein."
+      },
+      "dst": {
+        "title": "Berücksichtigt TimeCross die Sommerzeit?",
+        "text": "Ja, wenn du echte Städte auswählst. TimeCross nutzt Stadt-Zeitzonen, daher werden Sommerzeitwechsel über die lokalen Regeln der ausgewählten Stadt berücksichtigt. Feste UTC/GMT-Offsets bleiben fest."
+      },
+      "cities": {
+        "title": "Kann ich Zeit zwischen Städten statt zwischen UTC-Offsets konvertieren?",
+        "text": "Ja. Wähle eine Ausgangsstadt und eine Uhrzeit, dann zeigt TimeCross die passende Ortszeit in deinen gespeicherten Städten. Das ist meist einfacher als rohe Offsets wie UTC+1 oder UTC-5 zu vergleichen."
+      },
+      "offsets": {
+        "title": "Was ist der Unterschied zwischen einer Stadt-Zeitzone und einem festen UTC-Offset?",
+        "text": "Eine Stadt-Zeitzone wie London oder New York kann ihren Offset im Jahresverlauf wegen der Sommerzeit ändern. Ein fester Offset wie UTC+3 ändert sich nie."
+      }
+    },
+    "nextTitle": "Weitere Zeit-Tools entdecken",
+    "worldClockLink": "Weltuhr öffnen",
+    "meetingPlannerLink": "Meeting-Planer öffnen",
+    "whenItsLabel": "Wenn es",
+    "inLabel": "in",
+    "itsLabel": "ist es",
+    "onLabel": "am",
+    "todayLabel": "Heute"
   }
 }

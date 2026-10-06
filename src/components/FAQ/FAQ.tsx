@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import type { ReactNode } from 'react';
 import { SITE_NAME } from '../../config';
 import { useI18n } from '../../i18n';
 
@@ -8,10 +9,24 @@ interface IAccordionItemData {
   isOpen: boolean;
 }
 
-export default function FAQ() {
+type FAQItem = {
+  id: string | number;
+  title: ReactNode;
+  content: ReactNode;
+  tooltipData?: {
+    title: ReactNode;
+    content: ReactNode;
+  };
+};
+
+type FAQProps = {
+  items?: FAQItem[];
+};
+
+export default function FAQ({ items }: FAQProps) {
   const {t} = useI18n();
 
-  const DATA = [
+  const DATA: FAQItem[] = items ?? [
     {
       id: 1,
       title: t('faq.free.title', {siteName: SITE_NAME}),
@@ -109,10 +124,12 @@ export default function FAQ() {
             <div className="accordion-header" onClick={() => setActiveAccordionItem(idx)}>
               <h3 className="accordion-title">{accordionItem.title}</h3>
 
-              <span className="accordionTooltip">
-                {accordionItem.tooltipData.title}
-                {accordionItem.tooltipData.content}
-              </span>
+              {accordionItem.tooltipData && (
+                <span className="accordionTooltip">
+                  {accordionItem.tooltipData.title}
+                  {accordionItem.tooltipData.content}
+                </span>
+              )}
             </div>
 
             <div className="accordion-contentWrapper">

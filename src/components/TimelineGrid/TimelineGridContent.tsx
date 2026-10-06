@@ -55,14 +55,13 @@ export function TimelineGridToolbar({
   return (
     <>
       <div className={`timelineGrid-toolbar ${modeClassName}`}>
-        <button
-          className="citiesHeaderButton citiesHeaderButton_menu"
-          type="button"
-          aria-label={t('common.menu')}
-          onClick={() => setIsMenuModalOpen(true)}
+        <Link
+          to={getCanonicalLanguagePath(language, '/')}
+          className="citiesHeaderButton citiesHeaderButton_home"
         >
-          <i className="citiesHeaderButton-icon citiesHeaderButton-icon_menu" />
-        </button>
+          <i className="citiesHeaderButton-icon citiesHeaderButton-icon_home" />
+        </Link>
+
         <button
           className={`citiesHeaderButton citiesHeaderButton_edit ${isEditMode ? 'isActive' : ''}`}
           type="button"
@@ -88,14 +87,17 @@ export function TimelineGridToolbar({
         >
           <i className="citiesHeaderButton-icon citiesHeaderButton-icon_reset" />
         </button>
-        <Link
-          to={getCanonicalLanguagePath(language, '/cities')}
-          className="citiesHeaderButton citiesHeaderButton_cities"
-          aria-label={t('common.openCities')}
+
+        <button
+          className="citiesHeaderButton citiesHeaderButton_menu"
+          type="button"
+          aria-label={t('common.menu')}
+          onClick={() => setIsMenuModalOpen(true)}
         >
-          <i className="citiesHeaderButton-icon citiesHeaderButton-icon_cities" />
-        </Link>
+          <i className="citiesHeaderButton-icon citiesHeaderButton-icon_menu" />
+        </button>
       </div>
+
       <StandaloneMenuModal
         colorMode={colorMode}
         isOpen={isMenuModalOpen}

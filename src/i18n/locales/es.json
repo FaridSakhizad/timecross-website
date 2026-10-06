@@ -4,8 +4,6 @@
     "sayThanks": "Agradecer",
     "appStore": "Descargar en App Store",
     "googlePlay": "Consíguelo en Google Play",
-    "androidPreview": "Descargar Android Preview",
-    "androidPreviewNote": "Mientras preparamos el lanzamiento en Google Play, puedes descargar el APK y probar la app TimeCross ahora mismo.",
     "comingSoon": "Próximamente",
     "home": "Inicio",
     "menu": "Menú",
@@ -30,7 +28,10 @@
     "lastUpdated": "Última actualización: {date}",
     "support": "Soporte",
     "termsOfUse": "Términos de uso",
-    "privacyPolicy": "Política de privacidad"
+    "privacyPolicy": "Política de privacidad",
+    "worldClockLabel": "Reloj mundial",
+    "meetingPlannerLabel": "Reuniones",
+    "timeZoneConverterLabel": "Conversor"
   },
   "languages": {
     "en": "English",
@@ -56,7 +57,9 @@
   },
   "addCity": {
     "searchPlaceholder": "Nombre de la ciudad o zona horaria...",
-    "chooseTimezone": "Elegir GMT / UTC",
+    "fixedTimezonesTitle": "Zonas horarias fijas",
+    "chooseTimezone": "GMT / UTC",
+    "chooseAbbreviation": "Zona horaria de EE. UU./Canadá",
     "databaseUnavailable": "La búsqueda de ciudades no está disponible temporalmente."
   },
   "home": {
@@ -211,6 +214,24 @@
         "description": "Lee los términos que se aplican al usar la app y el sitio web de TimeCross.",
         "ogTitle": "Términos de uso de TimeCross",
         "ogDescription": "Las reglas y responsabilidades básicas para usar TimeCross como herramienta de planificación del tiempo."
+      },
+      "worldClock": {
+        "title": "Reloj mundial — TimeCross",
+        "description": "Crea un reloj mundial personal con ciudades favoritas, horas locales, marcadores de día y desfases de zona horaria.",
+        "ogTitle": "Reloj mundial TimeCross",
+        "ogDescription": "Compara la hora local actual en las ciudades y zonas horarias que te importan."
+      },
+      "meetingTimePlanner": {
+        "title": "Planificador de reuniones — TimeCross",
+        "description": "Planifica reuniones entre zonas horarias con una timeline visual para ciudades, horas locales, marcadores de día y diferencias horarias.",
+        "ogTitle": "Planificador de reuniones TimeCross",
+        "ogDescription": "Encuentra mejores horarios de reunión entre ciudades y zonas horarias con una timeline visual."
+      },
+      "timeZoneConverter": {
+        "title": "Conversor de zonas horarias — TimeCross",
+        "description": "Convierte una hora elegida entre ciudades y zonas horarias con fechas locales, marcadores de día y diferencias horarias en TimeCross.",
+        "ogTitle": "Conversor de zonas horarias TimeCross",
+        "ogDescription": "Elige una ciudad, fecha y hora, y ve el mismo momento en tus ciudades y zonas horarias."
       }
     },
     "images": {
@@ -227,5 +248,73 @@
       "screenshotAddTimezone": "Captura de TimeCross con selección de zona horaria GMT y UTC.",
       "screenshotNotifications": "Captura de TimeCross con configuración de una notificación para una hora local elegida."
     }
+  },
+  "worldClock": {
+    "title": "Reloj mundial",
+    "lead": "Compara la hora local actual en las ciudades que te importan.",
+    "description": "TimeCross te da un reloj mundial personal para personas, viajes, llamadas y rutinas entre zonas horarias. Añade ciudades, renómbralas a tu manera y mantén cerca las horas importantes.",
+    "personalClockTitle": "Un reloj mundial para tus ciudades",
+    "personalClockText": "Mantén una lista enfocada de lugares en vez de revisar una tabla enorme de zonas horarias. TimeCross te ayuda a ordenar, renombrar y comparar las ciudades que realmente importan.",
+    "compareCitiesTitle": "Hoy, mañana y diferencias horarias de un vistazo",
+    "compareCitiesText": "Los marcadores de día y los desfases relativos ayudan a ver dónde ya es mañana, cuándo alguien probablemente está despierto y cuántas horas separan dos ciudades.",
+    "nextTitle": "Explora más herramientas de tiempo",
+    "gridLink": "Abrir timeline grid",
+    "citiesLink": "Abrir lista de ciudades"
+  },
+  "meetingTimePlanner": {
+    "title": "Planificador de reuniones",
+    "lead": "Encuentra horas de reunión que funcionen entre ciudades y zonas horarias.",
+    "description": "Usa TimeCross para comparar horas locales antes de programar una llamada, entrega, transmisión, clase o charla familiar. Alinea el mismo momento entre ciudades y detecta mejores horarios más rápido.",
+    "previewTitle": "Prueba el planificador en timeline",
+    "previewText": "La vista timeline alinea las horas de las ciudades para revisar hoy, ayer y mañana sin hacer cálculos de zonas horarias.",
+    "compareTitle": "Compara ciudades antes de enviar la invitación",
+    "compareText": "Ve en qué parte del día está cada ciudad y evita adivinar si una hora es demasiado temprano, demasiado tarde o ya cae en mañana.",
+    "planTitle": "Planifica alrededor de personas, no de offsets",
+    "planText": "Renombra ciudades para clientes, amigos, familia o rutinas y mantén los lugares importantes en un orden claro.",
+    "nextTitle": "Explora más herramientas de tiempo",
+    "gridLink": "Abrir cuadrícula completa",
+    "worldClockLink": "Abrir reloj mundial"
+  },
+  "timeZoneConverter": {
+    "title": "Conversor de zonas horarias para ciudades",
+    "lead": "Elige cualquier ciudad, introduce una hora y mira la hora local correspondiente en tus ciudades y zonas horarias guardadas.",
+    "description": "Elige una ciudad, fecha y hora. TimeCross muestra el mismo momento en los lugares que te importan, con fechas locales, diferencias horarias y marcadores de día.",
+    "toolTitle": "Convertir hora entre ciudades",
+    "toolText": "Usa tus ciudades guardadas en TimeCross como lista de conversión. Cambia la ciudad de origen o la hora y los resultados se actualizan para cada ciudad.",
+    "fromLabel": "Ciudad origen",
+    "dateLabel": "Fecha",
+    "timeLabel": "Hora",
+    "emptyText": "Agrega una ciudad para empezar a convertir zonas horarias.",
+    "convertTitle": "Convierte un momento, no solo un offset",
+    "convertText": "Las zonas horarias cambian con el horario de verano y las fechas locales. El conversor parte de una ciudad y hora concretas para mantener el resultado ligado a un momento real.",
+    "contextTitle": "Mantén el resultado en contexto",
+    "contextText": "Ve si otra ciudad sigue en el mismo día, ya está en mañana o quedó en ayer antes de planificar, llamar o viajar.",
+    "faqTitle": "FAQ del conversor de zonas horarias",
+    "faq": {
+      "what": {
+        "title": "¿Qué es un conversor de zonas horarias?",
+        "text": "Un conversor de zonas horarias muestra qué significa el mismo momento en distintas ciudades. Por ejemplo, las 10:00 en Londres pueden ser las 05:00 en Nueva York y las 18:00 en Tokio, según la fecha y las reglas locales."
+      },
+      "dst": {
+        "title": "¿TimeCross tiene en cuenta el horario de verano?",
+        "text": "Sí, cuando eliges ciudades reales. TimeCross usa zonas horarias de ciudad, así que los cambios de horario de verano se aplican mediante las reglas locales de la ciudad seleccionada. Los offsets UTC/GMT fijos permanecen fijos."
+      },
+      "cities": {
+        "title": "¿Puedo convertir hora entre ciudades en lugar de offsets UTC?",
+        "text": "Sí. Elige una ciudad de origen y una hora, y TimeCross muestra la hora local correspondiente en tus ciudades guardadas. Suele ser más fácil que comparar offsets como UTC+1 o UTC-5."
+      },
+      "offsets": {
+        "title": "¿Cuál es la diferencia entre una zona horaria de ciudad y un offset UTC fijo?",
+        "text": "Una zona horaria de ciudad, como Londres o Nueva York, puede cambiar de offset durante el año por el horario de verano. Un offset fijo, como UTC+3, nunca cambia."
+      }
+    },
+    "nextTitle": "Explora más herramientas de tiempo",
+    "worldClockLink": "Abrir reloj mundial",
+    "meetingPlannerLink": "Abrir planificador de reuniones",
+    "whenItsLabel": "Cuando son",
+    "inLabel": "en",
+    "itsLabel": "son",
+    "onLabel": "el",
+    "todayLabel": "Hoy"
   }
 }

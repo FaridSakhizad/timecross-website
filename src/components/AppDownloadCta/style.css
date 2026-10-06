@@ -1,0 +1,12 @@
+.appDownloadCta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  align-items: center;
+}
+
+@media screen and (width < 720px) {
+  .appDownloadCta {
+    justify-content: center;
+  }
+}

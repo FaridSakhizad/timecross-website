@@ -17,6 +17,7 @@ export type CitySearchRow = {
   pop: number;
   isAbstractTimezone?: boolean;
   localizedName?: string | null;
+  timezoneAbbreviationName?: string;
 };
 
 type CityTuple = [
@@ -63,6 +64,7 @@ type ParsedGmtOffsetQuery =
 
 const CITY_SEARCH_DATA_URL = '/data/cities-search.json';
 const SEARCH_RESULTS_LIMIT = 30;
+const ABSTRACT_TIMEZONE_ABBREVIATION_ID_BASE = -200000;
 const ABSTRACT_TIMEZONE_OFFSETS_MINUTES = [
   -12 * 60,
   -11 * 60,
@@ -103,6 +105,24 @@ const ABSTRACT_TIMEZONE_OFFSETS_MINUTES = [
   13 * 60 + 45,
   14 * 60,
 ];
+const ABSTRACT_TIMEZONE_ABBREVIATIONS = [
+  ['HST', 'Hawaii Standard Time', -10 * 60],
+  ['HDT', 'Hawaii Daylight Time', -9 * 60],
+  ['AKST', 'Alaska Standard Time', -9 * 60],
+  ['AKDT', 'Alaska Daylight Time', -8 * 60],
+  ['PST', 'Pacific Standard Time', -8 * 60],
+  ['PDT', 'Pacific Daylight Time', -7 * 60],
+  ['MST', 'Mountain Standard Time', -7 * 60],
+  ['MDT', 'Mountain Daylight Time', -6 * 60],
+  ['CST', 'Central Standard Time', -6 * 60],
+  ['CDT', 'Central Daylight Time', -5 * 60],
+  ['EST', 'Eastern Standard Time', -5 * 60],
+  ['EDT', 'Eastern Daylight Time', -4 * 60],
+  ['AST', 'Atlantic Standard Time', -4 * 60],
+  ['ADT', 'Atlantic Daylight Time', -3 * 60],
+  ['NST', 'Newfoundland Standard Time', -(3 * 60 + 30)],
+  ['NDT', 'Newfoundland Daylight Time', -(2 * 60 + 30)],
+] satisfies Array<[name: string, timezoneName: string, offsetMinutes: number]>;
 
 let citiesSearchDataPromise: Promise<CitySearchData> | null = null;
 
@@ -290,6 +310,21 @@ function createAbstractTimezoneRow(offsetMinutes: number): CitySearchRow {
 
 export function getAbstractTimezoneRows() {
   return ABSTRACT_TIMEZONE_OFFSETS_MINUTES.map(createAbstractTimezoneRow);
+}
+
+export function getAbstractTimezoneAbbreviationRows() {
+  return ABSTRACT_TIMEZONE_ABBREVIATIONS.map(([name, timezoneName, offsetMinutes], index) => ({
+    id: ABSTRACT_TIMEZONE_ABBREVIATION_ID_BASE - index,
+    name,
+    country: '',
+    admin1: null,
+    tz: getFixedOffsetTimezoneForOffsetMinutes(offsetMinutes),
+    lat: 0,
+    lon: 0,
+    pop: 0,
+    isAbstractTimezone: true,
+    timezoneAbbreviationName: timezoneName,
+  }));
 }
 
 function getMatchingAbstractTimezoneRowsForGmtQuery(parsedQuery: ParsedGmtOffsetQuery) {
