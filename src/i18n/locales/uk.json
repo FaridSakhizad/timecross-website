@@ -31,7 +31,8 @@
     "privacyPolicy": "Політика конфіденційності",
     "worldClockLabel": "Світовий годинник",
     "meetingPlannerLabel": "Зустрічі",
-    "timeZoneConverterLabel": "Конвертер"
+    "timeZoneConverterLabel": "Конвертер",
+    "edit": "Редагувати"
   },
   "languages": {
     "en": "English",
@@ -352,9 +353,9 @@
     "nextTitle": "Інші інструменти для часу",
     "worldClockLink": "Відкрити світовий годинник",
     "meetingPlannerLink": "Відкрити планувальник зустрічей",
-    "whenItsLabel": "Коли",
+    "whenItsLabel": "",
     "inLabel": "у місті",
-    "itsLabel": "це",
+    "itsLabel": "це:",
     "onLabel": "на",
     "todayLabel": "Сьогодні",
     "exampleSource": "Коли в місті {city} {time}",

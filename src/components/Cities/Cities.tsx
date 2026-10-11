@@ -631,7 +631,7 @@ export default function Cities({
         <button
           className={`citiesHeaderButton citiesHeaderButton_edit ${isEditMode ? 'isActive' : ''}`}
           type="button"
-          aria-label="edit"
+          aria-label={t('common.edit')}
           aria-pressed={isEditMode}
           onClick={() => setIsEditMode((currentMode) => !currentMode)}
         >

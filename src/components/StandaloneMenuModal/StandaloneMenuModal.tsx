@@ -134,7 +134,7 @@ export default function StandaloneMenuModal({
           >{t('common.gridLabel')}</Link>
 
           <Link
-            to={getCanonicalLanguagePath(language, '/time-zone-converter')}
+            to={getCanonicalLanguagePath(language, '/convert')}
             className="standaloneMenuModal-item"
             onClick={onClose}
           >{t('common.timeZoneConverterLabel')}</Link>

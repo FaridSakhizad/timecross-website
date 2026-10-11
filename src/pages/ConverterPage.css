@@ -1,0 +1,34 @@
+.converterPage {
+  height: 100dvh;
+  display: grid;
+  padding: 20px;
+
+  .timeZoneConverter {
+    align-self: stretch;
+  }
+
+  .timeZoneConverter-listBox {
+    max-height: unset;
+    overflow: auto;
+  }
+}
+
+
+@media screen and (width < 768px) {
+  .converterPage {
+    align-items: start;
+    padding: 0;
+    height: auto;
+
+    .timeZoneConverter {
+      min-height: 100dvh;
+      border: none;
+      display: contents;
+
+      .timeZoneConverter-listBox {
+        max-height: unset;
+        overscroll-behavior: auto;
+      }
+    }
+  }
+}

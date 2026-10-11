@@ -88,6 +88,11 @@ export default function Header({
             className="headerMenu-item headerMenu-item_link"
           >{t('common.gridLabel')}</Link>
 
+          <Link
+            to={getCanonicalLanguagePath(language, '/convert')}
+            className="headerMenu-item headerMenu-item_link"
+          >{t('common.timeZoneConverterLabel')}</Link>
+
           <i className="headerMenu-separator headerMenu-separator_2" />
 
           <button type="button" className="headerMenu-item headerMenu-item_ampm" onClick={onTimeFormatButtonClick}>

@@ -31,7 +31,8 @@
     "privacyPolicy": "Политика конфиденциальности",
     "worldClockLabel": "Мировые часы",
     "meetingPlannerLabel": "Встречи",
-    "timeZoneConverterLabel": "Конвертер"
+    "timeZoneConverterLabel": "Конвертер",
+    "edit": "Редактировать"
   },
   "languages": {
     "en": "English",
@@ -352,9 +353,9 @@
     "nextTitle": "Другие инструменты для времени",
     "worldClockLink": "Открыть мировые часы",
     "meetingPlannerLink": "Открыть планировщик встреч",
-    "whenItsLabel": "Когда",
+    "whenItsLabel": "",
     "inLabel": "в городе",
-    "itsLabel": "это",
+    "itsLabel": "это:",
     "onLabel": "на",
     "todayLabel": "Сегодня",
     "exampleSource": "Когда в городе {city} {time}",

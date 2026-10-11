@@ -2,6 +2,7 @@ import { Navigate, Route, Routes, useLocation, useParams } from 'react-router';
 import { useEffect, useLayoutEffect, useState, type ReactNode } from 'react';
 
 import CitiesPage from './pages/CitiesPage';
+import ConverterPage from './pages/ConverterPage';
 import GridPage from './pages/GridPage';
 import HomePage from './pages/HomePage';
 import MeetingTimePlannerPage from './pages/MeetingTimePlannerPage';
@@ -47,6 +48,7 @@ function getRouteName(pathname: string) {
     case undefined:
       return 'index';
     case 'cities':
+    case 'convert':
     case 'grid':
     case 'meeting-time-planner':
     case 'time-zone-converter':
@@ -210,6 +212,19 @@ function App({
         )}
       />
       <Route
+        path="convert"
+        element={(
+          <LocalizedRoute>
+            <ConverterPage
+              colorMode={colorMode}
+              timeFormat={timeFormat}
+              onColorModeButtonClick={handleColorModeButtonClick}
+              onTimeFormatButtonClick={handleTimeFormatButtonClick}
+            />
+          </LocalizedRoute>
+        )}
+      />
+      <Route
         path="world-clock"
         element={(
           <LocalizedRoute>
@@ -305,6 +320,19 @@ function App({
         element={(
           <LocalizedRoute>
             <GridPage
+              colorMode={colorMode}
+              timeFormat={timeFormat}
+              onColorModeButtonClick={handleColorModeButtonClick}
+              onTimeFormatButtonClick={handleTimeFormatButtonClick}
+            />
+          </LocalizedRoute>
+        )}
+      />
+      <Route
+        path=":lang/convert"
+        element={(
+          <LocalizedRoute>
+            <ConverterPage
               colorMode={colorMode}
               timeFormat={timeFormat}
               onColorModeButtonClick={handleColorModeButtonClick}

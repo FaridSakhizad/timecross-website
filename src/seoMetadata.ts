@@ -73,6 +73,8 @@ export function getSeoPageFromPathname(pathname: string): SeoPage {
   switch (firstPathPart) {
     case 'cities':
       return 'cities';
+    case 'convert':
+      return 'timeZoneConverter';
     case 'grid':
       return 'grid';
     case 'world-clock':

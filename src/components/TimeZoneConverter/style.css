@@ -1,3 +1,7 @@
+:root {
+  scroll-timeline: --main-timeline;
+}
+
 .timeZoneConverter {
   display: flex;
   flex-direction: column;
@@ -10,11 +14,13 @@
   overflow: hidden;
 }
 
-.timeZoneConverter-statement {
-  padding: 22px 25px 15px 25px;
+.timeZoneConverter-header {
+  flex: 0 0 auto;
+  justify-content: center;
 }
 
-.timeZoneConverter-mainLine {
+.timeZoneConverter-statement {
+  padding: 22px 25px 15px 25px;
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
@@ -46,23 +52,6 @@
   font-weight: 800;
 }
 
-.timeZoneConverter-select,
-.timeZoneConverter-input,
-.timeZoneConverter-timeButton,
-.timeZoneConverter-dateButton {
-  width: auto;
-  height: 44px;
-  padding: 4px 16px;
-  border: 1px solid transparent;
-  border-radius: 65536px;
-  color: #fff;
-  font: inherit;
-  font-size: 24px;
-  line-height: 34px;
-  background-color: rgba(var(--accent-color-1), 0.4);
-  outline: none;
-}
-
 .timeZoneConverter-timeNativeInput {
   &::-webkit-calendar-picker-indicator {
     background: none;
@@ -75,16 +64,70 @@
   min-width: 0;
 }
 
-.timeZoneConverter-timeButton,
-.timeZoneConverter-dateButton {
-  display: block;
+.timeZoneConverter-control {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  height: 44px;
+  padding: 4px 16px;
+  border: 1px solid transparent;
+  border-radius: 65536px;
+  color: #fff;
+  font: inherit;
+  font-size: 24px;
+  line-height: 34px;
+  background-color: rgba(var(--accent-color-1), 0.4);
+  outline: none;
   cursor: pointer;
-  text-align: left;
-  white-space: nowrap;
 }
 
-.timeZoneConverter-timeNativeInput,
-.timeZoneConverter-dateNativeInput {
+.timeZoneConverter-controlIcon {
+  display: block;
+  width: 17px;
+  height: 17px;
+  background-color: #fff;
+}
+
+.timeZoneConverter-control_time {
+  min-width: 123px;
+
+  .timeZoneConverter-controlIcon {
+    mask: url("../../assets/icon--clock-1.svg");
+    mask-size: contain;
+  }
+}
+
+.timeZoneConverter-control_location {
+  min-width: 169px;
+
+  .timeZoneConverter-controlText {
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    flex: 1 1 0;
+  }
+
+  .timeZoneConverter-controlIcon {
+    mask: url("../../assets/icon--location-1.svg");
+    width: 13px;
+  }
+}
+
+.timeZoneConverter-control_date {
+  min-width: 187px;
+
+  .timeZoneConverter-controlIcon {
+    mask: url("../../assets/icon--calendar-2.svg");
+    width: 15px;
+    height: 16px;
+    margin-top: 2px;
+  }
+}
+
+.timeZoneConverter-timeNativeInput {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -93,36 +136,19 @@
   pointer-events: none;
 }
 
-.timeZoneConverter-select {
-  appearance: none;
-  cursor: pointer;
-  text-align: left;
-  white-space: nowrap;
-}
-
-.timeZoneConverter-select option {
-  color: #111;
-}
-
-
 .timeZoneConverter-listBox {
   flex: 0 1 auto;
   max-height: 620px;
 }
 
-.timeZoneConverter-listItem {
-
+.timeZoneConverter-listItem .citiesList-deleteButton {
+  right: 0;
 }
 
-.timeZoneConverter-resultPhrase {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  max-width: 100%;
-  min-width: 0;
+.timeZoneConverter-resultText {
   color: #fff;
   font-size: 24px;
-  line-height: 29px;
+  line-height: 28px;
 }
 
 .timeZoneConverter-resultTime {
@@ -135,12 +161,11 @@
 }
 
 .timeZoneConverter-resultIn {
-  font-weight: 400;
-  opacity: 0.86;
+  white-space: nowrap;
 }
 
 .timeZoneConverter-resultCity {
-  min-width: 0;
+  font-weight: bold;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -148,6 +173,13 @@
 
 .timeZoneConverter-resultMeta {
   margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.timeZoneConverter-offsetLabel {
+  font-weight: 300;
   font-size: 24px;
 }
 
@@ -161,63 +193,113 @@
   text-align: center;
 }
 
-@media screen and (width < 860px) {
-  .timeZoneConverter-mainLine {
-    grid-template-columns: auto minmax(112px, 1fr);
-  }
+.timeZoneConverter-listItem {
+  display: flex;
+  gap: 8px;
 
-  .timeZoneConverter-inLabel {
-    grid-column: 1;
-  }
-
-  .timeZoneConverter-select {
-    grid-column: 2;
+  .citiesList-dayBadge {
+    margin: 0 0 1px 0;
   }
 }
 
-@media screen and (width < 720px) {
+.timeZoneConverter_editMode {
+  .timeZoneConverter-listItem {
+    padding-right: 38px;
+  }
+
+  .citiesList-deleteButton {
+    display: flex;
+  }
+}
+
+@media screen and (width < 768px) {
   .timeZoneConverter {
     border-radius: 28px;
-  }
-
-  .timeZoneConverter-mainLine {
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
-
-  .timeZoneConverter-dateLine {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 10px;
-  }
-
-  .timeZoneConverter-dateLine:has(.timeZoneConverter-onLabel) {
-    grid-template-columns: auto minmax(0, 1fr);
+    width: 100%;
   }
 
   .timeZoneConverter-statement {
     padding: 20px 18px 18px;
+    /*position: sticky;*/
+    top: 0;
+    left: 0;
+    border-bottom: 1px solid rgba(255 255 255 / 0.3);
+    z-index: 100;
+    backdrop-filter: blur(10px);
+    margin-bottom: 10px;
   }
 
-  .timeZoneConverter-inLabel,
-  .timeZoneConverter-onLabel {
-    font-size: 24px;
+  .timeZoneConverter-statement_sticky {
+    position: fixed;
+    padding: 0;
+    gap: 1px;
+    width: 100%;
+    flex-wrap: nowrap;
+
+    .timeZoneConverter-statementText {
+      display: none;
+    }
+
+    .timeZoneConverter-control {
+      border-radius: 0;
+      overflow: hidden;
+      padding: 4px 10px;
+    }
+
+    .timeZoneConverter-control_location {
+      flex: 1 1 0;
+    }
+
+    & ~ .timeZoneConverter-resultsLead {
+      margin-top: 55px;
+    }
   }
 
-  .timeZoneConverter-statementLead {
-    grid-column: 1 / -1;
+  .timeZoneConverter-statementText {
+    font-size: 16px;
   }
 
-  .timeZoneConverter-inLabel {
-    justify-self: end;
+  .timeZoneConverter-control {
+    font-size: 16px;
+    height: 34px;
+    min-width: unset;
+    padding: 4px 12px;
   }
 
-  .timeZoneConverter-select,
-  .timeZoneConverter-input,
-  .timeZoneConverter-timeButton,
-  .timeZoneConverter-dateButton {
-    height: 44px;
-    padding-right: 10px;
-    padding-left: 10px;
-    font-size: 24px;
+  .timeZoneConverter-list {
+    padding-inline: 18px;
+  }
+
+  .timeZoneConverter-listItem {
+    font-size: 16px;
+    line-height: 1.2;
+    height: auto;
+    padding: 12px 0 11px 28px;
+    flex-wrap: wrap;
+    gap: 6px;
+    position: relative;
+
+    .timeZoneConverter-resultIcon {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      margin: auto;
+    }
+  }
+
+  .timeZoneConverter-resultText {
+    font-size: 16px;
+    line-height: 1.2;
+  }
+
+  .timeZoneConverter-resultMeta {
+    width: 100%;
+    margin: 0;
+  }
+
+  .timeZoneConverter-offsetLabel {
+    font-size: 16px;
+    line-height: 1.2;
   }
 }

@@ -23,6 +23,7 @@ const URL_SEGMENT_TO_LANGUAGE: Record<string, AppLanguage> = {
 
 const LOCALIZED_PAGE_PATHS = [
   '/cities',
+  '/convert',
   '/grid',
   '/meeting-time-planner',
   '/time-zone-converter',

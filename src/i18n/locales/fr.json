@@ -31,7 +31,8 @@
     "privacyPolicy": "Politique de confidentialité",
     "worldClockLabel": "Horloge mondiale",
     "meetingPlannerLabel": "Réunions",
-    "timeZoneConverterLabel": "Convertisseur"
+    "timeZoneConverterLabel": "Convertisseur",
+    "edit": "Modifier"
   },
   "languages": {
     "en": "English",
