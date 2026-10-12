@@ -482,6 +482,8 @@
 }
 
 .timelineGrid-cell {
+  --text-transparency: 1;
+
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -495,6 +497,26 @@
   font-size: 36px;
   line-height: 1;
   font-weight: 300;
+
+  /*
+  &.timelineGrid-cell_night {
+    color: rgb(188 222 255 / var(--text-transparency));
+  }
+
+  &.timelineGrid-cell_morning {
+    color: rgb(255 217 181 / var(--text-transparency));
+  }
+
+  &.timelineGrid-cell_day {}
+
+  &.timelineGrid-cell_evening {
+    color: rgb(188 239 255 / var(--text-transparency));
+  }
+
+  &.timelineGrid-cell_lateEvening {
+    color: rgb(188 222 255 / var(--text-transparency));
+  }
+  */
 }
 
 .timelineGrid-cells {

@@ -1,6 +1,7 @@
 export type TimelineCell = {
   date: Date;
   label: string;
+  period: 'night' | 'morning' | 'day' | 'evening' | 'lateEvening';
   dateCellDetails: {
     weekdayLabel: string;
     dateLabel: string;

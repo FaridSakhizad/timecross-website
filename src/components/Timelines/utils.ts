@@ -62,6 +62,26 @@ function formatDayPeriod(date: Date, timezone: string) {
   }).find((part) => part.type === 'dayPeriod')?.value ?? null;
 }
 
+function getTimelineCellPeriod(hour: number): TimelineCell['period'] {
+  if (hour <= 5) {
+    return 'night';
+  }
+
+  if (hour <= 8) {
+    return 'morning';
+  }
+
+  if (hour <= 17) {
+    return 'day';
+  }
+
+  if (hour <= 20) {
+    return 'evening';
+  }
+
+  return 'lateEvening';
+}
+
 function formatCurrentTimelineCellTime(
   dateParts: ReturnType<typeof getZonedDateParts>,
   minuteLabel: string,
@@ -227,6 +247,7 @@ export function getTimelineCells(
     return {
       date,
       label: isDateLabel ? formatDateCell(date, timezone) : formatHour(date, timezone, timeFormat),
+      period: getTimelineCellPeriod(dateParts.hour),
       dateCellDetails: isDateLabel ? formatCurrentDateCellParts(date, timezone) : null,
       currentTimeLabel,
       minuteLabel: currentMinuteLabel,

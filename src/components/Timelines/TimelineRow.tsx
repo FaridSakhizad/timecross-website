@@ -171,6 +171,7 @@ export default function TimelineRow({
                 <span
                   className={[
                     'timelines-cell',
+                    `timelines-cell_${cell.period}`,
                     cell.isAdjacentDay ? 'timelines-cell_adjacentDay' : '',
                     cell.isCurrentHour ? 'timelines-cell_current' : '',
                     cell.isDateLabel ? 'timelines-cell_date' : '',

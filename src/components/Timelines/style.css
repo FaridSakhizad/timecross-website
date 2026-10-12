@@ -82,6 +82,10 @@
   }
 }
 
+.gridTopControlsButton_grid {
+  margin-left: 50px;
+}
+
 .timelinesMobileStepControls {
   display: none;
   align-items: center;
@@ -739,6 +743,8 @@
 }
 
 .timelines-cell {
+  --text-transparency: 1;
+
   width: 64px;
   height: 64px;
   display: flex;
@@ -757,6 +763,26 @@
     font-size: 12px;
     line-height: 1;
   }
+
+  /*
+  &.timelines-cell_night {
+    color: rgb(188 222 255 / var(--text-transparency));
+  }
+
+  &.timelines-cell_morning {
+    color: rgb(255 217 181 / var(--text-transparency));
+  }
+
+  &.timelines-cell_day {}
+
+  &.timelines-cell_evening {
+    color: rgb(188 239 255 / var(--text-transparency));
+  }
+
+  &.timelines-cell_lateEvening {
+    color: rgb(188 222 255 / var(--text-transparency));
+  }
+  */
 }
 
 .timelines-periodMarker {}
@@ -802,8 +828,10 @@
 }
 
 .timelines-cell_adjacentDay {
+  --text-transparency: 0.7;
+
   background: rgba(255 255 255 / 0.03);
-  color: rgba(255 255 255 / 0.7);
+  color: rgba(255 255 255 / var(--text-transparency));
 }
 
 .timelines-cell_current {

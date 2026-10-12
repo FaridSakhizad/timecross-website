@@ -229,29 +229,31 @@
     margin-bottom: 10px;
   }
 
-  .timeZoneConverter-statement_sticky {
-    position: fixed;
-    padding: 0;
-    gap: 1px;
-    width: 100%;
-    flex-wrap: nowrap;
+  .converterPage {
+    .timeZoneConverter-statement_sticky {
+      position: fixed;
+      padding: 0;
+      gap: 1px;
+      width: 100%;
+      flex-wrap: nowrap;
 
-    .timeZoneConverter-statementText {
-      display: none;
-    }
+      .timeZoneConverter-statementText {
+        display: none;
+      }
 
-    .timeZoneConverter-control {
-      border-radius: 0;
-      overflow: hidden;
-      padding: 4px 10px;
-    }
+      .timeZoneConverter-control {
+        border-radius: 0;
+        overflow: hidden;
+        padding: 4px 10px;
+      }
 
-    .timeZoneConverter-control_location {
-      flex: 1 1 0;
-    }
+      .timeZoneConverter-control_location {
+        flex: 1 1 0;
+      }
 
-    & ~ .timeZoneConverter-resultsLead {
-      margin-top: 55px;
+      & ~ .timeZoneConverter-resultsLead {
+        margin-top: 55px;
+      }
     }
   }
 

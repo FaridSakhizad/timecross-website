@@ -174,6 +174,7 @@ export default function TimelineGridRow({
               <span
                 className={[
                   'timelineGrid-cell',
+                  `timelineGrid-cell_${cell.period}`,
                   cell.isAdjacentDay ? 'timelineGrid-cell_adjacentDay' : '',
                   cell.isCurrentHour ? 'timelineGrid-cell_current' : '',
                   cell.isDateLabel ? 'timelineGrid-cell_date' : '',
