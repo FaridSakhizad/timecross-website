@@ -66,6 +66,16 @@ function getHreflang(language: AppLanguage) {
   return language === 'uk' ? 'uk' : language;
 }
 
+function getRobotsContent(pagePath: string) {
+  return pagePath === '/cities' || pagePath === '/grid' || pagePath === '/convert'
+    ? 'noindex, follow'
+    : 'index, follow';
+}
+
+function getCanonicalPagePath(pagePath: string) {
+  return pagePath === '/convert' ? '/time-zone-converter' : pagePath;
+}
+
 export function getSeoPageFromPathname(pathname: string): SeoPage {
   const pagePath = stripLanguageFromPathname(pathname);
   const firstPathPart = pagePath.split('/').filter(Boolean)[0];
@@ -95,7 +105,7 @@ export function getSeoPageFromPathname(pathname: string): SeoPage {
 export function getSeoMetadata(language: AppLanguage, pathname: string) {
   const page = getSeoPageFromPathname(pathname);
   const pagePath = stripLanguageFromPathname(pathname);
-  const canonicalPath = getCanonicalLanguagePath(language, pagePath);
+  const canonicalPath = getCanonicalLanguagePath(language, getCanonicalPagePath(pagePath));
   const canonicalUrl = getAbsoluteUrl(canonicalPath);
   const imageUrl = getAbsoluteUrl(SEO_IMAGE_PATH);
   const title = translate(language, `seo.pages.${page}.title`);
@@ -112,6 +122,7 @@ export function getSeoMetadata(language: AppLanguage, pathname: string) {
     ogTitle,
     page,
     pagePath,
+    robots: getRobotsContent(pagePath),
     siteName: SITE_NAME,
     title,
   };
@@ -231,7 +242,7 @@ export function getSeoJsonLd(language: AppLanguage, pathname: string) {
 }
 
 export function getAlternateLinks(pathname: string) {
-  const pagePath = stripLanguageFromPathname(pathname);
+  const pagePath = getCanonicalPagePath(stripLanguageFromPathname(pathname));
   const links = SUPPORTED_LANGUAGES.map((supportedLanguage) => ({
     href: getAbsoluteUrl(getCanonicalLanguagePath(supportedLanguage, pagePath)),
     hreflang: getHreflang(supportedLanguage),

@@ -82,7 +82,7 @@ export default function Seo({ page }: SeoProps) {
     document.title = metadata.title;
 
     upsertMetaByName('description', metadata.description);
-    upsertMetaByName('robots', 'index, follow');
+    upsertMetaByName('robots', metadata.robots);
     upsertMetaByName('twitter:card', 'summary_large_image');
     upsertMetaByName('twitter:title', metadata.ogTitle);
     upsertMetaByName('twitter:description', metadata.ogDescription);

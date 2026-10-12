@@ -177,7 +177,7 @@ function getManagedHead(metadata: ReturnType<typeof getSeoMetadata>, pathname: s
 
   return [
     `<meta name="description" content="${escapeHtml(metadata.description)}" data-managed-seo="true" />`,
-    '<meta name="robots" content="index, follow" data-managed-seo="true" />',
+    `<meta name="robots" content="${escapeHtml(metadata.robots)}" data-managed-seo="true" />`,
     '<meta name="theme-color" content="#f2d85f" data-managed-seo="true" />',
     `<link rel="canonical" href="${escapeHtml(metadata.canonicalUrl)}" data-managed-seo="true" />`,
     `<meta property="og:site_name" content="${escapeHtml(SITE_NAME)}" data-managed-seo="true" />`,
