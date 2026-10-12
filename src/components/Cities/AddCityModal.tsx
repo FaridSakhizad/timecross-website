@@ -5,8 +5,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useI18n } from '../../i18n';
 import {
-  getAbstractTimezoneAbbreviationRows,
   getAbstractTimezoneRows,
+  getNorthAmericanTimezoneRows,
   loadCitySearchData,
   searchCities,
   type CitySearchRow,
@@ -46,7 +46,7 @@ export default function AddCityModal({
     }
   }, [language]);
   const abstractTimezoneRows = useMemo(() => getAbstractTimezoneRows(), []);
-  const abstractTimezoneAbbreviationRows = useMemo(() => getAbstractTimezoneAbbreviationRows(), []);
+  const northAmericanTimezoneRows = useMemo(() => getNorthAmericanTimezoneRows(), []);
   const [query, setQuery] = useState('');
   const [cities, setCities] = useState<CitySearchRow[]>([]);
   const [isSearchLoading, setIsSearchLoading] = useState(false);
@@ -242,19 +242,20 @@ export default function AddCityModal({
       tabIndex={tabIndex}
       onClick={() => handleSave(city)}
     >
-      <span className="addCityModal-resultAbbreviationName">{city.name}</span>
+      <span className="addCityModal-resultAbbreviationName">
+        {city.timezoneAbbreviationShortName ?? city.name}
+      </span>
 
-      {city.timezoneAbbreviationName && (
-        <span className="addCityModal-resultAbbreviationFullName">
-          {city.timezoneAbbreviationName}
-        </span>
-      )}
+      <span className="addCityModal-resultAbbreviationFullName">
+        {city.name}
+        {city.timezoneAbbreviationName && `, ${city.timezoneAbbreviationName}`}
+      </span>
     </button>
   );
 
   const renderTimezoneAbbreviations = (tabIndex?: number) => (
     <div className="addCityModal-timezoneAbbreviations">
-      {abstractTimezoneAbbreviationRows.map((city) => renderTimezoneAbbreviationButton(city, tabIndex))}
+      {northAmericanTimezoneRows.map((city) => renderTimezoneAbbreviationButton(city, tabIndex))}
     </div>
   );
 
@@ -320,11 +321,7 @@ export default function AddCityModal({
           </div>
 
           {!isSearchLoading && !hasActiveQuery && (
-            <section className="addCityModal-fixedTimezones" aria-labelledby="add-city-fixed-timezones-title">
-              <h4 className="addCityModal-sectionTitle" id="add-city-fixed-timezones-title">
-                {t('addCity.fixedTimezonesTitle')}
-              </h4>
-
+            <section className="addCityModal-fixedTimezones">
               <div className="addCityModal-timezonePicker">
                 <div className="addCityModal-timezonePickerControls">
                   <button

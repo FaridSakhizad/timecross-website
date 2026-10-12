@@ -58,8 +58,8 @@
   },
   "addCity": {
     "searchPlaceholder": "Nombre de la ciudad o zona horaria...",
-    "fixedTimezonesTitle": "Zonas horarias fijas",
-    "chooseTimezone": "GMT / UTC",
+    "fixedTimezonesTitle": "Zonas horarias",
+    "chooseTimezone": "GMT/UTC fijas",
     "chooseAbbreviation": "Zona horaria de EE. UU./Canadá",
     "databaseUnavailable": "La búsqueda de ciudades no está disponible temporalmente."
   },
@@ -120,7 +120,7 @@
     "short": "Resumen",
     "yes": "Sí",
     "no": "No",
-    "platformsShort": "iOS. Android — en progreso",
+    "platformsShort": "iOS y Android",
     "notificationsShort": "Menú > Ajustes > Notificaciones",
     "free": {
       "title": "¿{siteName} es gratis?",
@@ -139,7 +139,7 @@
     },
     "platforms": {
       "title": "¿Qué plataformas son compatibles?",
-      "paragraph1": "{siteName} está disponible para iOS. La versión de Android está en progreso y se está construyendo para mantener la misma lista simple de ciudades, vista de timeline y flujo de notificaciones.",
+      "paragraph1": "{siteName} está disponible para iOS y Android, con la misma lista simple de ciudades, vista de timeline y flujo de notificaciones en ambas versiones.",
       "paragraph2": "El sitio web también ofrece una vista previa ligera de la experiencia principal, para que puedas explorar cómo funcionan la timeline y la comparación de ciudades antes de instalar la app."
     },
     "notifications": {
@@ -306,8 +306,17 @@
         "text": "Ve si una hora elegida cae hoy, mañana o ayer en otra ciudad antes de enviar una invitación."
       }
     },
-    "examplesTitle": "Ejemplos de conversión de hora por ciudad",
-    "examplesLead": "Estos ejemplos se calculan desde las 10:00 en cada ciudad con las reglas horarias actuales, para mantener correctos los cambios de horario de verano.",
+    "examplesTitle": "Guía de horario laboral por zona horaria",
+    "examplesLead": "Compara las horas laborales habituales de 09:00 a 18:00 en ciudades populares y encuentra rápido horarios razonables para personas en distintas zonas horarias.",
+    "exampleTitle": "Horario laboral: {city}",
+    "exampleGroups": {
+      "northAmerica": "Norteamérica",
+      "europe": "Europa",
+      "asia": "Asia",
+      "middleEastAfrica": "Oriente Medio y África",
+      "latinAmerica": "Latinoamérica",
+      "oceania": "Oceanía"
+    },
     "examples": {
       "newYork": {
         "title": "Conversión de hora de Nueva York"

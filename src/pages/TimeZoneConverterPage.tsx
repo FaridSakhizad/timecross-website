@@ -26,44 +26,123 @@ type TimeZoneConverterPageProps = {
   onTimeFormatButtonClick: () => void;
 };
 
-const converterExampleIds = [
-  'newYork',
-  'london',
-  'paris',
-  'dubai',
-  'singapore',
-  'tokyo',
-  'losAngeles',
+const converterExampleGroups = [
+  {
+    id: 'northAmerica',
+    examples: ['newYork', 'losAngeles', 'chicago', 'denver', 'toronto', 'vancouver'],
+  },
+  {
+    id: 'europe',
+    examples: ['london', 'paris', 'berlin', 'madrid', 'amsterdam', 'zurich'],
+  },
+  {
+    id: 'asia',
+    examples: ['tokyo', 'singapore', 'hongKong', 'seoul', 'mumbai', 'bangkok'],
+  },
+  {
+    id: 'middleEastAfrica',
+    examples: ['dubai', 'istanbul', 'cairo', 'johannesburg', 'riyadh', 'doha'],
+  },
+  {
+    id: 'latinAmerica',
+    examples: ['mexicoCity', 'saoPaulo', 'buenosAires', 'santiago', 'bogota', 'lima'],
+  },
+  {
+    id: 'oceania',
+    examples: ['sydney', 'melbourne', 'auckland', 'honolulu', 'suva', 'perth'],
+  },
 ] as const;
+
+const converterExampleIds = converterExampleGroups.flatMap((group) => group.examples);
 
 type ConverterExampleCityId = typeof converterExampleIds[number];
 
+const converterBusinessHours = [9, 10, 11, 12, 13, 14, 15, 16, 17, 18] as const;
+
 const converterExampleCities: Record<ConverterExampleCityId, { timezone: string }> = {
   newYork: { timezone: 'America/New_York' },
+  losAngeles: { timezone: 'America/Los_Angeles' },
+  chicago: { timezone: 'America/Chicago' },
+  denver: { timezone: 'America/Denver' },
+  toronto: { timezone: 'America/Toronto' },
+  vancouver: { timezone: 'America/Vancouver' },
   london: { timezone: 'Europe/London' },
   paris: { timezone: 'Europe/Paris' },
-  dubai: { timezone: 'Asia/Dubai' },
-  singapore: { timezone: 'Asia/Singapore' },
+  berlin: { timezone: 'Europe/Berlin' },
+  madrid: { timezone: 'Europe/Madrid' },
+  amsterdam: { timezone: 'Europe/Amsterdam' },
+  zurich: { timezone: 'Europe/Zurich' },
   tokyo: { timezone: 'Asia/Tokyo' },
-  losAngeles: { timezone: 'America/Los_Angeles' },
+  singapore: { timezone: 'Asia/Singapore' },
+  hongKong: { timezone: 'Asia/Hong_Kong' },
+  seoul: { timezone: 'Asia/Seoul' },
+  mumbai: { timezone: 'Asia/Kolkata' },
+  bangkok: { timezone: 'Asia/Bangkok' },
+  dubai: { timezone: 'Asia/Dubai' },
+  istanbul: { timezone: 'Europe/Istanbul' },
+  cairo: { timezone: 'Africa/Cairo' },
+  johannesburg: { timezone: 'Africa/Johannesburg' },
+  riyadh: { timezone: 'Asia/Riyadh' },
+  doha: { timezone: 'Asia/Qatar' },
+  mexicoCity: { timezone: 'America/Mexico_City' },
+  saoPaulo: { timezone: 'America/Sao_Paulo' },
+  buenosAires: { timezone: 'America/Argentina/Buenos_Aires' },
+  santiago: { timezone: 'America/Santiago' },
+  bogota: { timezone: 'America/Bogota' },
+  lima: { timezone: 'America/Lima' },
+  sydney: { timezone: 'Australia/Sydney' },
+  melbourne: { timezone: 'Australia/Melbourne' },
+  auckland: { timezone: 'Pacific/Auckland' },
+  honolulu: { timezone: 'Pacific/Honolulu' },
+  suva: { timezone: 'Pacific/Fiji' },
+  perth: { timezone: 'Australia/Perth' },
 };
 
 const converterExampleTargets: Record<ConverterExampleCityId, ConverterExampleCityId[]> = {
-  newYork: ['losAngeles', 'london', 'dubai', 'tokyo'],
-  london: ['newYork', 'paris', 'dubai', 'tokyo'],
-  paris: ['london', 'newYork', 'dubai', 'tokyo'],
-  dubai: ['london', 'paris', 'singapore', 'losAngeles'],
-  singapore: ['tokyo', 'dubai', 'paris', 'newYork'],
-  tokyo: ['singapore', 'dubai', 'london', 'losAngeles'],
-  losAngeles: ['newYork', 'london', 'dubai', 'tokyo'],
+  newYork: ['losAngeles', 'london', 'paris', 'dubai', 'tokyo'],
+  losAngeles: ['newYork', 'chicago', 'london', 'singapore', 'sydney'],
+  chicago: ['newYork', 'denver', 'losAngeles', 'london', 'tokyo'],
+  denver: ['chicago', 'losAngeles', 'newYork', 'paris', 'dubai'],
+  toronto: ['vancouver', 'newYork', 'london', 'dubai', 'tokyo'],
+  vancouver: ['toronto', 'losAngeles', 'tokyo', 'sydney', 'london'],
+  london: ['newYork', 'paris', 'dubai', 'tokyo', 'sydney'],
+  paris: ['london', 'newYork', 'dubai', 'singapore', 'losAngeles'],
+  berlin: ['london', 'paris', 'newYork', 'singapore', 'tokyo'],
+  madrid: ['london', 'paris', 'buenosAires', 'newYork', 'tokyo'],
+  amsterdam: ['london', 'newYork', 'dubai', 'sydney', 'singapore'],
+  zurich: ['london', 'paris', 'singapore', 'losAngeles', 'tokyo'],
+  tokyo: ['singapore', 'seoul', 'london', 'losAngeles', 'newYork'],
+  singapore: ['tokyo', 'hongKong', 'dubai', 'london', 'newYork'],
+  hongKong: ['singapore', 'tokyo', 'london', 'sydney', 'vancouver'],
+  seoul: ['tokyo', 'singapore', 'paris', 'newYork', 'losAngeles'],
+  mumbai: ['dubai', 'singapore', 'london', 'berlin', 'newYork'],
+  bangkok: ['singapore', 'hongKong', 'dubai', 'berlin', 'sydney'],
+  dubai: ['london', 'mumbai', 'singapore', 'losAngeles', 'sydney'],
+  istanbul: ['london', 'berlin', 'dubai', 'newYork', 'tokyo'],
+  cairo: ['paris', 'istanbul', 'riyadh', 'toronto', 'mumbai'],
+  johannesburg: ['london', 'dubai', 'sydney', 'singapore', 'newYork'],
+  riyadh: ['dubai', 'doha', 'mumbai', 'london', 'newYork'],
+  doha: ['dubai', 'riyadh', 'london', 'singapore', 'toronto'],
+  mexicoCity: ['newYork', 'losAngeles', 'chicago', 'madrid', 'tokyo'],
+  saoPaulo: ['london', 'newYork', 'paris', 'mexicoCity', 'tokyo'],
+  buenosAires: ['madrid', 'saoPaulo', 'newYork', 'paris', 'london'],
+  santiago: ['newYork', 'lima', 'bogota', 'london', 'sydney'],
+  bogota: ['mexicoCity', 'newYork', 'lima', 'madrid', 'losAngeles'],
+  lima: ['bogota', 'santiago', 'mexicoCity', 'losAngeles', 'madrid'],
+  sydney: ['auckland', 'melbourne', 'singapore', 'london', 'losAngeles'],
+  melbourne: ['sydney', 'perth', 'tokyo', 'dubai', 'london'],
+  auckland: ['sydney', 'honolulu', 'tokyo', 'london', 'losAngeles'],
+  honolulu: ['losAngeles', 'tokyo', 'auckland', 'vancouver', 'sydney'],
+  suva: ['sydney', 'auckland', 'honolulu', 'losAngeles', 'singapore'],
+  perth: ['singapore', 'melbourne', 'sydney', 'dubai', 'london'],
 };
 
-function getConverterExampleDate(timezone: string, baseDate: Date) {
+function getConverterExampleDate(timezone: string, baseDate: Date, hour: number) {
   const todayParts = getZonedDateParts(timezone, baseDate);
 
   return getUtcDateForZonedTime(timezone, {
     ...todayParts,
-    hour: 10,
+    hour,
     minute: 0,
     second: 0,
   });
@@ -176,51 +255,87 @@ export default function TimeZoneConverterPage({
           <div className="container timeZoneConverterExamples-container">
             <h2 className="section-title">{t('timeZoneConverter.examplesTitle')}</h2>
             <p className="timeZoneConverterExamples-lead">{t('timeZoneConverter.examplesLead')}</p>
-            <div className="timeZoneConverterExamples-list">
-              {converterExampleIds.map((exampleId) => {
-                const exampleCity = converterExampleCities[exampleId];
-                const exampleDate = getConverterExampleDate(
-                  exampleCity.timezone,
-                  converterExamplesBaseDate,
-                );
-                const exampleCityName = t(`timeZoneConverter.exampleCityNames.${exampleId}`);
+            <div className="timeZoneConverterExamples-groups">
+              {converterExampleGroups.map((group) => (
+                <section className="timeZoneConverterExamples-group" key={group.id}>
+                  <h3 className="timeZoneConverterExamples-groupTitle">
+                    {t(`timeZoneConverter.exampleGroups.${group.id}`)}
+                  </h3>
 
-                return (
-                  <article className="timeZoneConverterExamples-item" key={exampleId}>
-                    <h3 className="timeZoneConverterExamples-title">
-                      {t(`timeZoneConverter.examples.${exampleId}.title`)}
-                    </h3>
-                    <p className="timeZoneConverterExamples-source">
-                      {t('timeZoneConverter.exampleSource', {
-                        city: exampleCityName,
-                        time: formatTime(exampleDate, exampleCity.timezone, timeFormat),
-                      })}
-                    </p>
-                    <ul className="timeZoneConverterExamples-results">
-                      {converterExampleTargets[exampleId].map((targetId) => {
-                        const targetCity = converterExampleCities[targetId];
-                        const dayMarker = getRelativeDayMarker(
-                          targetCity.timezone,
-                          exampleCity.timezone,
-                          exampleDate,
-                        );
-                        const resultKey = dayMarker
-                          ? `timeZoneConverter.exampleResult.${dayMarker}`
-                          : 'timeZoneConverter.exampleResult.same';
+                  <div className="timeZoneConverterExamples-list">
+                    {group.examples.map((exampleId) => {
+                      const exampleCity = converterExampleCities[exampleId];
+                      const exampleCityName = t(`timeZoneConverter.exampleCityNames.${exampleId}`);
 
-                        return (
-                          <li className="timeZoneConverterExamples-result" key={targetId}>
-                            {t(resultKey, {
-                              city: t(`timeZoneConverter.exampleCityNames.${targetId}`),
-                              time: formatTime(exampleDate, targetCity.timezone, timeFormat),
+                      return (
+                        <article className="timeZoneConverterExamples-item" key={exampleId}>
+                          <h4 className="timeZoneConverterExamples-title">
+                            {t('timeZoneConverter.exampleTitle', {
+                              city: exampleCityName,
                             })}
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  </article>
-                );
-              })}
+                          </h4>
+
+                          <div className="timeZoneConverterExamples-hours">
+                            {converterBusinessHours.map((hour) => {
+                              const exampleDate = getConverterExampleDate(
+                                exampleCity.timezone,
+                                converterExamplesBaseDate,
+                                hour,
+                              );
+
+                              return (
+                                <section className="timeZoneConverterExamples-hour" key={hour}>
+                                  <p className="timeZoneConverterExamples-source">
+                                    {t('timeZoneConverter.exampleSource', {
+                                      city: exampleCityName,
+                                      time: formatTime(
+                                        exampleDate,
+                                        exampleCity.timezone,
+                                        timeFormat,
+                                      ),
+                                    })}
+                                  </p>
+                                  <ul className="timeZoneConverterExamples-results">
+                                    {converterExampleTargets[exampleId].map((targetId) => {
+                                      const targetCity = converterExampleCities[targetId];
+                                      const dayMarker = getRelativeDayMarker(
+                                        targetCity.timezone,
+                                        exampleCity.timezone,
+                                        exampleDate,
+                                      );
+                                      const resultKey = dayMarker
+                                        ? `timeZoneConverter.exampleResult.${dayMarker}`
+                                        : 'timeZoneConverter.exampleResult.same';
+
+                                      return (
+                                        <li
+                                          className="timeZoneConverterExamples-result"
+                                          key={targetId}
+                                        >
+                                          {t(resultKey, {
+                                            city: t(
+                                              `timeZoneConverter.exampleCityNames.${targetId}`,
+                                            ),
+                                            time: formatTime(
+                                              exampleDate,
+                                              targetCity.timezone,
+                                              timeFormat,
+                                            ),
+                                          })}
+                                        </li>
+                                      );
+                                    })}
+                                  </ul>
+                                </section>
+                              );
+                            })}
+                          </div>
+                        </article>
+                      );
+                    })}
+                  </div>
+                </section>
+              ))}
             </div>
           </div>
         </section>

@@ -58,8 +58,8 @@
   },
   "addCity": {
     "searchPlaceholder": "Nome da cidade ou fuso horário...",
-    "fixedTimezonesTitle": "Fusos horários fixos",
-    "chooseTimezone": "GMT / UTC",
+    "fixedTimezonesTitle": "Fusos horários",
+    "chooseTimezone": "GMT/UTC fixos",
     "chooseAbbreviation": "Fuso horário dos EUA/Canadá",
     "databaseUnavailable": "A pesquisa de cidades está temporariamente indisponível."
   },
@@ -120,7 +120,7 @@
     "short": "Resumo",
     "yes": "Sim",
     "no": "Não",
-    "platformsShort": "iOS. Android — em desenvolvimento",
+    "platformsShort": "iOS e Android",
     "notificationsShort": "Menu > Ajustes > Notificações",
     "free": {
       "title": "{siteName} é gratuito?",
@@ -139,7 +139,7 @@
     },
     "platforms": {
       "title": "Quais plataformas são compatíveis?",
-      "paragraph1": "{siteName} está disponível para iOS. A versão Android está em desenvolvimento e está sendo criada para manter a mesma lista simples de cidades, visualização de timeline e fluxo de notificações.",
+      "paragraph1": "{siteName} está disponível para iOS e Android, com a mesma lista simples de cidades, visualização de timeline e fluxo de notificações nas duas versões.",
       "paragraph2": "O site também oferece uma prévia leve da experiência principal, para que você possa explorar como a timeline e a comparação de cidades funcionam antes de instalar o app."
     },
     "notifications": {
@@ -306,8 +306,17 @@
         "text": "Veja se um horário escolhido cai hoje, amanhã ou ontem em outra cidade antes de enviar um convite."
       }
     },
-    "examplesTitle": "Exemplos de conversão de hora por cidade",
-    "examplesLead": "Estes exemplos são calculados a partir das 10:00 em cada cidade com as regras atuais de fuso horário, para manter corretas as mudanças de horário de verão.",
+    "examplesTitle": "Guia de horário comercial por fuso horário",
+    "examplesLead": "Compare horários comerciais comuns das 09:00 às 18:00 em cidades populares e encontre rapidamente bons horários para pessoas em diferentes fusos horários.",
+    "exampleTitle": "Horário comercial: {city}",
+    "exampleGroups": {
+      "northAmerica": "América do Norte",
+      "europe": "Europa",
+      "asia": "Ásia",
+      "middleEastAfrica": "Oriente Médio e África",
+      "latinAmerica": "América Latina",
+      "oceania": "Oceania"
+    },
     "examples": {
       "newYork": {
         "title": "Conversão da hora de Nova York"

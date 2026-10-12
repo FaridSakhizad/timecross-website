@@ -145,6 +145,24 @@
   text-shadow: 0 0 3px rgba(0, 0, 0, 0.18);
 }
 
+.timeZoneConverterExamples-groups {
+  display: grid;
+  gap: 30px;
+}
+
+.timeZoneConverterExamples-group {
+  display: grid;
+  gap: 16px;
+}
+
+.timeZoneConverterExamples-groupTitle {
+  margin: 0;
+  color: #fff;
+  font-size: 26px;
+  line-height: 1.2;
+  text-align: center;
+}
+
 .timeZoneConverterExamples-list {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -166,8 +184,18 @@
   line-height: 1.2;
 }
 
+.timeZoneConverterExamples-hours {
+  display: grid;
+  gap: 16px;
+}
+
+.timeZoneConverterExamples-hour {
+  display: grid;
+  gap: 8px;
+}
+
 .timeZoneConverterExamples-source {
-  margin: 0 0 14px;
+  margin: 0;
   color: #fff;
   font-size: 18px;
   line-height: 1.35;

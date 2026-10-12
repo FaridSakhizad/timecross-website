@@ -58,8 +58,8 @@
   },
   "addCity": {
     "searchPlaceholder": "City Name or Time Zone...",
-    "fixedTimezonesTitle": "Fixed time zones",
-    "chooseTimezone": "GMT / UTC",
+    "fixedTimezonesTitle": "Time zones",
+    "chooseTimezone": "Fixed GMT/UTC",
     "chooseAbbreviation": "US/Canada Time Zone",
     "databaseUnavailable": "City search is temporarily unavailable."
   },
@@ -132,7 +132,7 @@
     "short": "TL;DR",
     "yes": "Yes",
     "no": "No",
-    "platformsShort": "iOS. Android — in progress",
+    "platformsShort": "iOS and Android",
     "notificationsShort": "Menu > Settings > Notifications",
     "free": {
       "title": "Is {siteName} free?",
@@ -151,7 +151,7 @@
     },
     "platforms": {
       "title": "Which platforms are supported?",
-      "paragraph1": "{siteName} is available for iOS. The Android version is in progress and is being built to keep the same simple city list, timeline view, and notification flow.",
+      "paragraph1": "{siteName} is available for iOS and Android, with the same simple city list, timeline view, and notification flow across both versions.",
       "paragraph2": "The website also provides a lightweight preview of the core experience, so you can explore how the timeline and city comparison work before installing the app."
     },
     "notifications": {
@@ -306,8 +306,17 @@
         "text": "See whether a chosen time lands today, tomorrow, or yesterday in another city before you send an invite."
       }
     },
-    "examplesTitle": "Example time zone conversions by city",
-    "examplesLead": "These examples are calculated from 10:00 in each city using current time zone rules, so daylight saving changes stay accurate.",
+    "examplesTitle": "Business Hours Time Zone Guide",
+    "examplesLead": "Compare common workday hours from 09:00 to 18:00 across popular cities and quickly find reasonable meeting times for people in different time zones.",
+    "exampleTitle": "{city} business hours",
+    "exampleGroups": {
+      "northAmerica": "North America",
+      "europe": "Europe",
+      "asia": "Asia",
+      "middleEastAfrica": "Middle East & Africa",
+      "latinAmerica": "Latin America",
+      "oceania": "Oceania"
+    },
     "examples": {
       "newYork": {
         "title": "New York time conversion"
@@ -371,7 +380,36 @@
       "dubai": "Dubai",
       "singapore": "Singapore",
       "tokyo": "Tokyo",
-      "losAngeles": "Los Angeles"
+      "losAngeles": "Los Angeles",
+      "chicago": "Chicago",
+      "denver": "Denver",
+      "toronto": "Toronto",
+      "vancouver": "Vancouver",
+      "berlin": "Berlin",
+      "madrid": "Madrid",
+      "amsterdam": "Amsterdam",
+      "zurich": "Zurich",
+      "hongKong": "Hong Kong",
+      "seoul": "Seoul",
+      "mumbai": "Mumbai",
+      "bangkok": "Bangkok",
+      "istanbul": "Istanbul",
+      "cairo": "Cairo",
+      "johannesburg": "Johannesburg",
+      "riyadh": "Riyadh",
+      "doha": "Doha",
+      "mexicoCity": "Mexico City",
+      "saoPaulo": "São Paulo",
+      "buenosAires": "Buenos Aires",
+      "santiago": "Santiago",
+      "bogota": "Bogotá",
+      "lima": "Lima",
+      "sydney": "Sydney",
+      "melbourne": "Melbourne",
+      "auckland": "Auckland",
+      "honolulu": "Honolulu",
+      "suva": "Suva",
+      "perth": "Perth"
     }
   }
 }

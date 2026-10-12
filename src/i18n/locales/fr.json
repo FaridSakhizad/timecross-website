@@ -58,8 +58,8 @@
   },
   "addCity": {
     "searchPlaceholder": "Nom de la ville ou fuseau horaire...",
-    "fixedTimezonesTitle": "Fuseaux horaires fixes",
-    "chooseTimezone": "GMT / UTC",
+    "fixedTimezonesTitle": "Fuseaux horaires",
+    "chooseTimezone": "GMT/UTC fixes",
     "chooseAbbreviation": "Fuseau horaire États-Unis/Canada",
     "databaseUnavailable": "La recherche de villes est temporairement indisponible."
   },
@@ -120,7 +120,7 @@
     "short": "En bref",
     "yes": "Oui",
     "no": "Non",
-    "platformsShort": "iOS. Android — en cours",
+    "platformsShort": "iOS et Android",
     "notificationsShort": "Menu > Réglages > Notifications",
     "free": {
       "title": "{siteName} est-elle gratuite ?",
@@ -139,7 +139,7 @@
     },
     "platforms": {
       "title": "Quelles plateformes sont prises en charge ?",
-      "paragraph1": "{siteName} est disponible sur iOS. La version Android est en cours et vise à conserver la même liste de villes simple, la vue timeline et le flux de notifications.",
+      "paragraph1": "{siteName} est disponible sur iOS et Android, avec la même liste de villes simple, la vue timeline et le flux de notifications dans les deux versions.",
       "paragraph2": "Le site propose aussi un aperçu léger de l'expérience principale, pour explorer la timeline et la comparaison de villes avant d'installer l'app."
     },
     "notifications": {
@@ -306,8 +306,17 @@
         "text": "Voyez si une heure choisie tombe aujourd’hui, demain ou hier dans une autre ville avant d’envoyer une invitation."
       }
     },
-    "examplesTitle": "Exemples de conversion d’heure par ville",
-    "examplesLead": "Ces exemples sont calculés à partir de 10:00 dans chaque ville avec les règles de fuseau horaire actuelles, afin que les changements d’heure d’été restent corrects.",
+    "examplesTitle": "Guide des heures de bureau par fuseau horaire",
+    "examplesLead": "Comparez les heures de bureau courantes de 09:00 à 18:00 dans les villes populaires et trouvez rapidement des créneaux raisonnables pour des personnes dans différents fuseaux horaires.",
+    "exampleTitle": "Heures de bureau : {city}",
+    "exampleGroups": {
+      "northAmerica": "Amérique du Nord",
+      "europe": "Europe",
+      "asia": "Asie",
+      "middleEastAfrica": "Moyen-Orient et Afrique",
+      "latinAmerica": "Amérique latine",
+      "oceania": "Océanie"
+    },
     "examples": {
       "newYork": {
         "title": "Conversion de l’heure de New York"

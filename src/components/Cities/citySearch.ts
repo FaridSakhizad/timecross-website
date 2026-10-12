@@ -17,6 +17,7 @@ export type CitySearchRow = {
   pop: number;
   isAbstractTimezone?: boolean;
   localizedName?: string | null;
+  timezoneAbbreviationShortName?: string;
   timezoneAbbreviationName?: string;
 };
 
@@ -64,7 +65,7 @@ type ParsedGmtOffsetQuery =
 
 const CITY_SEARCH_DATA_URL = '/data/cities-search.json';
 const SEARCH_RESULTS_LIMIT = 30;
-const ABSTRACT_TIMEZONE_ABBREVIATION_ID_BASE = -200000;
+const NORTH_AMERICAN_TIMEZONE_ID_BASE = -200000;
 const ABSTRACT_TIMEZONE_OFFSETS_MINUTES = [
   -12 * 60,
   -11 * 60,
@@ -105,25 +106,120 @@ const ABSTRACT_TIMEZONE_OFFSETS_MINUTES = [
   13 * 60 + 45,
   14 * 60,
 ];
-const ABSTRACT_TIMEZONE_ABBREVIATIONS = [
-  ['HST', 'Hawaii Standard Time', -10 * 60],
-  ['HDT', 'Hawaii Daylight Time', -9 * 60],
-  ['AKST', 'Alaska Standard Time', -9 * 60],
-  ['AKDT', 'Alaska Daylight Time', -8 * 60],
-  ['PST', 'Pacific Standard Time', -8 * 60],
-  ['PDT', 'Pacific Daylight Time', -7 * 60],
-  ['MST', 'Mountain Standard Time', -7 * 60],
-  ['MDT', 'Mountain Daylight Time', -6 * 60],
-  ['CST', 'Central Standard Time', -6 * 60],
-  ['CDT', 'Central Daylight Time', -5 * 60],
-  ['EST', 'Eastern Standard Time', -5 * 60],
-  ['EDT', 'Eastern Daylight Time', -4 * 60],
-  ['AST', 'Atlantic Standard Time', -4 * 60],
-  ['ADT', 'Atlantic Daylight Time', -3 * 60],
-  ['NST', 'Newfoundland Standard Time', -(3 * 60 + 30)],
-  ['NDT', 'Newfoundland Daylight Time', -(2 * 60 + 30)],
-] satisfies Array<[name: string, timezoneName: string, offsetMinutes: number]>;
-
+const NORTH_AMERICAN_TIMEZONES = [
+  {
+    name: 'Eastern Time',
+    timezone: 'America/New_York',
+    city: 'New York',
+    country: 'US',
+    standardAbbreviation: 'EST',
+    daylightAbbreviation: 'EDT',
+    standardOffsetMinutes: -5 * 60,
+    daylightOffsetMinutes: -4 * 60,
+  },
+  {
+    name: 'Pacific Time',
+    timezone: 'America/Los_Angeles',
+    city: 'Los Angeles',
+    country: 'US',
+    standardAbbreviation: 'PST',
+    daylightAbbreviation: 'PDT',
+    standardOffsetMinutes: -8 * 60,
+    daylightOffsetMinutes: -7 * 60,
+  },
+  {
+    name: 'Central Time',
+    timezone: 'America/Chicago',
+    city: 'Chicago',
+    country: 'US',
+    standardAbbreviation: 'CST',
+    daylightAbbreviation: 'CDT',
+    standardOffsetMinutes: -6 * 60,
+    daylightOffsetMinutes: -5 * 60,
+  },
+  {
+    name: 'Mountain Time',
+    timezone: 'America/Denver',
+    city: 'Denver',
+    country: 'US',
+    standardAbbreviation: 'MST',
+    daylightAbbreviation: 'MDT',
+    standardOffsetMinutes: -7 * 60,
+    daylightOffsetMinutes: -6 * 60,
+  },
+  {
+    name: 'Mountain Time',
+    timezone: 'America/Phoenix',
+    city: 'Phoenix',
+    country: 'US',
+    note: 'no DST',
+    standardAbbreviation: 'MST',
+    daylightAbbreviation: null,
+    standardOffsetMinutes: -7 * 60,
+    daylightOffsetMinutes: null,
+  },
+  {
+    name: 'Central Time',
+    timezone: 'America/Regina',
+    city: 'Regina',
+    country: 'CA',
+    note: 'no DST',
+    standardAbbreviation: 'CST',
+    daylightAbbreviation: null,
+    standardOffsetMinutes: -6 * 60,
+    daylightOffsetMinutes: null,
+  },
+  {
+    name: 'Alaska Time',
+    timezone: 'America/Anchorage',
+    city: 'Anchorage',
+    country: 'US',
+    standardAbbreviation: 'AKST',
+    daylightAbbreviation: 'AKDT',
+    standardOffsetMinutes: -9 * 60,
+    daylightOffsetMinutes: -8 * 60,
+  },
+  {
+    name: 'Hawaii Time',
+    timezone: 'Pacific/Honolulu',
+    city: 'Honolulu',
+    country: 'US',
+    standardAbbreviation: 'HST',
+    daylightAbbreviation: null,
+    standardOffsetMinutes: -10 * 60,
+    daylightOffsetMinutes: null,
+  },
+  {
+    name: 'Atlantic Time',
+    timezone: 'America/Halifax',
+    city: 'Halifax',
+    country: 'CA',
+    standardAbbreviation: 'AST',
+    daylightAbbreviation: 'ADT',
+    standardOffsetMinutes: -4 * 60,
+    daylightOffsetMinutes: -3 * 60,
+  },
+  {
+    name: 'Newfoundland Time',
+    timezone: 'America/St_Johns',
+    city: 'St. John’s',
+    country: 'CA',
+    standardAbbreviation: 'NST',
+    daylightAbbreviation: 'NDT',
+    standardOffsetMinutes: -(3 * 60 + 30),
+    daylightOffsetMinutes: -(2 * 60 + 30),
+  },
+] satisfies Array<{
+  name: string;
+  timezone: string;
+  city: string;
+  country: string;
+  note?: string;
+  standardAbbreviation: string;
+  daylightAbbreviation: string | null;
+  standardOffsetMinutes: number;
+  daylightOffsetMinutes: number | null;
+}>;
 let citiesSearchDataPromise: Promise<CitySearchData> | null = null;
 
 export function normalizeSearchText(value: string) {
@@ -312,18 +408,61 @@ export function getAbstractTimezoneRows() {
   return ABSTRACT_TIMEZONE_OFFSETS_MINUTES.map(createAbstractTimezoneRow);
 }
 
-export function getAbstractTimezoneAbbreviationRows() {
-  return ABSTRACT_TIMEZONE_ABBREVIATIONS.map(([name, timezoneName, offsetMinutes], index) => ({
-    id: ABSTRACT_TIMEZONE_ABBREVIATION_ID_BASE - index,
-    name,
-    country: '',
+function getShortTimezoneName(timezone: string, date: Date) {
+  try {
+    return new Intl.DateTimeFormat('en-US', {
+      timeZone: timezone,
+      timeZoneName: 'short',
+    })
+      .formatToParts(date)
+      .find((part) => part.type === 'timeZoneName')?.value ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function getNorthAmericanTimezoneFallbackAbbreviation(
+  timezone: (typeof NORTH_AMERICAN_TIMEZONES)[number],
+  date: Date,
+) {
+  const offsetMinutes = getTimeZoneOffsetMinutes(timezone.timezone, date);
+
+  if (
+    timezone.daylightAbbreviation
+    && timezone.daylightOffsetMinutes !== null
+    && offsetMinutes === timezone.daylightOffsetMinutes
+  ) {
+    return timezone.daylightAbbreviation;
+  }
+
+  return timezone.standardAbbreviation;
+}
+
+function getNorthAmericanTimezoneAbbreviation(timezone: (typeof NORTH_AMERICAN_TIMEZONES)[number], date: Date) {
+  const shortName = getShortTimezoneName(timezone.timezone, date);
+
+  if (shortName && !/^GMT|^UTC/.test(shortName)) {
+    return shortName;
+  }
+
+  return getNorthAmericanTimezoneFallbackAbbreviation(timezone, date);
+}
+
+export function getNorthAmericanTimezoneRows(date = new Date()) {
+  return NORTH_AMERICAN_TIMEZONES.map((timezone, index) => ({
+    id: NORTH_AMERICAN_TIMEZONE_ID_BASE - index,
+    name: timezone.name,
+    country: timezone.country,
     admin1: null,
-    tz: getFixedOffsetTimezoneForOffsetMinutes(offsetMinutes),
+    tz: timezone.timezone,
     lat: 0,
     lon: 0,
     pop: 0,
-    isAbstractTimezone: true,
-    timezoneAbbreviationName: timezoneName,
+    timezoneAbbreviationShortName: getNorthAmericanTimezoneAbbreviation(timezone, date),
+    timezoneAbbreviationName: [
+      `${timezone.city}, ${timezone.country}`,
+      timezone.note,
+    ].filter(Boolean).join(' · '),
   }));
 }
 

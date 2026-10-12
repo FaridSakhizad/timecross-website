@@ -58,8 +58,8 @@
   },
   "addCity": {
     "searchPlaceholder": "Stadtname oder Zeitzone...",
-    "fixedTimezonesTitle": "Feste Zeitzonen",
-    "chooseTimezone": "GMT / UTC",
+    "fixedTimezonesTitle": "Zeitzonen",
+    "chooseTimezone": "Feste GMT/UTC",
     "chooseAbbreviation": "US-/Kanada-Zeitzone",
     "databaseUnavailable": "Die Stadtsuche ist vorübergehend nicht verfügbar."
   },
@@ -120,7 +120,7 @@
     "short": "Kurzfassung",
     "yes": "Ja",
     "no": "Nein",
-    "platformsShort": "iOS. Android — in Arbeit",
+    "platformsShort": "iOS und Android",
     "notificationsShort": "Menü > Einstellungen > Benachrichtigungen",
     "free": {
       "title": "Ist {siteName} kostenlos?",
@@ -139,7 +139,7 @@
     },
     "platforms": {
       "title": "Welche Plattformen werden unterstützt?",
-      "paragraph1": "{siteName} ist für iOS verfügbar. Die Android-Version ist in Arbeit und wird so entwickelt, dass sie dieselbe einfache Städteliste, Timeline-Ansicht und Benachrichtigungslogik bietet.",
+      "paragraph1": "{siteName} ist für iOS und Android verfügbar, mit derselben einfachen Städteliste, Timeline-Ansicht und Benachrichtigungslogik in beiden Versionen.",
       "paragraph2": "Die Website bietet außerdem eine leichte Vorschau auf die Kernfunktionen, damit du ausprobieren kannst, wie Timeline und Städtevergleich funktionieren, bevor du die App installierst."
     },
     "notifications": {
@@ -306,8 +306,17 @@
         "text": "Sieh vor dem Senden einer Einladung, ob eine gewählte Zeit in einer anderen Stadt heute, morgen oder gestern liegt."
       }
     },
-    "examplesTitle": "Beispiele für Zeitumrechnung nach Stadt",
-    "examplesLead": "Diese Beispiele werden ab 10:00 in jeder Stadt mit den aktuellen Zeitzonenregeln berechnet, damit Sommerzeitwechsel korrekt bleiben.",
+    "examplesTitle": "Leitfaden für Geschäftszeiten nach Zeitzone",
+    "examplesLead": "Vergleiche typische Geschäftszeiten von 09:00 bis 18:00 in beliebten Städten und finde schnell passende Meetingzeiten für Menschen in verschiedenen Zeitzonen.",
+    "exampleTitle": "Geschäftszeiten: {city}",
+    "exampleGroups": {
+      "northAmerica": "Nordamerika",
+      "europe": "Europa",
+      "asia": "Asien",
+      "middleEastAfrica": "Naher Osten und Afrika",
+      "latinAmerica": "Lateinamerika",
+      "oceania": "Ozeanien"
+    },
     "examples": {
       "newYork": {
         "title": "Zeitumrechnung für New York"
