@@ -12,6 +12,8 @@ import {
 
 type TimelineMobileCarouselOptions = {
   currentHourIndex: number;
+  initialHourIndex?: number;
+  onHourChange?: (index: number) => void;
   freePanMode: boolean;
   maxHourIndex: number;
   minHourIndex: number;
@@ -21,6 +23,8 @@ const MOBILE_TIMELINE_SCROLL_ANIMATION_MS = 200;
 
 export function useTimelineMobileCarousel({
   currentHourIndex,
+  initialHourIndex,
+  onHourChange,
   freePanMode,
   maxHourIndex,
   minHourIndex,
@@ -35,6 +39,7 @@ export function useTimelineMobileCarousel({
   const animationTokenRef = useRef(0);
   const releaseTimerRef = useRef<number | undefined>(undefined);
   const centeredHourIndexRef = useRef(currentHourIndex);
+  const hasUserInteractedRef = useRef(false);
 
   const setViewportRef = useCallback((element: HTMLDivElement | null) => {
     if (viewportRef.current !== element) {
@@ -172,6 +177,8 @@ export function useTimelineMobileCarousel({
     }
 
     centeredHourIndexRef.current = Math.max(minHourIndex, Math.min(maxHourIndex, hourIndex));
+    hasUserInteractedRef.current = true;
+    onHourChange?.(centeredHourIndexRef.current);
 
     const targetScrollLeft = getClampedTimelineScrollLeftForHourIndex(
       viewport,
@@ -183,7 +190,7 @@ export function useTimelineMobileCarousel({
     cancelProgrammaticMotion();
     isProgrammaticScrollRef.current = true;
     animateScrollLeft(targetScrollLeft);
-  }, [animateScrollLeft, cancelProgrammaticMotion, maxHourIndex, minHourIndex]);
+  }, [animateScrollLeft, cancelProgrammaticMotion, maxHourIndex, minHourIndex, onHourChange]);
 
   const scrollByHours = useCallback((hours: number) => {
     const viewport = viewportRef.current;
@@ -242,13 +249,14 @@ export function useTimelineMobileCarousel({
   useLayoutEffect(() => {
     const viewport = viewportRef.current;
 
-    if (!viewport || hasInitialScrollRef.current || currentHourIndex < 0) {
+    const initialIndex = initialHourIndex ?? currentHourIndex;
+    if (!viewport || hasInitialScrollRef.current || initialIndex < 0) {
       return;
     }
 
     const initialScrollLeft = getClampedTimelineScrollLeftForHourIndex(
       viewport,
-      currentHourIndex,
+      initialIndex,
       minHourIndex,
       maxHourIndex,
     );
@@ -256,10 +264,10 @@ export function useTimelineMobileCarousel({
     virtualScrollLeftRef.current = initialScrollLeft;
     viewport.scrollLeft = freePanMode ? initialScrollLeft : 0;
     hasInitialScrollRef.current = true;
-    centeredHourIndexRef.current = currentHourIndex;
+    centeredHourIndexRef.current = initialIndex;
     lastScrollLeftRef.current = initialScrollLeft;
     syncLayout();
-  }, [currentHourIndex, freePanMode, maxHourIndex, minHourIndex, syncLayout]);
+  }, [currentHourIndex, initialHourIndex, freePanMode, maxHourIndex, minHourIndex, syncLayout]);
 
   useEffect(() => {
     const viewport = viewportRef.current;
@@ -270,6 +278,9 @@ export function useTimelineMobileCarousel({
 
     const snapToNearestHour = () => {
       const targetHourIndex = getTimelineHourIndexAtCenter(viewport);
+      if (hasUserInteractedRef.current) {
+        onHourChange?.(Math.max(minHourIndex, Math.min(maxHourIndex, targetHourIndex)));
+      }
       const targetScrollLeft = getClampedTimelineScrollLeftForHourIndex(
         viewport,
         targetHourIndex,
@@ -336,7 +347,10 @@ export function useTimelineMobileCarousel({
     lastScrollLeftRef.current = freePanMode ? viewport.scrollLeft : virtualScrollLeftRef.current;
     resizeObserver.observe(viewport);
 
+    const markUserInteraction = () => { hasUserInteractedRef.current = true; };
     if (freePanMode) {
+      viewport.addEventListener('pointerdown', markUserInteraction, { passive: true });
+      viewport.addEventListener('wheel', markUserInteraction, { passive: true });
       viewport.addEventListener('scroll', handleScroll, { passive: true });
       viewport.addEventListener('scrollend', handleScrollEnd);
     }
@@ -346,6 +360,8 @@ export function useTimelineMobileCarousel({
       resizeObserver.disconnect();
 
       if (freePanMode) {
+        viewport.removeEventListener('pointerdown', markUserInteraction);
+        viewport.removeEventListener('wheel', markUserInteraction);
         viewport.removeEventListener('scroll', handleScroll);
         viewport.removeEventListener('scrollend', handleScrollEnd);
       }
@@ -356,6 +372,7 @@ export function useTimelineMobileCarousel({
     freePanMode,
     maxHourIndex,
     minHourIndex,
+    onHourChange,
     syncLayout,
   ]);
 

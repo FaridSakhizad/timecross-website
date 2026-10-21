@@ -116,8 +116,8 @@
     "compareCitiesTitle": "See today, tomorrow, and time differences at a glance",
     "compareCitiesText": "Day markers and relative offsets make it easier to know when a city has moved into tomorrow, when someone is likely awake, and how far apart two places are.",
     "nextTitle": "Explore more time tools",
-    "gridLink": "Open timeline grid",
-    "citiesLink": "Open full-screen city list"
+    "gridLink": "Timeline Grid",
+    "citiesLink": "Cities"
   },
   "contactForm": {
     "name": "Name*",
@@ -273,8 +273,8 @@
     "planTitle": "Plan around people, not offsets",
     "planText": "Rename cities for clients, friends, family, or routines and keep the places you coordinate with in a clear order.",
     "nextTitle": "Explore more time tools",
-    "gridLink": "Open full-screen grid",
-    "worldClockLink": "Open world clock"
+    "gridLink": "Timeline Grid",
+    "worldClockLink": "World Clock"
   },
   "timeZoneConverter": {
     "title": "Time Zone Converter for Cities",
@@ -360,8 +360,9 @@
       }
     },
     "nextTitle": "Explore more time tools",
-    "worldClockLink": "Open world clock",
-    "meetingPlannerLink": "Open meeting planner",
+    "worldClockLink": "World Clock",
+    "meetingPlannerLink": "Meeting Planner",
+    "converterLink": "Time Zone Converter",
     "whenItsLabel": "When it’s",
     "inLabel": "in",
     "itsLabel": "it’s",

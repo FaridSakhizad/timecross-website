@@ -11,6 +11,9 @@ import type { TimelineCell } from './types';
 
 type TimelinesDesktopProps = {
   currentUserHourIndex: number;
+  initialHourIndex?: number;
+  onHourChange?: (index: number) => void;
+  onReset?: () => void;
   isDragging: boolean;
   isEditMode: boolean;
   onAddCityClick: () => void;
@@ -21,6 +24,9 @@ type TimelinesDesktopProps = {
 
 export default function TimelinesDesktop({
   currentUserHourIndex,
+  initialHourIndex,
+  onHourChange,
+  onReset,
   isDragging,
   isEditMode,
   onAddCityClick,
@@ -40,6 +46,8 @@ export default function TimelinesDesktop({
     widgetRef,
   } = useTimelineDesktopCarousel({
     currentHourIndex: currentUserHourIndex,
+    initialHourIndex,
+    onHourChange,
     minHourIndex: TIMELINE_EDGE_FADE_HOURS,
     maxHourIndex: TIMELINE_EDGE_FADE_HOURS + TIMELINE_TOTAL_HOURS - 1,
   });
@@ -54,7 +62,10 @@ export default function TimelinesDesktop({
         isEditMode={isEditMode}
         onAddCityClick={onAddCityClick}
         onEditModeToggle={onEditModeToggle}
-        onResetClick={resetScroll}
+        onResetClick={() => {
+          resetScroll();
+          onReset?.();
+        }}
       />
       <div className="timelinesWidgetWrapper timelinesWidgetWrapper_desktop">
         <div

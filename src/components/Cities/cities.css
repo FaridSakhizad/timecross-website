@@ -90,6 +90,7 @@
   height: 15px;
   mask: url('../../assets/icon--home-1.svg');
   background-color: rgba(var(--accent-color-2), 1);
+  margin-bottom: 1px;
 }
 
 .citiesHeaderButton-icon_menu {
@@ -168,6 +169,15 @@
   width: 14px;
   height: 14px;
   mask: url('../../assets/icon--cities-1.svg');
+  background-color: rgba(var(--accent-color-2), 1);
+}
+
+.citiesHeaderButton-icon_converter {
+  width: 24px;
+  height: 20px;
+  mask: url('../../assets/icon--convert-0.svg');
+  mask-position: center;
+  mask-repeat: no-repeat;
   background-color: rgba(var(--accent-color-2), 1);
 }
 

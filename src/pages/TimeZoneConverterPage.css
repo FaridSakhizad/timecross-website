@@ -1,5 +1,6 @@
-.timeZoneConverterHero {
-  padding-top: 56px;
+.timeZoneConverterPage .timeZoneConverterHero {
+  padding: 0 0 16px;
+  border-bottom: 0;
 }
 
 .timeZoneConverterHero-container {
@@ -8,21 +9,20 @@
   justify-content: center;
 }
 
-.timeZoneConverterHero-text {
+.timeZoneConverterHero-title {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.2;
+  font-weight: 700;
   color: #fff;
   text-align: center;
   text-shadow: 0 0 3px rgba(0, 0, 0, 0.18);
 }
 
-.timeZoneConverterHero-title {
-  margin: 0 0 24px;
-  font-size: 64px;
-  line-height: 1;
-  font-weight: 900;
-}
-
 .timeZoneConverterHero-lead {
-  margin: 0;
+  margin: 20px auto 0;
+  max-width: 760px;
+  text-align: center;
   font-size: 24px;
   line-height: 1.35;
   font-weight: 700;
@@ -34,14 +34,36 @@
   gap: 26px;
 }
 
+.timeZoneConverterPage .timeZoneConverterToolSection {
+  padding-top: 0;
+}
+
+.timeZoneConverterToolSection-widget {
+  min-height: 540px;
+}
+
+.timeZoneConverterToolSection-widget .timeZoneConverter-statement {
+  justify-content: center;
+  padding-block: 28px;
+}
+
+.timeZoneConverterToolSection-widget .timeZoneConverter-listBox {
+  max-height: none;
+  overscroll-behavior: unset;
+}
+
+.timeZoneConverterToolSection-widget .timeZoneConverter-list {
+  width: 100%;
+  box-sizing: border-box;
+}
+
 .timeZoneConverterToolSection-title {
-  order: 1;
+  margin-bottom: 0;
 }
 
 .timeZoneConverterToolSection-text {
-  order: 2;
   max-width: 760px;
-  margin: -22px auto 0;
+  margin: 0 auto;
   color: var(--body-text-color-2);
   font-size: 18px;
   line-height: 1.5;
@@ -49,12 +71,7 @@
   text-shadow: 0 0 3px rgba(0, 0, 0, 0.18);
 }
 
-.timeZoneConverterToolSection-widget {
-  order: 3;
-}
-
 .timeZoneConverterToolSection-description {
-  order: 4;
   max-width: 760px;
   margin: 0 auto;
   color: rgba(255 255 255 / 0.92);
@@ -65,7 +82,6 @@
 }
 
 .timeZoneConverterToolSection-cta {
-  order: 5;
   justify-content: center;
 }
 
@@ -255,44 +271,36 @@
 }
 
 @media screen and (width < 720px) {
-  .timeZoneConverterHero {
-    padding-top: 36px;
-    padding-bottom: 22px;
+  .timeZoneConverterPage .timeZoneConverterHero {
+    padding: 0 0 14px;
   }
 
   .timeZoneConverterHero-title {
-    margin-bottom: 14px;
-    font-size: 44px;
+    font-size: 24px;
   }
 
   .timeZoneConverterHero-lead {
     font-size: 20px;
   }
 
-  .timeZoneConverterToolSection {
-    padding-top: 20px;
+  .timeZoneConverterPage .timeZoneConverterToolSection {
+    padding-top: 0;
   }
 
   .timeZoneConverterToolSection-title {
-    order: 2;
     margin-bottom: 0;
   }
 
   .timeZoneConverterToolSection-text {
-    order: 3;
-    margin-top: -14px;
+    margin-top: 0;
   }
 
   .timeZoneConverterToolSection-widget {
-    order: 1;
+    min-height: 500px;
   }
 
-  .timeZoneConverterToolSection-description {
-    order: 4;
-  }
-
-  .timeZoneConverterToolSection-cta {
-    order: 5;
+  .timeZoneConverterToolSection-widget .timeZoneConverter-statement {
+    padding: 18px 14px;
   }
 
   .timeZoneConverterInfo-container {

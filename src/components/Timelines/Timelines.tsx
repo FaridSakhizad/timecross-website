@@ -1,5 +1,6 @@
 import './style.css';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router';
 import {
   DndContext,
   PointerSensor,
@@ -30,9 +31,11 @@ import TimelinesDesktop from './TimelinesDesktop';
 import TimelinesMobile from './TimelinesMobile';
 import { useUsesNativeTimelineScroll } from './useTimelineMedia';
 import { getBrowserTimezone, getTimelineCells, getTimelineDates } from './utils';
+import { readPlannerUrlState, writePlannerUrlState } from './plannerUrlState';
 
 type TimelinesProps = {
   timeFormat: TimeFormat;
+  syncUrl?: boolean;
 };
 
 const restrictTimelinesDragToVerticalAxis: Modifier = ({ transform }) => ({
@@ -40,14 +43,19 @@ const restrictTimelinesDragToVerticalAxis: Modifier = ({ transform }) => ({
   x: 0,
 });
 
-export default function Timelines({ timeFormat }: TimelinesProps) {
+export default function Timelines({ timeFormat, syncUrl = false }: TimelinesProps) {
   const baseDate = useCurrentMinuteDate();
+  const [, setSearchParams] = useSearchParams();
+  const [initialState] = useState(() => readPlannerUrlState(syncUrl ? window.location.search : ''));
+  const [anchorDate, setAnchorDate] = useState(initialState.at);
+  const [selectedDate, setSelectedDate] = useState(initialState.at);
+  const [hasSelection, setHasSelection] = useState(Boolean(initialState.at || initialState.cities));
   const browserTimezone = useMemo(() => getBrowserTimezone(), []);
-  const [cities, setCities] = useState(() => getOrderedSelectedCities(getSettings().cityOrder));
+  const [cities, setCities] = useState(() => initialState.cities ?? getOrderedSelectedCities(getSettings().cityOrder));
   const [isAddCityModalOpen, setIsAddCityModalOpen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
-  const usesNativeScroll = useUsesNativeTimelineScroll();
+  const usesNativeScroll = useUsesNativeTimelineScroll(syncUrl);
   const localizedCities = useLocalizedCities(cities);
   const cityIds = useMemo(() => cities.map((city) => city.id), [cities]);
   const sensors = useSensors(
@@ -67,6 +75,27 @@ export default function Timelines({ timeFormat }: TimelinesProps) {
   );
 
   useEffect(() => {
+    if (!syncUrl || !hasSelection) return;
+    const params = writePlannerUrlState(new URLSearchParams(window.location.search), cities, selectedDate);
+    if (params.toString() !== new URLSearchParams(window.location.search).toString()) {
+      setSearchParams(params, { replace: true, preventScrollReset: true });
+    }
+  }, [cities, hasSelection, selectedDate, setSearchParams, syncUrl]);
+
+  useEffect(() => {
+    if (!syncUrl) return;
+    const restore = () => {
+      const state = readPlannerUrlState(window.location.search);
+      setCities(state.cities ?? getOrderedSelectedCities(getSettings().cityOrder));
+      setAnchorDate(state.at);
+      setSelectedDate(state.at);
+      setHasSelection(Boolean(state.at || state.cities));
+    };
+    window.addEventListener('popstate', restore);
+    return () => window.removeEventListener('popstate', restore);
+  }, [syncUrl]);
+
+  useEffect(() => {
     const handleSelectedCitiesChange = () => {
       setCities(getOrderedSelectedCities(getSettings().cityOrder));
     };
@@ -79,14 +108,22 @@ export default function Timelines({ timeFormat }: TimelinesProps) {
   }, []);
 
   const timelineDates = useMemo(
-    () => getTimelineDates(browserTimezone, baseDate),
-    [baseDate, browserTimezone],
+    () => getTimelineDates(browserTimezone, anchorDate ?? baseDate),
+    [anchorDate, baseDate, browserTimezone],
   );
 
   const userCells = useMemo(
     () => getTimelineCells(browserTimezone, baseDate, timelineDates, timeFormat),
     [baseDate, browserTimezone, timelineDates, timeFormat],
   );
+
+  const handleHourChange = useCallback((index: number) => {
+    const date = userCells[index]?.date;
+    if (date) {
+      setSelectedDate(date);
+      setHasSelection(true);
+    }
+  }, [userCells]);
 
   const handleDeleteCity = (cityId: string) => {
     const nextCities = cities.filter((city) => city.id !== cityId);
@@ -96,6 +133,7 @@ export default function Timelines({ timeFormat }: TimelinesProps) {
     }
 
     setCities(nextCities);
+    setHasSelection(true);
     saveSelectedCities(nextCities);
   };
 
@@ -120,6 +158,7 @@ export default function Timelines({ timeFormat }: TimelinesProps) {
     ];
 
     setCities(nextCities);
+    setHasSelection(true);
     saveSelectedCities(nextCities);
     setIsAddCityModalOpen(false);
   };
@@ -144,10 +183,20 @@ export default function Timelines({ timeFormat }: TimelinesProps) {
     }));
 
     setCities(nextCities);
+    setHasSelection(true);
     saveSelectedCities(nextCities);
   };
 
   const props = {
+    initialHourIndex: selectedDate
+      ? userCells.findIndex((cell) => cell.date.getTime() === selectedDate.getTime())
+      : undefined,
+    onHourChange: syncUrl ? handleHourChange : undefined,
+    onReset: syncUrl ? () => {
+      setSelectedDate(null);
+      setAnchorDate(null);
+      setHasSelection(true);
+    } : undefined,
     currentUserHourIndex,
     isDragging,
     isEditMode,
@@ -169,8 +218,8 @@ export default function Timelines({ timeFormat }: TimelinesProps) {
       >
         <SortableContext items={cityIds} strategy={verticalListSortingStrategy}>
           {usesNativeScroll
-            ? <TimelinesMobile {...props} />
-            : <TimelinesDesktop {...props} />}
+            ? <TimelinesMobile key={anchorDate?.toISOString() ?? 'live'} {...props} />
+            : <TimelinesDesktop key={anchorDate?.toISOString() ?? 'live'} {...props} />}
         </SortableContext>
       </DndContext>
 

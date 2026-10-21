@@ -2,10 +2,16 @@
   border-top: 10px solid rgba(0 0 0 / 0.1);
 }
 
+.header_home {
+  & > .container {
+    height: 144px;
+  }
+}
+
 .container_header {
   display: flex;
   align-items: center;
-  height: 144px;
+  padding-block: 15px;
 }
 
 .logo {
@@ -232,7 +238,7 @@
   }
 
   .headerMenu-item_link {
-    min-width: 105px;
+    min-width: 95px;
   }
 }
 
@@ -251,7 +257,7 @@
     align-items: center;
     justify-content: center;
     width: 100%;
-    gap: 0 20px;
+    gap: 0 12px;
   }
 
   .headerMenu-item {

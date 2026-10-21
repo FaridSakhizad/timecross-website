@@ -1,6 +1,8 @@
 import { Navigate, Route, Routes, useLocation, useParams } from 'react-router';
 import { useEffect, useLayoutEffect, useState, type ReactNode } from 'react';
 
+import './App.css';
+
 import CitiesPage from './pages/CitiesPage';
 import ConverterPage from './pages/ConverterPage';
 import GridPage from './pages/GridPage';
@@ -26,8 +28,6 @@ import {
   type ColorMode,
   type TimeFormat,
 } from './settings';
-
-import './App.css';
 
 type LocalizedRouteProps = {
   children: ReactNode;

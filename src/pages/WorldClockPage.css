@@ -1,29 +1,26 @@
-.worldClockHero {
-  padding-top: 56px;
+.worldClockPage .citiesHeaderButton_menu {
+  display: none;
 }
 
-.worldClockHero-container {
-  display: grid;
-  grid-template-columns: minmax(0, 0.88fr) minmax(360px, 520px);
-  gap: 48px;
-  align-items: center;
-}
-
-.worldClockHero-text {
-  color: #fff;
-  text-shadow: 0 0 3px rgba(0, 0, 0, 0.18);
+.worldClockPage .worldClockHero {
+  padding: 0 0 16px;
+  border-bottom: 0;
 }
 
 .worldClockHero-title {
-  margin: 0 0 24px;
-  font-size: 64px;
-  line-height: 1;
-  font-weight: 900;
+  color: #fff;
+  text-align: center;
+  text-shadow: 0 0 3px rgba(0, 0, 0, 0.18);
+  margin: 0;
+  padding-inline: 15px;
+  font-size: 28px;
+  line-height: 1.2;
+  font-weight: 700;
 }
 
 .worldClockHero-lead {
-  max-width: 660px;
-  margin: 0 0 18px;
+  max-width: 760px;
+  margin: 0 auto 18px;
   font-size: 24px;
   line-height: 1.35;
   font-weight: 700;
@@ -31,8 +28,8 @@
 }
 
 .worldClockHero-description {
-  max-width: 660px;
-  margin: 0 0 28px;
+  max-width: 760px;
+  margin: 0 auto 28px;
   font-size: 18px;
   line-height: 1.5;
   color: rgba(255 255 255 / 0.92);
@@ -40,10 +37,21 @@
 
 .worldClockHero-cta {
   margin-top: 0;
+  justify-content: center;
 }
 
-.worldClockWidget {
+.worldClockPage .worldClockWidgetSection {
+  padding-top: 0;
+  padding-bottom: 0;
+  border-bottom: 0;
   min-height: 620px;
+}
+
+.worldClockCities {
+  width: 100%;
+  max-width: 700px;
+  min-height: 620px;
+  margin: 0 auto;
   border: 3px solid rgba(var(--accent-color-2), 1);
   border-radius: 40px;
   background-color: rgba(var(--accent-color-1), 0.1);
@@ -51,8 +59,16 @@
   overflow: hidden;
 }
 
-.worldClockCities {
-  height: 620px;
+.worldClockCities .citiesListBox {
+  flex: 0 0 auto;
+  overflow: visible;
+  overscroll-behavior: auto;
+}
+
+.worldClockPage .worldClockOverview {
+  padding-top: 36px;
+  padding-inline: 15px;
+  text-align: center;
 }
 
 .worldClockInfo-container {
@@ -108,38 +124,17 @@
   }
 }
 
-@media screen and (width < 980px) {
-  .worldClockHero-container {
-    grid-template-columns: 1fr;
-  }
-
-  .worldClockWidget {
-    max-width: 620px;
-    width: 100%;
-    margin: 0 auto;
-  }
-}
-
 @media screen and (width < 720px) {
-  .worldClockHero {
-    padding-top: 36px;
+  .worldClockPage .worldClockHero {
+    padding: 0 0 14px;
   }
 
   .worldClockHero-title {
-    font-size: 44px;
+    font-size: 24px;
   }
 
   .worldClockHero-lead {
     font-size: 20px;
-  }
-
-  .worldClockWidget {
-    min-height: auto;
-    border-radius: 28px;
-  }
-
-  .worldClockCities {
-    height: 620px;
   }
 
   .worldClockInfo-container {

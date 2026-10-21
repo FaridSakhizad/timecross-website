@@ -259,8 +259,8 @@
     "compareCitiesTitle": "Heute, morgen und Zeitunterschiede auf einen Blick",
     "compareCitiesText": "Tagesmarker und relative Abstände zeigen, wo bereits morgen ist, wann jemand wahrscheinlich wach ist und wie weit zwei Städte zeitlich auseinanderliegen.",
     "nextTitle": "Weitere Zeit-Tools entdecken",
-    "gridLink": "Timeline-Grid öffnen",
-    "citiesLink": "Städteliste öffnen"
+    "gridLink": "Zeitraster",
+    "citiesLink": "Städte"
   },
   "meetingTimePlanner": {
     "title": "Meeting-Zeitplaner",
@@ -273,8 +273,8 @@
     "planTitle": "Plane für Menschen, nicht für Offsets",
     "planText": "Benenne Städte für Kunden, Freunde, Familie oder Routinen um und halte wichtige Orte in einer klaren Reihenfolge.",
     "nextTitle": "Weitere Zeit-Tools entdecken",
-    "gridLink": "Vollbild-Raster öffnen",
-    "worldClockLink": "Weltuhr öffnen"
+    "gridLink": "Zeitraster",
+    "worldClockLink": "Weltuhr"
   },
   "timeZoneConverter": {
     "title": "Zeitzonen-Konverter für Städte",
@@ -360,8 +360,9 @@
       }
     },
     "nextTitle": "Weitere Zeit-Tools entdecken",
-    "worldClockLink": "Weltuhr öffnen",
-    "meetingPlannerLink": "Meeting-Planer öffnen",
+    "worldClockLink": "Weltuhr",
+    "meetingPlannerLink": "Meeting-Planer",
+    "converterLink": "Zeitzonen-Konverter",
     "whenItsLabel": "Wenn es",
     "inLabel": "in",
     "itsLabel": "ist es",

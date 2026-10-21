@@ -10,6 +10,9 @@ import type { TimelineCell } from './types';
 
 type TimelinesMobileProps = {
   currentUserHourIndex: number;
+  initialHourIndex?: number;
+  onHourChange?: (index: number) => void;
+  onReset?: () => void;
   isDragging: boolean;
   isEditMode: boolean;
   onAddCityClick: () => void;
@@ -48,6 +51,9 @@ const renderStepArrows = (hours: number) => {
 
 export default function TimelinesMobile({
   currentUserHourIndex,
+  initialHourIndex,
+  onHourChange,
+  onReset,
   isDragging,
   isEditMode,
   onAddCityClick,
@@ -70,6 +76,8 @@ export default function TimelinesMobile({
     widgetRef
   } = useTimelineMobileCarousel({
     currentHourIndex: currentUserHourIndex,
+    initialHourIndex,
+    onHourChange,
     freePanMode: freePanMode && !isEditMode,
     minHourIndex: TIMELINE_EDGE_FADE_HOURS,
     maxHourIndex: TIMELINE_EDGE_FADE_HOURS + TIMELINE_TOTAL_HOURS - 1,
@@ -182,7 +190,10 @@ export default function TimelinesMobile({
         isEditMode={isEditMode}
         onAddCityClick={onAddCityClick}
         onEditModeToggle={onEditModeToggle}
-        onResetClick={resetScroll}
+        onResetClick={() => {
+          resetScroll();
+          onReset?.();
+        }}
       />
       <div className="timelinesWidgetWrapper timelinesWidgetWrapper_mobile">
         <div

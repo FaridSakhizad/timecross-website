@@ -1,7 +1,5 @@
 import './TimeZoneConverterPage.css';
 
-import { Link } from 'react-router';
-
 import AppDownloadCta from '../components/AppDownloadCta';
 import ClientOnly from '../components/ClientOnly';
 import FAQ from '../components/FAQ';
@@ -170,27 +168,23 @@ export default function TimeZoneConverterPage({
 
       <main className="timeZoneConverterPage">
         <section className="section timeZoneConverterHero">
-          <div className="container timeZoneConverterHero-container">
-            <div className="timeZoneConverterHero-text">
-              <h1 className="timeZoneConverterHero-title">{t('timeZoneConverter.title')}</h1>
-              <p className="timeZoneConverterHero-lead">{t('timeZoneConverter.lead')}</p>
-            </div>
-          </div>
+          <h1 className="timeZoneConverterHero-title">{t('timeZoneConverter.title')}</h1>
         </section>
 
         <section className="section timeZoneConverterToolSection">
           <div className="container timeZoneConverterToolSection-container">
+            <div className="timeZoneConverterToolSection-widget">
+              <ClientOnly>
+                <TimeZoneConverter timeFormat={timeFormat} syncUrl />
+              </ClientOnly>
+            </div>
+            <p className="timeZoneConverterHero-lead">{t('timeZoneConverter.lead')}</p>
             <h2 className="section-title timeZoneConverterToolSection-title">
               {t('timeZoneConverter.toolTitle')}
             </h2>
             <p className="timeZoneConverterToolSection-text">
               {t('timeZoneConverter.toolText')}
             </p>
-            <div className="timeZoneConverterToolSection-widget">
-              <ClientOnly>
-                <TimeZoneConverter timeFormat={timeFormat} />
-              </ClientOnly>
-            </div>
             <p className="timeZoneConverterToolSection-description">
               {t('timeZoneConverter.description')}
             </p>
@@ -382,18 +376,18 @@ export default function TimeZoneConverterPage({
           <div className="container timeZoneConverterLinks-container">
             <h2 className="section-title">{t('timeZoneConverter.nextTitle')}</h2>
             <div className="timeZoneConverterLinks-list">
-              <Link
+              <a
                 className="timeZoneConverterLinks-link"
-                to={getCanonicalLanguagePath(language, '/world-clock')}
+                href={getCanonicalLanguagePath(language, '/world-clock')}
               >
                 {t('timeZoneConverter.worldClockLink')}
-              </Link>
-              <Link
+              </a>
+              <a
                 className="timeZoneConverterLinks-link"
-                to={getCanonicalLanguagePath(language, '/meeting-time-planner')}
+                href={getCanonicalLanguagePath(language, '/meeting-time-planner')}
               >
                 {t('timeZoneConverter.meetingPlannerLink')}
-              </Link>
+              </a>
             </div>
           </div>
         </section>

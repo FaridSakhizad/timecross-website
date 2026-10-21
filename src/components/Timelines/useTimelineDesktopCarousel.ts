@@ -16,12 +16,16 @@ import {
 
 type TimelineDesktopCarouselOptions = {
   currentHourIndex: number;
+  initialHourIndex?: number;
+  onHourChange?: (index: number) => void;
   maxHourIndex: number;
   minHourIndex: number;
 };
 
 export function useTimelineDesktopCarousel({
   currentHourIndex,
+  initialHourIndex,
+  onHourChange,
   maxHourIndex,
   minHourIndex,
 }: TimelineDesktopCarouselOptions) {
@@ -36,6 +40,7 @@ export function useTimelineDesktopCarousel({
   const snapTimerRef = useRef<number | undefined>(undefined);
   const releaseTimerRef = useRef<number | undefined>(undefined);
   const centeredHourIndexRef = useRef(currentHourIndex);
+  const hasUserInteractedRef = useRef(false);
 
   const setViewportRef = useCallback((element: HTMLDivElement | null) => {
     if (viewportRef.current !== element) {
@@ -165,6 +170,8 @@ export function useTimelineDesktopCarousel({
     }
 
     centeredHourIndexRef.current = Math.max(minHourIndex, Math.min(maxHourIndex, hourIndex));
+    hasUserInteractedRef.current = true;
+    onHourChange?.(centeredHourIndexRef.current);
 
     const targetScrollLeft = getClampedTimelineScrollLeftForHourIndex(
       viewport,
@@ -176,7 +183,7 @@ export function useTimelineDesktopCarousel({
     cancelProgrammaticMotion();
     isProgrammaticScrollRef.current = true;
     animateScrollLeft(targetScrollLeft);
-  }, [animateScrollLeft, cancelProgrammaticMotion, maxHourIndex, minHourIndex]);
+  }, [animateScrollLeft, cancelProgrammaticMotion, maxHourIndex, minHourIndex, onHourChange]);
 
   const scrollByHours = useCallback((hours: number) => {
     const viewport = viewportRef.current;
@@ -246,6 +253,10 @@ export function useTimelineDesktopCarousel({
       maxHourIndex,
     );
 
+    if (hasUserInteractedRef.current) {
+      onHourChange?.(Math.max(minHourIndex, Math.min(maxHourIndex, getTimelineHourIndexAtCenter(viewport))));
+    }
+
     snapTimerRef.current = undefined;
 
     if (Math.abs(targetScrollLeft - viewport.scrollLeft) < 0.5) {
@@ -255,9 +266,10 @@ export function useTimelineDesktopCarousel({
     centeredHourIndexRef.current = getTimelineHourIndexAtCenter(viewport);
     isProgrammaticScrollRef.current = true;
     animateScrollLeft(targetScrollLeft);
-  }, [animateScrollLeft, maxHourIndex, minHourIndex]);
+  }, [animateScrollLeft, maxHourIndex, minHourIndex, onHourChange]);
 
   const handleScrollbarThumbDragStart = useCallback(() => {
+    hasUserInteractedRef.current = true;
     isScrollbarThumbDraggingRef.current = true;
     cancelProgrammaticMotion();
   }, [cancelProgrammaticMotion]);
@@ -283,21 +295,22 @@ export function useTimelineDesktopCarousel({
   useLayoutEffect(() => {
     const viewport = viewportRef.current;
 
-    if (!viewport || hasInitialScrollRef.current || currentHourIndex < 0) {
+    const initialIndex = initialHourIndex ?? currentHourIndex;
+    if (!viewport || hasInitialScrollRef.current || initialIndex < 0) {
       return;
     }
 
     viewport.scrollLeft = getClampedTimelineScrollLeftForHourIndex(
       viewport,
-      currentHourIndex,
+      initialIndex,
       minHourIndex,
       maxHourIndex,
     );
     hasInitialScrollRef.current = true;
-    centeredHourIndexRef.current = currentHourIndex;
+    centeredHourIndexRef.current = initialIndex;
     lastScrollLeftRef.current = viewport.scrollLeft;
     syncLayout();
-  }, [currentHourIndex, maxHourIndex, minHourIndex, syncLayout]);
+  }, [currentHourIndex, initialHourIndex, maxHourIndex, minHourIndex, syncLayout]);
 
   useEffect(() => {
     const viewport = viewportRef.current;
@@ -353,6 +366,7 @@ export function useTimelineDesktopCarousel({
     };
 
     const handleWheel = () => {
+      hasUserInteractedRef.current = true;
       cancelProgrammaticMotion();
     };
 

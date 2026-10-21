@@ -13,6 +13,7 @@ import { SHORT_LANGUAGE_NAMES } from '../../i18n/languageLabels';
 import type { ColorMode, TimeFormat } from '../../settings';
 
 type HeaderProps = {
+  customClassNames?: string;
   colorMode: ColorMode;
   timeFormat: TimeFormat;
   onColorModeButtonClick: () => void;
@@ -20,6 +21,7 @@ type HeaderProps = {
 };
 
 export default function Header({
+  customClassNames,
   colorMode,
   timeFormat,
   onColorModeButtonClick,
@@ -58,7 +60,7 @@ export default function Header({
   };
 
   return (
-    <header className="header">
+    <header className={['header', customClassNames].filter(Boolean).join(' ')}>
       <div className="container container_header">
         <Link
           to={getCanonicalLanguagePath(language)}

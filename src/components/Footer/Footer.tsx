@@ -1,5 +1,4 @@
 import './style.css';
-import { Link } from 'react-router';
 import {
   COPYRIGHT_HOLDER,
   COPYRIGHT_YEAR,
@@ -20,44 +19,44 @@ export default function Footer() {
 
         <ul className="footerMenu">
           <li className="footerMenu-item">
-            <Link
-              to={getCanonicalLanguagePath(language, '/world-clock')}
+            <a
+              href={getCanonicalLanguagePath(language, '/world-clock')}
               className="footerMenu-link"
             >
               {t('common.worldClockLabel')}
-            </Link>
+            </a>
           </li>
           <li className="footerMenu-item">
-            <Link
-              to={getCanonicalLanguagePath(language, '/meeting-time-planner')}
+            <a
+              href={getCanonicalLanguagePath(language, '/meeting-time-planner')}
               className="footerMenu-link"
             >
               {t('common.meetingPlannerLabel')}
-            </Link>
+            </a>
           </li>
           <li className="footerMenu-item">
-            <Link
-              to={getCanonicalLanguagePath(language, '/time-zone-converter')}
+            <a
+              href={getCanonicalLanguagePath(language, '/time-zone-converter')}
               className="footerMenu-link"
             >
               {t('common.timeZoneConverterLabel')}
-            </Link>
+            </a>
           </li>
           <li className="footerMenu-item">
-            <Link
-              to={getCanonicalLanguagePath(language, TERMS_OF_USE_PATH)}
+            <a
+              href={getCanonicalLanguagePath(language, TERMS_OF_USE_PATH)}
               className="footerMenu-link"
             >
               {t('common.termsOfUse')}
-            </Link>
+            </a>
           </li>
           <li className="footerMenu-item">
-            <Link
-              to={getCanonicalLanguagePath(language, PRIVACY_POLICY_PATH)}
+            <a
+              href={getCanonicalLanguagePath(language, PRIVACY_POLICY_PATH)}
               className="footerMenu-link"
             >
               {t('common.privacyPolicy')}
-            </Link>
+            </a>
           </li>
           <li className="footerMenu-item">
             <a href={`mailto:${SUPPORT_EMAIL}`} className="footerMenu-link">{t('common.support')}</a>

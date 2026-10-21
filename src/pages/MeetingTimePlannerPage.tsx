@@ -1,7 +1,5 @@
 import './MeetingTimePlannerPage.css';
 
-import { Link } from 'react-router';
-
 import AppDownloadCta from '../components/AppDownloadCta';
 import ClientOnly from '../components/ClientOnly';
 import Footer from '../components/Footer';
@@ -40,29 +38,26 @@ export default function MeetingTimePlannerPage({
 
       <main className="meetingTimePlannerPage">
         <section className="section meetingTimePlannerHero">
-          <div className="container meetingTimePlannerHero-container">
-            <div className="meetingTimePlannerHero-text">
-              <h1 className="meetingTimePlannerHero-title">{t('meetingTimePlanner.title')}</h1>
-              <p className="meetingTimePlannerHero-lead">{t('meetingTimePlanner.lead')}</p>
-              <p className="meetingTimePlannerHero-description">
-                {t('meetingTimePlanner.description')}
-              </p>
-              <AppDownloadCta className="meetingTimePlannerHero-cta" />
-            </div>
-          </div>
+          <h1 className="meetingTimePlannerHero-title">{t('meetingTimePlanner.title')}</h1>
         </section>
 
         <section className="section meetingTimePlannerWidgetSection">
+          <div className="meetingTimePlannerWidgetSection-widget">
+            <ClientOnly>
+              <Timelines timeFormat={timeFormat} syncUrl />
+            </ClientOnly>
+          </div>
           <div className="container meetingTimePlannerWidgetSection-container">
+            <p className="meetingTimePlannerHero-lead">{t('meetingTimePlanner.lead')}</p>
+            <p className="meetingTimePlannerHero-description">
+              {t('meetingTimePlanner.description')}
+            </p>
+            <AppDownloadCta className="meetingTimePlannerHero-cta" />
             <h2 className="section-title">{t('meetingTimePlanner.previewTitle')}</h2>
             <p className="meetingTimePlannerWidgetSection-text">
               {t('meetingTimePlanner.previewText')}
             </p>
           </div>
-
-          <ClientOnly>
-            <Timelines timeFormat={timeFormat} />
-          </ClientOnly>
         </section>
 
         <section className="section meetingTimePlannerInfo">
@@ -87,18 +82,18 @@ export default function MeetingTimePlannerPage({
           <div className="container meetingTimePlannerLinks-container">
             <h2 className="section-title">{t('meetingTimePlanner.nextTitle')}</h2>
             <div className="meetingTimePlannerLinks-list">
-              <Link
+              <a
                 className="meetingTimePlannerLinks-link"
-                to={getCanonicalLanguagePath(language, '/grid')}
-              >
-                {t('meetingTimePlanner.gridLink')}
-              </Link>
-              <Link
-                className="meetingTimePlannerLinks-link"
-                to={getCanonicalLanguagePath(language, '/world-clock')}
+                href={getCanonicalLanguagePath(language, '/world-clock')}
               >
                 {t('meetingTimePlanner.worldClockLink')}
-              </Link>
+              </a>
+              <a
+                className="meetingTimePlannerLinks-link"
+                href={getCanonicalLanguagePath(language, '/time-zone-converter')}
+              >
+                {t('timeZoneConverter.converterLink')}
+              </a>
             </div>
           </div>
         </section>

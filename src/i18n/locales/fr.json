@@ -259,8 +259,8 @@
     "compareCitiesTitle": "Aujourd’hui, demain et les décalages en un coup d’œil",
     "compareCitiesText": "Les marqueurs de jour et les décalages relatifs aident à voir où l’on est déjà demain, quand quelqu’un est probablement réveillé et combien d’heures séparent deux villes.",
     "nextTitle": "Explorer plus d’outils de temps",
-    "gridLink": "Ouvrir la grille horaire",
-    "citiesLink": "Ouvrir la liste des villes"
+    "gridLink": "Grille horaire",
+    "citiesLink": "Villes"
   },
   "meetingTimePlanner": {
     "title": "Planificateur de réunions",
@@ -273,8 +273,8 @@
     "planTitle": "Planifiez autour des personnes, pas des décalages",
     "planText": "Renommez les villes pour vos clients, amis, proches ou routines et gardez les lieux importants dans un ordre clair.",
     "nextTitle": "Explorer d’autres outils de temps",
-    "gridLink": "Ouvrir la grille plein écran",
-    "worldClockLink": "Ouvrir l’horloge mondiale"
+    "gridLink": "Grille horaire",
+    "worldClockLink": "Horloge mondiale"
   },
   "timeZoneConverter": {
     "title": "Convertisseur de fuseaux horaires pour les villes",
@@ -360,8 +360,9 @@
       }
     },
     "nextTitle": "Explorer d’autres outils de temps",
-    "worldClockLink": "Ouvrir l’horloge mondiale",
-    "meetingPlannerLink": "Ouvrir le planificateur de réunions",
+    "worldClockLink": "Horloge mondiale",
+    "meetingPlannerLink": "Planificateur de réunions",
+    "converterLink": "Convertisseur horaire",
     "whenItsLabel": "Quand il est",
     "inLabel": "à",
     "itsLabel": "il est",

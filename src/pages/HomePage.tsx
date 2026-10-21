@@ -37,6 +37,7 @@ export default function HomePage({
       <Seo page="home" />
 
       <Header
+        customClassNames="header_home"
         colorMode={colorMode}
         timeFormat={timeFormat}
         onColorModeButtonClick={onColorModeButtonClick}

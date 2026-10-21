@@ -1,5 +1,6 @@
-.meetingTimePlannerHero {
-  padding-top: 56px;
+.meetingTimePlannerPage .meetingTimePlannerHero {
+  padding: 0 0 16px;
+  border-bottom: 0;
 }
 
 .meetingTimePlannerHero-container {
@@ -8,17 +9,14 @@
   justify-content: center;
 }
 
-.meetingTimePlannerHero-text {
+.meetingTimePlannerHero-title {
   color: #fff;
   text-align: center;
   text-shadow: 0 0 3px rgba(0, 0, 0, 0.18);
-}
-
-.meetingTimePlannerHero-title {
-  margin: 0 0 24px;
-  font-size: 64px;
-  line-height: 1;
-  font-weight: 900;
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.2;
+  font-weight: 700;
 }
 
 .meetingTimePlannerHero-lead {
@@ -40,9 +38,26 @@
   justify-content: center;
 }
 
-.meetingTimePlannerWidgetSection-container {
-  margin-bottom: 22px;
+.meetingTimePlannerPage .meetingTimePlannerWidgetSection-container {
+  margin-top: 36px;
   text-align: center;
+}
+
+.meetingTimePlannerPage .meetingTimePlannerWidgetSection {
+  padding-top: 0;
+}
+
+.meetingTimePlannerWidgetSection-widget {
+  min-height: 540px;
+}
+
+.meetingTimePlannerPage .timelinesViewport {
+  min-height: 440px;
+  max-height: 65vh;
+}
+
+.meetingTimePlannerHero-cta {
+  margin-bottom: 36px;
 }
 
 .meetingTimePlannerWidgetSection-text {
@@ -108,12 +123,12 @@
 }
 
 @media screen and (width < 720px) {
-  .meetingTimePlannerHero {
-    padding-top: 36px;
+  .meetingTimePlannerPage .meetingTimePlannerHero {
+    padding: 0 0 14px;
   }
 
   .meetingTimePlannerHero-title {
-    font-size: 44px;
+    font-size: 24px;
   }
 
   .meetingTimePlannerHero-lead {
@@ -122,5 +137,10 @@
 
   .meetingTimePlannerInfo-container {
     grid-template-columns: 1fr;
+  }
+
+  .meetingTimePlannerPage .timelinesViewport {
+    min-height: 400px;
+    max-height: 65dvh;
   }
 }

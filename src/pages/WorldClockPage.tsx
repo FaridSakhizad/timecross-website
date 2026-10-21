@@ -1,7 +1,5 @@
 import './WorldClockPage.css';
 
-import { Link } from 'react-router';
-
 import Cities from '../components/Cities';
 import AppDownloadCta from '../components/AppDownloadCta';
 import ClientOnly from '../components/ClientOnly';
@@ -40,26 +38,25 @@ export default function WorldClockPage({
 
       <main className="worldClockPage">
         <section className="section worldClockHero">
-          <div className="container worldClockHero-container">
-            <div className="worldClockHero-text">
-              <h1 className="worldClockHero-title">{t('worldClock.title')}</h1>
-              <p className="worldClockHero-lead">{t('worldClock.lead')}</p>
-              <p className="worldClockHero-description">{t('worldClock.description')}</p>
-              <AppDownloadCta className="worldClockHero-cta" />
-            </div>
+          <h1 className="worldClockHero-title">{t('worldClock.title')}</h1>
+        </section>
 
-            <div className="worldClockWidget">
-              <ClientOnly>
-                <Cities
-                  colorMode={colorMode}
-                  customClassNames="worldClockCities"
-                  timeFormat={timeFormat}
-                  onColorModeButtonClick={onColorModeButtonClick}
-                  onTimeFormatButtonClick={onTimeFormatButtonClick}
-                />
-              </ClientOnly>
-            </div>
-          </div>
+        <section className="section worldClockWidgetSection">
+          <ClientOnly>
+            <Cities
+              colorMode={colorMode}
+              customClassNames="worldClockCities"
+              timeFormat={timeFormat}
+              onColorModeButtonClick={onColorModeButtonClick}
+              onTimeFormatButtonClick={onTimeFormatButtonClick}
+            />
+          </ClientOnly>
+        </section>
+
+        <section className="section worldClockOverview">
+          <p className="worldClockHero-lead">{t('worldClock.lead')}</p>
+          <p className="worldClockHero-description">{t('worldClock.description')}</p>
+          <AppDownloadCta className="worldClockHero-cta" />
         </section>
 
         <section className="section worldClockInfo">
@@ -80,18 +77,18 @@ export default function WorldClockPage({
           <div className="container worldClockLinks-container">
             <h2 className="section-title">{t('worldClock.nextTitle')}</h2>
             <div className="worldClockLinks-list">
-              <Link
+              <a
                 className="worldClockLinks-link"
-                to={getCanonicalLanguagePath(language, '/grid')}
+                href={getCanonicalLanguagePath(language, '/meeting-time-planner')}
               >
-                {t('worldClock.gridLink')}
-              </Link>
-              <Link
+                {t('timeZoneConverter.meetingPlannerLink')}
+              </a>
+              <a
                 className="worldClockLinks-link"
-                to={getCanonicalLanguagePath(language, '/cities')}
+                href={getCanonicalLanguagePath(language, '/time-zone-converter')}
               >
-                {t('worldClock.citiesLink')}
-              </Link>
+                {t('timeZoneConverter.converterLink')}
+              </a>
             </div>
           </div>
         </section>
