@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Link } from 'react-router';
 import { useI18n } from '../../i18n';
 import { getCanonicalLanguagePath } from '../../i18n/languageRouting';
@@ -20,7 +20,7 @@ type TimelineGridToolbarProps = Pick<
   | 'onEditModeToggle'
   | 'onResetClick'
   | 'onTimeFormatButtonClick'
->;
+> & { afterResetControl?: ReactNode };
 
 type TimelineGridTimelineProps = Pick<
   TimelineGridContentProps,
@@ -47,6 +47,7 @@ export function TimelineGridToolbar({
   onEditModeToggle,
   onResetClick,
   onTimeFormatButtonClick,
+  afterResetControl,
 }: TimelineGridToolbarProps) {
   const [isMenuModalOpen, setIsMenuModalOpen] = useState(false);
   const { language, t } = useI18n();
@@ -87,6 +88,8 @@ export function TimelineGridToolbar({
         >
           <i className="citiesHeaderButton-icon citiesHeaderButton-icon_reset" />
         </button>
+
+        {afterResetControl}
 
         <button
           className="citiesHeaderButton citiesHeaderButton_menu"

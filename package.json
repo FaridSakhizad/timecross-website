@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
+    "test:grid-pan": "node --experimental-strip-types --test tests/gridPanController.test.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -15,6 +16,7 @@
     "@dnd-kit/utilities": "^3.2.2",
     "date-fns": "^4.4.0",
     "embla-carousel-react": "^8.6.0",
+    "lucide-react": "^1.60.0",
     "react": "^19.2.6",
     "react-day-picker": "^10.0.2",
     "react-dom": "^19.2.6",

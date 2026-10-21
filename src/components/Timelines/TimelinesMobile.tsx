@@ -1,4 +1,5 @@
-import { useRef, useState, type PointerEvent, type ReactNode } from 'react';
+import { useRef, type PointerEvent, type ReactNode } from 'react';
+import { usePanPreference } from '../../usePanPreference';
 import { useI18n } from '../../i18n';
 import { TIMELINE_EDGE_FADE_HOURS, TIMELINE_TOTAL_HOURS } from './constants';
 import TimelineActiveHourIndicator from './TimelineActiveHourIndicator';
@@ -63,7 +64,7 @@ export default function TimelinesMobile({
 }: TimelinesMobileProps) {
   const { t } = useI18n();
 
-  const [freePanMode, setFreePanMode] = useState(false);
+  const [freePanMode, setFreePanMode] = usePanPreference('mobile');
   const swipeStateRef = useRef<TimelineSwipeState | null>(null);
 
   const {
@@ -188,6 +189,9 @@ export default function TimelinesMobile({
     <>
       <TimelinesTopControls
         isEditMode={isEditMode}
+        isPanEnabled={freePanMode && !isEditMode && !isDragging}
+        isPanDisabled={isEditMode || isDragging}
+        onPanToggle={() => setFreePanMode((value) => !value)}
         onAddCityClick={onAddCityClick}
         onEditModeToggle={onEditModeToggle}
         onResetClick={() => {

@@ -41,6 +41,8 @@ export function useTimelineDesktopCarousel({
   const releaseTimerRef = useRef<number | undefined>(undefined);
   const centeredHourIndexRef = useRef(currentHourIndex);
   const hasUserInteractedRef = useRef(false);
+  const isPanningRef = useRef(false);
+  const panStartLeftRef = useRef(0);
 
   const setViewportRef = useCallback((element: HTMLDivElement | null) => {
     if (viewportRef.current !== element) {
@@ -242,7 +244,7 @@ export function useTimelineDesktopCarousel({
   const snapToNearestHour = useCallback(() => {
     const viewport = viewportRef.current;
 
-    if (!viewport || isScrollbarThumbDraggingRef.current) {
+    if (!viewport || isScrollbarThumbDraggingRef.current || isPanningRef.current) {
       return;
     }
 
@@ -267,6 +269,19 @@ export function useTimelineDesktopCarousel({
     isProgrammaticScrollRef.current = true;
     animateScrollLeft(targetScrollLeft);
   }, [animateScrollLeft, maxHourIndex, minHourIndex, onHourChange]);
+
+  const handlePanInteractionChange = useCallback((active: boolean) => {
+    const viewport = viewportRef.current;
+    isPanningRef.current = active;
+    if (!viewport) return;
+    if (active) {
+      cancelProgrammaticMotion();
+      panStartLeftRef.current = viewport.scrollLeft;
+    } else if (Math.abs(viewport.scrollLeft - panStartLeftRef.current) >= 0.5) {
+      hasUserInteractedRef.current = true;
+      snapToNearestHour();
+    }
+  }, [cancelProgrammaticMotion, snapToNearestHour]);
 
   const handleScrollbarThumbDragStart = useCallback(() => {
     hasUserInteractedRef.current = true;
@@ -320,7 +335,7 @@ export function useTimelineDesktopCarousel({
     }
 
     const scheduleSnapToNearestHour = (delay = TIMELINE_SNAP_DELAY_MS) => {
-      if (isProgrammaticScrollRef.current || isScrollbarThumbDraggingRef.current) {
+      if (isProgrammaticScrollRef.current || isScrollbarThumbDraggingRef.current || isPanningRef.current) {
         return;
       }
 
@@ -349,6 +364,7 @@ export function useTimelineDesktopCarousel({
       if (
         isProgrammaticScrollRef.current
         || isScrollbarThumbDraggingRef.current
+        || isPanningRef.current
         || Math.abs(viewport.scrollLeft - previousScrollLeft) < 0.5
       ) {
         return;
@@ -371,6 +387,7 @@ export function useTimelineDesktopCarousel({
     };
 
     const recenterAfterResize = () => {
+      if (isPanningRef.current) { syncLayout(); return; }
       cancelProgrammaticMotion();
       viewport.scrollLeft = getClampedTimelineScrollLeftForHourIndex(
         viewport,
@@ -410,6 +427,8 @@ export function useTimelineDesktopCarousel({
   ]);
 
   return {
+    handlePanInteractionChange,
+    viewportRef,
     handleScrollbarThumbDragEnd,
     handleScrollbarThumbDragStart,
     getScrollbarMetrics,

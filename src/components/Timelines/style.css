@@ -70,7 +70,7 @@
 .gridTopControlsButton_add {}
 
 .gridTopControlsButton_reset {
-  margin: auto;
+  margin-left: auto;
 
   &:after {
     content: '';
@@ -887,4 +887,26 @@
   .timelineActiveHourIndicator_right {
     right: -14px;
   }
+}
+.timelinesWidget_panEnabled .timelinesViewport {
+  cursor: grab;
+}
+
+.timelinesWidget_panning .timelinesViewport,
+.timelinesWidget_panning .timelinesViewport * {
+  cursor: grabbing;
+}
+
+.timelinesTopPanButton {
+  color: rgba(var(--accent-color-2), 1);
+  margin-right: auto;
+
+  & > svg {
+    position: relative;
+  }
+}
+
+.timelinesTopPanButton:disabled {
+  opacity: 0.4;
+  cursor: default;
 }

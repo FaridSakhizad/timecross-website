@@ -1,4 +1,6 @@
-import type { ReactNode } from 'react';
+import { useEffect, type ReactNode } from 'react';
+import { usePanPreference } from '../../usePanPreference';
+import { useDesktopGridPan } from '../TimelineGrid/desktop/useDesktopGridPan';
 import CustomScrollbar from '../CustomScrollbar';
 import { useI18n } from '../../i18n';
 import { TIMELINE_EDGE_FADE_HOURS, TIMELINE_TOTAL_HOURS } from './constants';
@@ -35,7 +37,10 @@ export default function TimelinesDesktop({
   userCells,
 }: TimelinesDesktopProps) {
   const { t } = useI18n();
+  const [panEnabled, setPanEnabled] = usePanPreference('desktop');
   const {
+    handlePanInteractionChange,
+    viewportRef,
     getScrollbarMetrics,
     handleScrollbarThumbDragEnd,
     handleScrollbarThumbDragStart,
@@ -51,9 +56,22 @@ export default function TimelinesDesktop({
     minHourIndex: TIMELINE_EDGE_FADE_HOURS,
     maxHourIndex: TIMELINE_EDGE_FADE_HOURS + TIMELINE_TOTAL_HOURS - 1,
   });
+  const canPan = panEnabled && !isEditMode && !isDragging;
+  const { isPanning, cancelPan } = useDesktopGridPan(viewportRef, canPan, handlePanInteractionChange);
+  useEffect(() => {
+    if (!panEnabled) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        cancelPan();
+        setPanEnabled(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [cancelPan, panEnabled, setPanEnabled]);
   const activeHourDirection = useTimelineActiveHourIndicator(
     widgetRef,
-    isDragging || isEditMode,
+    isDragging || isEditMode || isPanning,
   );
 
   return (
@@ -61,8 +79,16 @@ export default function TimelinesDesktop({
       <TimelinesTopControls
         isEditMode={isEditMode}
         onAddCityClick={onAddCityClick}
-        onEditModeToggle={onEditModeToggle}
+        onEditModeToggle={() => {
+          cancelPan();
+          setPanEnabled(false);
+          onEditModeToggle();
+        }}
+        isPanEnabled={canPan}
+        isPanDisabled={isEditMode || isDragging}
+        onPanToggle={() => setPanEnabled((enabled) => !enabled)}
         onResetClick={() => {
+          cancelPan();
           resetScroll();
           onReset?.();
         }}
@@ -73,6 +99,8 @@ export default function TimelinesDesktop({
             'timelinesWidget',
             isEditMode ? 'timelinesWidget_editMode' : '',
             isDragging ? 'timelinesWidget_dragging' : '',
+            canPan ? 'timelinesWidget_panEnabled' : '',
+            isPanning ? 'timelinesWidget_panning' : '',
           ].filter(Boolean).join(' ')}
           ref={widgetRef}
         >

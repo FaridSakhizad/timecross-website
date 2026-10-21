@@ -1,0 +1,18 @@
+.timelineGrid_panEnabled .timelineGrid-scrollViewport {
+  cursor: grab;
+  scroll-snap-type: none;
+}
+
+.timelineGrid_panning .timelineGrid-scrollViewport,
+.timelineGrid_panning .timelineGrid-scrollViewport * {
+  cursor: grabbing;
+}
+
+.timelineGridPanButton {
+  color: rgba(var(--accent-color-2), 1);
+}
+
+.timelineGridPanButton:disabled {
+  opacity: 0.4;
+  cursor: default;
+}

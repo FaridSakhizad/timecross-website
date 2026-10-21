@@ -1,4 +1,5 @@
 import { Link } from 'react-router';
+import { Hand } from 'lucide-react';
 import { useI18n } from '../../i18n';
 import { getCanonicalLanguagePath } from '../../i18n/languageRouting';
 
@@ -7,6 +8,9 @@ type TimelinesTopControlsProps = {
   onAddCityClick: () => void;
   onEditModeToggle: () => void;
   onResetClick: () => void;
+  isPanEnabled: boolean;
+  isPanDisabled: boolean;
+  onPanToggle: () => void;
 };
 
 export default function TimelinesTopControls({
@@ -14,6 +18,9 @@ export default function TimelinesTopControls({
   onAddCityClick,
   onEditModeToggle,
   onResetClick,
+  isPanEnabled,
+  isPanDisabled,
+  onPanToggle,
 }: TimelinesTopControlsProps) {
   const { language, t } = useI18n();
 
@@ -44,6 +51,18 @@ export default function TimelinesTopControls({
         onClick={onResetClick}
         aria-label={t('common.reset')}
       />
+
+      <button
+        className={`gridTopControlsButton timelinesTopPanButton ${isPanEnabled ? 'isActive' : ''}`}
+        type="button"
+        title={t('common.panMode')}
+        aria-label={t('common.panMode')}
+        aria-pressed={isPanEnabled}
+        disabled={isPanDisabled}
+        onClick={onPanToggle}
+      >
+        <Hand size={16} aria-hidden="true" />
+      </button>
 
       <Link
         to={getCanonicalLanguagePath(language, '/grid')}

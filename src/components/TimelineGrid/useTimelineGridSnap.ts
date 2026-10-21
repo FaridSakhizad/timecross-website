@@ -160,13 +160,14 @@ function useTimelineGridSnap(
   getScrollTarget: () => TimelineGridScrollTarget | null,
   currentUserHourIndex: number,
   disabled = false,
+  shouldSuspend?: () => boolean,
 ) {
   const centeredTargetIndexRef = useRef(currentUserHourIndex);
 
   const resetToCurrentHour = useCallback(() => {
     const scrollTarget = getScrollTarget();
 
-    if (!scrollTarget || currentUserHourIndex < 0) {
+    if (!scrollTarget || currentUserHourIndex < 0 || shouldSuspend?.()) {
       return;
     }
 
@@ -178,12 +179,12 @@ function useTimelineGridSnap(
 
     centeredTargetIndexRef.current = getTimelineGridSnapTargetIndex(currentTarget, scrollTarget);
     scrollTimelineGridToLeft(scrollTarget, getTimelineGridAnchorScrollLeft(currentTarget, scrollTarget));
-  }, [currentUserHourIndex, getScrollTarget]);
+  }, [currentUserHourIndex, getScrollTarget, shouldSuspend]);
 
   useLayoutEffect(() => {
     const scrollTarget = getScrollTarget();
 
-    if (!scrollTarget || currentUserHourIndex < 0) {
+    if (!scrollTarget || currentUserHourIndex < 0 || shouldSuspend?.()) {
       return;
     }
 
@@ -195,7 +196,7 @@ function useTimelineGridSnap(
 
     centeredTargetIndexRef.current = getTimelineGridSnapTargetIndex(currentTarget, scrollTarget);
     setTimelineGridScrollLeft(scrollTarget, getTimelineGridAnchorScrollLeft(currentTarget, scrollTarget));
-  }, [currentUserHourIndex, getScrollTarget]);
+  }, [currentUserHourIndex, getScrollTarget, shouldSuspend]);
 
   useEffect(() => {
     if (disabled) {
@@ -226,6 +227,7 @@ function useTimelineGridSnap(
       clearSnapTimeout();
       snapTimeoutId = window.setTimeout(() => {
         snapTimeoutId = undefined;
+        if (shouldSuspend?.()) return;
         const snapTarget = snapTimelineGridToNearestHour(scrollTarget);
 
         if (snapTarget) {
@@ -235,6 +237,7 @@ function useTimelineGridSnap(
     };
 
     const handleScroll = () => {
+      if (shouldSuspend?.()) return;
       const scrollLeft = getTimelineGridScrollLeft(scrollTarget);
       const scrollLeftDelta = Math.abs(scrollLeft - lastScrollLeft);
 
@@ -254,6 +257,7 @@ function useTimelineGridSnap(
     };
 
     const handleScrollEnd = () => {
+      if (shouldSuspend?.()) return;
       const scrollLeft = getTimelineGridScrollLeft(scrollTarget);
       const scrollLeftDelta = Math.abs(scrollLeft - lastScrollLeft);
 
@@ -267,6 +271,7 @@ function useTimelineGridSnap(
     };
 
     const recenterAfterResize = () => {
+      if (shouldSuspend?.()) return;
       const viewportWidth = getTimelineGridViewportWidth(scrollTarget);
 
       if (Math.abs(viewportWidth - lastViewportWidth) <= TIMELINE_GRID_SNAP_EPSILON) {
@@ -290,13 +295,16 @@ function useTimelineGridSnap(
     eventTarget.addEventListener('scrollend', handleScrollEnd);
     window.addEventListener('resize', recenterAfterResize);
 
+    // Resume alignment after an element interaction ends, even without a new scroll event.
+    if (scrollTarget.type === 'element' && shouldSuspend) scheduleSnap();
+
     return () => {
       clearSnapTimeout();
       eventTarget.removeEventListener('scroll', handleScroll);
       eventTarget.removeEventListener('scrollend', handleScrollEnd);
       window.removeEventListener('resize', recenterAfterResize);
     };
-  }, [disabled, getScrollTarget]);
+  }, [disabled, getScrollTarget, shouldSuspend]);
 
   return resetToCurrentHour;
 }
@@ -311,6 +319,7 @@ export function useTimelineGridElementSnap(
   timelineGridRef: RefObject<HTMLDivElement | null>,
   currentUserHourIndex: number,
   disabled = false,
+  shouldSuspend?: () => boolean,
 ) {
   const getScrollTarget = useCallback(
     () => (
@@ -321,5 +330,5 @@ export function useTimelineGridElementSnap(
     [timelineGridRef],
   ) satisfies () => TimelineGridScrollTarget | null;
 
-  return useTimelineGridSnap(getScrollTarget, currentUserHourIndex, disabled);
+  return useTimelineGridSnap(getScrollTarget, currentUserHourIndex, disabled, shouldSuspend);
 }
