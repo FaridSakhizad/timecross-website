@@ -1,5 +1,5 @@
 import { useRef, type PointerEvent, type ReactNode } from 'react';
-import { usePanPreference } from '../../usePanPreference';
+import { PAN_CONTROLS_VISIBLE, usePanPreference } from '../../usePanPreference';
 import { useI18n } from '../../i18n';
 import { TIMELINE_EDGE_FADE_HOURS, TIMELINE_TOTAL_HOURS } from './constants';
 import TimelineActiveHourIndicator from './TimelineActiveHourIndicator';
@@ -257,14 +257,14 @@ export default function TimelinesMobile({
         >
           {renderStepArrows(-1)}
         </button>
-        <button
+        {PAN_CONTROLS_VISIBLE && <button
           className={`timelinesPanButton${freePanMode ? ' timelinesPanButton_active' : ''}`}
           type="button"
           aria-pressed={freePanMode}
           onClick={() => setFreePanMode((value) => !value)}
         >
           {t(freePanMode ? 'common.scrollMode' : 'common.panMode')}
-        </button>
+        </button>}
         <button
           className="timelinesStepButton timelinesStepButton_next"
           type="button"

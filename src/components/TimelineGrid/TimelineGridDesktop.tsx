@@ -1,7 +1,7 @@
 import './desktop/style.css';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Hand } from 'lucide-react';
-import { usePanPreference } from '../../usePanPreference';
+import { PAN_CONTROLS_VISIBLE, usePanPreference } from '../../usePanPreference';
 import { useI18n } from '../../i18n';
 import CustomScrollbar from '../CustomScrollbar';
 import TimelineGridActiveHourIndicator from './TimelineGridActiveHourIndicator';
@@ -18,7 +18,9 @@ export default function TimelineGridDesktop(props: TimelineGridShellProps) {
   const scrollbarInteractionRef = useRef(false);
   const { t } = useI18n();
   const canPan = panEnabled && !props.isEditMode && !props.isDragging;
-  const { isPanning, interactionRef, cancelPan } = useDesktopGridPan(timelineGridViewportRef, canPan);
+  const { isPanning, interactionRef, cancelPan } = useDesktopGridPan(
+    timelineGridViewportRef, canPan, undefined, props.isEditMode || props.isDragging,
+  );
   const shouldSuspendSnap = useCallback(
     () => interactionRef.current || scrollbarInteractionRef.current,
     [interactionRef],
@@ -56,7 +58,6 @@ export default function TimelineGridDesktop(props: TimelineGridShellProps) {
       className={[
         'timelineGrid',
         canPan ? 'timelineGrid_panEnabled' : '',
-        isPanning ? 'timelineGrid_panning' : '',
         props.isEditMode ? 'timelineGrid_editMode' : '',
         props.isDragging ? 'timelineGrid_dragging' : '',
       ].filter(Boolean).join(' ')}
@@ -77,7 +78,7 @@ export default function TimelineGridDesktop(props: TimelineGridShellProps) {
           cancelPan();
           resetGridScroll();
         }}
-        afterResetControl={(
+        afterResetControl={PAN_CONTROLS_VISIBLE && (
           <button
             className={`citiesHeaderButton timelineGridPanButton ${canPan ? 'isActive' : ''}`}
             type="button"

@@ -60,6 +60,7 @@ html {
   #ffffff;
 
   background-attachment: fixed;
+  scrollbar-gutter: stable;
 }
 
 html[data-color-mode="night"] {

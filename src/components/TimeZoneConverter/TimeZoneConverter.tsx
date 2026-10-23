@@ -565,7 +565,7 @@ export default function TimeZoneConverter({
         <i className="citiesHeaderButton-icon citiesHeaderButton-icon_add" />
       </button>
 
-      {syncUrl && (
+      {syncUrl && !hasStandaloneControls && (
         <Link
           to={{
             pathname: getCanonicalLanguagePath(language, '/convert'),

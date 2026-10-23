@@ -70,7 +70,7 @@
 .gridTopControlsButton_add {}
 
 .gridTopControlsButton_reset {
-  margin-left: auto;
+  margin: 0 0 0 auto;
 
   &:after {
     content: '';
@@ -233,7 +233,7 @@
 
 .timelinesWidget {
   width: 100%;
-  max-width: 1440px;
+  /*max-width: 1440px;*/
   margin: 0 auto;
   position: relative;
 }
@@ -267,11 +267,11 @@
 }
 
 .timelinesViewport {
-  min-height: 372px;
+  min-height: min(calc(100vh - 270px), 532px);
   max-height: 372px;
   overflow: auto;
   user-select: none;
-  overscroll-behavior: contain;
+  /*overscroll-behavior: contain;*/
 }
 
 .timelinesMiddleMarker {
@@ -302,14 +302,17 @@
   background: transparent;
   cursor: pointer;
   translate: 0 -50%;
+  margin-top: 23px;
 }
 
 .timelineActiveHourIndicator_left {
   left: 16px;
+  z-index: 100;
 }
 
 .timelineActiveHourIndicator_right {
   right: 16px;
+  z-index: 100;
 }
 
 .timelineActiveHourIndicator-icon {
@@ -372,7 +375,7 @@
   display: grid;
   grid-template-columns: max-content;
   min-width: max-content;
-  padding-bottom: 6px;
+  padding-block: 6px;
   position: relative;
   z-index: 2;
   will-change: transform;
@@ -418,6 +421,17 @@
   z-index: 3;
   width: var(--timeline-viewport-width, 100%);
   padding: 11px 0 6px 0;
+
+  /*
+  width: 210px;
+  height: 76px;
+  margin-bottom: -70px;
+  margin-top: -6px;
+  backdrop-filter: blur(15px);
+  background: rgba(0 0 0 / 0.3);
+  display: flex;
+  border-right: 1px solid white;
+  */
 }
 
 .timelines-cityContainer {
@@ -490,7 +504,7 @@
 
 .timelines-cityTime {
   margin-left: auto;
-  color: rgba(255 255 255 / 0.82);
+  color: rgba(255 255 255 / 1);
   font-size: 16px;
   line-height: 1.2;
 }
@@ -732,7 +746,7 @@
   align-items: baseline;
   justify-content: center;
   gap: 2px;
-  font-size: 13px;
+  font-size: 15px;
   line-height: 1;
   font-weight: 400;
 }
@@ -764,25 +778,30 @@
     line-height: 1;
   }
 
-  /*
   &.timelines-cell_night {
-    color: rgb(188 222 255 / var(--text-transparency));
+    background-color: rgb(0 0 0 / 0.03);
+    text-shadow: 0 0 5px rgb(79 202 255 / 0.4);
   }
 
   &.timelines-cell_morning {
-    color: rgb(255 217 181 / var(--text-transparency));
+    background-color: rgb(222 222 255 / 0.05);
+    text-shadow: 0 0 5px rgb(var(--color-danger-1), 0.15);
   }
 
-  &.timelines-cell_day {}
+  &.timelines-cell_day {
+    background-color: rgb(255 255 255 / 0.2);
+    text-shadow: 0 0 5px rgba(0 0 0 / 0.3);
+  }
 
   &.timelines-cell_evening {
-    color: rgb(188 239 255 / var(--text-transparency));
+    background-color: rgb(255 255 255 / 0.05);
+    text-shadow: 0 0 5px rgb(79 202 255 / 0.4);
   }
 
   &.timelines-cell_lateEvening {
-    color: rgb(188 222 255 / var(--text-transparency));
+    background-color: rgb(0 0 0 / 0.03);
+    text-shadow: 0 0 5px rgb(79 202 255 / 0.4);
   }
-  */
 }
 
 .timelines-periodMarker {}
@@ -790,6 +809,21 @@
 .timelines-cell_date {
   font-size: 16px;
   line-height: 18px;
+  position: relative;
+
+  &:before {
+    content: '';
+    background: rgba(255 255 255 / 1);
+    display: block;
+    position: absolute;
+    width: 2px;
+    height: 40px;
+    border-radius: 3px;
+    left: -6px;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+  }
 }
 
 .timelines-cell_fullTime {
@@ -828,14 +862,12 @@
 }
 
 .timelines-cell_adjacentDay {
-  --text-transparency: 0.7;
 
-  background: rgba(255 255 255 / 0.03);
-  color: rgba(255 255 255 / var(--text-transparency));
 }
 
 .timelines-cell_current {
-  background: rgba(var(--accent-color-1), 0.28);
+  background: rgba(var(--accent-color-2), 0.38) !important;
+  color: rgba(0 0 0 / 0.66);
 }
 
 .timelines-hour_current {
@@ -890,11 +922,6 @@
 }
 .timelinesWidget_panEnabled .timelinesViewport {
   cursor: grab;
-}
-
-.timelinesWidget_panning .timelinesViewport,
-.timelinesWidget_panning .timelinesViewport * {
-  cursor: grabbing;
 }
 
 .timelinesTopPanButton {

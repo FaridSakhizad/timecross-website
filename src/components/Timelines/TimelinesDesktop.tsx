@@ -57,7 +57,9 @@ export default function TimelinesDesktop({
     maxHourIndex: TIMELINE_EDGE_FADE_HOURS + TIMELINE_TOTAL_HOURS - 1,
   });
   const canPan = panEnabled && !isEditMode && !isDragging;
-  const { isPanning, cancelPan } = useDesktopGridPan(viewportRef, canPan, handlePanInteractionChange);
+  const { isPanning, cancelPan } = useDesktopGridPan(
+    viewportRef, canPan, handlePanInteractionChange, isEditMode || isDragging,
+  );
   useEffect(() => {
     if (!panEnabled) return;
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -100,7 +102,6 @@ export default function TimelinesDesktop({
             isEditMode ? 'timelinesWidget_editMode' : '',
             isDragging ? 'timelinesWidget_dragging' : '',
             canPan ? 'timelinesWidget_panEnabled' : '',
-            isPanning ? 'timelinesWidget_panning' : '',
           ].filter(Boolean).join(' ')}
           ref={widgetRef}
         >

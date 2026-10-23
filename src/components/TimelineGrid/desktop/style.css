@@ -1,11 +1,9 @@
-.timelineGrid_panEnabled .timelineGrid-scrollViewport {
-  cursor: grab;
+.timelineGrid-scroll .timelineGrid-scrollViewport {
   scroll-snap-type: none;
 }
 
-.timelineGrid_panning .timelineGrid-scrollViewport,
-.timelineGrid_panning .timelineGrid-scrollViewport * {
-  cursor: grabbing;
+.timelineGrid_panEnabled .timelineGrid-scrollViewport {
+  cursor: grab;
 }
 
 .timelineGridPanButton {

@@ -30,7 +30,7 @@ function emit(target, type, values = {}) {
   const event = new Event(type, { cancelable: true });
   Object.assign(event, {
     pointerType: 'mouse', isPrimary: true, pointerId: 1,
-    button: 0, buttons: 1, clientX: 100, clientY: 100, detail: 1,
+    button: 0, buttons: type === 'pointerup' ? 0 : 1, clientX: 100, clientY: 100, detail: 1,
     ...values,
   });
   target.dispatchEvent(event);
@@ -159,4 +159,42 @@ test('destroy during a drag releases capture and removes handlers', () => {
   emit(window, 'pointermove', { clientX: 0 });
   assert.equal(active, false);
   assert.equal(viewport.scrollLeft, 500);
+});
+
+test('middle-button dragging works with left-button Pan disabled and suppresses autoscroll', () => {
+  controller.destroy();
+  controller = attachDesktopGridPan(viewport, (value) => { active = value; }, false);
+  emit(viewport, 'pointerdown');
+  assert.equal(active, false);
+  const down = emit(viewport, 'pointerdown', { button: 1, buttons: 4 });
+  assert.equal(down.defaultPrevented, true);
+  assert.equal(active, true);
+  emit(window, 'pointermove', { buttons: 4, clientX: 40, clientY: 60 });
+  assert.equal(viewport.scrollLeft, 560);
+  assert.equal(viewport.scrollTop, 140);
+  emit(window, 'pointerup', { button: 0, buttons: 4 });
+  assert.equal(active, true);
+  emit(window, 'pointerup', { button: 1, buttons: 0 });
+  assert.equal(active, false);
+  assert.equal(emit(viewport, 'auxclick', { button: 1 }).defaultPrevented, true);
+  assert.equal(emit(viewport, 'click').defaultPrevented, false);
+});
+
+test('middle-button capture loss and missing middle button stop the drag', () => {
+  emit(viewport, 'pointerdown', { button: 1, buttons: 4 });
+  emit(window, 'pointermove', { buttons: 1, clientX: 40 });
+  assert.equal(active, false);
+  assert.equal(viewport.scrollLeft, 500);
+  emit(viewport, 'pointerdown', { button: 1, buttons: 4 });
+  viewport.releasePointerCapture(1);
+  assert.equal(active, false);
+});
+
+test('middle clicks on controls and right clicks retain their native behavior', () => {
+  viewport.interactive = true;
+  assert.equal(emit(viewport, 'pointerdown', { button: 1, buttons: 4 }).defaultPrevented, false);
+  assert.equal(emit(viewport, 'auxclick', { button: 1 }).defaultPrevented, false);
+  viewport.interactive = false;
+  assert.equal(emit(viewport, 'pointerdown', { button: 2, buttons: 2 }).defaultPrevented, false);
+  assert.equal(active, false);
 });

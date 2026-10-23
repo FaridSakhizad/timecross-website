@@ -39,7 +39,7 @@
   display: block;
   position: relative;
   border-radius: 65536px;
-  background: rgba(var(--accent-color-2), 0.7);
+  background: rgba(var(--accent-color-2), 0.85);
   touch-action: none;
   user-select: none;
 
@@ -59,12 +59,12 @@
 }
 
 .customScrollbar-thumb_vertical {
-  width: 6px;
+  width: 8px;
   float: right;
 }
 
 .customScrollbar-thumb_horizontal {
-  height: 6px;
+  height: 8px;
 }
 
 .customScrollbar-thumb_dragging {

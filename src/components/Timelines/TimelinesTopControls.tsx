@@ -1,5 +1,6 @@
 import { Link } from 'react-router';
 import { Hand } from 'lucide-react';
+import { PAN_CONTROLS_VISIBLE } from '../../usePanPreference';
 import { useI18n } from '../../i18n';
 import { getCanonicalLanguagePath } from '../../i18n/languageRouting';
 
@@ -52,7 +53,7 @@ export default function TimelinesTopControls({
         aria-label={t('common.reset')}
       />
 
-      <button
+      {PAN_CONTROLS_VISIBLE && <button
         className={`gridTopControlsButton timelinesTopPanButton ${isPanEnabled ? 'isActive' : ''}`}
         type="button"
         title={t('common.panMode')}
@@ -62,7 +63,7 @@ export default function TimelinesTopControls({
         onClick={onPanToggle}
       >
         <Hand size={16} aria-hidden="true" />
-      </button>
+      </button>}
 
       <Link
         to={getCanonicalLanguagePath(language, '/grid')}

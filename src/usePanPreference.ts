@@ -1,15 +1,18 @@
 import { useSyncExternalStore, type SetStateAction } from 'react';
 
+export const PAN_CONTROLS_VISIBLE = true;
+
 function createPanPreference(mode: 'desktop' | 'mobile') {
   const key = `timecross:pan:${mode}`;
   const listeners = new Set<() => void>();
-  let fallback = false;
+  let fallback = true;
   let hasUnsavedValue = false;
 
   const getSnapshot = () => {
+    if (!PAN_CONTROLS_VISIBLE) return true;
     if (hasUnsavedValue) return fallback;
     try {
-      return window.localStorage.getItem(key) === 'true';
+      return window.localStorage.getItem(key) !== 'false';
     } catch {
       return fallback;
     }
@@ -27,6 +30,7 @@ function createPanPreference(mode: 'desktop' | 'mobile') {
     };
   };
   const set = (value: SetStateAction<boolean>) => {
+    if (!PAN_CONTROLS_VISIBLE) return;
     fallback = typeof value === 'function' ? value(getSnapshot()) : value;
     try {
       window.localStorage.setItem(key, String(fallback));
@@ -44,7 +48,7 @@ const preferences = {
   desktop: createPanPreference('desktop'),
   mobile: createPanPreference('mobile'),
 };
-const getServerSnapshot = () => false;
+const getServerSnapshot = () => true;
 
 export function usePanPreference(mode: 'desktop' | 'mobile') {
   const preference = preferences[mode];

@@ -26,6 +26,7 @@ export default function ConverterPage({
         <TimeZoneConverter
           colorMode={colorMode}
           hasStandaloneControls
+          syncUrl
           timeFormat={timeFormat}
           onColorModeButtonClick={onColorModeButtonClick}
           onTimeFormatButtonClick={onTimeFormatButtonClick}

@@ -52,8 +52,7 @@
 }
 
 .meetingTimePlannerPage .timelinesViewport {
-  min-height: 440px;
-  max-height: 65vh;
+  min-height: min(calc(100vh - 270px), 532px);
 }
 
 .meetingTimePlannerHero-cta {
