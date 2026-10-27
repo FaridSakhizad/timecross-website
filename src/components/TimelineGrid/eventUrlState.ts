@@ -1,9 +1,9 @@
 import type { FavoriteCity } from '../Cities/fixtures';
 import { GRID_HOUR_MS, getGridHourRanges, type SelectedGridHour } from './desktop/gridSelection.ts';
 import { getAbstractTimezoneOffsetMinutes } from '../../utils/abstractTimezone.ts';
+import { TIMELINE_EXTRA_DAY_HOURS, TIMELINE_RENDERED_HOURS } from '../Timelines/constants.ts';
 
 const MAX_CITIES = 100;
-const MAX_HOURS = 96;
 const MAX_HASH_LENGTH = 100000;
 const MIN_DATE = Date.UTC(1900, 0, 1);
 const MAX_DATE = Date.UTC(2100, 0, 1);
@@ -39,7 +39,7 @@ export function readGridEventUrlState(hash: string): SharedGridEvent | null {
     const start = data.s * 1000;
     const end = data.e * 1000;
     if (start < MIN_DATE || end > MAX_DATE || start % GRID_HOUR_MS !== 0 || end % GRID_HOUR_MS !== 0
-      || end <= start || end - start > MAX_HOURS * GRID_HOUR_MS) return null;
+      || end <= start || end - start > TIMELINE_RENDERED_HOURS * GRID_HOUR_MS) return null;
     if (!Array.isArray(data.c) || !data.c.length || data.c.length > MAX_CITIES) return null;
     const cities: FavoriteCity[] = [];
     for (const [index, entry] of data.c.entries()) {
@@ -82,8 +82,12 @@ export function buildGridEventUrl(baseUrl: string, cities: FavoriteCity[], hours
 }
 
 export function getSharedGridTimelineDates(event: Pick<SharedGridEvent, 'start' | 'end'>): Date[] {
-  // Keep the entire range visible in the timeline even when opened months later or in another timezone.
-  const start = event.start - 24 * GRID_HOUR_MS;
-  const count = (event.end - event.start) / GRID_HOUR_MS + 48;
+  const hours = (event.end - event.start) / GRID_HOUR_MS;
+  const remaining = TIMELINE_RENDERED_HOURS - hours;
+  const before = Math.min(TIMELINE_EXTRA_DAY_HOURS, Math.floor(remaining / 2));
+  const after = Math.min(TIMELINE_EXTRA_DAY_HOURS, remaining - before);
+  // Reduce context around long events instead of growing beyond the ordinary grid's capacity.
+  const start = event.start - before * GRID_HOUR_MS;
+  const count = hours + before + after;
   return Array.from({ length: count }, (_, index) => new Date(start + index * GRID_HOUR_MS));
 }

@@ -10,7 +10,7 @@ import {
   TIMELINE_EXTRA_DAY_HOURS,
   TIMELINE_HOUR_WIDTH,
   TIMELINE_HOUR_MS,
-  TIMELINE_TOTAL_HOURS,
+  TIMELINE_RENDERED_HOURS,
 } from './constants';
 import type { TimelineCell } from './types';
 
@@ -216,7 +216,7 @@ export function getTimelineDates(timezone: string, baseDate: Date) {
     - TIMELINE_EXTRA_DAY_HOURS
     - TIMELINE_EDGE_FADE_HOURS;
 
-  return Array.from({ length: TIMELINE_TOTAL_HOURS + TIMELINE_EDGE_FADE_HOURS * 2 }, (_, index) => (
+  return Array.from({ length: TIMELINE_RENDERED_HOURS }, (_, index) => (
     new Date((startHourIndex + index) * TIMELINE_HOUR_MS)
   ));
 }

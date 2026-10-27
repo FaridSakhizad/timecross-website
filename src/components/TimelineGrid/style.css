@@ -139,7 +139,6 @@
 
   &.timelineGrid-toolbar_mobile {
     height: 60px;
-    background: rgba(62, 63, 86, 0.3);
   }
 }
 
@@ -209,8 +208,8 @@
   height: 106px;
   background:
     url("../../assets/bg--noise-1.png") center,
-    linear-gradient(90deg, #ff5a5f 0%, #ffd166 100%),
-    rgb(255, 255, 255);
+    linear-gradient(90deg, rgb(255 90 95 / 0.7) 0%, rgb(255 209 102 / 0.7) 100%),
+    rgba(var(--accent-color-1), 1);
   pointer-events: none;
 }
 
@@ -261,7 +260,6 @@
 
   &.timelineGrid-userHours_mobile {
     top: 60px;
-    background: rgba(62, 63, 86, 0.3);
     backdrop-filter: none;
   }
 }
@@ -832,4 +830,7 @@ html[data-color-mode="night"]:has(.timelineGrid-toolbar_mobile) .timelineGridPag
 .timelineGrid-hour:nth-child(9),
 .timelineGrid-hour:nth-last-child(9) {
   opacity: 0.88;
+}
+.timelineGrid-row .timelineGrid-cell.isSelected {
+  opacity: 1;
 }

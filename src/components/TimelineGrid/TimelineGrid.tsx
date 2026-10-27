@@ -221,7 +221,10 @@ function TimelineGridSession({
     userCells,
     initialSelectedHours: selectedHours,
     onSelectionChange: setSelectedHours,
-    initialFocusHourIndex: sharedEvent ? 24 + Math.floor((sharedEvent.end - sharedEvent.start) / 7200000) : undefined,
+    initialFocusHourIndex: sharedEvent
+      ? timelineDates.findIndex((date) => date.getTime() === sharedEvent.start)
+        + Math.floor((sharedEvent.end - sharedEvent.start) / 7200000)
+      : undefined,
     onAddCityClick: () => setIsAddCityModalOpen(true),
     onColorModeButtonClick,
     onDeleteCity: handleDeleteCity,
