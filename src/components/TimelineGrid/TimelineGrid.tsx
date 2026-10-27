@@ -1,6 +1,7 @@
 import './style.css';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useLocation } from 'react-router';
 import {
   DndContext,
   PointerSensor,
@@ -34,6 +35,7 @@ import {
 } from '../Timelines/utils';
 import TimelineGridDesktop from './TimelineGridDesktop';
 import TimelineGridMobile from './TimelineGridMobile';
+import { getSharedGridTimelineDates, readGridEventUrlState, type SharedGridEvent } from './eventUrlState';
 
 const restrictTimelineGridDragToVerticalAxis: Modifier = ({ transform }) => ({
   ...transform,
@@ -94,16 +96,24 @@ function useMobileTimelineGridHorizontalScrollLock(enabled: boolean) {
   }, [enabled]);
 }
 
-export default function TimelineGrid({
+export default function TimelineGrid(props: TimelineGridProps) {
+  const { pathname, hash } = useLocation();
+  const sharedEvent = useMemo(() => readGridEventUrlState(hash), [hash]);
+  return <TimelineGridSession key={`${pathname}${hash}`} {...props} sharedEvent={sharedEvent} />;
+}
+
+function TimelineGridSession({
   colorMode,
   timeFormat,
   onColorModeButtonClick,
   onTimeFormatButtonClick,
-}: TimelineGridProps) {
+  sharedEvent,
+}: TimelineGridProps & { sharedEvent: SharedGridEvent | null }) {
   const baseDate = useCurrentMinuteDate();
   const browserTimezone = useMemo(() => getBrowserTimezone(), []);
   const usesMobileLayout = useMobileWidgetLayout();
-  const [cities, setCities] = useState(() => getOrderedSelectedCities(getSettings().cityOrder));
+  const [cities, setCities] = useState(() => sharedEvent?.cities ?? getOrderedSelectedCities(getSettings().cityOrder));
+  const [selectedHours, setSelectedHours] = useState(sharedEvent?.hours ?? []);
   const [isAddCityModalOpen, setIsAddCityModalOpen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -124,6 +134,7 @@ export default function TimelineGrid({
   );
 
   useEffect(() => {
+    if (sharedEvent) return;
     const handleSelectedCitiesChange = () => {
       setCities(getOrderedSelectedCities(getSettings().cityOrder));
     };
@@ -133,11 +144,11 @@ export default function TimelineGrid({
     return () => {
       window.removeEventListener(SELECTED_CITIES_CHANGED_EVENT, handleSelectedCitiesChange);
     };
-  }, []);
+  }, [sharedEvent]);
 
   const timelineDates = useMemo(
-    () => getTimelineDates(browserTimezone, baseDate),
-    [baseDate, browserTimezone],
+    () => sharedEvent ? getSharedGridTimelineDates(sharedEvent) : getTimelineDates(browserTimezone, baseDate),
+    [baseDate, browserTimezone, sharedEvent],
   );
 
   const userCells = useMemo(
@@ -155,7 +166,7 @@ export default function TimelineGrid({
     ];
 
     setCities(nextCities);
-    saveSelectedCities(nextCities);
+    if (!sharedEvent) saveSelectedCities(nextCities);
     setIsAddCityModalOpen(false);
   };
 
@@ -167,7 +178,7 @@ export default function TimelineGrid({
     }
 
     setCities(nextCities);
-    saveSelectedCities(nextCities);
+    if (!sharedEvent) saveSelectedCities(nextCities);
   };
 
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
@@ -190,7 +201,7 @@ export default function TimelineGrid({
     }));
 
     setCities(nextCities);
-    saveSelectedCities(nextCities);
+    if (!sharedEvent) saveSelectedCities(nextCities);
   };
 
   const handleDragCancel = () => {
@@ -208,6 +219,9 @@ export default function TimelineGrid({
     timelineDates,
     timeFormat,
     userCells,
+    initialSelectedHours: selectedHours,
+    onSelectionChange: setSelectedHours,
+    initialFocusHourIndex: sharedEvent ? 24 + Math.floor((sharedEvent.end - sharedEvent.start) / 7200000) : undefined,
     onAddCityClick: () => setIsAddCityModalOpen(true),
     onColorModeButtonClick,
     onDeleteCity: handleDeleteCity,

@@ -1,0 +1,74 @@
+body:has(.timelineGridSelectionLayer_mobile) .timelineGrid-row_mobile {
+  content-visibility: visible;
+}
+
+.timelineGrid-toolbar_mobile:has(.timelineGridSelectionModeButton[aria-pressed="true"]) {
+  .citiesHeaderButton_edit,
+  .citiesHeaderButton_add {
+    display: none;
+  }
+}
+
+.timelineGridSelectionModeButton > svg {
+  position: relative;
+  flex-shrink: 0;
+  color: #fff;
+}
+
+.timelineGridSelectionModeButton.isActive {
+  color: #333;
+  background-color: rgba(var(--accent-color-1), 0.3);
+}
+
+.timelineGridSelectionLayer_mobile {
+  .timelineGridSelectionHandle {
+    width: min(44px, calc(100% / 3));
+    height: min(44px, calc(100% / 3));
+    opacity: 1;
+    translate: -50% -50%;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+
+  .timelineGridSelectionHandle::before {
+    content: '';
+    display: block;
+    margin: auto;
+    border-radius: 4px;
+    background: #fff;
+    box-shadow: 0 0 0 1px rgb(0 0 0 / 0.15);
+  }
+
+  .timelineGridSelectionHandle_n,
+  .timelineGridSelectionHandle_s {
+    left: 50%;
+    height: 44px;
+    &::before { width: 30px; max-width: 100%; height: 6px; }
+  }
+
+  .timelineGridSelectionHandle_n { top: 0; }
+  .timelineGridSelectionHandle_s { top: 100%; bottom: auto; }
+
+  .timelineGridSelectionHandle_e,
+  .timelineGridSelectionHandle_w {
+    top: 50%;
+    width: 44px;
+    &::before { width: 6px; height: 30px; max-height: 100%; }
+  }
+
+  .timelineGridSelectionHandle_w { left: 0; }
+  .timelineGridSelectionHandle_e { left: 100%; right: auto; }
+
+  .timelineGridSelectionHandle_ne,
+  .timelineGridSelectionHandle_nw,
+  .timelineGridSelectionHandle_se,
+  .timelineGridSelectionHandle_sw {
+    &::before { width: 10px; height: 10px; border-radius: 50%; }
+  }
+
+  .timelineGridSelectionHandle_nw { left: 0; top: 0; }
+  .timelineGridSelectionHandle_ne { left: 100%; right: auto; top: 0; }
+  .timelineGridSelectionHandle_sw { left: 0; top: 100%; bottom: auto; }
+  .timelineGridSelectionHandle_se { left: 100%; right: auto; top: 100%; bottom: auto; }
+}

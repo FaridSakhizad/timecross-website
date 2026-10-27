@@ -1,5 +1,16 @@
 {
   "common": {
+    "createCalendarEvent": "Create event in Google Calendar",
+    "createOutlookEvent": "Create event in Outlook",
+    "downloadCalendarEvent": "Download event (.ics)",
+    "shareEvent": "Share event",
+    "calendarFileError": "Unable to download the event.",
+    "calendarShareError": "Unable to share or copy the event link.",
+    "eventLinkCopied": "Event link copied",
+    "clearSelection": "Clear selection",
+    "selectHours": "Select hours",
+    "resizeSelection": "Resize selection",
+    "calendarEventTitle": "TimeCross meeting",
     "sitePitch": "Understand Time Across the World",
     "sayThanks": "Say Thanks",
     "appStore": "Download on the App Store",
@@ -10,9 +21,9 @@
     "darkMode": "Dark Mode",
     "lightMode": "Light Mode",
     "citiesLabel": "Cities",
-    "gridLabel": "Grid",
+    "gridLabel": "Planner",
     "addCity": "Add Timezone",
-    "openGrid": "Open timelines",
+    "openGrid": "Open planner",
     "openCities": "Open cities",
     "noResults": "No results",
     "loading": "Loading...",
@@ -31,7 +42,7 @@
     "privacyPolicy": "Privacy Policy",
     "worldClockLabel": "World Clock",
     "meetingPlannerLabel": "Meeting Planner",
-    "timeZoneConverterLabel": "Convert",
+    "timeZoneConverterLabel": "Converter",
     "edit": "Edit"
   },
   "languages": {
@@ -116,7 +127,7 @@
     "compareCitiesTitle": "See today, tomorrow, and time differences at a glance",
     "compareCitiesText": "Day markers and relative offsets make it easier to know when a city has moved into tomorrow, when someone is likely awake, and how far apart two places are.",
     "nextTitle": "Explore more time tools",
-    "gridLink": "Timeline Grid",
+    "gridLink": "Planner",
     "citiesLink": "Cities"
   },
   "contactForm": {
@@ -211,10 +222,10 @@
         "ogDescription": "Build your own city list and keep the time zones that matter most within reach."
       },
       "grid": {
-        "title": "Timeline Grid — TimeCross",
-        "description": "Explore a full-screen timeline grid that lines up local hours across cities and makes time differences easier to understand.",
-        "ogTitle": "TimeCross Timeline Grid",
-        "ogDescription": "See today, yesterday, and tomorrow across your cities in one timeline grid."
+        "title": "Planner — TimeCross",
+        "description": "Compare city times, select a meeting range, and add it to your calendar or share an event link.",
+        "ogTitle": "TimeCross Planner",
+        "ogDescription": "Plan across time zones, create calendar events, and share selected hours."
       },
       "worldClock": {
         "title": "World Clock — TimeCross",
@@ -273,7 +284,7 @@
     "planTitle": "Plan around people, not offsets",
     "planText": "Rename cities for clients, friends, family, or routines and keep the places you coordinate with in a clear order.",
     "nextTitle": "Explore more time tools",
-    "gridLink": "Timeline Grid",
+    "gridLink": "Planner",
     "worldClockLink": "World Clock"
   },
   "timeZoneConverter": {

@@ -161,6 +161,7 @@ function useTimelineGridSnap(
   currentUserHourIndex: number,
   disabled = false,
   shouldSuspend?: () => boolean,
+  initialFocusHourIndex?: number,
 ) {
   const centeredTargetIndexRef = useRef(currentUserHourIndex);
 
@@ -184,11 +185,13 @@ function useTimelineGridSnap(
   useLayoutEffect(() => {
     const scrollTarget = getScrollTarget();
 
-    if (!scrollTarget || currentUserHourIndex < 0 || shouldSuspend?.()) {
+    if (!scrollTarget || (initialFocusHourIndex === undefined && currentUserHourIndex < 0) || shouldSuspend?.()) {
       return;
     }
 
-    const currentTarget = getTimelineGridCurrentTarget(scrollTarget);
+    const currentTarget = initialFocusHourIndex === undefined
+      ? getTimelineGridCurrentTarget(scrollTarget)
+      : getTimelineGridSnapTargetByIndex(initialFocusHourIndex, scrollTarget);
 
     if (!currentTarget) {
       return;
@@ -196,7 +199,7 @@ function useTimelineGridSnap(
 
     centeredTargetIndexRef.current = getTimelineGridSnapTargetIndex(currentTarget, scrollTarget);
     setTimelineGridScrollLeft(scrollTarget, getTimelineGridAnchorScrollLeft(currentTarget, scrollTarget));
-  }, [currentUserHourIndex, getScrollTarget, shouldSuspend]);
+  }, [currentUserHourIndex, getScrollTarget, shouldSuspend, initialFocusHourIndex]);
 
   useEffect(() => {
     if (disabled) {
@@ -309,10 +312,11 @@ function useTimelineGridSnap(
   return resetToCurrentHour;
 }
 
-export function useTimelineGridPageSnap(currentUserHourIndex: number, disabled = false) {
+export function useTimelineGridPageSnap(currentUserHourIndex: number, disabled = false, initialFocusHourIndex?: number,
+  shouldSuspend?: () => boolean) {
   const getScrollTarget = useCallback(() => ({ type: 'page' }) as const, []);
 
-  return useTimelineGridSnap(getScrollTarget, currentUserHourIndex, disabled);
+  return useTimelineGridSnap(getScrollTarget, currentUserHourIndex, disabled, shouldSuspend, initialFocusHourIndex);
 }
 
 export function useTimelineGridElementSnap(
@@ -320,6 +324,7 @@ export function useTimelineGridElementSnap(
   currentUserHourIndex: number,
   disabled = false,
   shouldSuspend?: () => boolean,
+  initialFocusHourIndex?: number,
 ) {
   const getScrollTarget = useCallback(
     () => (
@@ -330,5 +335,5 @@ export function useTimelineGridElementSnap(
     [timelineGridRef],
   ) satisfies () => TimelineGridScrollTarget | null;
 
-  return useTimelineGridSnap(getScrollTarget, currentUserHourIndex, disabled, shouldSuspend);
+  return useTimelineGridSnap(getScrollTarget, currentUserHourIndex, disabled, shouldSuspend, initialFocusHourIndex);
 }

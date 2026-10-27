@@ -1,5 +1,16 @@
 {
   "common": {
+    "downloadCalendarEvent": "Télécharger l’événement (.ics)",
+    "shareEvent": "Partager l’événement",
+    "calendarFileError": "Impossible de télécharger l’événement.",
+    "calendarShareError": "Impossible de partager ou de copier le lien de l’événement.",
+    "eventLinkCopied": "Lien de l’événement copié",
+    "createCalendarEvent": "Créer un événement dans Google Calendar",
+    "createOutlookEvent": "Créer un événement dans Outlook",
+    "clearSelection": "Effacer la sélection",
+    "selectHours": "Sélectionner les heures",
+    "resizeSelection": "Redimensionner la sélection",
+    "calendarEventTitle": "Réunion TimeCross",
     "sitePitch": "Comprendre l'heure partout dans le monde",
     "sayThanks": "Remercier",
     "appStore": "Télécharger dans l'App Store",
@@ -10,9 +21,9 @@
     "darkMode": "Mode sombre",
     "lightMode": "Mode clair",
     "citiesLabel": "Villes",
-    "gridLabel": "Horaires",
+    "gridLabel": "Planificateur",
     "addCity": "Ajouter un fuseau horaire",
-    "openGrid": "Ouvrir les timelines",
+    "openGrid": "Ouvrir le planificateur",
     "openCities": "Ouvrir les villes",
     "noResults": "Aucun résultat",
     "loading": "Chargement...",
@@ -199,10 +210,10 @@
         "ogDescription": "Créez votre propre liste de villes et gardez les fuseaux horaires importants à portée de main."
       },
       "grid": {
-        "title": "Timelines — TimeCross",
-        "description": "Explorez une grille plein écran qui aligne les heures locales de vos villes et rend les décalages horaires plus faciles à comprendre.",
-        "ogTitle": "Grille de timelines TimeCross",
-        "ogDescription": "Voyez aujourd’hui, hier et demain pour vos villes dans une seule grille temporelle."
+        "title": "Planificateur — TimeCross",
+        "description": "Comparez les heures des villes, sélectionnez un créneau de réunion et ajoutez-le à votre calendrier ou partagez un lien.",
+        "ogTitle": "TimeCross Planificateur",
+        "ogDescription": "Planifiez entre fuseaux horaires, créez des événements et partagez les heures sélectionnées."
       },
       "privacy": {
         "title": "Politique de confidentialité — TimeCross",
@@ -259,7 +270,7 @@
     "compareCitiesTitle": "Aujourd’hui, demain et les décalages en un coup d’œil",
     "compareCitiesText": "Les marqueurs de jour et les décalages relatifs aident à voir où l’on est déjà demain, quand quelqu’un est probablement réveillé et combien d’heures séparent deux villes.",
     "nextTitle": "Explorer plus d’outils de temps",
-    "gridLink": "Grille horaire",
+    "gridLink": "Planificateur",
     "citiesLink": "Villes"
   },
   "meetingTimePlanner": {
@@ -273,7 +284,7 @@
     "planTitle": "Planifiez autour des personnes, pas des décalages",
     "planText": "Renommez les villes pour vos clients, amis, proches ou routines et gardez les lieux importants dans un ordre clair.",
     "nextTitle": "Explorer d’autres outils de temps",
-    "gridLink": "Grille horaire",
+    "gridLink": "Planificateur",
     "worldClockLink": "Horloge mondiale"
   },
   "timeZoneConverter": {

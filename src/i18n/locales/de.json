@@ -1,5 +1,16 @@
 {
   "common": {
+    "downloadCalendarEvent": "Termin herunterladen (.ics)",
+    "shareEvent": "Termin teilen",
+    "calendarFileError": "Der Termin konnte nicht heruntergeladen werden.",
+    "calendarShareError": "Der Terminlink konnte nicht geteilt oder kopiert werden.",
+    "eventLinkCopied": "Terminlink kopiert",
+    "createCalendarEvent": "Termin in Google Calendar erstellen",
+    "createOutlookEvent": "Termin in Outlook erstellen",
+    "clearSelection": "Auswahl aufheben",
+    "selectHours": "Stunden auswählen",
+    "resizeSelection": "Auswahlgröße ändern",
+    "calendarEventTitle": "TimeCross-Treffen",
     "sitePitch": "Weltweite Zeiten verstehen",
     "sayThanks": "Danke sagen",
     "appStore": "Im App Store laden",
@@ -10,9 +21,9 @@
     "darkMode": "Dunkler Modus",
     "lightMode": "Heller Modus",
     "citiesLabel": "Städte",
-    "gridLabel": "Zeiten",
+    "gridLabel": "Planer",
     "addCity": "Zeitzone hinzufügen",
-    "openGrid": "Timelines öffnen",
+    "openGrid": "Planer öffnen",
     "openCities": "Städte öffnen",
     "noResults": "Keine Ergebnisse",
     "loading": "Wird geladen...",
@@ -199,10 +210,10 @@
         "ogDescription": "Baue deine eigene Städteliste und halte wichtige Zeitzonen griffbereit."
       },
       "grid": {
-        "title": "Timelines — TimeCross",
-        "description": "Nutze eine Vollbild-Timeline, die lokale Stunden deiner Städte ausrichtet und Zeitunterschiede leichter verständlich macht.",
-        "ogTitle": "TimeCross Timeline-Grid",
-        "ogDescription": "Sieh heute, gestern und morgen für deine Städte in einer einzigen Zeitübersicht."
+        "title": "Planer — TimeCross",
+        "description": "Vergleiche Stadtzeiten, wähle einen Besprechungszeitraum und füge ihn deinem Kalender hinzu oder teile einen Terminlink.",
+        "ogTitle": "TimeCross Planer",
+        "ogDescription": "Plane über Zeitzonen hinweg, erstelle Kalendertermine und teile ausgewählte Stunden."
       },
       "privacy": {
         "title": "Datenschutzerklärung — TimeCross",
@@ -259,7 +270,7 @@
     "compareCitiesTitle": "Heute, morgen und Zeitunterschiede auf einen Blick",
     "compareCitiesText": "Tagesmarker und relative Abstände zeigen, wo bereits morgen ist, wann jemand wahrscheinlich wach ist und wie weit zwei Städte zeitlich auseinanderliegen.",
     "nextTitle": "Weitere Zeit-Tools entdecken",
-    "gridLink": "Zeitraster",
+    "gridLink": "Planer",
     "citiesLink": "Städte"
   },
   "meetingTimePlanner": {
@@ -273,7 +284,7 @@
     "planTitle": "Plane für Menschen, nicht für Offsets",
     "planText": "Benenne Städte für Kunden, Freunde, Familie oder Routinen um und halte wichtige Orte in einer klaren Reihenfolge.",
     "nextTitle": "Weitere Zeit-Tools entdecken",
-    "gridLink": "Zeitraster",
+    "gridLink": "Planer",
     "worldClockLink": "Weltuhr"
   },
   "timeZoneConverter": {

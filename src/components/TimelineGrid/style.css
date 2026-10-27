@@ -139,8 +139,33 @@
 
   &.timelineGrid-toolbar_mobile {
     height: 60px;
-    background: rgba(62, 63, 86, 0.1);
+    background: rgba(62, 63, 86, 0.3);
   }
+}
+
+@media (width <= 768px) {
+  .timelineGrid-toolbar {
+    &.timelineGrid-toolbar_mobile {
+      &:has(.timelineGridCalendarButton) {
+        gap: clamp(4px, 4.073vw - 11.272px, 20px);
+      }
+    }
+  }
+}
+
+.timelineGridCalendarNotice {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 6px 10px;
+  border-radius: 4px;
+  background: #303033;
+  color: #fff;
+  font-size: 12px;
+  max-width: calc(100dvw - 24px);
+  text-align: center;
+  pointer-events: none;
 }
 
 .timelineGrid .timelineGrid-toolbar {
@@ -185,7 +210,7 @@
   background:
     url("../../assets/bg--noise-1.png") center,
     linear-gradient(90deg, #ff5a5f 0%, #ffd166 100%),
-    rgb(62, 63, 86);
+    rgb(255, 255, 255);
   pointer-events: none;
 }
 
@@ -236,7 +261,7 @@
 
   &.timelineGrid-userHours_mobile {
     top: 60px;
-    background: rgba(62, 63, 86, 0.1);
+    background: rgba(62, 63, 86, 0.3);
     backdrop-filter: none;
   }
 }
@@ -637,19 +662,19 @@
   font-size: 16px;
   line-height: 18px;
   position: relative;
+  background: rgb(0 0 0 / 0.3) !important;
+  color: #fff !important;
+  font-weight: 500;
 
-  &:before {
-    content: '';
-    background: rgba(255 255 255 / 1);
-    display: block;
-    position: absolute;
-    width: 2px;
-    height: 40px;
-    border-radius: 3px;
-    left: -6px;
-    top: 0;
-    bottom: 0;
-    margin: auto;
+  &.timelineGrid-cell_current {
+    background: rgb(0 0 0 / 0.3) !important;
+    color: #fff !important;
+    font-weight: 500;
+
+    .timelineGrid-cellCurrentTime {
+      font-size: 15px;
+      font-weight: 500;
+    }
   }
 }
 
@@ -658,8 +683,6 @@
 }
 
 .timelineGrid-hour {
-  /*font-size: 12px;*/
-
   .timelineGrid-periodMarker {
     font-size: 10px;
   }
@@ -718,6 +741,7 @@ body:has(.timelineGrid-toolbar_mobile) {
   overflow: visible;
   color: #fff;
   padding-bottom: 1px;
+  background-color: rgba(var(--accent-color-1), 0.3);
 
   #root {
     display: contents;

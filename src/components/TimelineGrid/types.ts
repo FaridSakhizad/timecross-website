@@ -1,6 +1,8 @@
 import type { ColorMode, TimeFormat } from '../../settings';
 import type { FavoriteCity } from '../Cities/fixtures';
 import type { TimelineCell } from '../Timelines/types';
+import type { SelectedGridHour } from './desktop/gridSelection';
+import type { ReactNode } from 'react';
 
 export type TimelineGridMode = 'desktop' | 'mobile';
 
@@ -16,6 +18,11 @@ export type TimelineGridContentProps = {
   timelineDates: Date[];
   timeFormat: TimeFormat;
   userCells: TimelineCell[];
+  selectedHourKeys?: ReadonlySet<string>;
+  initialSelectedHours?: SelectedGridHour[];
+  onSelectionChange?: (hours: SelectedGridHour[]) => void;
+  initialFocusHourIndex?: number;
+  afterResetControl?: ReactNode;
   onAddCityClick: () => void;
   onColorModeButtonClick: () => void;
   onDeleteCity: (cityId: string) => void;

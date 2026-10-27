@@ -1,5 +1,16 @@
 {
   "common": {
+    "downloadCalendarEvent": "Baixar evento (.ics)",
+    "shareEvent": "Compartilhar evento",
+    "calendarFileError": "Não foi possível baixar o evento.",
+    "calendarShareError": "Não foi possível compartilhar ou copiar o link do evento.",
+    "eventLinkCopied": "Link do evento copiado",
+    "createCalendarEvent": "Criar evento no Google Calendar",
+    "createOutlookEvent": "Criar evento no Outlook",
+    "clearSelection": "Limpar seleção",
+    "selectHours": "Selecionar horas",
+    "resizeSelection": "Redimensionar seleção",
+    "calendarEventTitle": "Reunião TimeCross",
     "sitePitch": "Entenda o horário no mundo todo",
     "sayThanks": "Agradecer",
     "appStore": "Baixar na App Store",
@@ -10,9 +21,9 @@
     "darkMode": "Modo escuro",
     "lightMode": "Modo claro",
     "citiesLabel": "Cidades",
-    "gridLabel": "Horas",
+    "gridLabel": "Planejador",
     "addCity": "Adicionar fuso horário",
-    "openGrid": "Abrir timelines",
+    "openGrid": "Abrir o planejador",
     "openCities": "Abrir cidades",
     "noResults": "Sem resultados",
     "loading": "Carregando...",
@@ -199,10 +210,10 @@
         "ogDescription": "Monte sua própria lista de cidades e mantenha os fusos horários importantes sempre à mão."
       },
       "grid": {
-        "title": "Timelines — TimeCross",
-        "description": "Explore uma grade em tela cheia que alinha os horários locais das suas cidades e deixa as diferenças de fuso mais fáceis de entender.",
-        "ogTitle": "Grade de timelines do TimeCross",
-        "ogDescription": "Veja hoje, ontem e amanhã para suas cidades em uma única grade de tempo."
+        "title": "Planejador — TimeCross",
+        "description": "Compare os horários das cidades, selecione um período para a reunião e adicione ao calendário ou compartilhe um link.",
+        "ogTitle": "TimeCross Planejador",
+        "ogDescription": "Planeje entre fusos horários, crie eventos e compartilhe os horários selecionados."
       },
       "privacy": {
         "title": "Política de privacidade — TimeCross",
@@ -259,7 +270,7 @@
     "compareCitiesTitle": "Hoje, amanhã e diferenças de horário num olhar",
     "compareCitiesText": "Marcadores de dia e deslocamentos relativos ajudam a ver onde já é amanhã, quando alguém provavelmente está acordado e quantas horas separam duas cidades.",
     "nextTitle": "Explore mais ferramentas de tempo",
-    "gridLink": "Grelha horária",
+    "gridLink": "Planejador",
     "citiesLink": "Cidades"
   },
   "meetingTimePlanner": {
@@ -273,7 +284,7 @@
     "planTitle": "Planeje em torno de pessoas, não de offsets",
     "planText": "Renomeie cidades para clientes, amigos, família ou rotinas e mantenha os lugares importantes em uma ordem clara.",
     "nextTitle": "Explore mais ferramentas de tempo",
-    "gridLink": "Grelha horária",
+    "gridLink": "Planejador",
     "worldClockLink": "Relógio mundial"
   },
   "timeZoneConverter": {

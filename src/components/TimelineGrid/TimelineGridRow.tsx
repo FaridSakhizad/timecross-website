@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
@@ -15,6 +15,7 @@ import {
   getTimeZoneOffsetMinutes,
 } from '../Timelines/utils';
 import type { TimelineGridMode } from './types';
+import { gridHourKey } from './desktop/gridSelection';
 
 const DAY_PERIOD_SUFFIX_PATTERN = /\s(?:AM|PM)$/;
 
@@ -27,6 +28,7 @@ type TimelineGridRowProps = {
   timelineDates: Date[];
   timeFormat: TimeFormat;
   onDelete: (cityId: string) => void;
+  selectedHourKeys?: ReadonlySet<string>;
 };
 
 function isTimelineGridDragPressTarget(target: EventTarget | null) {
@@ -34,7 +36,7 @@ function isTimelineGridDragPressTarget(target: EventTarget | null) {
     && Boolean(target.closest('.timelineGrid-dragButton, .timelineGrid-cellsSpacer'));
 }
 
-export default function TimelineGridRow({
+function TimelineGridRow({
   baseDate,
   browserTimezone,
   city,
@@ -43,6 +45,7 @@ export default function TimelineGridRow({
   timelineDates,
   timeFormat,
   onDelete,
+  selectedHourKeys,
 }: TimelineGridRowProps) {
   const { t } = useI18n();
   const [isPressed, setIsPressed] = useState(false);
@@ -179,8 +182,11 @@ export default function TimelineGridRow({
                   cell.isCurrentHour ? 'timelineGrid-cell_current' : '',
                   cell.isDateLabel ? 'timelineGrid-cell_date' : '',
                   shouldShowFullCurrentTime ? 'timelineGrid-cell_fullTime' : '',
+                  selectedHourKeys?.has(gridHourKey({ rowId: city.id, start: cell.date.getTime() })) ? 'isSelected' : '',
                 ].filter(Boolean).join(' ')}
                 key={`${city.id}-${cell.date.toISOString()}-${index}`}
+                data-grid-selection-row={city.id}
+                data-grid-hour-start={cell.date.getTime()}
               >
                 {cell.dateCellDetails ? (
                   <span className="timelineGrid-cellDateDetails">
@@ -233,3 +239,5 @@ export default function TimelineGridRow({
     </div>
   );
 }
+
+export default memo(TimelineGridRow);

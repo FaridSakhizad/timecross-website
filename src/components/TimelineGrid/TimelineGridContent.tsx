@@ -33,6 +33,7 @@ type TimelineGridTimelineProps = Pick<
   | 'timelineDates'
   | 'timeFormat'
   | 'userCells'
+  | 'selectedHourKeys'
   | 'onAddCityClick'
   | 'onDeleteCity'
 >;
@@ -122,6 +123,7 @@ export function TimelineGridTimeline({
   timelineDates,
   timeFormat,
   userCells,
+  selectedHourKeys,
   onAddCityClick,
   onDeleteCity,
 }: TimelineGridTimelineProps) {
@@ -193,6 +195,7 @@ export function TimelineGridTimeline({
           mode={mode}
           timelineDates={timelineDates}
           timeFormat={timeFormat}
+          selectedHourKeys={selectedHourKeys}
           onDelete={onDeleteCity}
         />
       ))}
@@ -219,10 +222,7 @@ export default function TimelineGridContent(props: TimelineGridContentProps) {
   return (
     <>
       {props.mode === 'mobile' && (
-        <>
-          <div className="timelineGridPageBackdrop timelineGridPageBackdrop_mobile" aria-hidden="true" />
-          <div className="timelineGridHeaderBackdrop timelineGridHeaderBackdrop_mobile" aria-hidden="true" />
-        </>
+        <div className="timelineGridHeaderBackdrop timelineGridHeaderBackdrop_mobile" aria-hidden="true" />
       )}
       <TimelineGridToolbar
         isEditMode={props.isEditMode}
@@ -234,6 +234,7 @@ export default function TimelineGridContent(props: TimelineGridContentProps) {
         onEditModeToggle={props.onEditModeToggle}
         onResetClick={props.onResetClick}
         onTimeFormatButtonClick={props.onTimeFormatButtonClick}
+        afterResetControl={props.afterResetControl}
       />
       <TimelineGridTimeline
         baseDate={props.baseDate}
@@ -245,6 +246,7 @@ export default function TimelineGridContent(props: TimelineGridContentProps) {
         timelineDates={props.timelineDates}
         timeFormat={props.timeFormat}
         userCells={props.userCells}
+        selectedHourKeys={props.selectedHourKeys}
         onAddCityClick={props.onAddCityClick}
         onDeleteCity={props.onDeleteCity}
       />
