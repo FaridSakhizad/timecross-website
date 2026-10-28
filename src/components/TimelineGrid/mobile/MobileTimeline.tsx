@@ -23,7 +23,7 @@ export default function MobileTimeline(props: GridTimelineProps) {
           selectedHourKeys={props.selectedHourKeys} onDelete={props.onDeleteCity} />
       ))}
       <button
-        className="timelineGrid-addTimezoneButton timelineGrid-addTimezoneButton_mobile"
+        className="timelineGrid-addTimezoneButton"
         type="button"
         onClick={props.onAddCityClick}
       >

@@ -78,6 +78,7 @@ export default function MobileGrid(props: TimelineGridShellProps) {
             ref={viewportRef}
             className="timelineGrid-scrollViewport"
           >
+            <div className="timelineGridBackdrop" aria-hidden="true" />
             {toolbar}
             {timeline}
             <TimelineGridActiveHourIndicator
@@ -100,7 +101,7 @@ export default function MobileGrid(props: TimelineGridShellProps) {
         </div>
       ) : <>
         <div className="zenPageMobile">
-          <div className="timelineGridHeaderBackdrop" aria-hidden="true" />
+          <div className="timelineGridBackdrop" aria-hidden="true" />
           {toolbar}
           {timeline}
           <TimelineGridActiveHourIndicator
@@ -118,7 +119,6 @@ export default function MobileGrid(props: TimelineGridShellProps) {
               onSelectionToggle={toggle}
             />
           </div>
-          <div className="timelineGridFooterBackdrop" aria-hidden="true" />
         </div>
       </>}
       <MobileSelectionOverlay enabled={enabled} layerRef={layerRef} />
