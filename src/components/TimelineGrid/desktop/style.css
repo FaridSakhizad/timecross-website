@@ -57,7 +57,7 @@
 .timelineGrid-scrollViewport {
   height: 100%;
   overflow: auto;
-  overscroll-behavior: contain;
+  /*overscroll-behavior: contain;*/
   scroll-padding-inline: calc(50% - var(--timeline-grid-cell-size) / 2);
   scroll-snap-type: x mandatory;
 }
