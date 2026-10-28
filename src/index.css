@@ -76,14 +76,9 @@ html[data-color-mode="night"] {
   --accent-color-1: 20, 21, 33;
 }
 
-@media (width <= 1024px) {
+@media (hover: none) and (pointer: coarse) {
   html {
-    background: unset;
-    /*height: 100dvh;*/
-    /*width: 100dvw;*/
-    /*background: url("./assets/bg--mob-main-1.jpg") center center no-repeat;*/
-    /*background-size: cover;*/
-    /*background-attachment: fixed;*/
+    background: #e9a27e url("./assets/bg--mob-main-1.jpg") center top / 100dvw 100lvh no-repeat;
   }
 }
 
