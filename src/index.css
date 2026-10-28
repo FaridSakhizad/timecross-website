@@ -79,6 +79,9 @@ html[data-color-mode="night"] {
   html {
     height: 100dvh;
     width: 100dvw;
+    background: url("./assets/bg--mob-main-1.jpg") center center no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
   }
 }
 

@@ -58,6 +58,7 @@ const { default: Desktop } = await import('../src/components/TimelineGrid/deskto
 const { default: Mobile } = await import('../src/components/TimelineGrid/mobile/MobileGrid.tsx');
 const { default: TimelineGridSession } = await import('../src/components/TimelineGrid/shared/TimelineGridSession.tsx');
 const { default: Planner } = await import('../src/components/Planner/Planner.tsx');
+const { useMobileWidgetLayout } = await import('../src/useMobileWidgetLayout.ts');
 const { buildGridEventUrl } = await import('../src/components/TimelineGrid/shared/eventUrlState.ts');
 
 const props = { colorMode: 'day', timeFormat: '24h',
@@ -76,6 +77,27 @@ function render(Component, presentation, url = '/en/grid', extraProps = {}) {
 test('application boundary can force either view without a browser or device detection', () => {
   assert.ok(render(Planner, 'zen', '/en/grid', { layout: 'mobile' }).includes('timelineGrid-userHours_mobile'));
   assert.ok(render(Planner, 'zen', '/en/grid', { layout: 'desktop' }).includes('timelineGrid-userHours_desktop'));
+});
+
+test('widget layout is correct on the first render and on each subsequent page mount', () => {
+  const originalWindow = Object.getOwnPropertyDescriptor(globalThis, 'window');
+  function LayoutProbe() {
+    return React.createElement('span', null, useMobileWidgetLayout() ? 'mobile' : 'desktop');
+  }
+  try {
+    for (const mobile of [true, true, false, false]) {
+      globalThis.window = { matchMedia(query) {
+        assert.equal(query, '(hover: none) and (pointer: coarse)');
+        return { matches: mobile };
+      } };
+      assert.equal(renderToStaticMarkup(React.createElement(LayoutProbe)), `<span>${mobile ? 'mobile' : 'desktop'}</span>`);
+    }
+    delete globalThis.window;
+    assert.equal(renderToStaticMarkup(React.createElement(LayoutProbe)), '<span>desktop</span>');
+  } finally {
+    if (originalWindow) Object.defineProperty(globalThis, 'window', originalWindow);
+    else delete globalThis.window;
+  }
 });
 
 test('mobile zen selection controls live only in the footer; embedded controls stay in the header', () => {
