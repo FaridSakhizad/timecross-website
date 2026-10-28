@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { buildGridCalendarEvent, buildOutlookCalendarUrl, getGridHourRanges, getGridSelectionBounds, intersectsSelection, resizeGridSelection } from '../src/components/TimelineGrid/desktop/gridSelection.ts';
+import { buildGridCalendarEvent, buildOutlookCalendarUrl, getGridHourRanges, getGridSelectionBounds, intersectsSelection, resizeGridSelection } from '../src/components/TimelineGrid/shared/gridSelection.ts';
 
 const hour = 3600000;
 const start = Date.parse('2026-10-23T16:00:00Z');

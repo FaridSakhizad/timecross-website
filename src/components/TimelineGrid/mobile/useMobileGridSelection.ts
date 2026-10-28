@@ -1,11 +1,12 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import type { SelectedGridHour } from '../desktop/gridSelection';
+import { useCallback, useEffect, useRef, useState, type RefObject } from 'react';
+import type { SelectedGridHour } from '../shared/gridSelection';
 import { attachMobileGridSelection } from './mobileGridSelectionController';
-import { getInitialMobileGridSelection, getMobileGridSelectionCells, getMobileGridVisibleRect } from './mobileGridSelectionGeometry';
+import { getVisibleMobileGridSelection } from './mobileGridSelectionGeometry';
 
 export function useMobileGridSelection(
   hours: SelectedGridHour[], onChange: ((hours: SelectedGridHour[]) => void) | undefined,
   blocked: boolean, contentKey: string,
+  viewportRef?: RefObject<HTMLDivElement | null>,
 ) {
   const [mode, setMode] = useState(hours.length > 0);
   const [isResizing, setIsResizing] = useState(false);
@@ -17,15 +18,12 @@ export function useMobileGridSelection(
   const toggle = useCallback(() => {
     if (blocked) return;
     if (enabled) { clear(); return; }
-    const visible = getMobileGridVisibleRect();
-    const anchor = document.querySelector('.timelineGrid-addTimezoneButton_mobile')?.getBoundingClientRect();
-    const targetX = anchor ? window.scrollX + (anchor.left + anchor.right) / 2 : (visible.left + visible.right) / 2;
-    const targetY = window.scrollY + window.innerHeight / 2;
-    const selection = getInitialMobileGridSelection(getMobileGridSelectionCells(), visible, targetX, targetY);
+    const viewport = viewportRef?.current ?? undefined;
+    const selection = getVisibleMobileGridSelection(viewport);
     if (!selection.length) return;
     onChange?.(selection);
     setMode(true);
-  }, [blocked, clear, enabled, onChange]);
+  }, [blocked, clear, enabled, onChange, viewportRef]);
 
   useEffect(() => {
     if (contentKeyRef.current !== contentKey) {
@@ -38,9 +36,9 @@ export function useMobileGridSelection(
     const controller = attachMobileGridSelection(layer, hours, (next) => onChange?.(next), (active) => {
       interactionRef.current = active;
       setIsResizing(active);
-    });
+    }, viewportRef?.current ?? undefined);
     return () => controller.destroy();
-  }, [contentKey, enabled, hours, onChange]);
+  }, [contentKey, enabled, hours, onChange, viewportRef]);
 
   useEffect(() => {
     if (!enabled) return;

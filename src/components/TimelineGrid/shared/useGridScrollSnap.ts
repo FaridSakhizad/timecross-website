@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, type RefObject } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 
 const TIMELINE_GRID_SNAP_DELAY_MS = 500;
 const TIMELINE_GRID_SNAP_EPSILON = 0.5;
@@ -156,14 +156,16 @@ function snapTimelineGridToNearestHour(scrollTarget: TimelineGridScrollTarget) {
   return nearestTarget;
 }
 
-function useTimelineGridSnap(
+export function useTimelineGridSnap(
   getScrollTarget: () => TimelineGridScrollTarget | null,
   currentUserHourIndex: number,
   disabled = false,
   shouldSuspend?: () => boolean,
   initialFocusHourIndex?: number,
+  onHourChange?: (index: number) => void,
 ) {
   const centeredTargetIndexRef = useRef(currentUserHourIndex);
+  const reportedTargetIndexRef = useRef(currentUserHourIndex);
 
   const resetToCurrentHour = useCallback(() => {
     const scrollTarget = getScrollTarget();
@@ -179,6 +181,7 @@ function useTimelineGridSnap(
     }
 
     centeredTargetIndexRef.current = getTimelineGridSnapTargetIndex(currentTarget, scrollTarget);
+    reportedTargetIndexRef.current = centeredTargetIndexRef.current;
     scrollTimelineGridToLeft(scrollTarget, getTimelineGridAnchorScrollLeft(currentTarget, scrollTarget));
   }, [currentUserHourIndex, getScrollTarget, shouldSuspend]);
 
@@ -198,6 +201,7 @@ function useTimelineGridSnap(
     }
 
     centeredTargetIndexRef.current = getTimelineGridSnapTargetIndex(currentTarget, scrollTarget);
+    reportedTargetIndexRef.current = centeredTargetIndexRef.current;
     setTimelineGridScrollLeft(scrollTarget, getTimelineGridAnchorScrollLeft(currentTarget, scrollTarget));
   }, [currentUserHourIndex, getScrollTarget, shouldSuspend, initialFocusHourIndex]);
 
@@ -235,6 +239,10 @@ function useTimelineGridSnap(
 
         if (snapTarget) {
           centeredTargetIndexRef.current = getTimelineGridSnapTargetIndex(snapTarget, scrollTarget);
+          if (reportedTargetIndexRef.current !== centeredTargetIndexRef.current) {
+            reportedTargetIndexRef.current = centeredTargetIndexRef.current;
+            onHourChange?.(centeredTargetIndexRef.current);
+          }
         }
       }, TIMELINE_GRID_SNAP_DELAY_MS);
     };
@@ -307,33 +315,7 @@ function useTimelineGridSnap(
       eventTarget.removeEventListener('scrollend', handleScrollEnd);
       window.removeEventListener('resize', recenterAfterResize);
     };
-  }, [disabled, getScrollTarget, shouldSuspend]);
+  }, [disabled, getScrollTarget, shouldSuspend, onHourChange]);
 
   return resetToCurrentHour;
-}
-
-export function useTimelineGridPageSnap(currentUserHourIndex: number, disabled = false, initialFocusHourIndex?: number,
-  shouldSuspend?: () => boolean) {
-  const getScrollTarget = useCallback(() => ({ type: 'page' }) as const, []);
-
-  return useTimelineGridSnap(getScrollTarget, currentUserHourIndex, disabled, shouldSuspend, initialFocusHourIndex);
-}
-
-export function useTimelineGridElementSnap(
-  timelineGridRef: RefObject<HTMLDivElement | null>,
-  currentUserHourIndex: number,
-  disabled = false,
-  shouldSuspend?: () => boolean,
-  initialFocusHourIndex?: number,
-) {
-  const getScrollTarget = useCallback(
-    () => (
-      timelineGridRef.current
-        ? { type: 'element', element: timelineGridRef.current }
-        : null
-    ),
-    [timelineGridRef],
-  ) satisfies () => TimelineGridScrollTarget | null;
-
-  return useTimelineGridSnap(getScrollTarget, currentUserHourIndex, disabled, shouldSuspend, initialFocusHourIndex);
 }

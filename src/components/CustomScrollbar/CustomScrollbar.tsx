@@ -11,8 +11,6 @@ import {
 
 const MIN_SCROLLBAR_THUMB_HEIGHT = 28;
 const MIN_SCROLLBAR_THUMB_WIDTH = 28;
-const SCROLLBAR_VERTICAL_PADDING = 8;
-const SCROLLBAR_HORIZONTAL_PADDING = 8;
 
 type ScrollbarAxis = 'vertical' | 'horizontal';
 
@@ -53,6 +51,10 @@ type CustomScrollbarProps = {
     content: HTMLDivElement,
   ) => CustomScrollbarMetrics | undefined;
   mode?: ScrollbarMode;
+  verticalTrackTop?: number;
+  verticalTrackBottom?: number;
+  horizontalTrackLeft?: number;
+  horizontalTrackRight?: number;
   onThumbDragEnd?: (axis: ScrollbarAxis) => void;
   onThumbDragStart?: (axis: ScrollbarAxis) => void;
 };
@@ -77,6 +79,10 @@ export default function CustomScrollbar({
   contentRef,
   getScrollbarMetrics,
   mode = 'vertical',
+  verticalTrackTop = 4,
+  verticalTrackBottom = 4,
+  horizontalTrackLeft = 4,
+  horizontalTrackRight = 4,
   onThumbDragEnd,
   onThumbDragStart,
 }: CustomScrollbarProps) {
@@ -86,6 +92,8 @@ export default function CustomScrollbar({
   const [isDraggingScrollbar, setIsDraggingScrollbar] = useState(false);
   const showVerticalScrollbar = mode === 'vertical' || mode === 'both';
   const showHorizontalScrollbar = mode === 'horizontal' || mode === 'both';
+  const verticalPadding = Math.max(0, verticalTrackTop) + Math.max(0, verticalTrackBottom);
+  const horizontalPadding = Math.max(0, horizontalTrackLeft) + Math.max(0, horizontalTrackRight);
 
   const setContentRef = useCallback((element: HTMLDivElement | null) => {
     contentElementRef.current = element;
@@ -185,8 +193,8 @@ export default function CustomScrollbar({
     const horizontalVisible = showHorizontalScrollbar && scrollWidth > clientWidth;
     const verticalMetrics = getScrollbarMetrics?.('vertical', content);
     const horizontalMetrics = getScrollbarMetrics?.('horizontal', content);
-    const verticalTrackLength = Math.max(clientHeight - SCROLLBAR_VERTICAL_PADDING, 0);
-    const horizontalTrackLength = Math.max(clientWidth - SCROLLBAR_HORIZONTAL_PADDING, 0);
+    const verticalTrackLength = Math.max(clientHeight - verticalPadding, 0);
+    const horizontalTrackLength = Math.max(clientWidth - horizontalPadding, 0);
     const verticalThumbLength = verticalVisible
       ? Math.min(
         verticalTrackLength,
@@ -243,6 +251,8 @@ export default function CustomScrollbar({
     getThumbOffset,
     showHorizontalScrollbar,
     showVerticalScrollbar,
+    verticalPadding,
+    horizontalPadding,
   ]);
 
   const scrollContentByThumbDelta = useCallback((pointerPosition: number) => {
@@ -257,7 +267,7 @@ export default function CustomScrollbar({
     const { clientHeight, clientWidth, scrollHeight, scrollWidth } = content;
     const metrics = getScrollbarMetrics?.(drag.axis, content);
     const trackLength = Math.max(
-      isVertical ? clientHeight - SCROLLBAR_VERTICAL_PADDING : clientWidth - SCROLLBAR_HORIZONTAL_PADDING,
+      isVertical ? clientHeight - verticalPadding : clientWidth - horizontalPadding,
       0,
     );
     const thumbLength = scrollbars[drag.axis].thumbLength;
@@ -283,9 +293,9 @@ export default function CustomScrollbar({
     } else {
       content.scrollLeft = scrollOffset;
     }
-  }, [getScrollOffset, getScrollbarMetrics, scrollbars]);
+  }, [getScrollOffset, getScrollbarMetrics, scrollbars, verticalPadding, horizontalPadding]);
 
-  const handleScrollbarThumbPointerDown = (axis: ScrollbarAxis) => (event: PointerEvent<HTMLSpanElement>) => {
+  const handleScrollbarThumbPointerDown = (axis: ScrollbarAxis, event: PointerEvent<HTMLSpanElement>) => {
     const content = contentElementRef.current;
 
     if (!content) {
@@ -332,7 +342,7 @@ export default function CustomScrollbar({
     }
   };
 
-  const handleScrollbarWheel = (axis: ScrollbarAxis) => (event: WheelEvent<HTMLDivElement>) => {
+  const handleScrollbarWheel = (axis: ScrollbarAxis, event: WheelEvent<HTMLDivElement>) => {
     const content = contentElementRef.current;
 
     if (!content) {
@@ -411,8 +421,9 @@ export default function CustomScrollbar({
       {scrollbars.vertical.visible && (
         <div
           className="customScrollbar-track customScrollbar-track_vertical"
+          style={{ top: Math.max(0, verticalTrackTop), bottom: Math.max(0, verticalTrackBottom) }}
           aria-hidden="true"
-          onWheel={handleScrollbarWheel('vertical')}
+          onWheel={(event) => handleScrollbarWheel('vertical', event)}
         >
           <span
             className={`customScrollbar-thumb customScrollbar-thumb_vertical ${
@@ -422,7 +433,7 @@ export default function CustomScrollbar({
               height: `${scrollbars.vertical.thumbLength}px`,
               transform: `translate3d(0, ${scrollbars.vertical.thumbOffset}px, 0)`,
             }}
-            onPointerDown={handleScrollbarThumbPointerDown('vertical')}
+            onPointerDown={(event) => handleScrollbarThumbPointerDown('vertical', event)}
             onPointerMove={handleScrollbarThumbPointerMove}
             onPointerUp={handleScrollbarThumbPointerUp}
             onPointerCancel={handleScrollbarThumbPointerUp}
@@ -432,8 +443,9 @@ export default function CustomScrollbar({
       {scrollbars.horizontal.visible && (
         <div
           className="customScrollbar-track customScrollbar-track_horizontal"
+          style={{ left: Math.max(0, horizontalTrackLeft), right: Math.max(0, horizontalTrackRight) }}
           aria-hidden="true"
-          onWheel={handleScrollbarWheel('horizontal')}
+          onWheel={(event) => handleScrollbarWheel('horizontal', event)}
         >
           <span
             className={`customScrollbar-thumb customScrollbar-thumb_horizontal ${
@@ -443,7 +455,7 @@ export default function CustomScrollbar({
               width: `${scrollbars.horizontal.thumbLength}px`,
               transform: `translate3d(${scrollbars.horizontal.thumbOffset}px, 0, 0)`,
             }}
-            onPointerDown={handleScrollbarThumbPointerDown('horizontal')}
+            onPointerDown={(event) => handleScrollbarThumbPointerDown('horizontal', event)}
             onPointerMove={handleScrollbarThumbPointerMove}
             onPointerUp={handleScrollbarThumbPointerUp}
             onPointerCancel={handleScrollbarThumbPointerUp}

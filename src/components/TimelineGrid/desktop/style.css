@@ -1,4 +1,86 @@
-.timelineGrid-scroll .timelineGrid-scrollViewport {
+.timelinesZen {
+  --page-spacing: 20px;
+  margin: var(--page-spacing) auto;
+  width: calc(100% - calc(var(--page-spacing) * 2));
+  height: calc(100dvh - calc(var(--page-spacing) * 2));
+  min-height: calc(100dvh - calc(var(--page-spacing) * 2));
+  color: #fff;
+  position: relative;
+  user-select: none;
+}
+
+.timelineGrid {
+  overflow: hidden;
+  display: flex;
+  position: relative;
+}
+
+.timelineGrid-scroll {
+  width: 100%;
+  flex: 1 1 auto;
+  z-index: 10;
+}
+
+.timelineGridMiddleMarker {
+  display: block;
+  width: var(--timeline-grid-hour-width);
+  position: absolute;
+  z-index: 1;
+  top: 5px;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  margin: auto;
+  background: rgba(var(--accent-color-1), 0.2);
+  border-top-right-radius: 16px;
+  border-top-left-radius: 16px;
+  pointer-events: none;
+}
+
+.timelineGridMiddleHoursMarker {
+  display: block;
+  width: var(--timeline-grid-hour-width);
+  position: absolute;
+  z-index: 100;
+  top: 7px;
+  right: 0;
+  left: 0;
+  height: 38px;
+  margin: 0 auto;
+  background: rgba(var(--accent-color-1), 0.2);
+  border-top-right-radius: 16px;
+  border-top-left-radius: 16px;
+  pointer-events: none;
+  backdrop-filter: contrast(1.5);
+}
+
+.timelineGrid-scrollViewport {
+  height: 100%;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scroll-padding-inline: calc(50% - var(--timeline-grid-cell-size) / 2);
+  scroll-snap-type: x mandatory;
+}
+
+.timelineGrid_dragging .timelineGrid-scrollViewport {
+  overflow-x: hidden;
+  overscroll-behavior-x: none;
+  scroll-snap-type: none;
+}
+
+.timelineGrid_dragging .timelineGrid-cell {
+  visibility: hidden;
+}
+
+:where(.timelineGridDesktop) .timelineGrid .timelineGrid-city_desktop {
+  width: min(calc(100vw - 40px), 1870px);
+}
+
+:where(.timelineGridDesktop) .timelineGrid .timelineGrid-row_reorder .timelineGrid-city_desktop {
+  padding-block: 12px 7px;
+}
+
+:where(.timelineGridDesktop) .timelineGrid-scroll .timelineGrid-scrollViewport {
   scroll-snap-type: none;
 }
 
@@ -6,16 +88,7 @@
   cursor: grab;
 }
 
-.timelineGridPanButton {
-  color: rgba(var(--accent-color-2), 1);
-}
-
-.timelineGridPanButton:disabled {
-  opacity: 0.4;
-  cursor: default;
-}
-
-.timelineGridSelectionRectangle {
+.timelineGridSelectionRectangle_desktop {
   position: fixed;
   z-index: 1000;
   pointer-events: none;
@@ -26,14 +99,14 @@
   backdrop-filter: contrast(1.5);
 }
 
-.timelineGridSelectionLayer {
+.timelineGridSelectionLayer_desktop {
   position: fixed;
   z-index: 999;
   overflow: hidden;
   pointer-events: none;
 }
 
-.timelineGridSelectionFrame {
+:where(.timelineGridSelectionLayer_desktop) .timelineGridSelectionFrame {
   position: absolute;
   border: 1px solid #fff;
   box-sizing: border-box;
@@ -43,7 +116,7 @@
   backdrop-filter: contrast(1.5);
 }
 
-.timelineGridSelectionHandle {
+:where(.timelineGridSelectionLayer_desktop) .timelineGridSelectionHandle {
   display: flex;
   position: absolute;
   width: 12px;
@@ -51,17 +124,16 @@
   padding: 0;
   border: none;
   background: transparent;
-  /*box-shadow: 0 0 0 1px rgb(0 0 0 / 0.5);*/
   pointer-events: auto;
   touch-action: none;
 }
 
-.timelineGridSelectionHandle:focus-visible {
+:where(.timelineGridSelectionLayer_desktop) .timelineGridSelectionHandle:focus-visible {
   outline: 2px solid #111;
   outline-offset: 3px;
 }
 
-.timelineGridSelectionHandle_n {
+:where(.timelineGridSelectionLayer_desktop) .timelineGridSelectionHandle_n {
   height: 13px;
   top: -7px;
   width: 48px;
@@ -80,7 +152,7 @@
   }
 }
 
-.timelineGridSelectionHandle_s {
+:where(.timelineGridSelectionLayer_desktop) .timelineGridSelectionHandle_s {
   height: 13px;
   bottom: -7px;
   width: 48px;
@@ -99,7 +171,7 @@
   }
 }
 
-.timelineGridSelectionHandle_e {
+:where(.timelineGridSelectionLayer_desktop) .timelineGridSelectionHandle_e {
   width: 13px;
   right: -7px;
   top: calc(50% - 8px);
@@ -117,7 +189,7 @@
   }
 }
 
-.timelineGridSelectionHandle_w {
+:where(.timelineGridSelectionLayer_desktop) .timelineGridSelectionHandle_w {
   width: 13px;
   left: -7px;
   top: calc(50% - 8px);
@@ -135,28 +207,28 @@
   }
 }
 
-.timelineGridSelectionHandle_ne {
+:where(.timelineGridSelectionLayer_desktop) .timelineGridSelectionHandle_ne {
   top: -1px;
   right: -1px;
   cursor: nesw-resize;
   opacity: 0;
 }
 
-.timelineGridSelectionHandle_se {
+:where(.timelineGridSelectionLayer_desktop) .timelineGridSelectionHandle_se {
   bottom: -1px;
   right: -1px;
   cursor: nwse-resize;
   opacity: 0;
 }
 
-.timelineGridSelectionHandle_sw {
+:where(.timelineGridSelectionLayer_desktop) .timelineGridSelectionHandle_sw {
   bottom: -1px;
   left: -1px;
   cursor: nesw-resize;
   opacity: 0;
 }
 
-.timelineGridSelectionHandle_nw {
+:where(.timelineGridSelectionLayer_desktop) .timelineGridSelectionHandle_nw {
   top: -1px;
   left: -1px;
   cursor: nwse-resize;
@@ -164,51 +236,63 @@
 }
 
 .timelineGrid-cell.isSelected {
-  /*outline: 1px solid rgba(255 255 255 / 0.75);*/
-  /*outline-offset: -1px;*/
-}
-
-.timelineGrid-toolbar .timelineGridCalendarButton {
-  flex: 0 1 auto;
-  min-width: 0;
-  text-decoration: none;
-  color: inherit;
-}
-
-.timelineGridCalendarButton > svg {
-  color: #fff;
-  flex-shrink: 0;
-}
-
-.timelineGridCalendarButton > svg,
-.timelineGridCalendarButton > span {
-  position: relative;
+  /* Placeholder */
 }
 
 .timelineGrid:not(.timelineGrid_panEnabled):not(.timelineGrid_editMode) .timelineGrid-cell {
   cursor: crosshair;
 }
 
-.timelineGridCalendarButton > span {
-  font-size: 13px;
-  white-space: normal;
+.timelinesEmbedded {
+  padding-inline: 110px;
+  position: relative;
+
+  .timelinesNav_prev {
+    left: 30px;
+  }
+
+  .timelinesNav_next {
+    right: 30px;
+  }
+
+  .timelineGrid {
+    max-height: 600px;
+  }
 }
 
-.timelineGrid-toolbar .timelineGridClearSelectionButton[hidden] {
-  display: none;
+@media (width <= 1440px) and (width >= 1024px) {
+  .timelinesEmbedded {
+    padding-inline: 80px;
+  }
+
+  .timelinesEmbedded {
+    .timelinesNav_prev {
+      left: 15px;
+    }
+
+    .timelinesNav_next {
+      right: 15px;
+    }
+  }
 }
 
-.timelineGridCalendarError {
-  font-size: 12px;
-  max-width: 240px;
+@media (width < 1024px) {
+  .timelinesEmbedded {
+    padding-inline: 15px;
+
+    .timelinesNav {
+      display: none;
+    }
+  }
 }
 
-.timelineGrid-toolbar_mobile .timelineGridCalendarError {
-  position: absolute;
-  top: calc(100% + 8px);
-  left: 8px;
-  max-width: calc(100dvw - 16px);
-  padding: 6px 10px;
-  border-radius: 4px;
-  background: #303033;
+@media (width < 700px) {
+  .timelineGrid {
+    border-radius: 0;
+    border: none;
+  }
+
+  .timelinesZen {
+    --page-spacing: 10px;
+  }
 }

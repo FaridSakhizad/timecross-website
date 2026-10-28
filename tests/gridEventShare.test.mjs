@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { buildGridEventUrl, readGridEventUrlState, getSharedGridTimelineDates } from '../src/components/TimelineGrid/eventUrlState.ts';
-import { shareEventLink } from '../src/components/TimelineGrid/shareEventLink.ts';
-import { buildGridCalendarEvent, GRID_HOUR_MS } from '../src/components/TimelineGrid/desktop/gridSelection.ts';
+import { buildGridEventUrl, readGridEventUrlState, getSharedGridTimelineDates } from '../src/components/TimelineGrid/shared/eventUrlState.ts';
+import { shareEventLink } from '../src/components/TimelineGrid/shared/shareEventLink.ts';
+import { buildGridCalendarEvent, GRID_HOUR_MS } from '../src/components/TimelineGrid/shared/gridSelection.ts';
 import { TIMELINE_RENDERED_HOURS, TIMELINE_TOTAL_HOURS, TIMELINE_EDGE_FADE_HOURS } from '../src/components/Timelines/constants.ts';
 
 const start = Date.parse('2026-11-01T05:00:00Z');

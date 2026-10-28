@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type RefObject } from 'react';
 import { attachGridSelection } from './gridSelectionController';
-import type { SelectedGridHour } from './gridSelection';
+import type { SelectedGridHour } from '../shared/gridSelection';
 
 export function useGridSelection(viewportRef: RefObject<HTMLDivElement | null>, enabled: boolean, contentKey: string,
   blocked = false, initialSelection: SelectedGridHour[] = [], onChange?: (hours: SelectedGridHour[]) => void) {
@@ -21,6 +21,7 @@ export function useGridSelection(viewportRef: RefObject<HTMLDivElement | null>, 
     if (controllerRef.current) controllerRef.current.clear();
     else commit([]);
   }, [commit]);
+  const createSelection = useCallback(() => controllerRef.current?.create() ?? false, []);
 
   useEffect(() => {
     if (contentKeyRef.current !== contentKey) {
@@ -38,5 +39,5 @@ export function useGridSelection(viewportRef: RefObject<HTMLDivElement | null>, 
     return () => { controller.destroy(); controllerRef.current = null; };
   }, [blocked, commit, contentKey, enabled, viewportRef]);
 
-  return { selectedHours, isSelecting, interactionRef, overlayRef, frameLayerRef, clearSelection };
+  return { selectedHours, isSelecting, interactionRef, overlayRef, frameLayerRef, clearSelection, createSelection };
 }

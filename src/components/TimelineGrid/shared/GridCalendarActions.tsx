@@ -1,20 +1,24 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { CalendarDays, CalendarPlus, Check, Download, Share2 } from 'lucide-react';
-import { useI18n } from '../../i18n';
-import { getCanonicalLanguagePath } from '../../i18n/languageRouting';
-import type { FavoriteCity } from '../Cities/fixtures';
-import type { GridCalendarEvent } from './desktop/gridSelection';
-import { buildOutlookCalendarUrl, type SelectedGridHour } from './desktop/gridSelection';
-import { createCalendarEventFile, downloadCalendarFile } from './desktop/calendarEventFile';
+import { useI18n } from '../../../i18n';
+import { getCanonicalLanguagePath } from '../../../i18n/languageRouting';
+import type { FavoriteCity } from '../../Cities/fixtures';
+import type { GridCalendarEvent } from './gridSelection';
+import { buildOutlookCalendarUrl, type SelectedGridHour } from './gridSelection';
+import { createCalendarEventFile, downloadCalendarFile } from './calendarEventFile';
 import { buildGridEventUrl } from './eventUrlState';
 import { shareEventLink } from './shareEventLink';
 
 export default function GridCalendarActions({ event, cities, hours }: {
-  event: GridCalendarEvent; cities: FavoriteCity[]; hours: SelectedGridHour[];
+  event: GridCalendarEvent | null; cities: FavoriteCity[]; hours: SelectedGridHour[];
 }) {
   const { t, language } = useI18n();
-  const { start, end, title, details } = event;
+  const start = event?.start;
+  const end = event?.end;
+  const title = event?.title;
+  const details = event?.details;
   const file = useMemo(() => {
+    if (start === undefined || end === undefined || title === undefined || details === undefined) return null;
     try {
       return createCalendarEventFile({ start, end, title, details });
     } catch {
@@ -25,10 +29,10 @@ export default function GridCalendarActions({ event, cities, hours }: {
   const [sharing, setSharing] = useState(false);
   const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
   const sharingRef = useRef(false);
-  const eventUrl = useMemo(() => typeof window === 'undefined' ? null : buildGridEventUrl(
+  const eventUrl = useMemo(() => !event || typeof window === 'undefined' ? null : buildGridEventUrl(
     `${window.location.origin}${getCanonicalLanguagePath(language, '/grid')}`, cities, hours,
-  ), [language, cities, hours]);
-  const visibleFailure = failure && failure.file === file ? failure.kind : null;
+  ), [event, language, cities, hours]);
+  const visibleFailure = event && failure && failure.file === file ? failure.kind : null;
 
   useEffect(() => {
     if (!copiedUrl) return;
@@ -54,17 +58,23 @@ export default function GridCalendarActions({ event, cities, hours }: {
 
   return (
     <>
-      <a className="citiesHeaderButton timelineGridCalendarButton" href={event.url}
+      {event ? <a className="widgetHeaderButton timelineGridCalendarButton" href={event.url}
         target="_blank" rel="noopener noreferrer"
         aria-label={t('common.createCalendarEvent')} title={t('common.createCalendarEvent')}>
         <CalendarPlus size={18} aria-hidden="true" />
-      </a>
-      <a className="citiesHeaderButton timelineGridCalendarButton" href={buildOutlookCalendarUrl(event)}
+      </a> : <button className="widgetHeaderButton timelineGridCalendarButton" type="button" disabled
+        aria-label={t('common.createCalendarEvent')} title={t('common.createCalendarEvent')}>
+        <CalendarPlus size={18} aria-hidden="true" />
+      </button>}
+      {event ? <a className="widgetHeaderButton timelineGridCalendarButton" href={buildOutlookCalendarUrl(event)}
         target="_blank" rel="noopener noreferrer"
         aria-label={t('common.createOutlookEvent')} title={t('common.createOutlookEvent')}>
         <CalendarDays size={18} aria-hidden="true" />
-      </a>
-      <button className="citiesHeaderButton timelineGridCalendarButton" type="button"
+      </a> : <button className="widgetHeaderButton timelineGridCalendarButton" type="button" disabled
+        aria-label={t('common.createOutlookEvent')} title={t('common.createOutlookEvent')}>
+        <CalendarDays size={18} aria-hidden="true" />
+      </button>}
+      <button className="widgetHeaderButton timelineGridCalendarButton" type="button" disabled={!file}
         aria-label={t('common.downloadCalendarEvent')} title={t('common.downloadCalendarEvent')}
         onClick={() => {
           setFailure(null);
@@ -77,16 +87,14 @@ export default function GridCalendarActions({ event, cities, hours }: {
         }}>
         <Download size={18} aria-hidden="true" />
       </button>
-      {eventUrl && (
-        <button
-          className="citiesHeaderButton timelineGridCalendarButton" type="button" disabled={sharing}
-          aria-label={t('common.shareEvent')}
-          title={t(copiedUrl === eventUrl ? 'common.eventLinkCopied' : 'common.shareEvent')}
-          onClick={share}
-        >
-          {copiedUrl === eventUrl ? <Check size={18} aria-hidden="true" /> : <Share2 size={18} aria-hidden="true" />}
-        </button>
-      )}
+      <button
+        className="widgetHeaderButton timelineGridCalendarButton" type="button" disabled={!eventUrl || sharing}
+        aria-label={t('common.shareEvent')}
+        title={t(eventUrl && copiedUrl === eventUrl ? 'common.eventLinkCopied' : 'common.shareEvent')}
+        onClick={share}
+      >
+        {eventUrl && copiedUrl === eventUrl ? <Check size={18} aria-hidden="true" /> : <Share2 size={18} aria-hidden="true" />}
+      </button>
       {copiedUrl === eventUrl && eventUrl && <span className="timelineGridCalendarNotice" role="status">
         {t('common.eventLinkCopied')}
       </span>}

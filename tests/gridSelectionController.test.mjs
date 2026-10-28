@@ -93,6 +93,22 @@ test('marquee paints partial intersections and commits only on release', () => {
   assert.equal(emit(viewport, 'click').defaultPrevented, true);
 });
 
+test('button creates a range while marquee is disabled and clear removes it', () => {
+  controller.destroy();
+  window.innerWidth = 400; window.innerHeight = 300;
+  viewport.querySelector = () => ({ getBoundingClientRect: () => ({ bottom: 46 }) });
+  controller = attachGridSelection(viewport, overlay, [], (hours) => { committed = hours; },
+    (value) => { active = value; }, { marqueeEnabled: false });
+  assert.equal(controller.create(), true);
+  assert.equal(committed.length, 6);
+  assert.equal(cells.filter((cell) => cell.selected).length, 6);
+  controller.clear();
+  assert.equal(committed.length, 0);
+  assert.equal(cells.filter((cell) => cell.selected).length, 0);
+  assert.equal(controller.create(), true);
+  assert.equal(committed.length, 6);
+});
+
 test('clicks inside a range preserve it and clicks on blank space outside clear it', () => {
   emit(viewport, 'pointerdown', { clientX: 245, clientY: 220 });
   emit(window, 'pointermove', { clientX: 95, clientY: 65 });
@@ -210,6 +226,18 @@ test('persistent frame follows scrolling without changing its content bounds', (
   viewport.scrollTop += 20;
   emit(viewport, 'scroll'); flushFrame();
   assert.equal(box.style.top, `${40 - GRID_SELECTION_FRAME_TOP_PADDING}px`);
+});
+
+test('embedded desktop frame follows page scrolling and removes its page listener on destroy', () => {
+  const { layer, box } = attachWithFrame();
+  viewport.getBoundingClientRect = () => ({ left: 0, top: 100, right: 400, bottom: 400 });
+  emit(window, 'scroll'); flushFrame();
+  assert.equal(layer.style.top, '100px');
+  assert.equal(box.style.top, `${60 - GRID_SELECTION_FRAME_TOP_PADDING}px`);
+  assert.equal(committed.length, 1);
+  controller.destroy();
+  emit(window, 'scroll');
+  assert.equal(frames.size, 0);
 });
 
 test('clicks and sub-threshold mouse jitter keep the existing frame visible and unchanged', () => {

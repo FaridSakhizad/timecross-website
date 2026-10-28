@@ -1,7 +1,7 @@
-import type { FavoriteCity } from '../Cities/fixtures';
-import { GRID_HOUR_MS, getGridHourRanges, type SelectedGridHour } from './desktop/gridSelection.ts';
-import { getAbstractTimezoneOffsetMinutes } from '../../utils/abstractTimezone.ts';
-import { TIMELINE_EXTRA_DAY_HOURS, TIMELINE_RENDERED_HOURS } from '../Timelines/constants.ts';
+import type { FavoriteCity } from '../../Cities/fixtures';
+import { GRID_HOUR_MS, getGridHourRanges, type SelectedGridHour } from './gridSelection.ts';
+import { getAbstractTimezoneOffsetMinutes } from '../../../utils/abstractTimezone.ts';
+import { TIMELINE_EXTRA_DAY_HOURS, TIMELINE_RENDERED_HOURS } from '../../Timelines/constants.ts';
 
 const MAX_CITIES = 100;
 const MAX_HASH_LENGTH = 100000;

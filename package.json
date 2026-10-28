@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "test:grid-pan": "node --experimental-strip-types --test tests/gridPanController.test.mjs",
-    "test:grid-selection": "node --experimental-strip-types --test tests/gridSelection.test.mjs tests/gridSelectionController.test.mjs tests/mobileGridSelection.test.mjs tests/calendarEventFile.test.mjs tests/gridEventShare.test.mjs",
+    "test:grid-selection": "node --experimental-strip-types --test tests/gridSelection.test.mjs tests/gridSelectionController.test.mjs tests/mobileGridSelection.test.mjs tests/calendarEventFile.test.mjs tests/gridEventShare.test.mjs tests/plannerArchitecture.test.mjs tests/plannerRendering.test.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

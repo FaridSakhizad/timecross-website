@@ -121,7 +121,7 @@
 .citiesHeaderButton-icon_open {
   width: 14px;
   height: 14px;
-  mask: url('../../assets/icon--open-widget-1.svg');
+  mask: url('../../assets/icon--fullscreen-1.svg');
   background-color: rgba(var(--accent-color-2), 1);
 }
 

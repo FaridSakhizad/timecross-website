@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { afterEach, beforeEach, test } from 'node:test';
-import { getInitialMobileGridSelection } from '../src/components/TimelineGrid/mobile/mobileGridSelectionGeometry.ts';
+import { getInitialMobileGridSelection, getVisibleMobileGridSelection } from '../src/components/TimelineGrid/mobile/mobileGridSelectionGeometry.ts';
 import { attachMobileGridSelection } from '../src/components/TimelineGrid/mobile/mobileGridSelectionController.ts';
 
 const hour = 3600000;
@@ -126,6 +126,33 @@ test('frame initially includes city titles and full hour cells, not only the hou
   assert.equal(elements.filter((element) => element.selected).length, 9);
 });
 
+test('zen seed stays over visible hours even when the add-city button is far outside the screen', () => {
+  document.querySelector = (selector) => ({ getBoundingClientRect: () => selector === '.timelineGrid-userHours_mobile'
+    ? { bottom: 106 } : { left: 3000, right: 3200 } });
+  window.scrollX = 300;
+  const selected = getVisibleMobileGridSelection();
+  assert.deepEqual([...new Set(selected.map((cell) => cell.start))], [4 * hour, 5 * hour, 6 * hour]);
+  assert.deepEqual([...new Set(selected.map((cell) => cell.rowId))], ['r1', 'r2', 'r3']);
+  controller.destroy();
+  controller = attachMobileGridSelection(layer, selected, () => {}, () => {});
+  assert.equal(layer.style.left, '0px');
+  assert.equal(frame.style.left, '90px');
+  assert.equal(frame.style.width, '224px');
+});
+
+test('zen seed follows both axes of page scrolling when selection is enabled again', () => {
+  window.scrollX = 300;
+  window.scrollY = 200;
+  const selected = getVisibleMobileGridSelection();
+  assert.deepEqual([...new Set(selected.map((cell) => cell.start))], [4 * hour, 5 * hour, 6 * hour]);
+  assert.deepEqual([...new Set(selected.map((cell) => cell.rowId))], ['r3', 'r4', 'r5']);
+  window.scrollX = 100;
+  window.scrollY = 0;
+  const reset = getVisibleMobileGridSelection();
+  assert.deepEqual([...new Set(reset.map((cell) => cell.start))], [hour, 2 * hour, 3 * hour]);
+  assert.deepEqual([...new Set(reset.map((cell) => cell.rowId))], ['r1', 'r2', 'r3']);
+});
+
 test('all eight touch handles resize in complete hours/cities while fixing opposite edges', () => {
   for (const direction of Object.keys(handles)) {
     controller.destroy(); committed = initial;
@@ -234,4 +261,72 @@ test('Escape during resizing restores the range instead of passing through to mo
   assert.equal(event.defaultPrevented, true);
   assert.equal(active, false);
   assert.equal(committed, initial);
+});
+
+function embeddedViewport() {
+  controller.destroy();
+  const viewport = Object.assign(new FakeElement(), {
+    scrollLeft: 148, scrollTop: 111,
+    getBoundingClientRect: () => ({ left: 20, right: 370, top: 140, bottom: 720 }),
+    querySelector: () => ({ getBoundingClientRect: () => ({ bottom: 186 }) }),
+    scrollTo({ left, top }) { this.scrollLeft = left; this.scrollTop = top; },
+    scrollBy({ left, top }) { this.scrollLeft = Math.max(0, this.scrollLeft + left); this.scrollTop = Math.max(0, this.scrollTop + top); },
+  });
+  for (const element of elements) {
+    const originalRect = element.getBoundingClientRect;
+    element.getBoundingClientRect = () => {
+      const rect = originalRect();
+      return { left: rect.left - viewport.scrollLeft, right: rect.right - viewport.scrollLeft,
+        top: rect.top - viewport.scrollTop, bottom: rect.bottom - viewport.scrollTop };
+    };
+  }
+  const rows = Array.from({ length: 7 }, (_, index) => ({
+    getBoundingClientRect: () => ({ top: 120 + index * 111 - window.scrollY - viewport.scrollTop,
+      bottom: 231 + index * 111 - window.scrollY - viewport.scrollTop }),
+    querySelectorAll: () => elements.slice(index * 8, (index + 1) * 8),
+  }));
+  viewport.querySelectorAll = (selector) => selector === '.timelineGrid-row_mobile' ? rows : elements;
+  controller = attachMobileGridSelection(layer, initial, (value) => { committed = value; },
+    (value) => { active = value; }, viewport);
+  return viewport;
+}
+
+test('embedded selection clips its layer to the widget and follows independent widget/page scrolling', () => {
+  const viewport = embeddedViewport();
+  assert.equal(layer.style.left, '20px');
+  assert.equal(layer.style.top, '186px');
+  assert.equal(layer.style.width, '350px');
+  assert.equal(layer.style.height, '534px');
+  const left = parseFloat(frame.style.left);
+  viewport.scrollLeft += 74;
+  emit(viewport, 'scroll'); flush();
+  assert.equal(parseFloat(frame.style.left), left - 74);
+  assert.equal(committed, initial);
+  assert.equal(window.scrollX, 100);
+  viewport.scrollTop += 111;
+  const top = parseFloat(frame.style.top);
+  emit(viewport, 'scroll'); flush();
+  assert.equal(parseFloat(frame.style.top), top - 111);
+  window.scrollY += 50;
+  emit(window, 'scroll'); flush();
+  assert.equal(committed, initial);
+});
+
+test('embedded touch resize uses widget scroll offsets and autoscroll never scrolls the page', () => {
+  const viewport = embeddedViewport();
+  emit(layer, 'pointerdown', { target: handles.e, clientX: 200, clientY: 400 });
+  emit(window, 'pointerup', { clientX: 274, clientY: 400 });
+  assert.equal(committed.length, 12);
+  emit(layer, 'pointerdown', { target: handles.e, clientX: 274, clientY: 400 });
+  emit(window, 'pointermove', { clientX: 369, clientY: 400 }); flush();
+  assert.ok(viewport.scrollLeft > 148);
+  assert.equal(window.scrollX, 100);
+  assert.equal(window.scrollY, 0);
+  emit(window, 'pointerup', { clientX: 369, clientY: 400 });
+  const finalX = viewport.scrollLeft;
+  flush();
+  assert.equal(viewport.scrollLeft, finalX);
+  controller.destroy();
+  emit(viewport, 'scroll');
+  assert.equal(frames.size, 0);
 });

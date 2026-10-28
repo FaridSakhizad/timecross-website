@@ -575,7 +575,7 @@ export default function TimeZoneConverter({
           aria-label="Fullscreen"
           title="Fullscreen"
         >
-          <i className="citiesHeaderButton-icon citiesHeaderButton-icon_converter" />
+          <i className="citiesHeaderButton-icon citiesHeaderButton-icon_open" />
         </Link>
       )}
 

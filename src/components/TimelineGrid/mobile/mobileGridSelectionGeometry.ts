@@ -1,10 +1,18 @@
-import type { GridSelectionCellGeometry, SelectedGridHour, SelectionRect } from '../desktop/gridSelection.ts';
+import type { GridSelectionCellGeometry, SelectedGridHour, SelectionRect } from '../shared/gridSelection.ts';
 
 export const MOBILE_SELECTION_INITIAL_HOURS = 3;
 export const MOBILE_SELECTION_INITIAL_CITIES = 3;
 export const MOBILE_SELECTION_HORIZONTAL_PADDING = 6;
 export const MOBILE_SELECTION_TOP_PADDING = -5;
 export const MOBILE_SELECTION_BOTTOM_PADDING = 0;
+
+export function getVisibleMobileGridSelection(viewport?: HTMLDivElement): SelectedGridHour[] {
+  const visible = getMobileGridVisibleRect(viewport);
+  // The add-city button can lie outside the screen on the wide zen document.
+  const targetX = (visible.left + visible.right) / 2;
+  const targetY = viewport ? (visible.top + visible.bottom) / 2 : window.scrollY + window.innerHeight / 2;
+  return getInitialMobileGridSelection(getMobileGridSelectionCells(viewport, viewport), visible, targetX, targetY);
+}
 
 export function getInitialMobileGridSelection(
   cells: GridSelectionCellGeometry[], visible: SelectionRect, targetX: number, targetY: number,
@@ -37,23 +45,32 @@ export function getInitialMobileGridSelection(
   return cells.filter((cell) => rowIds.has(cell.hour.rowId) && starts.has(cell.hour.start)).map((cell) => cell.hour);
 }
 
-export function getMobileGridSelectionCells(root: ParentNode = document): GridSelectionCellGeometry[] {
+export function getMobileGridSelectionCells(root: ParentNode = document, viewport?: HTMLDivElement): GridSelectionCellGeometry[] {
+  const x = window.scrollX + (viewport?.scrollLeft ?? 0);
+  const y = window.scrollY + (viewport?.scrollTop ?? 0);
   return [...root.querySelectorAll<HTMLElement>('.timelineGrid-row_mobile')].flatMap((row) => {
     const rowRect = row.getBoundingClientRect();
     return [...row.querySelectorAll<HTMLElement>('[data-grid-selection-row][data-grid-hour-start]')].map((element) => {
       const rect = element.getBoundingClientRect();
       return {
         hour: { rowId: element.dataset.gridSelectionRow!, start: Number(element.dataset.gridHourStart) },
-        rect: { left: rect.left + window.scrollX, right: rect.right + window.scrollX,
-          top: rect.top + window.scrollY, bottom: rect.bottom + window.scrollY },
-        rowTop: rowRect.top + window.scrollY, rowBottom: rowRect.bottom + window.scrollY,
+        rect: { left: rect.left + x, right: rect.right + x,
+          top: rect.top + y, bottom: rect.bottom + y },
+        rowTop: rowRect.top + y, rowBottom: rowRect.bottom + y,
       };
     });
   });
 }
 
-export function getMobileGridVisibleRect(): SelectionRect {
-  const header = document.querySelector('.timelineGrid-userHours_mobile')?.getBoundingClientRect();
+export function getMobileGridVisibleRect(viewport?: HTMLDivElement): SelectionRect {
+  const header = (viewport ?? document).querySelector('.timelineGrid-userHours_mobile')?.getBoundingClientRect();
+  if (viewport) {
+    const rect = viewport.getBoundingClientRect();
+    const x = window.scrollX + viewport.scrollLeft;
+    const y = window.scrollY + viewport.scrollTop;
+    return { left: x + Math.max(0, rect.left), right: x + Math.min(document.documentElement.clientWidth, rect.right),
+      top: y + Math.max(0, rect.top, header?.bottom ?? 0), bottom: y + Math.min(window.innerHeight, rect.bottom) };
+  }
   const top = Math.max(0, header?.bottom ?? 0);
   return { left: window.scrollX, right: window.scrollX + document.documentElement.clientWidth,
     top: window.scrollY + top, bottom: window.scrollY + window.innerHeight };

@@ -48,7 +48,12 @@ export default function HomePage({
 
       <section className="section section_timelines">
         <ClientOnly>
-          <Timelines timeFormat={timeFormat} />
+          <Timelines
+            colorMode={colorMode}
+            timeFormat={timeFormat}
+            onColorModeButtonClick={onColorModeButtonClick}
+            onTimeFormatButtonClick={onTimeFormatButtonClick}
+          />
         </ClientOnly>
       </section>
 

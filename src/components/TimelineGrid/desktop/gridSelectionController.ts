@@ -1,7 +1,8 @@
 import {
   getGridSelectionBounds, gridHourKey, intersectsSelection, resizeGridSelection,
   type GridResizeDirection, type GridSelectionCellGeometry, type SelectedGridHour, type SelectionRect,
-} from './gridSelection.ts';
+} from '../shared/gridSelection.ts';
+import { getInitialDesktopGridSelection } from './initialGridSelection.ts';
 
 const INTERACTIVE_TARGET = 'a, button, input, select, textarea, [contenteditable], [role="button"], [role="slider"], .timelineGrid-userHours';
 type Cell = GridSelectionCellGeometry & { element: HTMLElement };
@@ -308,6 +309,7 @@ export function attachGridSelection(
   viewport.addEventListener('click', click, true);
   viewport.addEventListener('dragstart', preventNativeDrag);
   viewport.addEventListener('scroll', scheduleDraw, { passive: true });
+  window.addEventListener('scroll', scheduleDraw, { passive: true });
   window.addEventListener('pointermove', move, { passive: false });
   window.addEventListener('pointerup', up, true);
   window.addEventListener('pointercancel', cancelPointer);
@@ -315,7 +317,27 @@ export function attachGridSelection(
   window.addEventListener('resize', resize);
   window.addEventListener('keydown', keydown);
   document.addEventListener('visibilitychange', visibility);
-  return { clear, cancel, destroy: () => {
+  const create = () => {
+    cancel();
+    const origin = viewport.getBoundingClientRect();
+    const left = origin.left + viewport.clientLeft;
+    const top = origin.top + viewport.clientTop;
+    const headerBottom = viewport.querySelector('.timelineGrid-userHours')?.getBoundingClientRect().bottom ?? top;
+    const visible = {
+      left: Math.max(0, left) - left + viewport.scrollLeft,
+      right: Math.min(window.innerWidth, left + viewport.clientWidth) - left + viewport.scrollLeft,
+      top: Math.max(0, top, headerBottom) - top + viewport.scrollTop,
+      bottom: Math.min(window.innerHeight, top + viewport.clientHeight) - top + viewport.scrollTop,
+    };
+    const cells = getCells();
+    const next = getInitialDesktopGridSelection(cells, visible);
+    if (!next.length) return false;
+    committed = preview = next;
+    paint(cells, committed);
+    onCommit(committed);
+    return true;
+  };
+  return { clear, create, cancel, destroy: () => {
     cancel(); cancelAnimationFrame(frame);
     if (frameLayer) frameLayer.hidden = true;
     frameLayer?.removeEventListener('pointerdown', startResize);
@@ -325,6 +347,7 @@ export function attachGridSelection(
     viewport.removeEventListener('click', click, true);
     viewport.removeEventListener('dragstart', preventNativeDrag);
     viewport.removeEventListener('scroll', scheduleDraw);
+    window.removeEventListener('scroll', scheduleDraw);
     window.removeEventListener('pointermove', move);
     window.removeEventListener('pointerup', up, true);
     window.removeEventListener('pointercancel', cancelPointer);

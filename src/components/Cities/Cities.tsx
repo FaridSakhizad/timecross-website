@@ -651,7 +651,7 @@ export default function Cities({
             to={getCanonicalLanguagePath(language, '/cities')}
             className="citiesHeaderButton citiesHeaderButton_cities"
           >
-            <i className="citiesHeaderButton-icon citiesHeaderButton-icon_cities" />
+            <i className="citiesHeaderButton-icon citiesHeaderButton-icon_open" />
           </Link>
         )}
 

@@ -44,7 +44,8 @@ export default function MeetingTimePlannerPage({
         <section className="section meetingTimePlannerWidgetSection">
           <div className="meetingTimePlannerWidgetSection-widget">
             <ClientOnly>
-              <Timelines timeFormat={timeFormat} syncUrl />
+              <Timelines colorMode={colorMode} timeFormat={timeFormat} syncUrl
+                onColorModeButtonClick={onColorModeButtonClick} onTimeFormatButtonClick={onTimeFormatButtonClick} />
             </ClientOnly>
           </div>
           <div className="container meetingTimePlannerWidgetSection-container">

@@ -2,29 +2,30 @@ import { memo, useEffect, useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
-import { useI18n } from '../../i18n';
-import type { TimeFormat } from '../../settings';
-import type { FavoriteCity } from '../Cities/fixtures';
-import { getCityDisplayName } from '../Cities/useLocalizedCities';
-import TimelineCellLabel from '../Timelines/TimelineCellLabel';
+import { useI18n } from '../../../i18n';
+import type { TimeFormat } from '../../../settings';
+import type { FavoriteCity } from '../../Cities/fixtures';
+import { getCityDisplayName } from '../../Cities/useLocalizedCities';
+import TimelineCellLabel from '../../Timelines/TimelineCellLabel';
 import {
   formatOffset,
   formatTime,
   getRelativeDayMarker,
   getTimelineCells,
   getTimeZoneOffsetMinutes,
-} from '../Timelines/utils';
-import type { TimelineGridMode } from './types';
-import { gridHourKey } from './desktop/gridSelection';
+} from '../../Timelines/utils';
+import { gridHourKey } from './gridSelection';
 
 const DAY_PERIOD_SUFFIX_PATTERN = /\s(?:AM|PM)$/;
+
+export type GridRowClasses = { row?: string; city?: string; cells: string; spacer: string };
 
 type TimelineGridRowProps = {
   baseDate: Date;
   browserTimezone: string;
   city: FavoriteCity;
   isEditMode: boolean;
-  mode: TimelineGridMode;
+  classNames: GridRowClasses;
   timelineDates: Date[];
   timeFormat: TimeFormat;
   onDelete: (cityId: string) => void;
@@ -41,7 +42,7 @@ function TimelineGridRow({
   browserTimezone,
   city,
   isEditMode,
-  mode,
+  classNames,
   timelineDates,
   timeFormat,
   onDelete,
@@ -58,11 +59,6 @@ function TimelineGridRow({
     - getTimeZoneOffsetMinutes(browserTimezone, baseDate);
   const offset = formatOffset(offsetMinutes, t('cities.sameOffset'));
   const relativeDayMarker = getRelativeDayMarker(city.timezone, browserTimezone, baseDate);
-  const cityModeClassName = mode === 'mobile' ? 'timelineGrid-city_mobile' : 'timelineGrid-city_desktop';
-  const cellsModeClassName = mode === 'mobile' ? 'timelineGrid-cells_mobile' : 'timelineGrid-cells_desktop';
-  const cellsSpacerModeClassName = mode === 'mobile'
-    ? 'timelineGrid-cellsSpacer_mobile'
-    : 'timelineGrid-cellsSpacer_desktop';
   const {
     attributes,
     listeners,
@@ -107,19 +103,13 @@ function TimelineGridRow({
     };
   }, [isPressed]);
 
-  useEffect(() => {
-    if (!isEditMode) {
-      setIsPressed(false);
-    }
-  }, [isEditMode]);
-
   return (
     <div
       className={[
         'timelineGrid-row',
-        mode === 'mobile' ? 'timelineGrid-row_mobile' : 'timelineGrid-row_desktop',
+        classNames.row,
         isEditMode ? 'timelineGrid-row_reorder' : '',
-        isPressed && !isDragging ? 'timelineGrid-row_pressed' : '',
+        isEditMode && isPressed && !isDragging ? 'timelineGrid-row_pressed' : '',
         isDragging ? 'timelineGrid-row_dragging' : '',
       ].filter(Boolean).join(' ')}
       onPointerDown={(event) => handlePressStart(event.target)}
@@ -127,7 +117,7 @@ function TimelineGridRow({
       ref={setNodeRef}
       style={style}
     >
-      <div className={`timelineGrid-city ${cityModeClassName}`}>
+      <div className={['timelineGrid-city', classNames.city].filter(Boolean).join(' ')}>
         <div className="timelineGrid-cityInner">
           {isEditMode && (
             <button
@@ -163,7 +153,7 @@ function TimelineGridRow({
       </div>
 
       {shouldRenderCells && (
-        <div className={`timelineGrid-cells ${cellsModeClassName}`}>
+        <div className={`timelineGrid-cells ${classNames.cells}`}>
           {cells.map((cell, index) => {
             const shouldShowFullCurrentTime = cell.isCurrentHour && Boolean(cell.dateCellDetails);
             const cellLabel = cell.isCurrentHour
@@ -227,7 +217,7 @@ function TimelineGridRow({
 
       {!shouldRenderCells && (
         <div
-          className={`timelineGrid-cellsSpacer ${cellsSpacerModeClassName}`}
+          className={`timelineGrid-cellsSpacer ${classNames.spacer}`}
           aria-label={t('cities.moveCity', { city: displayName })}
           style={{
             width: `calc(${timelineDates.length} * var(--timeline-grid-hour-width))`,

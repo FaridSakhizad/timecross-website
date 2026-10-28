@@ -4,69 +4,12 @@
   --timeline-grid-side-pad: max(16px, calc(50vw - var(--timeline-grid-cell-size) / 2));
 }
 
-.timelineGrid {
-  max-width: 1880px;
-  margin: 20px auto;
-  width: calc(100% - 40px);
-  height: calc(100dvh - 40px);
-  min-height: calc(100dvh - 40px);
-  border: 3px solid transparent;
-  border-radius: 40px;
-  background: rgba(var(--accent-color-1), 0.3);
-  box-shadow: 0 10px 50px 0 rgba(0, 0, 0, 0.15);
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  overscroll-behavior: contain;
-  position: relative;
-  user-select: none;
-}
-
-.timelineGridMiddleMarker {
-  display: block;
-  width: var(--timeline-grid-hour-width);
-  position: fixed;
-  z-index: 1;
-  top: 5px;
-  right: 0;
-  left: 0;
-  bottom: 0;
-  margin: auto;
-  background: rgba(var(--accent-color-1), 0.2);
-  border-top-right-radius: 16px;
-  border-top-left-radius: 16px;
-  pointer-events: none;
-}
-
-.timelineGridMiddleHoursMarker {
-  display: block;
-  width: var(--timeline-grid-hour-width);
-  position: fixed;
-  z-index: 15;
-  top: 67px;
-  right: 0;
-  left: 0;
-  height: 38px;
-  margin: 0 auto;
-  background: rgba(var(--accent-color-1), 0.2);
-  border-top-right-radius: 16px;
-  border-top-left-radius: 16px;
-  pointer-events: none;
-
-  &.timelineGridMiddleMarker_desktop {
-    top: 110px;
-    z-index: 100;
-    pointer-events: none;
-  }
-}
-
 .timelineGridActiveHourIndicator {
   width: 24px;
   height: 100px;
   padding: 0;
   border: none;
-  position: fixed;
+  position: absolute;
   top: 50%;
   z-index: 40;
   display: grid;
@@ -83,16 +26,12 @@
   }
 }
 
-.timelineGrid .timelineGridActiveHourIndicator {
-  position: absolute;
-}
-
 .timelineGridActiveHourIndicator_left {
-  left: 0;
+  left: 16px;
 }
 
 .timelineGridActiveHourIndicator_right {
-  right: 0;
+  right: 16px;
 }
 
 .timelineGridActiveHourIndicator-icon {
@@ -108,50 +47,6 @@
   pointer-events: none;
 }
 
-.timelineGrid .timelineGridMiddleMarker {
-  position: absolute;
-}
-
-.timelineGrid > * {
-  position: relative;
-  z-index: 10;
-}
-
-.timelineGrid > .timelineGridMiddleMarker {
-  z-index: 0;
-}
-
-.timelineGrid-toolbar {
-  position: sticky;
-  top: 0;
-  left: 0;
-  z-index: 30;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100dvw;
-  height: 80px;
-  border-bottom: 1px solid rgba(255 255 255 / 0.3);
-  color: #fff;
-  user-select: none;
-  padding: 0 25px;
-  gap: 20px;
-
-  &.timelineGrid-toolbar_mobile {
-    height: 60px;
-  }
-}
-
-@media (width <= 768px) {
-  .timelineGrid-toolbar {
-    &.timelineGrid-toolbar_mobile {
-      &:has(.timelineGridCalendarButton) {
-        gap: clamp(4px, 4.073vw - 11.272px, 20px);
-      }
-    }
-  }
-}
-
 .timelineGridCalendarNotice {
   position: absolute;
   top: calc(100% + 8px);
@@ -165,77 +60,6 @@
   max-width: calc(100dvw - 24px);
   text-align: center;
   pointer-events: none;
-}
-
-.timelineGrid .timelineGrid-toolbar {
-  flex: 0 0 auto;
-  width: 100%;
-}
-
-.timelineGridHeaderBackdrop {
-  display: none;
-}
-
-.timelineGridPageBackdrop {
-  display: none;
-}
-
-.timelineGridPageBackdrop_mobile {
-  display: block;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 1;
-  width: 100dvw;
-  height: 100dvh;
-  background:
-    url("../../assets/bg--noise-1.png") center,
-    radial-gradient(circle at top left, #ff5a5f 0%, transparent 75%),
-    radial-gradient(circle at top right, #ffd166 0%, transparent 75%),
-    radial-gradient(circle at bottom left, #4d7cfe 0%, transparent 75%),
-    radial-gradient(circle at bottom right, #06d6a0 0%, transparent 75%),
-    rgb(62, 63, 86);
-  pointer-events: none;
-}
-
-.timelineGridHeaderBackdrop_mobile {
-  display: block;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 15;
-  width: 100dvw;
-  height: 106px;
-  background:
-    url("../../assets/bg--noise-1.png") center,
-    linear-gradient(90deg, rgb(255 90 95 / 0.7) 0%, rgb(255 209 102 / 0.7) 100%),
-    rgba(var(--accent-color-1), 1);
-  pointer-events: none;
-}
-
-.timelineGrid-scroll {
-  flex: 1 1 auto;
-  min-height: 0;
-  position: relative;
-  z-index: 10;
-}
-
-.timelineGrid-scrollViewport {
-  height: 100%;
-  overflow: auto;
-  overscroll-behavior: contain;
-  scroll-padding-inline: calc(50% - var(--timeline-grid-cell-size) / 2);
-  scroll-snap-type: x mandatory;
-}
-
-.timelineGrid_dragging .timelineGrid-scrollViewport {
-  overflow-x: hidden;
-  overscroll-behavior-x: none;
-  scroll-snap-type: none;
-}
-
-.timelineGrid_dragging .timelineGrid-cell {
-  visibility: hidden;
 }
 
 .timelineGrid-userHours,
@@ -256,15 +80,8 @@
   border-bottom: 1px solid rgba(255 255 255 / 0.15);
   color: #fff;
   user-select: none;
-  backdrop-filter: blur(30px);
-
-  &.timelineGrid-userHours_mobile {
-    top: 60px;
-    backdrop-filter: none;
-  }
+  backdrop-filter: blur(30px)
 }
-
-
 
 .timelineGrid-hour {
   display: flex;
@@ -315,6 +132,7 @@
 
 .timelineGrid-hourCurrentTime {
   font-weight: 500;
+  font-size: 13px;
 }
 
 .timelineGrid-hourCurrentValue,
@@ -326,7 +144,7 @@
   position: sticky;
   left: 0;
   z-index: 10;
-  width: 100dvw;
+  width: var(--custom-scrollbar-client-width);
   padding: 12px 0 7px;
   color: #fff;
   user-select: none;
@@ -338,13 +156,7 @@
   min-width: max-content;
   position: relative;
   z-index: 2;
-  /*transition: none;*/
   will-change: transform;
-}
-
-.timelineGrid-row_mobile {
-  content-visibility: auto;
-  contain-intrinsic-size: calc(72 * var(--timeline-grid-hour-width)) 112px;
 }
 
 .timelineGrid-row_reorder {
@@ -374,32 +186,6 @@
 
   .timelineGrid-cellsSpacer {
     background: rgba(255 255 255 / 0.5);
-  }
-}
-
-.timelineGrid .timelineGrid-city {
-  width: 100%;
-}
-
-.timelineGrid .timelineGrid-row_desktop .timelineGrid-city_desktop {
-  width: min(calc(100vw - 40px), 1870px);
-}
-
-.timelineGrid .timelineGrid-row_reorder .timelineGrid-city_desktop {
-  padding-block: 12px 7px;
-}
-
-.timelineGrid-row_reorder .timelineGrid-city_mobile {
-  .timelineGrid-cityInner {
-    padding-inline: 30px 45px;
-  }
-
-  .timelineGrid-dragButton {
-    left: 9px;
-  }
-
-  .timelineGrid-deleteButton {
-    right: 10px;
   }
 }
 
@@ -496,7 +282,7 @@
     display: block;
     width: 14px;
     height: 16px;
-    mask: url("../../assets/icon--delete-1.svg");
+    mask: url("../../../assets/icon--delete-1.svg");
     background-color: rgb(var(--color-danger-1));
   }
 }
@@ -569,8 +355,7 @@
   -webkit-touch-callout: none;
 }
 
-.timelineGrid-cellsSpacer_desktop,
-.timelineGrid-cellsSpacer_mobile {
+.timelineGrid-cellsSpacer {
   width: max-content;
 }
 
@@ -617,6 +402,10 @@
     outline: 1px solid rgba(var(--accent-color-2), 1);
     outline-offset: -3px;
   }
+}
+
+.timelineGrid-addTimezoneButton_mobile {
+  margin-inline: 0;
 }
 
 .timelineGrid-addTimezoneButtonIcon {
@@ -734,41 +523,6 @@
   color: #333!important;
 }
 
-body:has(.timelineGrid-toolbar_mobile) {
-  min-width: max-content;
-  overflow: visible;
-  color: #fff;
-  padding-bottom: 1px;
-  background-color: rgba(var(--accent-color-1), 0.3);
-
-  #root {
-    display: contents;
-  }
-}
-
-@media (width < 720px) {
-  .timelineGridMiddleMarker_mobile {
-    top: 67px;
-    bottom: 0;
-  }
-}
-
-html[data-color-mode="night"]:has(.timelineGrid-toolbar_mobile) .timelineGridHeaderBackdrop_mobile {
-  background:
-    url("../../assets/bg--noise-1.png") center,
-    linear-gradient(90deg, #992ecf 0%, #003e98 100%);
-}
-
-html[data-color-mode="night"]:has(.timelineGrid-toolbar_mobile) .timelineGridPageBackdrop_mobile {
-  background:
-    url("../../assets/bg--noise-1.png") center,
-    radial-gradient(circle at top left, #992ecf 0%, transparent 75%),
-    radial-gradient(circle at top right, #003e98 0%, transparent 75%),
-    radial-gradient(circle at bottom left, #1d395a 0%, transparent 75%),
-    radial-gradient(circle at bottom right, #058172 0%, transparent 75%),
-    #080914;
-}
-
 .timelineGrid-cell:nth-child(1),
 .timelineGrid-cell:nth-last-child(1),
 .timelineGrid-hour:nth-child(1),
@@ -831,6 +585,27 @@ html[data-color-mode="night"]:has(.timelineGrid-toolbar_mobile) .timelineGridPag
 .timelineGrid-hour:nth-last-child(9) {
   opacity: 0.88;
 }
+
 .timelineGrid-row .timelineGrid-cell.isSelected {
   opacity: 1;
+}
+
+.timelineGridCalendarButton > svg {
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.timelineGridCalendarButton > svg,
+.timelineGridCalendarButton > span {
+  position: relative;
+}
+
+.timelineGridCalendarButton > span {
+  font-size: 13px;
+  white-space: normal;
+}
+
+.timelineGridCalendarError {
+  font-size: 12px;
+  max-width: 240px;
 }

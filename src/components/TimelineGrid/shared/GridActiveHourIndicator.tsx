@@ -1,5 +1,5 @@
-import { useI18n } from '../../i18n';
-import type { TimelineGridActiveHourDirection } from './useTimelineGridActiveHourIndicator';
+import { useI18n } from '../../../i18n';
+import type { TimelineGridActiveHourDirection } from './useGridActiveHourIndicator';
 
 type TimelineGridActiveHourIndicatorProps = {
   direction: TimelineGridActiveHourDirection;

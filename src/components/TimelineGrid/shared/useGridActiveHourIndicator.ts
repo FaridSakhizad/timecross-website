@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useState, type RefObject } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 type TimelineGridScrollTarget =
   | { type: 'page' }
@@ -153,7 +153,7 @@ function scrollTimelineGridActiveHourToEdge(
   });
 }
 
-function useTimelineGridActiveHourIndicator(
+export function useTimelineGridActiveHourIndicator(
   getScrollTarget: () => TimelineGridScrollTarget | null,
   disabled = false,
 ) {
@@ -161,7 +161,6 @@ function useTimelineGridActiveHourIndicator(
 
   const updateDirection = useCallback(() => {
     if (disabled) {
-      setDirection(null);
       return;
     }
 
@@ -170,13 +169,8 @@ function useTimelineGridActiveHourIndicator(
     setDirection(scrollTarget ? getTimelineGridActiveHourDirection(scrollTarget) : null);
   }, [disabled, getScrollTarget]);
 
-  useLayoutEffect(() => {
-    updateDirection();
-  }, [updateDirection]);
-
   useEffect(() => {
     if (disabled) {
-      setDirection(null);
       return undefined;
     }
 
@@ -227,29 +221,7 @@ function useTimelineGridActiveHourIndicator(
   }, [direction, getScrollTarget]);
 
   return {
-    direction,
+    direction: disabled ? null : direction,
     scrollActiveHourIntoView,
   };
-}
-
-export function useTimelineGridPageActiveHourIndicator(disabled = false) {
-  const getScrollTarget = useCallback(() => ({ type: 'page' }) as const, []);
-
-  return useTimelineGridActiveHourIndicator(getScrollTarget, disabled);
-}
-
-export function useTimelineGridElementActiveHourIndicator(
-  timelineGridRef: RefObject<HTMLDivElement | null>,
-  disabled = false,
-) {
-  const getScrollTarget = useCallback(
-    () => (
-      timelineGridRef.current
-        ? { type: 'element', element: timelineGridRef.current }
-        : null
-    ),
-    [timelineGridRef],
-  ) satisfies () => TimelineGridScrollTarget | null;
-
-  return useTimelineGridActiveHourIndicator(getScrollTarget, disabled);
 }

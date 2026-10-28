@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { createCalendarEventFile, downloadCalendarFile } from '../src/components/TimelineGrid/desktop/calendarEventFile.ts';
-import { buildGridCalendarEvent } from '../src/components/TimelineGrid/desktop/gridSelection.ts';
+import { createCalendarEventFile, downloadCalendarFile } from '../src/components/TimelineGrid/shared/calendarEventFile.ts';
+import { buildGridCalendarEvent } from '../src/components/TimelineGrid/shared/gridSelection.ts';
 
 const start = Date.parse('2026-11-01T05:00:00Z');
 const event = buildGridCalendarEvent([

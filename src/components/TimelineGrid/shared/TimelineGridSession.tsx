@@ -1,7 +1,7 @@
 import './style.css';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { useLocation } from 'react-router';
+import { useCallback, useEffect, useMemo, useState, type ComponentType } from 'react';
+import { useLocation, useSearchParams } from 'react-router';
 import {
   DndContext,
   PointerSensor,
@@ -17,102 +17,56 @@ import {
   arrayMove,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { getSettings, type ColorMode, type TimeFormat } from '../../settings';
-import { useCurrentMinuteDate } from '../../useCurrentMinuteDate';
-import { useMobileWidgetLayout } from '../../useMobileWidgetLayout';
-import AddCityModal from '../Cities/AddCityModal';
+import { getSettings } from '../../../settings';
+import { useCurrentMinuteDate } from '../../../useCurrentMinuteDate';
+import AddCityModal from '../../Cities/AddCityModal';
 import {
   createFavoriteCityFromSearchResult,
   getOrderedSelectedCities,
   saveSelectedCities,
   SELECTED_CITIES_CHANGED_EVENT,
-} from '../Cities/selectedCities';
-import { useLocalizedCities } from '../Cities/useLocalizedCities';
+} from '../../Cities/selectedCities';
+import { useLocalizedCities } from '../../Cities/useLocalizedCities';
 import {
   getBrowserTimezone,
   getTimelineCells,
   getTimelineDates,
-} from '../Timelines/utils';
-import TimelineGridDesktop from './TimelineGridDesktop';
-import TimelineGridMobile from './TimelineGridMobile';
+} from '../../Timelines/utils';
 import { getSharedGridTimelineDates, readGridEventUrlState, type SharedGridEvent } from './eventUrlState';
+import { readPlannerUrlState, writePlannerUrlState } from '../../Timelines/plannerUrlState';
+import type { TimelineGridProps, TimelineGridShellProps } from './types';
 
 const restrictTimelineGridDragToVerticalAxis: Modifier = ({ transform }) => ({
   ...transform,
   x: 0,
 });
 
-type TimelineGridProps = {
-  colorMode: ColorMode;
-  timeFormat: TimeFormat;
-  onColorModeButtonClick: () => void;
-  onTimeFormatButtonClick: () => void;
-};
+type SessionProps = TimelineGridProps & { View: ComponentType<TimelineGridShellProps> };
 
-function useMobileTimelineGridHorizontalScrollLock(enabled: boolean) {
-  const lockedScrollXRef = useRef(0);
-
-  useEffect(() => {
-    if (!enabled) {
-      return undefined;
-    }
-
-    let animationFrame = 0;
-    const pageScroller = document.scrollingElement;
-
-    if (!pageScroller) {
-      return undefined;
-    }
-
-    lockedScrollXRef.current = pageScroller.scrollLeft;
-
-    const lockScrollX = () => {
-      if (animationFrame) {
-        return;
-      }
-
-      animationFrame = window.requestAnimationFrame(() => {
-        animationFrame = 0;
-
-        if (Math.abs(pageScroller.scrollLeft - lockedScrollXRef.current) <= 0.5) {
-          return;
-        }
-
-        pageScroller.scrollLeft = lockedScrollXRef.current;
-      });
-    };
-
-    window.addEventListener('scroll', lockScrollX, { passive: true });
-
-    lockScrollX();
-
-    return () => {
-      window.removeEventListener('scroll', lockScrollX);
-
-      if (animationFrame) {
-        window.cancelAnimationFrame(animationFrame);
-      }
-    };
-  }, [enabled]);
-}
-
-export default function TimelineGrid(props: TimelineGridProps) {
+export default function TimelineGridSession(props: SessionProps) {
   const { pathname, hash } = useLocation();
   const sharedEvent = useMemo(() => readGridEventUrlState(hash), [hash]);
-  return <TimelineGridSession key={`${pathname}${hash}`} {...props} sharedEvent={sharedEvent} />;
+  return <GridSession key={`${pathname}${hash}`} {...props} sharedEvent={sharedEvent} />;
 }
 
-function TimelineGridSession({
+function GridSession({
   colorMode,
   timeFormat,
   onColorModeButtonClick,
   onTimeFormatButtonClick,
   sharedEvent,
-}: TimelineGridProps & { sharedEvent: SharedGridEvent | null }) {
+  presentation = 'zen',
+  syncUrl = false,
+  View,
+}: SessionProps & { sharedEvent: SharedGridEvent | null }) {
+  const [, setSearchParams] = useSearchParams();
+  const [initialState] = useState(() => readPlannerUrlState(syncUrl ? window.location.search : ''));
+  const [anchorDate, setAnchorDate] = useState(initialState.at);
+  const [selectedDate, setSelectedDate] = useState(initialState.at);
+  const [hasSelection, setHasSelection] = useState(Boolean(initialState.at || initialState.cities));
   const baseDate = useCurrentMinuteDate();
   const browserTimezone = useMemo(() => getBrowserTimezone(), []);
-  const usesMobileLayout = useMobileWidgetLayout();
-  const [cities, setCities] = useState(() => sharedEvent?.cities ?? getOrderedSelectedCities(getSettings().cityOrder));
+  const [cities, setCities] = useState(() => sharedEvent?.cities ?? initialState.cities ?? getOrderedSelectedCities(getSettings().cityOrder));
   const [selectedHours, setSelectedHours] = useState(sharedEvent?.hours ?? []);
   const [isAddCityModalOpen, setIsAddCityModalOpen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -134,6 +88,28 @@ function TimelineGridSession({
   );
 
   useEffect(() => {
+    if (!syncUrl || !hasSelection || sharedEvent) return;
+    const params = writePlannerUrlState(new URLSearchParams(window.location.search), cities, selectedDate);
+    if (params.toString() !== new URLSearchParams(window.location.search).toString()) {
+      setSearchParams(params, { replace: true, preventScrollReset: true });
+    }
+  }, [cities, hasSelection, selectedDate, setSearchParams, sharedEvent, syncUrl]);
+
+  useEffect(() => {
+    if (!syncUrl || sharedEvent) return;
+    const restore = () => {
+      const state = readPlannerUrlState(window.location.search);
+      setCities(state.cities ?? getOrderedSelectedCities(getSettings().cityOrder));
+      setAnchorDate(state.at);
+      setSelectedDate(state.at);
+      setSelectedHours([]);
+      setHasSelection(Boolean(state.at || state.cities));
+    };
+    window.addEventListener('popstate', restore);
+    return () => window.removeEventListener('popstate', restore);
+  }, [sharedEvent, syncUrl]);
+
+  useEffect(() => {
     if (sharedEvent) return;
     const handleSelectedCitiesChange = () => {
       setCities(getOrderedSelectedCities(getSettings().cityOrder));
@@ -147,8 +123,8 @@ function TimelineGridSession({
   }, [sharedEvent]);
 
   const timelineDates = useMemo(
-    () => sharedEvent ? getSharedGridTimelineDates(sharedEvent) : getTimelineDates(browserTimezone, baseDate),
-    [baseDate, browserTimezone, sharedEvent],
+    () => sharedEvent ? getSharedGridTimelineDates(sharedEvent) : getTimelineDates(browserTimezone, anchorDate ?? baseDate),
+    [anchorDate, baseDate, browserTimezone, sharedEvent],
   );
 
   const userCells = useMemo(
@@ -157,7 +133,12 @@ function TimelineGridSession({
   );
   const currentUserHourIndex = userCells.findIndex((cell) => cell.isCurrentHour);
 
-  useMobileTimelineGridHorizontalScrollLock(usesMobileLayout && isEditMode);
+  const handleHourChange = useCallback((index: number) => {
+    const date = timelineDates[index];
+    if (!date) return;
+    setSelectedDate(date);
+    setHasSelection(true);
+  }, [timelineDates]);
 
   const handleAddCity = (city: Parameters<typeof createFavoriteCityFromSearchResult>[0]) => {
     const nextCities = [
@@ -166,6 +147,7 @@ function TimelineGridSession({
     ];
 
     setCities(nextCities);
+    setHasSelection(true);
     if (!sharedEvent) saveSelectedCities(nextCities);
     setIsAddCityModalOpen(false);
   };
@@ -178,6 +160,7 @@ function TimelineGridSession({
     }
 
     setCities(nextCities);
+    setHasSelection(true);
     if (!sharedEvent) saveSelectedCities(nextCities);
   };
 
@@ -201,6 +184,7 @@ function TimelineGridSession({
     }));
 
     setCities(nextCities);
+    setHasSelection(true);
     if (!sharedEvent) saveSelectedCities(nextCities);
   };
 
@@ -209,6 +193,13 @@ function TimelineGridSession({
   };
 
   const shellProps = {
+    presentation,
+    onHourChange: syncUrl && !sharedEvent ? handleHourChange : undefined,
+    onReset: syncUrl && !sharedEvent ? () => {
+      setAnchorDate(null);
+      setSelectedDate(null);
+      setHasSelection(true);
+    } : undefined,
     baseDate,
     browserTimezone,
     cities: localizedCities,
@@ -224,14 +215,13 @@ function TimelineGridSession({
     initialFocusHourIndex: sharedEvent
       ? timelineDates.findIndex((date) => date.getTime() === sharedEvent.start)
         + Math.floor((sharedEvent.end - sharedEvent.start) / 7200000)
-      : undefined,
+      : anchorDate ? timelineDates.findIndex((date) => date.getTime() === anchorDate.getTime()) : undefined,
     onAddCityClick: () => setIsAddCityModalOpen(true),
     onColorModeButtonClick,
     onDeleteCity: handleDeleteCity,
     onEditModeToggle: () => setIsEditMode((currentMode) => !currentMode),
     onTimeFormatButtonClick,
   };
-  const TimelineGridShell = usesMobileLayout ? TimelineGridMobile : TimelineGridDesktop;
 
   return (
     <>
@@ -244,7 +234,7 @@ function TimelineGridSession({
         onDragStart={() => setIsDragging(true)}
       >
         <SortableContext items={cityIds} strategy={verticalListSortingStrategy}>
-          <TimelineGridShell {...shellProps} />
+          <View {...shellProps} />
         </SortableContext>
       </DndContext>
 

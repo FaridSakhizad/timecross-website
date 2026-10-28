@@ -1,5 +1,5 @@
 import { getGridSelectionBounds, gridHourKey, resizeGridSelection,
-  type GridResizeDirection, type SelectedGridHour } from '../desktop/gridSelection.ts';
+  type GridResizeDirection, type SelectedGridHour } from '../shared/gridSelection.ts';
 import { getMobileGridSelectionCells, getMobileGridVisibleRect,
   MOBILE_SELECTION_HORIZONTAL_PADDING, MOBILE_SELECTION_TOP_PADDING, MOBILE_SELECTION_BOTTOM_PADDING,
 } from './mobileGridSelectionGeometry.ts';
@@ -9,9 +9,15 @@ const DIRECTIONS = new Set(['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw']);
 export function attachMobileGridSelection(
   layer: HTMLDivElement, initial: SelectedGridHour[], onCommit: (hours: SelectedGridHour[]) => void,
   onInteractionChange: (active: boolean) => void,
+  viewport?: HTMLDivElement,
 ) {
+  const root = viewport ?? document;
+  const scrollX = () => window.scrollX + (viewport?.scrollLeft ?? 0);
+  const scrollY = () => window.scrollY + (viewport?.scrollTop ?? 0);
+  const readCells = () => getMobileGridSelectionCells(root, viewport);
+  const readVisible = () => getMobileGridVisibleRect(viewport);
   const frame = layer.querySelector<HTMLElement>('[data-grid-selection-frame]')!;
-  let cells = getMobileGridSelectionCells();
+  let cells = readCells();
   let committed = initial;
   let preview = initial;
   let bounds = getGridSelectionBounds(cells, initial);
@@ -24,20 +30,20 @@ export function attachMobileGridSelection(
 
   const position = () => {
     if (!bounds) { layer.hidden = true; return; }
-    const visible = getMobileGridVisibleRect();
+    const visible = readVisible();
     layer.hidden = false;
-    layer.style.left = '0px';
-    layer.style.top = `${visible.top - window.scrollY}px`;
+    layer.style.left = `${visible.left - scrollX()}px`;
+    layer.style.top = `${visible.top - scrollY()}px`;
     layer.style.width = `${visible.right - visible.left}px`;
     layer.style.height = `${Math.max(0, visible.bottom - visible.top)}px`;
-    frame.style.left = `${bounds.left - window.scrollX - MOBILE_SELECTION_HORIZONTAL_PADDING}px`;
+    frame.style.left = `${bounds.left - visible.left - MOBILE_SELECTION_HORIZONTAL_PADDING}px`;
     frame.style.top = `${bounds.top - visible.top - MOBILE_SELECTION_TOP_PADDING}px`;
     frame.style.width = `${bounds.right - bounds.left + MOBILE_SELECTION_HORIZONTAL_PADDING * 2}px`;
     frame.style.height = `${bounds.bottom - bounds.top + MOBILE_SELECTION_TOP_PADDING + MOBILE_SELECTION_BOTTOM_PADDING}px`;
   };
   const paint = (hours: SelectedGridHour[]) => {
     const keys = new Set(hours.map(gridHourKey));
-    for (const element of document.querySelectorAll<HTMLElement>('.timelineGrid-row_mobile [data-grid-hour-start]')) {
+    for (const element of root.querySelectorAll<HTMLElement>('.timelineGrid-row_mobile [data-grid-hour-start]')) {
       element.classList.toggle('isSelected', keys.has(gridHourKey({
         rowId: element.dataset.gridSelectionRow!, start: Number(element.dataset.gridHourStart),
       })));
@@ -58,25 +64,25 @@ export function attachMobileGridSelection(
   const draw = (autoScroll = true) => {
     const current = session;
     if (!current) { position(); return; }
-    const visible = getMobileGridVisibleRect();
+    const visible = readVisible();
     const edgeSpeed = (value: number, min: number, max: number) => value < min + 24
       ? -Math.min(8, (min + 24 - value) / 4) : value > max - 24 ? Math.min(8, (value - max + 24) / 4) : 0;
-    const oldX = window.scrollX;
-    const oldY = window.scrollY;
+    const oldX = scrollX();
+    const oldY = scrollY();
     const horizontal = /[ew]/.test(current.direction);
     const vertical = /[ns]/.test(current.direction);
-    if (autoScroll) window.scrollBy({
-      left: horizontal ? edgeSpeed(current.clientX, 0, visible.right - visible.left) : 0,
-      top: vertical ? edgeSpeed(current.clientY, visible.top - oldY, window.innerHeight) : 0,
+    if (autoScroll) (viewport ?? window).scrollBy({
+      left: horizontal ? edgeSpeed(current.clientX, visible.left - oldX, visible.right - oldX) : 0,
+      top: vertical ? edgeSpeed(current.clientY, visible.top - oldY, visible.bottom - oldY) : 0,
       behavior: 'instant',
     });
     const edgeX = current.direction.includes('w') ? current.bounds.left : current.bounds.right;
     const edgeY = current.direction.includes('n') ? current.bounds.top : current.bounds.bottom;
     preview = resizeGridSelection(cells, committed, current.direction,
-      edgeX + current.clientX + window.scrollX - current.x,
-      edgeY + current.clientY + window.scrollY - current.y);
+      edgeX + current.clientX + scrollX() - current.x,
+      edgeY + current.clientY + scrollY() - current.y);
     paint(preview);
-    if (oldX !== window.scrollX || oldY !== window.scrollY) schedule();
+    if (oldX !== scrollX() || oldY !== scrollY()) schedule();
   };
   const schedule = () => {
     if (!animation) animation = requestAnimationFrame(() => { animation = 0; draw(); });
@@ -87,11 +93,12 @@ export function attachMobileGridSelection(
     const direction = handle?.dataset.gridResize as GridResizeDirection;
     if (!handle || !DIRECTIONS.has(direction) || !committed.length) return;
     window.scrollTo({ left: window.scrollX, top: window.scrollY, behavior: 'instant' });
-    cells = getMobileGridSelectionCells();
+    viewport?.scrollTo({ left: viewport.scrollLeft, top: viewport.scrollTop, behavior: 'instant' });
+    cells = readCells();
     const initialBounds = getGridSelectionBounds(cells, committed);
     if (!initialBounds) return;
     session = { pointerId: event.pointerId, handle, direction, bounds: initialBounds,
-      x: event.clientX + window.scrollX, y: event.clientY + window.scrollY,
+      x: event.clientX + scrollX(), y: event.clientY + scrollY(),
       clientX: event.clientX, clientY: event.clientY };
     preview = committed;
     handle.setPointerCapture(event.pointerId);
@@ -126,13 +133,13 @@ export function attachMobileGridSelection(
   const cancel = () => finish(false);
   const multiTouch = (event: PointerEvent) => { if (session && event.pointerId !== session.pointerId) cancel(); };
   const visibility = () => { if (document.visibilityState === 'hidden') cancel(); };
-  const resize = () => { cancel(); cells = getMobileGridSelectionCells(); bounds = getGridSelectionBounds(cells, committed); position(); };
+  const resize = () => { cancel(); cells = readCells(); bounds = getGridSelectionBounds(cells, committed); position(); };
   const keydown = (event: KeyboardEvent) => {
     if (event.key === 'Escape' && session) { cancel(); event.preventDefault(); event.stopImmediatePropagation(); }
     if (session || !(event.target instanceof Element)) return;
     const direction = event.target.closest<HTMLElement>('[data-grid-resize]')?.dataset.gridResize as GridResizeDirection;
     if (!DIRECTIONS.has(direction) || !['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) return;
-    cells = getMobileGridSelectionCells();
+    cells = readCells();
     const currentBounds = getGridSelectionBounds(cells, committed);
     if (!currentBounds) return;
     const dx = /[ew]/.test(direction) ? event.key === 'ArrowLeft' ? -1 : event.key === 'ArrowRight' ? 1 : 0 : 0;
@@ -160,6 +167,7 @@ export function attachMobileGridSelection(
   window.addEventListener('pointercancel', lost);
   window.addEventListener('pointerdown', multiTouch, true);
   window.addEventListener('scroll', schedule, { passive: true });
+  viewport?.addEventListener('scroll', schedule, { passive: true });
   window.addEventListener('resize', resize);
   window.visualViewport?.addEventListener('resize', resize);
   window.addEventListener('blur', cancel);
@@ -177,6 +185,7 @@ export function attachMobileGridSelection(
     window.removeEventListener('pointercancel', lost);
     window.removeEventListener('pointerdown', multiTouch, true);
     window.removeEventListener('scroll', schedule);
+    viewport?.removeEventListener('scroll', schedule);
     window.removeEventListener('resize', resize);
     window.visualViewport?.removeEventListener('resize', resize);
     window.removeEventListener('blur', cancel);
