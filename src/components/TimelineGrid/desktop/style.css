@@ -62,177 +62,137 @@
   scroll-snap-type: x mandatory;
 }
 
-.timelineGrid_dragging .timelineGrid-scrollViewport {
-  overflow-x: hidden;
-  overscroll-behavior-x: none;
-  scroll-snap-type: none;
+.timelineGrid_dragging {
+  .timelineGrid-scrollViewport {
+    overflow-x: hidden;
+    overscroll-behavior-x: none;
+    scroll-snap-type: none;
+  }
+
+  .timelineGrid-cell {
+    visibility: hidden;
+  }
 }
 
-.timelineGrid_dragging .timelineGrid-cell {
-  visibility: hidden;
-}
-
-:where(.timelineGridDesktop) .timelineGrid .timelineGrid-city_desktop {
-  width: min(calc(100vw - 40px), 1870px);
-}
-
-:where(.timelineGridDesktop) .timelineGrid .timelineGrid-row_reorder .timelineGrid-city_desktop {
-  padding-block: 12px 7px;
-}
-
-:where(.timelineGridDesktop) .timelineGrid-scroll .timelineGrid-scrollViewport {
-  scroll-snap-type: none;
-}
-
-.timelineGrid_panEnabled .timelineGrid-scrollViewport {
-  cursor: grab;
+.timelineGrid_panEnabled {
+  .timelineGrid-scrollViewport {
+    cursor: grab;
+  }
 }
 
 .timelineGridSelectionRectangle_desktop {
   position: fixed;
   z-index: 1000;
-  pointer-events: none;
-  border: 1px solid #fff;
-  box-shadow: 0 0 30px 0 rgb(0 0 0 / 0.15);
-  border-radius: 14px;
-  box-sizing: border-box;
-  backdrop-filter: contrast(1.5);
 }
 
 .timelineGridSelectionLayer_desktop {
-  position: fixed;
-  z-index: 999;
-  overflow: hidden;
-  pointer-events: none;
-}
+  .timelineGridSelectionHandle_n {
+    height: 13px;
+    top: -7px;
+    left: 10px;
+    right: 10px;
+    cursor: ns-resize;
 
-:where(.timelineGridSelectionLayer_desktop) .timelineGridSelectionFrame {
-  position: absolute;
-  border: 1px solid #fff;
-  box-sizing: border-box;
-  box-shadow: 0 0 30px 0 rgb(0 0 0 / 0.15);
-  pointer-events: none;
-  border-radius: 14px;
-  backdrop-filter: contrast(1.5);
-}
-
-:where(.timelineGridSelectionLayer_desktop) .timelineGridSelectionHandle {
-  display: flex;
-  position: absolute;
-  width: 12px;
-  height: 12px;
-  padding: 0;
-  border: none;
-  background: transparent;
-  pointer-events: auto;
-  touch-action: none;
-}
-
-:where(.timelineGridSelectionLayer_desktop) .timelineGridSelectionHandle:focus-visible {
-  outline: 2px solid #111;
-  outline-offset: 3px;
-}
-
-:where(.timelineGridSelectionLayer_desktop) .timelineGridSelectionHandle_n {
-  height: 13px;
-  top: -7px;
-  width: 48px;
-  left: 50%;
-  translate: -50% 0;
-  cursor: ns-resize;
-
-  &:before {
-    content: '';
-    display: block;
-    width: 100%;
-    height: 7px;
-    margin: auto;
-    background: #fff;
-    border-radius: 65536px;
+    &:before {
+      content: '';
+      display: block;
+      width: 48px;
+      height: 7px;
+      margin: auto;
+      background: #fff;
+      border-radius: 65536px;
+    }
   }
-}
 
-:where(.timelineGridSelectionLayer_desktop) .timelineGridSelectionHandle_s {
-  height: 13px;
-  bottom: -7px;
-  width: 48px;
-  left: 50%;
-  translate: -50% 0;
-  cursor: ns-resize;
+  .timelineGridSelectionHandle_s {
+    height: 13px;
+    bottom: -7px;
+    left: 10px;
+    right: 10px;
+    cursor: ns-resize;
 
-  &:before {
-    content: '';
-    display: block;
-    width: 100%;
-    height: 7px;
-    margin: auto;
-    background: #fff;
-    border-radius: 65536px;
+    &:before {
+      content: '';
+      display: block;
+      width: 48px;
+      height: 7px;
+      margin: auto;
+      background: #fff;
+      border-radius: 65536px;
+    }
   }
-}
 
-:where(.timelineGridSelectionLayer_desktop) .timelineGridSelectionHandle_e {
-  width: 13px;
-  right: -7px;
-  top: calc(50% - 8px);
-  height: 48px;
-  cursor: ew-resize;
+  .timelineGridSelectionHandle_e {
+    width: 13px;
+    right: -7px;
+    top: 10px;
+    bottom: 10px;
+    cursor: ew-resize;
 
-  &:before {
-    content: '';
-    display: block;
-    width: 7px;
-    height: 100%;
-    margin: auto;
-    background: #fff;
-    border-radius: 65536px;
+    &:before {
+      content: '';
+      display: block;
+      width: 7px;
+      height: 48px;
+      margin: auto;
+      background: #fff;
+      border-radius: 65536px;
+    }
   }
-}
 
-:where(.timelineGridSelectionLayer_desktop) .timelineGridSelectionHandle_w {
-  width: 13px;
-  left: -7px;
-  top: calc(50% - 8px);
-  height: 48px;
-  cursor: ew-resize;
+  .timelineGridSelectionHandle_w {
+    width: 13px;
+    left: -7px;
+    top: 10px;
+    bottom: 10px;
+    cursor: ew-resize;
 
-  &:before {
-    content: '';
-    display: block;
-    width: 7px;
-    height: 100%;
-    margin: auto;
-    background: #fff;
-    border-radius: 65536px;
+    &:before {
+      content: '';
+      display: block;
+      width: 7px;
+      height: 48px;
+      margin: auto;
+      background: #fff;
+      border-radius: 65536px;
+    }
   }
-}
 
-:where(.timelineGridSelectionLayer_desktop) .timelineGridSelectionHandle_ne {
-  top: -1px;
-  right: -1px;
-  cursor: nesw-resize;
-  opacity: 0;
-}
+  .timelineGridSelectionHandle_ne {
+    width: 17px;
+    height: 17px;
+    top: -7px;
+    right: -7px;
+    cursor: nesw-resize;
+    opacity: 0;
+  }
 
-:where(.timelineGridSelectionLayer_desktop) .timelineGridSelectionHandle_se {
-  bottom: -1px;
-  right: -1px;
-  cursor: nwse-resize;
-  opacity: 0;
-}
+  .timelineGridSelectionHandle_se {
+    width: 17px;
+    height: 17px;
+    bottom: -7px;
+    right: -7px;
+    cursor: nwse-resize;
+    opacity: 0;
+  }
 
-:where(.timelineGridSelectionLayer_desktop) .timelineGridSelectionHandle_sw {
-  bottom: -1px;
-  left: -1px;
-  cursor: nesw-resize;
-  opacity: 0;
-}
+  .timelineGridSelectionHandle_sw {
+    width: 17px;
+    height: 17px;
+    bottom: -7px;
+    left: -7px;
+    cursor: nesw-resize;
+    opacity: 0;
+  }
 
-:where(.timelineGridSelectionLayer_desktop) .timelineGridSelectionHandle_nw {
-  top: -1px;
-  left: -1px;
-  cursor: nwse-resize;
-  opacity: 0;
+  .timelineGridSelectionHandle_nw {
+    width: 17px;
+    height: 17px;
+    top: -7px;
+    left: -7px;
+    cursor: nwse-resize;
+    opacity: 0;
+  }
 }
 
 .timelineGrid-cell.isSelected {
@@ -278,7 +238,8 @@
 
 @media (width < 1024px) {
   .timelinesEmbedded {
-    padding-inline: 15px;
+    padding-inline: 0;
+    margin-inline: 15px;
 
     .timelinesNav {
       display: none;

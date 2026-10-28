@@ -48,7 +48,13 @@
 }
 
 .meetingTimePlannerWidgetSection-widget {
-  min-height: 540px;
+  display: flex;
+  flex-direction: column;
+
+  .timelineGridMobileEmbedded {
+    height: 540px;
+    flex: 1 1 auto;
+  }
 }
 
 .meetingTimePlannerPage .timelinesViewport {

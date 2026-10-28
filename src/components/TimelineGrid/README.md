@@ -28,8 +28,9 @@ Their CSS is in `DesktopToolbar.css` and `MobileToolbar.css`. Mobile has no deco
 placeholder controls. Calendar actions and the toolbar data contract are shared; there is no shared
 toolbar component or arbitrary control slot.
 
-Selection portals have separate `_desktop` and `_mobile` layer classes. Each version styles its own
-frame and handles. The common cell classes and selection data attributes are intentionally unchanged.
+Selection portals have separate `_desktop` and `_mobile` layer classes. Shared frame and base handle
+styles live in `shared/selection.css`, imported by both overlays. Each version owns its handle sizes,
+positions and input-specific styles. The common cell classes and selection data attributes are unchanged.
 Current scrollbar calibration constants are in `desktop/DesktopGrid.tsx`.
 
 ## Changing Or Removing A Version

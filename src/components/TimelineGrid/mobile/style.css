@@ -1,90 +1,100 @@
-:where(.timelineGridMobile) .timelineGrid {
-  max-width: 1880px;
-  margin: 20px auto;
-  width: calc(100% - 40px);
-  height: calc(100dvh - 40px);
-  min-height: calc(100dvh - 40px);
+.zenPageMobile {
+  display: contents;
+
+  body:has(&) {
+    min-width: max-content;
+    overflow: visible;
+    color: #fff;
+    padding-bottom: 1px;
+    background-color: rgba(var(--accent-color-1), 0.3);
+
+    #root {
+      display: contents;
+    }
+  }
+
+  .timelineGridActiveHourIndicator {
+    position: fixed;
+  }
+
+  .timelineGridMiddleHoursMarker {
+    position: fixed;
+    z-index: 100;
+    top: 67px;
+  }
+
+  .timelineGridMiddleMarker {
+    position: fixed;
+    z-index: 1;
+    top: 77px;
+  }
+}
+
+.zenPageMobile-header {
+  z-index: 30;
   color: #fff;
+  border-bottom: 1px solid #ffffff4d;
+  background:
+      url("../../../assets/bg--noise-1.png") center,
+      linear-gradient(90deg, rgb(255 90 95 / 0.7) 0%, rgb(255 209 102 / 0.7) 100%),
+      rgba(var(--accent-color-1), 1);
+  justify-content: center;
+  align-items: center;
+  width: 100dvw;
+  padding: 15px 25px;
   display: flex;
-  flex-direction: column;
-  position: relative;
-  user-select: none;
-}
-
-:where(.timelineGridMiddleMarker).timelineGridMiddleMarker_mobile {
-  display: block;
-  width: var(--timeline-grid-hour-width);
-  position: fixed;
-  z-index: 1;
-  top: 5px;
-  right: 0;
-  left: 0;
-  bottom: 0;
-  margin: auto;
-  background: rgba(var(--accent-color-1), 0.2);
-  border-top-right-radius: 16px;
-  border-top-left-radius: 16px;
-  pointer-events: none;
-}
-
-:where(.timelineGridMiddleHoursMarker).timelineGridMiddleMarker_mobile {
-  display: block;
-  width: var(--timeline-grid-hour-width);
-  position: fixed;
-  z-index: 15;
-  top: 67px;
-  right: 0;
-  left: 0;
-  height: 38px;
-  margin: 0 auto;
-  background: rgba(var(--accent-color-1), 0.2);
-  border-top-right-radius: 16px;
-  border-top-left-radius: 16px;
-  pointer-events: none
-}
-
-:where(.timelineGridMobile) .timelineGrid .timelineGridActiveHourIndicator {
-  position: absolute;
-}
-
-:where(.timelineGridMobile) .timelineGrid .timelineGridMiddleMarker {
-  position: absolute;
-}
-
-:where(.timelineGridMobile) .timelineGrid > * {
-  position: relative;
-  z-index: 10;
-}
-
-:where(.timelineGridMobile) .timelineGrid > .timelineGridMiddleMarker {
-  z-index: 0;
-}
-
-:where(.timelineGridMobile) .timelineGrid .timelineGrid-toolbar_mobile {
-  flex: 0 0 auto;
-  width: 100%;
-  border: none;
-}
-
-.timelineGridPageBackdrop_mobile {
-  display: block;
-  position: fixed;
+  position: sticky;
   top: 0;
   left: 0;
-  z-index: 1;
-  width: 100dvw;
-  height: 100dvh;
-  background:
-    url("../../../assets/bg--noise-1.png") center,
-    radial-gradient(circle at top left, #ff5a5f 0%, transparent 75%),
-    radial-gradient(circle at top right, #ffd166 0%, transparent 75%),
-    radial-gradient(circle at bottom left, #4d7cfe 0%, transparent 75%),
-    radial-gradient(circle at bottom right, #06d6a0 0%, transparent 75%),
-    rgb(62, 63, 86);
-  pointer-events: none;
 }
 
-.timelineGridHeaderBackdrop_mobile {
+.zenPageMobile-headerStart,
+.zenPageMobile-headerMiddle,
+.zenPageMobile-headerEnd {
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  display: flex;
+}
+
+.zenPageMobile-headerMiddle {
+  margin: 0 auto;
+}
+
+.zenPageMobile-footer {
+  z-index: 30;
+  color: #fff;
+  border-top: 1px solid #ffffff4d;
+  background:
+      url("../../../assets/bg--noise-1.png") center,
+      linear-gradient(90deg, rgb(77 124 254 / 0.7) 0%, rgb(6 214 160 / 0.7) 100%),
+      rgba(var(--accent-color-1), 1);
+  justify-content: center;
+  align-items: center;
+  width: 100dvw;
+  padding: 15px 25px;
+  display: flex;
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  gap: 20px;
+}
+
+.timelineGridMobileEmbedded {
+  background-color: rgba(var(--accent-color-1), 0.3);
+  position: relative;
+  overflow: scroll;
+
+  .timelineGridMiddleMarker {
+    top: 67px;
+  }
+
+  .timelineGridMiddleHoursMarker {
+    top: 68px;
+  }
+}
+
+.timelineGridHeaderBackdrop {
   display: block;
   position: fixed;
   top: 0;
@@ -92,51 +102,30 @@
   z-index: 15;
   width: 100dvw;
   height: 106px;
-  background:
-    url("../../../assets/bg--noise-1.png") center,
-    linear-gradient(90deg, rgb(255 90 95 / 0.7) 0%, rgb(255 209 102 / 0.7) 100%),
-    rgba(var(--accent-color-1), 1);
+
   pointer-events: none;
 }
 
-:where(.timelineGridMobile) .timelineGrid-scroll {
-  flex: 1 1 auto;
-  min-height: 0;
-  position: relative;
-  z-index: 10;
-  background: rgba(var(--accent-color-1), 0.3);
-  border-radius: 20px;
-  overflow: hidden;
-  border: 1px solid rgba(var(--accent-color-2), 0.5);
+.timelineGrid-userHours_mobile {
+  top: 61px;
+  backdrop-filter: none;
+  background:
+      url("../../../assets/bg--noise-1.png") center,
+      linear-gradient(90deg, rgb(255 90 95 / 0.7) 0%, rgb(255 209 102 / 0.7) 100%),
+      rgba(var(--accent-color-1), 1);
+  background-size: 100dvw 100%;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-attachment: fixed;
 }
-
-:where(.timelineGridMobile) .timelineGrid-scrollViewport {
-  height: 100%;
-  overflow: auto;
-  overscroll-behavior: contain;
-  scroll-padding-inline: calc(50% - var(--timeline-grid-cell-size) / 2);
-  scroll-snap-type: x mandatory;
-}
-
-:where(.timelineGridMobile) .timelineGrid_dragging .timelineGrid-scrollViewport {
-  overflow-x: hidden;
-  overscroll-behavior-x: none;
-  scroll-snap-type: none;
-}
-
-:where(.timelineGridMobile) .timelineGrid_dragging .timelineGrid-cell {
-  visibility: hidden;
-}
-
-.timelineGrid-userHours_mobile { top: 60px; backdrop-filter: none; }
 
 .timelineGrid-row_mobile {
   content-visibility: auto;
   contain-intrinsic-size: calc(72 * var(--timeline-grid-hour-width)) 112px;
 }
 
-:where(.timelineGridMobile) .timelineGrid .timelineGrid-city {
-  width: 100%;
+.timelineGrid-city_mobile {
+  width: 100dvw;
 }
 
 .timelineGrid-row_reorder .timelineGrid-city_mobile {
@@ -153,74 +142,10 @@
   }
 }
 
-body:has(.timelineGrid-toolbar_mobile) {
-  min-width: max-content;
-  overflow: visible;
-  color: #fff;
-  padding-bottom: 1px;
-  background-color: rgba(var(--accent-color-1), 0.3);
-
-  #root {
-    display: contents;
-  }
-}
-
-@media (width < 720px) {
-  .timelineGridMiddleMarker_mobile {
-    top: 67px;
-    bottom: 0;
-  }
-}
-
-html[data-color-mode="night"]:has(.timelineGrid-toolbar_mobile) .timelineGridHeaderBackdrop_mobile {
+html[data-color-mode="night"]:has(.zenPageMobile) .timelineGridHeaderBackdrop_mobile {
   background:
     url("../../../assets/bg--noise-1.png") center,
     linear-gradient(90deg, #992ecf 0%, #003e98 100%);
-}
-
-html[data-color-mode="night"]:has(.timelineGrid-toolbar_mobile) .timelineGridPageBackdrop_mobile {
-  background:
-    url("../../../assets/bg--noise-1.png") center,
-    radial-gradient(circle at top left, #992ecf 0%, transparent 75%),
-    radial-gradient(circle at top right, #003e98 0%, transparent 75%),
-    radial-gradient(circle at bottom left, #1d395a 0%, transparent 75%),
-    radial-gradient(circle at bottom right, #058172 0%, transparent 75%),
-    #080914;
-}
-
-.timelineGridSelectionLayer_mobile {
-  position: fixed;
-  z-index: 999;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-:where(.timelineGridSelectionLayer_mobile) .timelineGridSelectionFrame {
-  position: absolute;
-  border: 1px solid #fff;
-  box-sizing: border-box;
-  box-shadow: 0 0 30px 0 rgb(0 0 0 / 0.15);
-  pointer-events: none;
-  border-radius: 14px;
-  backdrop-filter: contrast(1.5);
-}
-
-:where(.timelineGridSelectionLayer_mobile) .timelineGridSelectionHandle {
-  display: flex;
-  position: absolute;
-  width: 12px;
-  height: 12px;
-  padding: 0;
-  border: none;
-  background: transparent;
-  /*box-shadow: 0 0 0 1px rgb(0 0 0 / 0.5);*/
-  pointer-events: auto;
-  touch-action: none;
-}
-
-:where(.timelineGridSelectionLayer_mobile) .timelineGridSelectionHandle:focus-visible {
-  outline: 2px solid #111;
-  outline-offset: 3px;
 }
 
 body:has(.timelineGridSelectionLayer_mobile) .timelineGrid-row_mobile {
@@ -229,131 +154,96 @@ body:has(.timelineGridSelectionLayer_mobile) .timelineGrid-row_mobile {
 
 .timelineGridSelectionLayer_mobile {
   .timelineGridSelectionHandle {
-    width: min(44px, calc(100% / 3));
-    height: min(44px, calc(100% / 3));
     opacity: 1;
-    translate: -50% -50%;
     -webkit-user-select: none;
     user-select: none;
     -webkit-touch-callout: none;
-  }
 
-  .timelineGridSelectionHandle::before {
-    content: '';
-    display: block;
-    margin: auto;
-    border-radius: 4px;
-    background: #fff;
-    box-shadow: 0 0 0 1px rgb(0 0 0 / 0.15);
+    &:before {
+      content: '';
+      display: block;
+      margin: auto;
+      border-radius: 4px;
+      background: #fff;
+      box-shadow: 0 0 0 1px rgb(0 0 0 / 0.15);
+    }
   }
 
   .timelineGridSelectionHandle_n,
   .timelineGridSelectionHandle_s {
-    left: 50%;
+    left: 22px;
+    right: 22px;
     height: 44px;
-    &::before { width: 30px; max-width: 100%; height: 6px; }
+    translate: none;
+    width: auto;
+
+    &::before {
+      width: 30px;
+      max-width: 100%;
+      height: 6px;
+    }
   }
 
-  .timelineGridSelectionHandle_n { top: 0; }
-  .timelineGridSelectionHandle_s { top: 100%; bottom: auto; }
+  .timelineGridSelectionHandle_n {
+    top: -22px;
+  }
+
+  .timelineGridSelectionHandle_s {
+    bottom: -22px;
+  }
 
   .timelineGridSelectionHandle_e,
   .timelineGridSelectionHandle_w {
-    top: 50%;
+    top: 22px;
+    bottom: 22px;
     width: 44px;
-    &::before { width: 6px; height: 30px; max-height: 100%; }
+
+    &::before {
+      width: 6px;
+      height: 30px;
+      max-height: 100%;
+    }
   }
 
-  .timelineGridSelectionHandle_w { left: 0; }
-  .timelineGridSelectionHandle_e { left: 100%; right: auto; }
+  .timelineGridSelectionHandle_w {
+    left: -22px;
+  }
+
+  .timelineGridSelectionHandle_e {
+    right: -22px;
+  }
 
   .timelineGridSelectionHandle_ne,
   .timelineGridSelectionHandle_nw,
   .timelineGridSelectionHandle_se,
   .timelineGridSelectionHandle_sw {
-    &::before { width: 10px; height: 10px; border-radius: 50%; }
+    width: 44px;
+    height: 44px;
+
+    &::before {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
   }
 
-  .timelineGridSelectionHandle_nw { left: 0; top: 0; }
-  .timelineGridSelectionHandle_ne { left: 100%; right: auto; top: 0; }
-  .timelineGridSelectionHandle_sw { left: 0; top: 100%; bottom: auto; }
-  .timelineGridSelectionHandle_se { left: 100%; right: auto; top: 100%; bottom: auto; }
-}
+  .timelineGridSelectionHandle_nw {
+    left: -22px;
+    top: -22px;
+  }
 
-:where(.timelineGridMobile).timelinesEmbedded .timelineGrid {
-  width: 100%;
-  max-width: none;
-  height: 600px;
-  min-height: 0;
-  margin: 0;
-}
+  .timelineGridSelectionHandle_ne {
+    right: -22px;
+    top: -22px;
+  }
 
-:where(.timelineGridMobile).timelinesEmbedded .timelineGrid-scrollViewport {
-  overscroll-behavior: auto;
-  scroll-snap-type: none;
-}
+  .timelineGridSelectionHandle_sw {
+    left: -22px;
+    bottom: -22px;
+  }
 
-:where(.timelineGridMobile).timelinesEmbedded .timelineGrid-city {
-  width: var(--custom-scrollbar-client-width, 100%);
+  .timelineGridSelectionHandle_se {
+    right: -22px;
+    bottom: -22px;
+  }
 }
-
-:where(.timelineGridMobile).timelinesEmbedded .timelineGridMiddleHoursMarker {
-  top: 7px;
-}
-
-:where(.timelineGridMobile).timelinesEmbedded .timelineGridMiddleMarker {
-  top: 0;
-  bottom: 0;
-}
-
-:where(.timelineGridMobile).timelinesEmbedded .gridTopControls {
-  flex-wrap: wrap;
-  position: relative;
-}
-
-:where(.timelineGridMobile).timelinesEmbedded .gridTopControls:has(.timelineGridCalendarButton) {
-  max-width: 700px;
-  gap: 12px;
-}
-
-:where(.timelineGridMobile).timelinesEmbedded .gridTopControls .citiesHeaderButton {
-  flex: 0 0 30px;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background: rgba(var(--accent-color-1), 0.3);
-  border: none;
-}
-
-:where(.timelineGridMobile).timelinesEmbedded .gridTopControlsButton_zen {
-  margin-left: auto;
-}
-
-:where(.timelineGridMobile).timelinesEmbedded {
-  padding-inline: 15px;
-}
-
-:where(.timelineGridMobile).timelinesEmbedded .timelineGrid {
-  height: min(580px, 75dvh);
-}
-
-:where(.timelineGridMobile).timelinesEmbedded .timelineGrid-scrollViewport {
-  --custom-scrollbar-client-width: calc(100vw - 32px);
-  width: 100%;
-  scrollbar-width: none;
-}
-
-:where(.timelineGridMobile).timelinesEmbedded .timelineGrid-scrollViewport::-webkit-scrollbar {
-  display: none;
-}
-
-:where(.timelineGridMobile).timelinesEmbedded .timelineGrid-userHours_mobile {
-  top: 0;
-  backdrop-filter: blur(30px);
-}
-
-:where(.timelineGridMobile).timelinesEmbedded .timelineGrid-row_mobile {
-  content-visibility: visible;
-}
-
-:where(.timelineGridMobile).timelinesEmbedded { padding-inline: 15px; position: relative; }

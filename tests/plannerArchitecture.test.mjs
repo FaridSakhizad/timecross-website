@@ -95,12 +95,23 @@ test('toolbar styles are independent and mobile has no decorative backdrop style
   assert.ok(!timelines.includes('widgetHeader'));
 });
 
-test('selection frame styles are owned by each implementation, with no cross-version selectors', () => {
+test('selection base styles are shared while handle adaptations remain isolated', () => {
   const desktop = readFileSync(resolve(grid, 'desktop/style.css'), 'utf8');
   const mobile = readFileSync(resolve(grid, 'mobile/style.css'), 'utf8');
-  const shared = readFileSync(resolve(grid, 'shared/style.css'), 'utf8');
-  assert.ok(desktop.includes(':where(.timelineGridSelectionLayer_desktop) .timelineGridSelectionHandle'));
-  assert.ok(mobile.includes(':where(.timelineGridSelectionLayer_mobile) .timelineGridSelectionHandle'));
+  const shared = readFileSync(resolve(grid, 'shared/selection.css'), 'utf8');
+  assert.ok(shared.includes('.timelineGridSelectionLayer {'));
+  assert.ok(shared.includes(':where(.timelineGridSelectionLayer) .timelineGridSelectionFrame'));
+  assert.ok(shared.includes(':where(.timelineGridSelectionLayer .timelineGridSelectionHandle) {'));
+  assert.ok(shared.includes('.timelineGridSelectionHandle:focus-visible'));
+  assert.ok(desktop.includes(':where(.timelineGridSelectionLayer_desktop) .timelineGridSelectionHandle_n'));
+  assert.ok(mobile.includes('.timelineGridSelectionLayer_mobile {'));
+  assert.ok(mobile.includes('width: min(44px, calc(100% / 3))'));
+  for (const [kind, component] of [['desktop', 'DesktopSelectionOverlay'], ['mobile', 'MobileSelectionOverlay']]) {
+    assert.ok([...dependencies(resolve(grid, kind, `${component}.tsx`))].includes(resolve(grid, 'shared/selection.css')));
+    const css = kind === 'desktop' ? desktop : mobile;
+    assert.ok(!css.includes(' .timelineGridSelectionFrame {'));
+    assert.ok(!css.includes('.timelineGridSelectionHandle:focus-visible'));
+  }
   assert.ok(!desktop.includes('_mobile'));
   assert.ok(!mobile.includes('_desktop'));
   assert.ok(!shared.includes('_mobile'));

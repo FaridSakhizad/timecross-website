@@ -1,3 +1,4 @@
+import '../shared/selection.css';
 import { createPortal } from 'react-dom';
 import type { RefObject } from 'react';
 import { useI18n } from '../../../i18n';

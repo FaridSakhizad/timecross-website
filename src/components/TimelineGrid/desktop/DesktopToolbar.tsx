@@ -1,4 +1,4 @@
-import '../../widget.css';
+import '../../compoundWidget.css';
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { Hand } from 'lucide-react';
@@ -31,7 +31,6 @@ export default function DesktopToolbar(props: DesktopToolbarProps) {
 
         <div className="widgetHeaderStart">
           {embedded ? <>
-            <i className="widgetHeaderControlPlaceholder" />
             <i className="widgetHeaderControlPlaceholder" />
           </> : (
             <Link to={getCanonicalLanguagePath(language, '/')}
@@ -66,7 +65,6 @@ export default function DesktopToolbar(props: DesktopToolbarProps) {
         <div className="widgetHeaderEnd">
           {embedded ? (
             <>
-              <i className="widgetHeaderControlPlaceholder" />
               <Link to={getCanonicalLanguagePath(language, '/grid')}
                 className="widgetHeaderButton" aria-label={t('common.openGrid')}>
                 <i className="citiesHeaderButton-icon citiesHeaderButton-icon_open" />

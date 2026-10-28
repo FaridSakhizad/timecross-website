@@ -78,6 +78,19 @@ test('application boundary can force either view without a browser or device det
   assert.ok(render(Planner, 'zen', '/en/grid', { layout: 'desktop' }).includes('timelineGrid-userHours_desktop'));
 });
 
+test('mobile zen selection controls live only in the footer; embedded controls stay in the header', () => {
+  const zen = render(Mobile, 'zen');
+  const footer = zen.indexOf('class="zenPageMobile-footer"');
+  assert.ok(footer > 0);
+  assert.ok(zen.indexOf('aria-label="Select hours"') > footer);
+  assert.equal((zen.match(/aria-label="Select hours"/g) ?? []).length, 1);
+  assert.equal((zen.match(/timelineGridCalendarButton" type="button" disabled=""/g) ?? []).length, 4);
+  assert.ok(zen.indexOf('timelineGridCalendarButton') > footer);
+  const embedded = render(Mobile, 'embedded');
+  assert.ok(!embedded.includes('zenPageMobile-footer'));
+  assert.ok(embedded.indexOf('aria-label="Select hours"') < embedded.indexOf('class="timelineGrid '));
+});
+
 for (const [name, Component] of [['desktop', Desktop], ['mobile', Mobile]]) {
   for (const presentation of ['zen', 'embedded']) {
     test(`${name}/${presentation} renders independently with shared cells and the existing header structure`, () => {
@@ -130,6 +143,15 @@ for (const [name, Component] of [['desktop', Desktop], ['mobile', Mobile]]) {
     assert.ok(html.includes('20261026T120000Z%2F20261026T150000Z'));
     assert.ok(html.includes('aria-label="Create event in Outlook"'));
     assert.ok(html.includes('aria-label="Download event (.ics)"'));
+    if (name === 'mobile') {
+      const footer = html.indexOf('class="zenPageMobile-footer"');
+      assert.ok(footer > 0);
+      assert.ok(html.indexOf('timelineGridCalendarButton') > footer);
+      assert.ok(html.indexOf('aria-label="Clear selection"') > footer);
+      assert.ok(!html.includes('aria-label="Select hours"'));
+      assert.ok(html.includes('lucide-x'));
+      assert.equal((html.match(/aria-label="Create event in Outlook"/g) ?? []).length, 1);
+    }
     if (name === 'desktop') {
       assert.ok(html.indexOf('timelineGridCalendarButton') > html.indexOf('class="widgetFooter"'));
       assert.equal((html.match(/timelineGridCalendarButton" type="button" disabled=""/g) ?? []).length, 1);

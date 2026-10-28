@@ -30,8 +30,8 @@ export default function MobileTimeline(props: GridTimelineProps) {
         <i className="timelineGrid-addTimezoneButtonIcon" />
         <span className="timelineGrid-addTimezoneButtonText">{t('common.addCity')}</span>
       </button>
-      <div className="timelineGridMiddleMarker timelineGridMiddleMarker_mobile" />
-      <div className="timelineGridMiddleHoursMarker timelineGridMiddleMarker_mobile" />
+      <div className="timelineGridMiddleMarker" />
+      <div className="timelineGridMiddleHoursMarker" />
     </>
   );
 }

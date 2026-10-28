@@ -14,19 +14,6 @@
   position: relative;
 }
 
-.widgetHeader_mobile {
-  position: sticky;
-  top: 0;
-  left: 0;
-  z-index: 30;
-  width: 100dvw;
-  max-width: unset;
-  margin: 0;
-  padding: 15px 25px;
-  border-bottom: 1px solid rgba(255 255 255 / 0.3);
-  color: #fff;
-}
-
 .widgetHeader-backdrop {
   position: absolute;
   z-index: 0;
@@ -146,6 +133,8 @@
 
   &.isActive {
     background-color: rgba(var(--accent-color-1), 0.3);
+    outline: 1px solid rgba(var(--accent-color-2), 1);
+    outline-offset: 2px;
   }
 
   &:focus-visible {
@@ -161,16 +150,12 @@
 
 @media (hover: hover) {
   .widgetHeaderButton {
-    &:hover,
-    &.isActive:hover {
-      background-color: rgba(var(--accent-color-1), 0.7);
+    &:not([disabled]) {
+      &:hover,
+      &.isActive:hover {
+        background-color: rgba(var(--accent-color-1), 0.7);
+      }
     }
-  }
-}
-
-@media (width <= 768px) {
-  .widgetHeader_mobile .widgetHeaderMiddle {
-    gap: clamp(4px, 4.073vw - 11.272px, 20px);
   }
 }
 
@@ -279,8 +264,9 @@
   flex-shrink: 0;
 }
 
-@media (width <= 700px) {
+@media (width <= 830px) {
   .widget {
+    max-width: 700px;
     box-shadow: 0 10px 50px 0 rgba(0 0 0 / 0.15);
     border-radius: 40px;
   }

@@ -1,0 +1,35 @@
+.timelineGridSelectionLayer {
+  position: fixed;
+  z-index: 999;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.timelineGridSelectionRectangle,
+:where(.timelineGridSelectionLayer) .timelineGridSelectionFrame {
+  border: 1px solid #fff;
+  box-sizing: border-box;
+  box-shadow: 0 0 30px 0 rgb(0 0 0 / 0.15);
+  pointer-events: none;
+  border-radius: 14px;
+  backdrop-filter: contrast(1.5);
+}
+
+:where(.timelineGridSelectionLayer) .timelineGridSelectionFrame {
+  position: absolute;
+}
+
+:where(.timelineGridSelectionLayer .timelineGridSelectionHandle) {
+  display: flex;
+  position: absolute;
+  padding: 0;
+  border: none;
+  background: transparent;
+  pointer-events: auto;
+  touch-action: none;
+}
+
+:where(.timelineGridSelectionLayer) .timelineGridSelectionHandle:focus-visible {
+  outline: 2px solid #111;
+  outline-offset: 3px;
+}

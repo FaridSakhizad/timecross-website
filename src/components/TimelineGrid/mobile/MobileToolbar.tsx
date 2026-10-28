@@ -1,18 +1,12 @@
-import './MobileToolbar.css';
 import { useState } from 'react';
 import { Link } from 'react-router';
-import { Scan } from 'lucide-react';
 import { useI18n } from '../../../i18n';
 import { getCanonicalLanguagePath } from '../../../i18n/languageRouting';
 import StandaloneMenuModal from '../../StandaloneMenuModal';
-import GridCalendarActions from '../shared/GridCalendarActions';
+import { type MobileSelectionControlsProps } from './MobileSelectionControls';
 import type { GridToolbarProps } from '../shared/types';
 
-type MobileToolbarProps = GridToolbarProps & {
-  selectionEnabled: boolean;
-  selectionDisabled: boolean;
-  onSelectionToggle: () => void;
-};
+type MobileToolbarProps = GridToolbarProps & MobileSelectionControlsProps;
 
 export default function MobileToolbar(props: MobileToolbarProps) {
   const { language, t } = useI18n();
@@ -21,9 +15,11 @@ export default function MobileToolbar(props: MobileToolbarProps) {
 
   return (
     <>
-      <div className={`widgetHeader widgetHeader_mobile${embedded ? '' : ' timelineGrid-toolbar timelineGrid-toolbar_mobile'}`}>
-        <div className="widgetHeaderStart">
-          {embedded ? null : (
+      <div className="zenPageMobile-header">
+        <div className="zenPageMobile-headerStart">
+          {embedded ? (
+              <i className="widgetHeaderControlPlaceholder" />
+            ) : (
             <Link to={getCanonicalLanguagePath(language, '/')}
               className="widgetHeaderButton citiesHeaderButton_home" aria-label={t('common.home')}>
               <i className="citiesHeaderButton-icon citiesHeaderButton-icon_home" />
@@ -31,9 +27,9 @@ export default function MobileToolbar(props: MobileToolbarProps) {
           )}
         </div>
 
-        <div className="widgetHeaderMiddle">
+        <div className="zenPageMobile-headerMiddle">
           <button
-            className={`widgetHeaderButton citiesHeaderButton_edit ${props.isEditMode ? 'isActive' : ''}`}
+            className={`widgetHeaderButton ${props.isEditMode ? 'isActive' : ''}`}
             type="button"
             aria-label="edit"
             aria-pressed={props.isEditMode}
@@ -42,7 +38,7 @@ export default function MobileToolbar(props: MobileToolbarProps) {
             <i className="citiesHeaderButton-icon citiesHeaderButton-icon_edit" />
           </button>
           <button
-            className="widgetHeaderButton citiesHeaderButton_add"
+            className="widgetHeaderButton"
             type="button"
             aria-label={t('common.addCity')}
             onClick={props.onAddCityClick}
@@ -57,27 +53,8 @@ export default function MobileToolbar(props: MobileToolbarProps) {
           >
             <i className="citiesHeaderButton-icon citiesHeaderButton-icon_reset" />
           </button>
-          <button
-            className={`widgetHeaderButton ${props.selectionEnabled ? 'isActive' : ''}`}
-            type="button"
-            title={t('common.selectHours')}
-            aria-label={t('common.selectHours')}
-            aria-pressed={props.selectionEnabled}
-            disabled={props.selectionDisabled}
-            onClick={props.onSelectionToggle}
-          >
-            <Scan size={18} aria-hidden="true" />
-          </button>
-
-          {props.calendarEvent && !props.isEditMode && (
-            <GridCalendarActions
-              event={props.calendarEvent}
-              cities={props.cities}
-              hours={props.selectedHours}
-            />
-          )}
         </div>
-        <div className="widgetHeaderEnd">
+        <div className="zenPageMobile-headerEnd">
           {embedded ? (
             <Link
               to={getCanonicalLanguagePath(language, '/grid')}

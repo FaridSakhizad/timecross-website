@@ -6,6 +6,7 @@ import { buildGridCalendarEvent, gridHourKey } from '../shared/gridSelection';
 import TimelineGridActiveHourIndicator from '../shared/GridActiveHourIndicator';
 import MobileTimeline from './MobileTimeline';
 import MobileToolbar from './MobileToolbar';
+import MobileSelectionControls from './MobileSelectionControls';
 import MobileSelectionOverlay from './MobileSelectionOverlay';
 import type { TimelineGridShellProps } from '../shared/types';
 import { useTimelineGridActiveHourIndicator } from '../shared/useGridActiveHourIndicator';
@@ -50,31 +51,75 @@ export default function MobileGrid(props: TimelineGridShellProps) {
   );
 
   const toolbar = (
-    <MobileToolbar {...props} calendarEvent={event} selectedHours={selectedHours}
-      selectionEnabled={enabled} selectionDisabled={props.isEditMode || props.isDragging || !props.cities.length}
+    <MobileToolbar {...props}
+      calendarEvent={event}
+      selectedHours={selectedHours}
+      selectionEnabled={enabled}
+      selectionDisabled={props.isEditMode || props.isDragging || !props.cities.length}
       onSelectionToggle={toggle}
       onResetClick={() => { clear(); resetGridScroll(); props.onReset?.(); }}
       onEditModeToggle={() => { clear(); props.onEditModeToggle(); }}
       onAddCityClick={() => { clear(); props.onAddCityClick(); }} />
   );
-  const timeline = <MobileTimeline {...props} selectedHourKeys={selectedHourKeys}
-    onAddCityClick={() => { clear(); props.onAddCityClick(); }} />;
+
+  const timeline = (
+    <MobileTimeline
+      {...props}
+      selectedHourKeys={selectedHourKeys}
+      onAddCityClick={() => { clear(); props.onAddCityClick(); }}
+    />
+  );
 
   return (
     <>
       {embedded ? (
-        <div className="timelineGridMobile timelinesEmbedded timelinesEmbedded_mobile">
-          {toolbar}
-          <div className={`timelineGrid ${props.isDragging ? 'timelineGrid_dragging' : ''}`}>
-            <div ref={viewportRef} className="timelineGrid-scrollViewport">{timeline}</div>
-            <TimelineGridActiveHourIndicator direction={activeHourDirection} onClick={scrollActiveHourIntoView} />
+        <div className="timelineGridMobileEmbedded">
+          <div
+            ref={viewportRef}
+            className="timelineGrid-scrollViewport"
+          >
+            {toolbar}
+            {timeline}
+            <TimelineGridActiveHourIndicator
+              direction={activeHourDirection}
+              onClick={scrollActiveHourIntoView}
+            />
+
+            <div className="zenPageMobile-footer">
+              <MobileSelectionControls
+                calendarEvent={event}
+                cities={props.cities}
+                selectedHours={selectedHours}
+                isEditMode={props.isEditMode}
+                selectionEnabled={enabled}
+                selectionDisabled={props.isEditMode || props.isDragging || !props.cities.length}
+                onSelectionToggle={toggle}
+              />
+            </div>
           </div>
         </div>
       ) : <>
-        <div className="timelineGridHeaderBackdrop timelineGridHeaderBackdrop_mobile" aria-hidden="true" />
-        {toolbar}
-        {timeline}
-        <TimelineGridActiveHourIndicator direction={activeHourDirection} onClick={scrollActiveHourIntoView} />
+        <div className="zenPageMobile">
+          <div className="timelineGridHeaderBackdrop" aria-hidden="true" />
+          {toolbar}
+          {timeline}
+          <TimelineGridActiveHourIndicator
+            direction={activeHourDirection}
+            onClick={scrollActiveHourIntoView}
+          />
+          <div className="zenPageMobile-footer">
+            <MobileSelectionControls
+              calendarEvent={event}
+              cities={props.cities}
+              selectedHours={selectedHours}
+              isEditMode={props.isEditMode}
+              selectionEnabled={enabled}
+              selectionDisabled={props.isEditMode || props.isDragging || !props.cities.length}
+              onSelectionToggle={toggle}
+            />
+          </div>
+          <div className="timelineGridFooterBackdrop" aria-hidden="true" />
+        </div>
       </>}
       <MobileSelectionOverlay enabled={enabled} layerRef={layerRef} />
     </>
