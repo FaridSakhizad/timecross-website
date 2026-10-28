@@ -116,9 +116,6 @@ function App({
 
   useEffect(() => {
     document.documentElement.dataset.colorMode = colorMode;
-    document.head.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]').forEach((meta) => {
-      meta.content = colorMode === 'night' ? '#080914' : meta.media ? '#e9a27e' : '#f2d85f';
-    });
   }, [colorMode]);
 
   useEffect(() => {

@@ -78,30 +78,12 @@ html[data-color-mode="night"] {
 
 @media (hover: none) and (pointer: coarse) {
   html {
-    background: #e9a27e url("./assets/bg--mob-main-1.jpg") center top / 100dvw 100lvh no-repeat;
-  }
-
-  /* Keep the image behind long pages without relying on iOS background-attachment. */
-  body::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100vh;
-    height: 100lvh;
-    z-index: -1;
-    pointer-events: none;
-    background: #e9a27e url("./assets/bg--mob-main-1.jpg") center / cover no-repeat;
-  }
-
-  html[data-color-mode="night"] body::before {
-    background:
-      radial-gradient(circle at top left, #992ecf 0%, transparent 75%),
-      radial-gradient(circle at top right, #003e98 0%, transparent 75%),
-      radial-gradient(circle at bottom left, #1d395a 0%, transparent 75%),
-      radial-gradient(circle at bottom right, #058172 0%, transparent 75%),
-      #080914;
+    /*background: unset;*/
+    /*height: 100dvh;*/
+    /*width: 100dvw;*/
+    /*background: url("./assets/bg--mob-main-1.jpg") center center no-repeat;*/
+    /*background-size: cover;*/
+    /*background-attachment: fixed;*/
   }
 }
 

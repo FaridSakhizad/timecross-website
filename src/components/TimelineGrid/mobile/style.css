@@ -36,7 +36,7 @@
 
 .zenPageMobileBackdrop {
   width: 100dvw;
-  height: 100lvh;
+  height: 100dvh;
   position: fixed;
   z-index: 0;
   left: 0;
