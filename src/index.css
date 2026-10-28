@@ -52,6 +52,7 @@ html, body {
 
 html {
   height: 100%;
+  width: 100%;
   background:
     radial-gradient(circle at top left, #ff5a5f 0%, transparent 75%),
     radial-gradient(circle at top right, #ffd166 0%, transparent 75%),
@@ -77,11 +78,12 @@ html[data-color-mode="night"] {
 
 @media (width <= 1024px) {
   html {
-    height: 100dvh;
-    width: 100dvw;
-    background: url("./assets/bg--mob-main-1.jpg") center center no-repeat;
-    background-size: cover;
-    background-attachment: fixed;
+    background: unset;
+    /*height: 100dvh;*/
+    /*width: 100dvw;*/
+    /*background: url("./assets/bg--mob-main-1.jpg") center center no-repeat;*/
+    /*background-size: cover;*/
+    /*background-attachment: fixed;*/
   }
 }
 

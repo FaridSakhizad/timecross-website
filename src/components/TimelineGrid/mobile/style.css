@@ -34,6 +34,16 @@
   }
 }
 
+.zenPageMobileBackdrop {
+  width: 100dvw;
+  height: 100dvh;
+  position: fixed;
+  z-index: 0;
+  left: 0;
+  top: 0;
+  background: url("../../../assets/bg--mob-main-1.jpg") center center / cover no-repeat;
+}
+
 .zenPageMobile-header {
   z-index: 30;
   color: #fff;

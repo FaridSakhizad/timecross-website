@@ -99,28 +99,31 @@ export default function MobileGrid(props: TimelineGridShellProps) {
             </div>
           </div>
         </div>
-      ) : <>
-        <div className="zenPageMobile">
-          <div className="timelineGridBackdrop" aria-hidden="true" />
-          {toolbar}
-          {timeline}
-          <TimelineGridActiveHourIndicator
-            direction={activeHourDirection}
-            onClick={scrollActiveHourIntoView}
-          />
-          <div className="zenPageMobile-footer">
-            <MobileSelectionControls
-              calendarEvent={event}
-              cities={props.cities}
-              selectedHours={selectedHours}
-              isEditMode={props.isEditMode}
-              selectionEnabled={enabled}
-              selectionDisabled={props.isEditMode || props.isDragging || !props.cities.length}
-              onSelectionToggle={toggle}
+      ) :
+        <>
+          <div className="zenPageMobile">
+            <div className="timelineGridBackdrop" aria-hidden="true" />
+            {toolbar}
+            {timeline}
+            <TimelineGridActiveHourIndicator
+              direction={activeHourDirection}
+              onClick={scrollActiveHourIntoView}
             />
+            <div className="zenPageMobile-footer">
+              <MobileSelectionControls
+                calendarEvent={event}
+                cities={props.cities}
+                selectedHours={selectedHours}
+                isEditMode={props.isEditMode}
+                selectionEnabled={enabled}
+                selectionDisabled={props.isEditMode || props.isDragging || !props.cities.length}
+                onSelectionToggle={toggle}
+              />
+            </div>
           </div>
-        </div>
-      </>}
+          <div className="zenPageMobileBackdrop" />
+        </>
+      }
       <MobileSelectionOverlay enabled={enabled} layerRef={layerRef} />
     </>
   );
