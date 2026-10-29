@@ -80,7 +80,14 @@
   border-bottom: 1px solid rgba(255 255 255 / 0.15);
   color: #fff;
   user-select: none;
-  backdrop-filter: blur(30px)
+  backdrop-filter: blur(30px);
+  /*
+  background:
+    linear-gradient(rgba(var(--accent-color-1), 0.3), rgba(var(--accent-color-1), 0.3)),
+    url("/src/assets/bg--noise-1.png") center,
+    url("/src/assets/bg--mob-main-1.jpg") top center / 100dvw no-repeat fixed,
+    rgba(var(--accent-color-1), 0.3);
+  */
 }
 
 .timelineGrid-hour {

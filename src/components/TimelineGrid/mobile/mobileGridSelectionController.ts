@@ -17,13 +17,14 @@ export function attachMobileGridSelection(
   const readCells = () => getMobileGridSelectionCells(root, viewport);
   const readVisible = () => getMobileGridVisibleRect(viewport);
   const frame = layer.querySelector<HTMLElement>('[data-grid-selection-frame]')!;
+  const usesTouchEvents = typeof window.TouchEvent !== 'undefined';
   let cells = readCells();
   let committed = initial;
   let preview = initial;
   let bounds = getGridSelectionBounds(cells, initial);
   let animation = 0;
   let session: {
-    pointerId: number; handle: HTMLElement; direction: GridResizeDirection;
+    pointerId?: number; touchId?: number; handle: HTMLElement; direction: GridResizeDirection;
     x: number; y: number; clientX: number; clientY: number;
     bounds: NonNullable<typeof bounds>;
   } | null = null;
@@ -59,7 +60,9 @@ export function attachMobileGridSelection(
     if (commit) { committed = preview; onCommit(committed); }
     else { preview = committed; paint(committed); }
     onInteractionChange(false);
-    if (previous.handle.hasPointerCapture(previous.pointerId)) previous.handle.releasePointerCapture(previous.pointerId);
+    if (previous.pointerId !== undefined && previous.handle.hasPointerCapture(previous.pointerId)) {
+      previous.handle.releasePointerCapture(previous.pointerId);
+    }
   };
   const draw = (autoScroll = true) => {
     const current = session;
@@ -87,22 +90,27 @@ export function attachMobileGridSelection(
   const schedule = () => {
     if (!animation) animation = requestAnimationFrame(() => { animation = 0; draw(); });
   };
-  const start = (event: PointerEvent) => {
-    if (!event.isPrimary || event.button !== 0 || session || !(event.target instanceof Element)) return;
-    const handle = event.target.closest<HTMLElement>('[data-grid-resize]');
+  const begin = (target: EventTarget | null, clientX: number, clientY: number,
+    identity: { pointerId: number } | { touchId: number }) => {
+    if (session || !(target instanceof Element)) return false;
+    const handle = target.closest<HTMLElement>('[data-grid-resize]');
     const direction = handle?.dataset.gridResize as GridResizeDirection;
-    if (!handle || !DIRECTIONS.has(direction) || !committed.length) return;
+    if (!handle || !DIRECTIONS.has(direction) || !committed.length) return false;
     window.scrollTo({ left: window.scrollX, top: window.scrollY, behavior: 'instant' });
     viewport?.scrollTo({ left: viewport.scrollLeft, top: viewport.scrollTop, behavior: 'instant' });
     cells = readCells();
     const initialBounds = getGridSelectionBounds(cells, committed);
-    if (!initialBounds) return;
-    session = { pointerId: event.pointerId, handle, direction, bounds: initialBounds,
-      x: event.clientX + scrollX(), y: event.clientY + scrollY(),
-      clientX: event.clientX, clientY: event.clientY };
+    if (!initialBounds) return false;
+    session = { ...identity, handle, direction, bounds: initialBounds,
+      x: clientX + scrollX(), y: clientY + scrollY(), clientX, clientY };
     preview = committed;
-    handle.setPointerCapture(event.pointerId);
+    if ('pointerId' in identity) handle.setPointerCapture(identity.pointerId);
     onInteractionChange(true);
+    return true;
+  };
+  const start = (event: PointerEvent) => {
+    if (!event.isPrimary || event.button !== 0 || (usesTouchEvents && event.pointerType === 'touch')) return;
+    if (!begin(event.target, event.clientX, event.clientY, { pointerId: event.pointerId })) return;
     event.preventDefault(); event.stopPropagation();
   };
   const move = (event: PointerEvent) => {
@@ -131,7 +139,38 @@ export function attachMobileGridSelection(
     } else finish(false);
   };
   const cancel = () => finish(false);
-  const multiTouch = (event: PointerEvent) => { if (session && event.pointerId !== session.pointerId) cancel(); };
+  const multiTouch = (event: PointerEvent) => {
+    if (session && !event.isPrimary && event.pointerId !== session.pointerId) cancel();
+  };
+  // On iOS, cancel native scrolling at the touch-event level from the first contact.
+  // Pointer events remain the mouse/pen path; do not process both streams for one finger.
+  const touchStart = (event: TouchEvent) => {
+    if (event.touches.length !== 1) { cancel(); return; }
+    const touch = event.changedTouches[0];
+    if (!touch || !begin(event.target, touch.clientX, touch.clientY, { touchId: touch.identifier })) return;
+    event.preventDefault(); event.stopPropagation();
+  };
+  const touchMove = (event: TouchEvent) => {
+    if (session?.touchId === undefined) return;
+    if (event.touches.length !== 1) { cancel(); return; }
+    const touch = Array.from(event.changedTouches).find((touch) => touch.identifier === session?.touchId);
+    if (!touch) return;
+    session.clientX = touch.clientX; session.clientY = touch.clientY;
+    schedule(); event.preventDefault();
+  };
+  const touchEnd = (event: TouchEvent) => {
+    if (session?.touchId === undefined) return;
+    const touch = Array.from(event.changedTouches).find((touch) => touch.identifier === session?.touchId);
+    if (!touch) return;
+    session.clientX = touch.clientX; session.clientY = touch.clientY;
+    cancelAnimationFrame(animation); animation = 0;
+    draw(false); finish(true); event.preventDefault();
+  };
+  const touchCancel = (event: TouchEvent) => {
+    if (session?.touchId !== undefined
+      && Array.from(event.changedTouches).some((touch) => touch.identifier === session?.touchId)) cancel();
+  };
+  const multipleTouches = (event: TouchEvent) => { if (event.touches.length > 1) cancel(); };
   const visibility = () => { if (document.visibilityState === 'hidden') cancel(); };
   const resize = () => { cancel(); cells = readCells(); bounds = getGridSelectionBounds(cells, committed); position(); };
   const keydown = (event: KeyboardEvent) => {
@@ -162,6 +201,13 @@ export function attachMobileGridSelection(
   layer.addEventListener('pointerdown', start);
   layer.addEventListener('lostpointercapture', lost);
   layer.addEventListener('click', click);
+  if (usesTouchEvents) {
+    layer.addEventListener('touchstart', touchStart, { passive: false });
+    window.addEventListener('touchstart', multipleTouches, { capture: true, passive: true });
+    layer.addEventListener('touchmove', touchMove, { passive: false });
+    layer.addEventListener('touchend', touchEnd, { passive: false });
+    layer.addEventListener('touchcancel', touchCancel);
+  }
   window.addEventListener('pointermove', move, { passive: false });
   window.addEventListener('pointerup', up, true);
   window.addEventListener('pointercancel', lost);
@@ -180,6 +226,13 @@ export function attachMobileGridSelection(
     layer.removeEventListener('pointerdown', start);
     layer.removeEventListener('lostpointercapture', lost);
     layer.removeEventListener('click', click);
+    if (usesTouchEvents) {
+      layer.removeEventListener('touchstart', touchStart);
+      window.removeEventListener('touchstart', multipleTouches, true);
+      layer.removeEventListener('touchmove', touchMove);
+      layer.removeEventListener('touchend', touchEnd);
+      layer.removeEventListener('touchcancel', touchCancel);
+    }
     window.removeEventListener('pointermove', move);
     window.removeEventListener('pointerup', up, true);
     window.removeEventListener('pointercancel', lost);

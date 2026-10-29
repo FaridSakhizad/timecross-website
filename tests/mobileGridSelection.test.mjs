@@ -181,6 +181,77 @@ test('fast touch release commits final coordinates even without intermediate mov
   assert.equal(committed.length, 12);
 });
 
+function nativeTouch(target, type, handle, x, y, identifier = 7, touches) {
+  const touch = { identifier, clientX: x, clientY: y };
+  return emit(target, type, { target: handle, changedTouches: [touch],
+    touches: touches ?? (type === 'touchend' || type === 'touchcancel' ? [] : [touch]) });
+}
+
+function enableNativeTouch(viewport) {
+  controller.destroy();
+  window.TouchEvent = class {};
+  controller = attachMobileGridSelection(layer, initial, (value) => { committed = value; }, (value) => { active = value; }, viewport);
+}
+
+test('native first-contact dragging resizes all eight handles without a preliminary tap', () => {
+  for (const direction of Object.keys(handles)) {
+    enableNativeTouch(); committed = initial;
+    const x = direction.includes('w') ? 74 : 286;
+    const y = direction.includes('n') ? 231 : 564;
+    const dx = direction.includes('w') ? -74 : direction.includes('e') ? 74 : 0;
+    const dy = direction.includes('n') ? -111 : direction.includes('s') ? 111 : 0;
+    const pointer = emit(layer, 'pointerdown', { target: handles[direction], clientX: x, clientY: y });
+    assert.equal(pointer.defaultPrevented, false);
+    assert.equal(active, false);
+    assert.equal(nativeTouch(layer, 'touchstart', handles[direction], x, y).defaultPrevented, true);
+    assert.equal(active, true);
+    assert.equal(nativeTouch(layer, 'touchmove', handles[direction], x + dx, y + dy).defaultPrevented, true);
+    flush();
+    emit(window, 'pointerup', { clientX: x + dx, clientY: y + dy });
+    assert.equal(active, true, 'the duplicate pointer stream must not finish the touch gesture');
+    nativeTouch(layer, 'touchend', handles[direction], x + dx, y + dy);
+    assert.equal(active, false);
+    assert.equal(new Set(committed.map((cell) => cell.rowId)).size, dy ? 4 : 3, direction);
+    assert.equal(new Set(committed.map((cell) => cell.start)).size, dx ? 4 : 3, direction);
+  }
+});
+
+test('native touch release uses final coordinates without a rendered move frame', () => {
+  enableNativeTouch();
+  nativeTouch(layer, 'touchstart', handles.e, 286, 400);
+  nativeTouch(layer, 'touchend', handles.e, 360, 400);
+  assert.equal(committed.length, 12);
+  assert.equal(frames.size, 0);
+});
+
+test('native touch cancellation and a second finger roll back the range and release scrolling', () => {
+  for (const cancel of [
+    () => nativeTouch(layer, 'touchcancel', handles.e, 360, 400),
+    () => nativeTouch(window, 'touchstart', handles.e, 360, 400, 8, [{ identifier: 7 }, { identifier: 8 }]),
+  ]) {
+    enableNativeTouch(); committed = initial;
+    nativeTouch(layer, 'touchstart', handles.e, 286, 400);
+    nativeTouch(layer, 'touchmove', handles.e, 360, 400); flush();
+    assert.equal(elements.filter((element) => element.selected).length, 12);
+    cancel();
+    assert.equal(active, false);
+    assert.equal(committed, initial);
+    assert.equal(elements.filter((element) => element.selected).length, 9);
+    assert.equal(nativeTouch(layer, 'touchmove', handles.e, 380, 400).defaultPrevented, false);
+  }
+});
+
+test('native swipes outside handles and listeners after destroy never prevent page scrolling', () => {
+  enableNativeTouch();
+  const outside = new FakeElement();
+  assert.equal(nativeTouch(layer, 'touchstart', outside, 200, 400).defaultPrevented, false);
+  assert.equal(nativeTouch(window, 'touchmove', outside, 260, 400).defaultPrevented, false);
+  assert.equal(active, false);
+  controller.destroy();
+  assert.equal(nativeTouch(layer, 'touchstart', handles.e, 286, 400).defaultPrevented, false);
+  assert.equal(active, false);
+});
+
 test('native page swipes outside handles are neither prevented nor interpreted as selection', () => {
   assert.equal(emit(window, 'pointerdown').defaultPrevented, false);
   assert.equal(emit(window, 'pointermove', { clientX: 250 }).defaultPrevented, false);
@@ -329,4 +400,21 @@ test('embedded touch resize uses widget scroll offsets and autoscroll never scro
   controller.destroy();
   emit(viewport, 'scroll');
   assert.equal(frames.size, 0);
+});
+
+test('native embedded resizing and edge autoscroll affect only the widget', () => {
+  const viewport = embeddedViewport();
+  enableNativeTouch(viewport);
+  assert.equal(nativeTouch(layer, 'touchstart', handles.e, 200, 400).defaultPrevented, true);
+  nativeTouch(layer, 'touchend', handles.e, 274, 400);
+  assert.equal(committed.length, 12);
+  nativeTouch(layer, 'touchstart', handles.e, 274, 400);
+  nativeTouch(layer, 'touchmove', handles.e, 369, 400); flush();
+  assert.ok(viewport.scrollLeft > 148);
+  assert.equal(window.scrollX, 100);
+  assert.equal(window.scrollY, 0);
+  nativeTouch(layer, 'touchend', handles.e, 369, 400);
+  const finalX = viewport.scrollLeft;
+  flush();
+  assert.equal(viewport.scrollLeft, finalX);
 });

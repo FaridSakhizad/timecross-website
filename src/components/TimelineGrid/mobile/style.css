@@ -19,13 +19,13 @@
   .timelineGridMiddleHoursMarker {
     position: fixed;
     z-index: 100;
-    top: 67px;
+    top: 68px;
   }
 
   .timelineGridMiddleMarker {
     position: fixed;
     z-index: 1;
-    top: 77px;
+    top: 67px;
   }
 
   .timelineGrid-addTimezoneButton {
@@ -34,14 +34,20 @@
   }
 }
 
+html:has(.zenPageMobileBackdrop),
+body:has(.zenPageMobileBackdrop) {
+  background: unset;
+  overscroll-behavior: none;
+}
+
 .zenPageMobileBackdrop {
   width: 100dvw;
   height: 100dvh;
   position: fixed;
   z-index: 0;
-  left: 0;
   top: 0;
   background: url("../../../assets/bg--mob-main-1.jpg") center center / cover no-repeat;
+  pointer-events: none;
 }
 
 .zenPageMobile-header {
@@ -56,7 +62,10 @@
   position: sticky;
   top: 0;
   left: 0;
-  backdrop-filter: blur(30px);
+
+  background:
+      url("/src/assets/bg--noise-1.png") center,
+      url("../../../assets/bg--mob-main-1.jpg") top center / cover no-repeat;
 }
 
 .zenPageMobile-headerStart,
@@ -85,15 +94,15 @@
   bottom: 0;
   left: 0;
   gap: 20px;
-  backdrop-filter: blur(30px);
+
+  background:
+      url("/src/assets/bg--noise-1.png") center,
+      url("../../../assets/bg--mob-main-1.jpg") bottom center / cover no-repeat;
 }
 
 .timelineGridMobileEmbedded {
   position: relative;
   overflow: scroll;
-  min-height: 540px;
-  height: 90dvh;
-  max-height: 800px;
 
   .timelineGridBackdrop {
     position: absolute;

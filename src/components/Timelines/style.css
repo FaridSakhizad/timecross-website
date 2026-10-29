@@ -1,6 +1,12 @@
 .section {
   &.section_timelines {
     padding-top: 70px;
+
+    .timelineGridMobileEmbedded {
+      min-height: 540px;
+      height: 90dvh;
+      max-height: 800px;
+    }
   }
 }
 
@@ -117,7 +123,9 @@
 }
 
 @media (width < 1200px) {
-  .section.section_timelines {
-    padding-block: 0;
+  .section {
+    &.section_timelines {
+      padding-block: 0;
+    }
   }
 }
