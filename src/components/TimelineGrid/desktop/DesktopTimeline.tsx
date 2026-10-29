@@ -24,8 +24,6 @@ export default function DesktopTimeline(props: GridTimelineProps) {
         <i className="timelineGrid-addTimezoneButtonIcon" />
         <span className="timelineGrid-addTimezoneButtonText">{t('common.addCity')}</span>
       </button>
-      <div className="timelineGridMiddleMarker timelineGridMiddleMarker_desktop" />
-      <div className="timelineGridMiddleHoursMarker timelineGridMiddleMarker_desktop" />
     </>
   );
 }

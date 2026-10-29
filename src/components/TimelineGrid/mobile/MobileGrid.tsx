@@ -19,16 +19,17 @@ const EMPTY_SELECTION: NonNullable<TimelineGridShellProps['initialSelectedHours'
 export default function MobileGrid(props: TimelineGridShellProps) {
   const { t } = useI18n();
   const viewportRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   const embedded = props.presentation === 'embedded';
   useMobileGridHorizontalScrollLock(!embedded && props.isEditMode);
   const getScrollTarget = useCallback(() => embedded
     ? viewportRef.current ? { type: 'element' as const, element: viewportRef.current } : null
     : { type: 'page' as const }, [embedded]);
   const selectedHours = props.initialSelectedHours ?? EMPTY_SELECTION;
-  const { enabled, toggle, clear, layerRef, interactionRef, isResizing } = useMobileGridSelection(
+  const { enabled, toggle, clear, frameRef, interactionRef, isResizing } = useMobileGridSelection(
     selectedHours, props.onSelectionChange, props.isEditMode || props.isDragging,
     JSON.stringify([props.timelineDates[0]?.getTime(), props.cities.map((city) => city.id)]),
-    embedded ? viewportRef : undefined);
+    embedded ? viewportRef : undefined, contentRef);
   const shouldSuspendSnap = useCallback(() => interactionRef.current, [interactionRef]);
   const selectedHourKeys = useMemo(() => new Set(selectedHours.map(gridHourKey)), [selectedHours]);
   const event = buildGridCalendarEvent(selectedHours,
@@ -63,11 +64,18 @@ export default function MobileGrid(props: TimelineGridShellProps) {
   );
 
   const timeline = (
-    <MobileTimeline
-      {...props}
-      selectedHourKeys={selectedHourKeys}
-      onAddCityClick={() => { clear(); props.onAddCityClick(); }}
-    />
+    <>
+      <div ref={contentRef} className="timelineGrid-content">
+        <MobileTimeline
+          {...props}
+          selectedHourKeys={selectedHourKeys}
+          onAddCityClick={() => { clear(); props.onAddCityClick(); }}
+        />
+        <MobileSelectionOverlay enabled={enabled} frameRef={frameRef} />
+      </div>
+      <div className="timelineGridMiddleMarker" />
+      <div className="timelineGridMiddleHoursMarker" />
+    </>
   );
 
   return (
@@ -124,7 +132,6 @@ export default function MobileGrid(props: TimelineGridShellProps) {
           <div className="zenPageMobileBackdrop" />
         </>
       }
-      <MobileSelectionOverlay enabled={enabled} layerRef={layerRef} />
     </>
   );
 }

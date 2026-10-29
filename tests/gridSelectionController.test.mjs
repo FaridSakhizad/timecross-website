@@ -198,41 +198,42 @@ test('edge autoscroll keeps marquee anchored to content and stops on release', (
 function attachWithFrame(marqueeEnabled = true, direction = 'e') {
   controller.destroy();
   const layer = new FakeElement();
-  const box = { style: {} };
+  const box = layer;
   layer.style = {};
   layer.hidden = true;
-  layer.querySelector = () => box;
   layer.closest = () => ({ dataset: { gridResize: direction } });
   viewport.querySelector = () => null;
   committed = [{ rowId: 'ny', start: 0 }];
   controller = attachGridSelection(viewport, overlay, committed, (hours) => { committed = hours; }, (value) => { active = value; },
-    { frameLayer: layer, marqueeEnabled });
+    { selectionFrame: layer, marqueeEnabled });
   return { layer, box };
 }
 const frameWidth = (width) => `${width + GRID_SELECTION_FRAME_HORIZONTAL_PADDING * 2}px`;
 
-test('persistent frame follows scrolling without changing its content bounds', () => {
+test('persistent frame has content coordinates and scroll never schedules frame updates', () => {
   const { layer, box } = attachWithFrame();
   assert.equal(layer.hidden, false);
-  assert.equal(box.style.left, `${90 - GRID_SELECTION_FRAME_HORIZONTAL_PADDING}px`);
+  assert.equal(box.style.left, `${190 - GRID_SELECTION_FRAME_HORIZONTAL_PADDING}px`);
   assert.equal(box.style.top, `${60 - GRID_SELECTION_FRAME_TOP_PADDING}px`);
   assert.equal(box.style.height, `${64 + GRID_SELECTION_FRAME_TOP_PADDING + GRID_SELECTION_FRAME_BOTTOM_PADDING}px`);
   assert.equal(Number.parseFloat(box.style.top) + Number.parseFloat(box.style.height), 124 + GRID_SELECTION_FRAME_BOTTOM_PADDING);
-  assert.equal(Number.parseFloat(box.style.left) + Number.parseFloat(box.style.width), 154 + GRID_SELECTION_FRAME_HORIZONTAL_PADDING);
+  assert.equal(Number.parseFloat(box.style.left) + Number.parseFloat(box.style.width), 254 + GRID_SELECTION_FRAME_HORIZONTAL_PADDING);
   viewport.scrollLeft += 40;
-  emit(viewport, 'scroll'); flushFrame();
-  assert.equal(box.style.left, `${50 - GRID_SELECTION_FRAME_HORIZONTAL_PADDING}px`);
+  emit(viewport, 'scroll');
+  assert.equal(frames.size, 0);
+  assert.equal(box.style.left, `${190 - GRID_SELECTION_FRAME_HORIZONTAL_PADDING}px`);
   assert.equal(box.style.width, frameWidth(64));
   viewport.scrollTop += 20;
-  emit(viewport, 'scroll'); flushFrame();
-  assert.equal(box.style.top, `${40 - GRID_SELECTION_FRAME_TOP_PADDING}px`);
+  emit(viewport, 'scroll');
+  assert.equal(frames.size, 0);
+  assert.equal(box.style.top, `${60 - GRID_SELECTION_FRAME_TOP_PADDING}px`);
 });
 
 test('embedded desktop frame follows page scrolling and removes its page listener on destroy', () => {
   const { layer, box } = attachWithFrame();
   viewport.getBoundingClientRect = () => ({ left: 0, top: 100, right: 400, bottom: 400 });
   emit(window, 'scroll'); flushFrame();
-  assert.equal(layer.style.top, '100px');
+  assert.equal(frames.size, 0);
   assert.equal(box.style.top, `${60 - GRID_SELECTION_FRAME_TOP_PADDING}px`);
   assert.equal(committed.length, 1);
   controller.destroy();
@@ -308,8 +309,9 @@ test('handle resize previews cells and commits on release even when marquee mode
   assert.equal(committed.length, 1);
   assert.equal(cells.filter((cell) => cell.selected).length, 3);
   assert.equal(overlay.hidden, true);
-  assert.equal(box.style.width, frameWidth(212));
+  assert.equal(box.style.width, frameWidth(210));
   emit(window, 'pointerup');
+  assert.equal(box.style.width, frameWidth(212));
   assert.equal(committed.length, 3);
   assert.equal(active, false);
 });
@@ -321,6 +323,42 @@ test('frame padding and the handle grab point do not change logical hour resizin
     emit(window, 'pointerup', { clientX: clientX + 74, clientY: 90 });
     assert.deepEqual(committed, [{ rowId: 'ny', start: 0 }, { rowId: 'ny', start: 3600000 }]);
   }
+});
+
+test('desktop frame follows sub-hour movement freely and snaps only on release', () => {
+  const { layer, box } = attachWithFrame(false);
+  emit(layer, 'pointerdown', { clientX: 154, clientY: 90 });
+  emit(window, 'pointermove', { clientX: 167.5, clientY: 90 }); flushFrame();
+  assert.equal(box.style.width, frameWidth(77.5));
+  assert.equal(committed.length, 1);
+  emit(window, 'pointerup');
+  assert.equal(box.style.width, frameWidth(64));
+  assert.equal(committed.length, 1);
+  emit(layer, 'pointerdown', { clientX: 154, clientY: 90 });
+  emit(window, 'pointermove', { clientX: 204, clientY: 90 }); flushFrame();
+  assert.equal(box.style.width, frameWidth(114));
+  emit(window, 'pointerup');
+  assert.equal(box.style.width, frameWidth(138));
+  assert.equal(committed.length, 2);
+});
+
+test('desktop snap animation starts on release and stops immediately on the next resize', () => {
+  const { layer, box } = attachWithFrame(false);
+  const animations = [];
+  box.animate = (keyframes) => {
+    const animation = { keyframes, cancelled: false, cancel() { this.cancelled = true; } };
+    animations.push(animation);
+    return animation;
+  };
+  emit(layer, 'pointerdown', { clientX: 154, clientY: 90 });
+  emit(window, 'pointermove', { clientX: 167.5, clientY: 90 }); flushFrame();
+  assert.equal(animations.length, 0);
+  emit(window, 'pointerup');
+  assert.equal(animations.length, 1);
+  assert.equal(animations[0].keyframes[0].width, frameWidth(77.5));
+  assert.equal(animations[0].keyframes[1].width, frameWidth(64));
+  emit(layer, 'pointerdown', { clientX: 154, clientY: 90 });
+  assert.equal(animations[0].cancelled, true);
 });
 
 test('vertical frame padding does not change whole-city resizing', () => {

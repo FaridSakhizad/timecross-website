@@ -5,7 +5,7 @@ import type { SelectedGridHour } from '../shared/gridSelection';
 export function useGridSelection(viewportRef: RefObject<HTMLDivElement | null>, enabled: boolean, contentKey: string,
   blocked = false, initialSelection: SelectedGridHour[] = [], onChange?: (hours: SelectedGridHour[]) => void) {
   const overlayRef = useRef<HTMLDivElement>(null);
-  const frameLayerRef = useRef<HTMLDivElement>(null);
+  const frameRef = useRef<HTMLDivElement>(null);
   const controllerRef = useRef<ReturnType<typeof attachGridSelection> | null>(null);
   const selectionRef = useRef<SelectedGridHour[]>(initialSelection);
   const contentKeyRef = useRef(contentKey);
@@ -34,10 +34,10 @@ export function useGridSelection(viewportRef: RefObject<HTMLDivElement | null>, 
     const controller = attachGridSelection(viewport, overlay, selectionRef.current, commit, (active) => {
       interactionRef.current = active;
       setIsSelecting(active);
-    }, { frameLayer: frameLayerRef.current ?? undefined, marqueeEnabled: enabled });
+    }, { selectionFrame: frameRef.current ?? undefined, marqueeEnabled: enabled });
     controllerRef.current = controller;
     return () => { controller.destroy(); controllerRef.current = null; };
   }, [blocked, commit, contentKey, enabled, viewportRef]);
 
-  return { selectedHours, isSelecting, interactionRef, overlayRef, frameLayerRef, clearSelection, createSelection };
+  return { selectedHours, isSelecting, interactionRef, overlayRef, frameRef, clearSelection, createSelection };
 }

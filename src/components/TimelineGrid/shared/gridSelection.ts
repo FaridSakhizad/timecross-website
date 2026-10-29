@@ -46,6 +46,18 @@ export function resizeGridSelection(
     && cell.hour.start >= columns[left][0] && cell.hour.start <= columns[right][0]).map((cell) => cell.hour);
 }
 
+// Live frame edges are continuous; resizeGridSelection remains the whole-cell preview/commit.
+export function resizeGridSelectionRect(
+  initial: SelectionRect, limits: SelectionRect, direction: GridResizeDirection, x: number, y: number,
+): SelectionRect {
+  const rect = { ...initial };
+  if (direction.includes('w')) rect.left = Math.max(limits.left, Math.min(initial.right - 1, x));
+  if (direction.includes('e')) rect.right = Math.min(limits.right, Math.max(initial.left + 1, x));
+  if (direction.includes('n')) rect.top = Math.max(limits.top, Math.min(initial.bottom - 1, y));
+  if (direction.includes('s')) rect.bottom = Math.min(limits.bottom, Math.max(initial.top + 1, y));
+  return rect;
+}
+
 export function intersectsSelection(a: SelectionRect, b: SelectionRect) {
   return a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
 }

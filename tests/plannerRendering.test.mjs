@@ -59,6 +59,7 @@ const { default: Mobile } = await import('../src/components/TimelineGrid/mobile/
 const { default: TimelineGridSession } = await import('../src/components/TimelineGrid/shared/TimelineGridSession.tsx');
 const { default: Planner } = await import('../src/components/Planner/Planner.tsx');
 const { useMobileWidgetLayout } = await import('../src/useMobileWidgetLayout.ts');
+const { default: GridCalendarActions } = await import('../src/components/TimelineGrid/shared/GridCalendarActions.tsx');
 const { buildGridEventUrl } = await import('../src/components/TimelineGrid/shared/eventUrlState.ts');
 
 const props = { colorMode: 'day', timeFormat: '24h',
@@ -100,36 +101,42 @@ test('widget layout is correct on the first render and on each subsequent page m
   }
 });
 
-test('mobile zen selection controls live only in the footer; embedded controls stay in the header', () => {
-  const zen = render(Mobile, 'zen');
-  const footer = zen.indexOf('class="zenPageMobile-footer"');
-  assert.ok(footer > 0);
-  assert.ok(zen.indexOf('aria-label="Select hours"') > footer);
-  assert.equal((zen.match(/aria-label="Select hours"/g) ?? []).length, 1);
-  assert.equal((zen.match(/timelineGridCalendarButton" type="button" disabled=""/g) ?? []).length, 4);
-  assert.ok(zen.indexOf('timelineGridCalendarButton') > footer);
-  const embedded = render(Mobile, 'embedded');
-  assert.ok(!embedded.includes('zenPageMobile-footer'));
-  assert.ok(embedded.indexOf('aria-label="Select hours"') < embedded.indexOf('class="timelineGrid '));
+test('calendar actions hide Share while retaining Google, Outlook and ICS', () => {
+  const html = render(GridCalendarActions, 'zen', '/en/grid', { event: null, cities: [], hours: [] });
+  assert.ok(!html.includes('aria-label="Share event"'));
+  assert.equal((html.match(/timelineGridCalendarButton/g) ?? []).length, 3);
+  assert.equal((html.match(/ disabled=""/g) ?? []).length, 3);
+  assert.ok(html.includes('aria-label="Create event in Outlook"'));
+  assert.ok(html.includes('aria-label="Download event (.ics)"'));
+});
+
+test('mobile selection controls live only in the footer in both presentations', () => {
+  for (const presentation of ['zen', 'embedded']) {
+    const html = render(Mobile, presentation);
+    const footer = html.indexOf('class="zenPageMobile-footer"');
+    assert.ok(footer > 0);
+    assert.ok(html.indexOf('aria-label="Select hours"') > footer);
+    assert.equal((html.match(/aria-label="Select hours"/g) ?? []).length, 1);
+    assert.equal((html.match(/timelineGridCalendarButton" type="button" disabled=""/g) ?? []).length, 3);
+    assert.ok(html.indexOf('timelineGridCalendarButton') > footer);
+  }
 });
 
 for (const [name, Component] of [['desktop', Desktop], ['mobile', Mobile]]) {
   for (const presentation of ['zen', 'embedded']) {
     test(`${name}/${presentation} renders independently with shared cells and the existing header structure`, () => {
       const html = render(Component, presentation);
-      assert.ok(html.includes('widgetHeaderStart'));
-      assert.ok(html.includes('widgetHeaderMiddle'));
-      assert.ok(html.includes('widgetHeaderEnd'));
-      assert.ok(html.includes(`widgetHeader_${name}`));
+      const header = name === 'desktop' ? 'widgetHeader' : 'zenPageMobile-header';
+      for (const section of ['Start', 'Middle', 'End']) assert.ok(html.includes(`${header}${section}`));
       assert.equal(html.includes('widgetHeader-backdrop'), name === 'desktop');
-      assert.equal(html.includes('widgetHeaderControlPlaceholder'), name === 'desktop' && presentation === 'embedded');
+      assert.equal(html.includes('widgetHeaderControlPlaceholder'), presentation === 'embedded');
       assert.equal(html.includes('aria-label="Pan"'), name === 'desktop');
       assert.ok(html.includes('aria-label="Select hours"'));
       if (name === 'desktop') {
         const footerIndex = html.indexOf('class="widgetFooter"');
         const actionsIndex = html.indexOf('timelineGridCalendarButton');
         assert.ok(footerIndex > 0 && actionsIndex > footerIndex);
-        assert.equal((html.match(/timelineGridCalendarButton" type="button" disabled=""/g) ?? []).length, 4);
+        assert.equal((html.match(/timelineGridCalendarButton" type="button" disabled=""/g) ?? []).length, 3);
         assert.ok(html.indexOf('aria-label="Select hours"') > footerIndex);
         assert.ok(!html.includes('timelineGridClearSelectionButton" hidden'));
       }
@@ -165,6 +172,13 @@ for (const [name, Component] of [['desktop', Desktop], ['mobile', Mobile]]) {
     assert.ok(html.includes('20261026T120000Z%2F20261026T150000Z'));
     assert.ok(html.includes('aria-label="Create event in Outlook"'));
     assert.ok(html.includes('aria-label="Download event (.ics)"'));
+    assert.ok(html.includes(`timelineGridSelectionFrame_${name}`));
+    assert.equal((html.match(/data-grid-resize=/g) ?? []).length, 8);
+    assert.ok(!html.includes('timelineGridSelectionLayer'));
+    const contentStart = html.indexOf('class="timelineGrid-content"');
+    const frameStart = html.indexOf(`class="timelineGridSelectionFrame timelineGridSelectionFrame_${name}"`);
+    const hoursStart = html.indexOf(`class="timelineGrid-userHours timelineGrid-userHours_${name}"`);
+    assert.ok(contentStart >= 0 && hoursStart > contentStart && frameStart > hoursStart);
     if (name === 'mobile') {
       const footer = html.indexOf('class="zenPageMobile-footer"');
       assert.ok(footer > 0);
@@ -176,7 +190,7 @@ for (const [name, Component] of [['desktop', Desktop], ['mobile', Mobile]]) {
     }
     if (name === 'desktop') {
       assert.ok(html.indexOf('timelineGridCalendarButton') > html.indexOf('class="widgetFooter"'));
-      assert.equal((html.match(/timelineGridCalendarButton" type="button" disabled=""/g) ?? []).length, 1);
+      assert.equal((html.match(/timelineGridCalendarButton" type="button" disabled=""/g) ?? []).length, 0);
     }
   });
 }

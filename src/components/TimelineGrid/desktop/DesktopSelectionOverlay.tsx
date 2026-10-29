@@ -3,23 +3,23 @@ import { createPortal } from 'react-dom';
 import type { RefObject } from 'react';
 import { useI18n } from '../../../i18n';
 
-export default function DesktopSelectionOverlay({ overlayRef, frameLayerRef }: {
-  overlayRef: RefObject<HTMLDivElement | null>; frameLayerRef: RefObject<HTMLDivElement | null>;
+export default function DesktopSelectionOverlay({ overlayRef, frameRef }: {
+  overlayRef: RefObject<HTMLDivElement | null>; frameRef: RefObject<HTMLDivElement | null>;
 }) {
   const { t } = useI18n();
-  if (typeof document === 'undefined') return null;
-  return createPortal(
+  return (
     <>
-      <div ref={overlayRef} className="timelineGridSelectionRectangle timelineGridSelectionRectangle_desktop" hidden aria-hidden="true" />
-      <div ref={frameLayerRef} className="timelineGridSelectionLayer timelineGridSelectionLayer_desktop" hidden>
-        <div className="timelineGridSelectionFrame" data-grid-selection-frame>
-          {(['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw'] as const).map((direction) => (
-            <button key={direction} type="button" data-grid-resize={direction}
-              className={`timelineGridSelectionHandle timelineGridSelectionHandle_${direction}`}
-              aria-label={`${t('common.resizeSelection')} (${direction})`} title={t('common.resizeSelection')} />
-          ))}
-        </div>
+      {typeof document !== 'undefined' && createPortal(
+        <div ref={overlayRef} className="timelineGridSelectionRectangle timelineGridSelectionRectangle_desktop" hidden aria-hidden="true" />,
+        document.body,
+      )}
+      <div ref={frameRef} className="timelineGridSelectionFrame timelineGridSelectionFrame_desktop" data-grid-selection-frame hidden>
+        {(['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw'] as const).map((direction) => (
+          <button key={direction} type="button" data-grid-resize={direction}
+            className={`timelineGridSelectionHandle timelineGridSelectionHandle_${direction}`}
+            aria-label={`${t('common.resizeSelection')} (${direction})`} title={t('common.resizeSelection')} />
+        ))}
       </div>
-    </>, document.body,
+    </>
   );
 }

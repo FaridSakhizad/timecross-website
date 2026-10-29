@@ -6,12 +6,12 @@ export const MOBILE_SELECTION_HORIZONTAL_PADDING = 6;
 export const MOBILE_SELECTION_TOP_PADDING = -5;
 export const MOBILE_SELECTION_BOTTOM_PADDING = 0;
 
-export function getVisibleMobileGridSelection(viewport?: HTMLDivElement): SelectedGridHour[] {
+export function getVisibleMobileGridSelection(viewport?: HTMLDivElement, root: ParentNode = viewport ?? document): SelectedGridHour[] {
   const visible = getMobileGridVisibleRect(viewport);
   // The add-city button can lie outside the screen on the wide zen document.
   const targetX = (visible.left + visible.right) / 2;
   const targetY = viewport ? (visible.top + visible.bottom) / 2 : window.scrollY + window.innerHeight / 2;
-  return getInitialMobileGridSelection(getMobileGridSelectionCells(viewport, viewport), visible, targetX, targetY);
+  return getInitialMobileGridSelection(getMobileGridSelectionCells(root, viewport), visible, targetX, targetY);
 }
 
 export function getInitialMobileGridSelection(

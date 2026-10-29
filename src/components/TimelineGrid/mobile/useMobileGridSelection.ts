@@ -7,11 +7,14 @@ export function useMobileGridSelection(
   hours: SelectedGridHour[], onChange: ((hours: SelectedGridHour[]) => void) | undefined,
   blocked: boolean, contentKey: string,
   viewportRef?: RefObject<HTMLDivElement | null>,
+  contentRef?: RefObject<HTMLDivElement | null>,
 ) {
   const [mode, setMode] = useState(hours.length > 0);
   const [isResizing, setIsResizing] = useState(false);
   const interactionRef = useRef(false);
-  const layerRef = useRef<HTMLDivElement>(null);
+  const frameRef = useRef<HTMLDivElement>(null);
+  const hoursRef = useRef(hours);
+  const controllerRef = useRef<ReturnType<typeof attachMobileGridSelection> | null>(null);
   const contentKeyRef = useRef(contentKey);
   const enabled = mode && hours.length > 0 && !blocked;
   const clear = useCallback(() => { setMode(false); onChange?.([]); }, [onChange]);
@@ -19,11 +22,16 @@ export function useMobileGridSelection(
     if (blocked) return;
     if (enabled) { clear(); return; }
     const viewport = viewportRef?.current ?? undefined;
-    const selection = getVisibleMobileGridSelection(viewport);
+    const selection = getVisibleMobileGridSelection(viewport, contentRef?.current ?? undefined);
     if (!selection.length) return;
     onChange?.(selection);
     setMode(true);
-  }, [blocked, clear, enabled, onChange, viewportRef]);
+  }, [blocked, clear, enabled, onChange, viewportRef, contentRef]);
+
+  useEffect(() => {
+    hoursRef.current = hours;
+    controllerRef.current?.setSelection(hours);
+  }, [hours]);
 
   useEffect(() => {
     if (contentKeyRef.current !== contentKey) {
@@ -31,14 +39,15 @@ export function useMobileGridSelection(
       onChange?.([]);
       return;
     }
-    const layer = layerRef.current;
-    if (!enabled || !layer) return;
-    const controller = attachMobileGridSelection(layer, hours, (next) => onChange?.(next), (active) => {
+    const frame = frameRef.current;
+    if (!enabled || !frame) return;
+    const controller = attachMobileGridSelection(frame, hoursRef.current, (next) => onChange?.(next), (active) => {
       interactionRef.current = active;
       setIsResizing(active);
     }, viewportRef?.current ?? undefined);
-    return () => controller.destroy();
-  }, [contentKey, enabled, hours, onChange, viewportRef]);
+    controllerRef.current = controller;
+    return () => { controller.destroy(); controllerRef.current = null; };
+  }, [contentKey, enabled, onChange, viewportRef]);
 
   useEffect(() => {
     if (!enabled) return;
@@ -49,5 +58,5 @@ export function useMobileGridSelection(
     return () => window.removeEventListener('keydown', escape);
   }, [clear, enabled]);
 
-  return { enabled, toggle, clear, layerRef, interactionRef, isResizing };
+  return { enabled, toggle, clear, frameRef, interactionRef, isResizing };
 }

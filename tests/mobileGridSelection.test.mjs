@@ -101,7 +101,11 @@ beforeEach(() => {
     querySelector: () => ({ getBoundingClientRect: () => ({ bottom: 106 }) }),
     querySelectorAll: (selector) => selector === '.timelineGrid-row_mobile' ? rows : elements,
   });
-  frame = new FakeElement(); layer = new FakeElement(); layer.querySelector = () => frame;
+  frame = new FakeElement(); layer = frame;
+  frame.parentElement = {
+    querySelectorAll: (selector) => document.querySelectorAll(selector),
+    getBoundingClientRect: () => ({ left: -window.scrollX, top: -window.scrollY }),
+  };
   handles = Object.fromEntries(['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw'].map((direction) => {
     const handle = new FakeElement(); handle.dataset.gridResize = direction; return [direction, handle];
   }));
@@ -120,7 +124,7 @@ afterEach(() => {
 
 test('frame initially includes city titles and full hour cells, not only the hour band', () => {
   assert.equal(layer.hidden, false);
-  assert.equal(frame.style.left, '68px');
+  assert.equal(frame.style.left, '168px');
   assert.equal(frame.style.width, '224px');
   assert.equal(frame.style.height, '328px');
   assert.equal(elements.filter((element) => element.selected).length, 9);
@@ -135,8 +139,7 @@ test('zen seed stays over visible hours even when the add-city button is far out
   assert.deepEqual([...new Set(selected.map((cell) => cell.rowId))], ['r1', 'r2', 'r3']);
   controller.destroy();
   controller = attachMobileGridSelection(layer, selected, () => {}, () => {});
-  assert.equal(layer.style.left, '0px');
-  assert.equal(frame.style.left, '90px');
+  assert.equal(frame.style.left, '390px');
   assert.equal(frame.style.width, '224px');
 });
 
@@ -224,18 +227,60 @@ test('native touch release uses final coordinates without a rendered move frame'
   assert.equal(frames.size, 0);
 });
 
+test('native resizing moves freely by pixels on every handle then snaps on release', () => {
+  for (const direction of Object.keys(handles)) {
+    enableNativeTouch(); committed = initial;
+    const x = direction.includes('w') ? 74 : 286;
+    const y = direction.includes('n') ? 231 : 564;
+    const dx = direction.includes('w') ? -13.5 : direction.includes('e') ? 13.5 : 0;
+    const dy = direction.includes('n') ? -13.5 : direction.includes('s') ? 13.5 : 0;
+    const before = { ...frame.style };
+    nativeTouch(layer, 'touchstart', handles[direction], x, y);
+    nativeTouch(layer, 'touchmove', handles[direction], x + dx, y + dy); flush();
+    assert.equal(parseFloat(frame.style.width), 224 + (dx ? 13.5 : 0), direction);
+    assert.equal(parseFloat(frame.style.height), 328 + (dy ? 13.5 : 0), direction);
+    assert.equal(committed, initial);
+    nativeTouch(layer, 'touchend', handles[direction], x + dx, y + dy);
+    assert.deepEqual(frame.style, before, direction);
+    assert.deepEqual(committed, initial);
+  }
+});
+
+test('native snap animation survives selection state sync and stops on the next touch', () => {
+  enableNativeTouch();
+  const animations = [];
+  frame.animate = (keyframes) => {
+    const animation = { keyframes, cancelled: false, cancel() { this.cancelled = true; } };
+    animations.push(animation);
+    return animation;
+  };
+  nativeTouch(layer, 'touchstart', handles.e, 286, 400);
+  nativeTouch(layer, 'touchmove', handles.e, 299.5, 400); flush();
+  assert.equal(animations.length, 0);
+  nativeTouch(layer, 'touchend', handles.e, 299.5, 400);
+  assert.equal(animations.length, 1);
+  assert.equal(animations[0].keyframes[0].width, '237.5px');
+  assert.equal(animations[0].keyframes[1].width, '224px');
+  controller.setSelection(committed);
+  assert.equal(animations[0].cancelled, false);
+  nativeTouch(layer, 'touchstart', handles.e, 286, 400);
+  assert.equal(animations[0].cancelled, true);
+});
+
 test('native touch cancellation and a second finger roll back the range and release scrolling', () => {
   for (const cancel of [
     () => nativeTouch(layer, 'touchcancel', handles.e, 360, 400),
     () => nativeTouch(window, 'touchstart', handles.e, 360, 400, 8, [{ identifier: 7 }, { identifier: 8 }]),
   ]) {
     enableNativeTouch(); committed = initial;
+    const originalStyle = { ...frame.style };
     nativeTouch(layer, 'touchstart', handles.e, 286, 400);
     nativeTouch(layer, 'touchmove', handles.e, 360, 400); flush();
     assert.equal(elements.filter((element) => element.selected).length, 12);
     cancel();
     assert.equal(active, false);
     assert.equal(committed, initial);
+    assert.deepEqual(frame.style, originalStyle);
     assert.equal(elements.filter((element) => element.selected).length, 9);
     assert.equal(nativeTouch(layer, 'touchmove', handles.e, 380, 400).defaultPrevented, false);
   }
@@ -257,8 +302,10 @@ test('native page swipes outside handles are neither prevented nor interpreted a
   assert.equal(emit(window, 'pointermove', { clientX: 250 }).defaultPrevented, false);
   assert.equal(emit(window, 'pointerup').defaultPrevented, false);
   window.scrollX += 74;
-  emit(window, 'scroll'); flush();
-  assert.equal(frame.style.left, '-6px');
+  const previous = { ...frame.style };
+  emit(window, 'scroll');
+  assert.equal(frames.size, 0);
+  assert.deepEqual(frame.style, previous);
   assert.equal(committed, initial);
 });
 
@@ -266,7 +313,7 @@ test('pointercancel, second finger, blur, resize and hidden tab roll back previe
   for (const stop of [
     () => emit(window, 'pointercancel'),
     () => emit(window, 'pointerdown', { pointerId: 2, isPrimary: false }),
-    () => emit(window, 'blur'), () => emit(window, 'resize'),
+    () => emit(window, 'blur'), () => { document.documentElement.clientWidth += 10; emit(window, 'resize'); },
     () => { document.visibilityState = 'hidden'; emit(document, 'visibilitychange'); },
   ]) {
     document.visibilityState = 'visible';
@@ -357,30 +404,49 @@ function embeddedViewport() {
     querySelectorAll: () => elements.slice(index * 8, (index + 1) * 8),
   }));
   viewport.querySelectorAll = (selector) => selector === '.timelineGrid-row_mobile' ? rows : elements;
+  frame.parentElement = {
+    querySelectorAll: (selector) => viewport.querySelectorAll(selector),
+    getBoundingClientRect: () => ({ left: -window.scrollX - viewport.scrollLeft,
+      top: -window.scrollY - viewport.scrollTop }),
+  };
   controller = attachMobileGridSelection(layer, initial, (value) => { committed = value; },
     (value) => { active = value; }, viewport);
   return viewport;
 }
 
-test('embedded selection clips its layer to the widget and follows independent widget/page scrolling', () => {
+test('embedded frame keeps content coordinates during independent widget and page scrolling', () => {
   const viewport = embeddedViewport();
-  assert.equal(layer.style.left, '20px');
-  assert.equal(layer.style.top, '186px');
-  assert.equal(layer.style.width, '350px');
-  assert.equal(layer.style.height, '534px');
+  const initialStyle = { ...frame.style };
   const left = parseFloat(frame.style.left);
   viewport.scrollLeft += 74;
-  emit(viewport, 'scroll'); flush();
-  assert.equal(parseFloat(frame.style.left), left - 74);
+  emit(viewport, 'scroll');
+  assert.equal(frames.size, 0);
+  assert.equal(parseFloat(frame.style.left), left);
   assert.equal(committed, initial);
   assert.equal(window.scrollX, 100);
   viewport.scrollTop += 111;
   const top = parseFloat(frame.style.top);
-  emit(viewport, 'scroll'); flush();
-  assert.equal(parseFloat(frame.style.top), top - 111);
+  emit(viewport, 'scroll');
+  assert.equal(frames.size, 0);
+  assert.equal(parseFloat(frame.style.top), top);
   window.scrollY += 50;
-  emit(window, 'scroll'); flush();
+  emit(window, 'scroll');
+  assert.equal(frames.size, 0);
+  assert.deepEqual(frame.style, initialStyle);
   assert.equal(committed, initial);
+});
+
+test('Safari toolbar height changes do not reposition the content frame or cancel a native resize', () => {
+  enableNativeTouch();
+  nativeTouch(layer, 'touchstart', handles.e, 286, 400);
+  const style = { ...frame.style };
+  window.innerHeight -= 60;
+  emit(window, 'resize');
+  assert.equal(active, true);
+  assert.deepEqual(frame.style, style);
+  assert.equal(frames.size, 0);
+  nativeTouch(layer, 'touchend', handles.e, 360, 400);
+  assert.equal(committed.length, 12);
 });
 
 test('embedded touch resize uses widget scroll offsets and autoscroll never scrolls the page', () => {

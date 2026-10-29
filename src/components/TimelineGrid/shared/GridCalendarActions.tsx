@@ -9,6 +9,8 @@ import { createCalendarEventFile, downloadCalendarFile } from './calendarEventFi
 import { buildGridEventUrl } from './eventUrlState';
 import { shareEventLink } from './shareEventLink';
 
+const SHARE_EVENT_VISIBLE = false;
+
 export default function GridCalendarActions({ event, cities, hours }: {
   event: GridCalendarEvent | null; cities: FavoriteCity[]; hours: SelectedGridHour[];
 }) {
@@ -87,14 +89,14 @@ export default function GridCalendarActions({ event, cities, hours }: {
         }}>
         <Download size={18} aria-hidden="true" />
       </button>
-      <button
+      {SHARE_EVENT_VISIBLE && <button
         className="widgetHeaderButton timelineGridCalendarButton" type="button" disabled={!eventUrl || sharing}
         aria-label={t('common.shareEvent')}
         title={t(eventUrl && copiedUrl === eventUrl ? 'common.eventLinkCopied' : 'common.shareEvent')}
         onClick={share}
       >
         {eventUrl && copiedUrl === eventUrl ? <Check size={18} aria-hidden="true" /> : <Share2 size={18} aria-hidden="true" />}
-      </button>
+      </button>}
       {copiedUrl === eventUrl && eventUrl && <span className="timelineGridCalendarNotice" role="status">
         {t('common.eventLinkCopied')}
       </span>}

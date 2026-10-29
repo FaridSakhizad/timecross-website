@@ -1,12 +1,12 @@
-.timelineGridSelectionLayer {
-  position: fixed;
-  z-index: 999;
-  overflow: hidden;
-  pointer-events: none;
+.timelineGrid-content {
+  position: relative;
+  width: max-content;
+  min-width: 100%;
+  overflow: clip;
 }
 
 .timelineGridSelectionRectangle,
-:where(.timelineGridSelectionLayer) .timelineGridSelectionFrame {
+.timelineGridSelectionFrame {
   border: 1px solid #fff;
   box-sizing: border-box;
   box-shadow: 0 0 30px 0 rgb(0 0 0 / 0.15);
@@ -15,11 +15,12 @@
   backdrop-filter: contrast(1.5);
 }
 
-:where(.timelineGridSelectionLayer) .timelineGridSelectionFrame {
+.timelineGridSelectionFrame {
   position: absolute;
+  z-index: 20;
 }
 
-:where(.timelineGridSelectionLayer .timelineGridSelectionHandle) {
+:where(.timelineGridSelectionFrame .timelineGridSelectionHandle) {
   display: flex;
   position: absolute;
   padding: 0;
@@ -29,7 +30,7 @@
   touch-action: none;
 }
 
-:where(.timelineGridSelectionLayer) .timelineGridSelectionHandle:focus-visible {
+:where(.timelineGridSelectionFrame) .timelineGridSelectionHandle:focus-visible {
   outline: 2px solid #111;
   outline-offset: 3px;
 }

@@ -85,7 +85,7 @@
   z-index: 1000;
 }
 
-.timelineGridSelectionLayer_desktop {
+.timelineGridSelectionFrame_desktop {
   .timelineGridSelectionHandle_n {
     height: 13px;
     top: -7px;

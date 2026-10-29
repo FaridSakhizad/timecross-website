@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { buildGridCalendarEvent, buildOutlookCalendarUrl, getGridHourRanges, getGridSelectionBounds, intersectsSelection, resizeGridSelection } from '../src/components/TimelineGrid/shared/gridSelection.ts';
+import { buildGridCalendarEvent, buildOutlookCalendarUrl, getGridHourRanges, getGridSelectionBounds, intersectsSelection, resizeGridSelection, resizeGridSelectionRect } from '../src/components/TimelineGrid/shared/gridSelection.ts';
 
 const hour = 3600000;
 const start = Date.parse('2026-10-23T16:00:00Z');
@@ -10,6 +10,32 @@ const cities = [
   { id: 'lon', name: 'London', timezone: 'Europe/London' },
   { id: 'tok', name: 'Tokyo', timezone: 'Asia/Tokyo' },
 ];
+
+test('free resize moves only the requested edges with fractional precision for all eight handles', () => {
+  const initial = { left: 100, right: 300, top: 200, bottom: 500 };
+  const limits = { left: 0, right: 1000, top: 0, bottom: 1000 };
+  for (const direction of ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw']) {
+    const x = direction.includes('w') ? 86.5 : 313.5;
+    const y = direction.includes('n') ? 186.5 : 513.5;
+    const rect = resizeGridSelectionRect(initial, limits, direction, x, y);
+    assert.deepEqual(rect, {
+      left: direction.includes('w') ? 86.5 : initial.left,
+      right: direction.includes('e') ? 313.5 : initial.right,
+      top: direction.includes('n') ? 186.5 : initial.top,
+      bottom: direction.includes('s') ? 513.5 : initial.bottom,
+    }, direction);
+  }
+  assert.deepEqual(initial, { left: 100, right: 300, top: 200, bottom: 500 });
+});
+
+test('free resize stays inside the grid and never inverts or collapses the rectangle', () => {
+  const initial = { left: 100, right: 300, top: 200, bottom: 500 };
+  const limits = { left: 0, right: 1000, top: 0, bottom: 1000 };
+  assert.deepEqual(resizeGridSelectionRect(initial, limits, 'nw', -500, -500), { ...initial, left: 0, top: 0 });
+  assert.deepEqual(resizeGridSelectionRect(initial, limits, 'se', 1500, 1500), { ...initial, right: 1000, bottom: 1000 });
+  assert.deepEqual(resizeGridSelectionRect(initial, limits, 'nw', 1500, 1500), { ...initial, left: 299, top: 499 });
+  assert.deepEqual(resizeGridSelectionRect(initial, limits, 'se', -500, -500), { ...initial, right: 101, bottom: 201 });
+});
 
 test('Outlook receives the same instants and unmodified multilingual event text as Google Calendar', () => {
   const event = buildGridCalendarEvent([...selected('ny'), ...selected('lon')], cities,

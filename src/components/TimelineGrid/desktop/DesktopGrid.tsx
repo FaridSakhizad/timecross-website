@@ -29,7 +29,7 @@ export default function DesktopGrid(props: TimelineGridShellProps) {
   const scrollbarInteractionRef = useRef(false);
   const { t } = useI18n();
   const canPan = panEnabled && !props.isEditMode && !props.isDragging;
-  const { selectedHours, isSelecting, interactionRef: selectionInteractionRef, overlayRef, frameLayerRef, clearSelection, createSelection } = useGridSelection(
+  const { selectedHours, isSelecting, interactionRef: selectionInteractionRef, overlayRef, frameRef, clearSelection, createSelection } = useGridSelection(
     timelineGridViewportRef, !panEnabled && !props.isEditMode && !props.isDragging,
     JSON.stringify([props.timelineDates[0]?.getTime(), props.cities.map((city) => city.id)]),
     props.isEditMode || props.isDragging,
@@ -136,21 +136,24 @@ export default function DesktopGrid(props: TimelineGridShellProps) {
           setIsScrollbarDragging(false);
         }}
       >
-        <DesktopTimeline
-          baseDate={props.baseDate}
-          browserTimezone={props.browserTimezone}
-          cities={props.cities}
-          isEditMode={props.isEditMode}
-         
-          timelineDates={props.timelineDates}
-          timeFormat={props.timeFormat}
-          userCells={props.userCells}
-          selectedHourKeys={selectedHourKeys}
-          onAddCityClick={props.onAddCityClick}
-          onDeleteCity={props.onDeleteCity}
-        />
+        <div className="timelineGrid-content">
+          <DesktopTimeline
+            baseDate={props.baseDate}
+            browserTimezone={props.browserTimezone}
+            cities={props.cities}
+            isEditMode={props.isEditMode}
+            timelineDates={props.timelineDates}
+            timeFormat={props.timeFormat}
+            userCells={props.userCells}
+            selectedHourKeys={selectedHourKeys}
+            onAddCityClick={props.onAddCityClick}
+            onDeleteCity={props.onDeleteCity}
+          />
+          <DesktopSelectionOverlay overlayRef={overlayRef} frameRef={frameRef} />
+        </div>
+        <div className="timelineGridMiddleMarker timelineGridMiddleMarker_desktop" />
+        <div className="timelineGridMiddleHoursMarker timelineGridMiddleMarker_desktop" />
       </CustomScrollbar>
-      <DesktopSelectionOverlay overlayRef={overlayRef} frameLayerRef={frameLayerRef} />
       <TimelineGridActiveHourIndicator
         direction={activeHourDirection}
         onClick={scrollActiveHourIntoView}

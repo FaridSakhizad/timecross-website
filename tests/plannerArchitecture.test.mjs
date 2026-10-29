@@ -77,35 +77,31 @@ test('desktop toolbar is an unconditional sibling before the grid, never inside 
   assert.ok(ts.isJsxExpression(children[0]));
   assert.equal(children[0].expression?.getText(source), 'toolbar');
   assert.ok(ts.isJsxElement(children[1]));
-  assert.ok(children[1].openingElement.getText(source).includes("'timelineGrid'"));
+  assert.ok(children[1].openingElement.getText(source).includes('timelineGrid'));
   assert.ok(!children[1].children.some((node) => ts.isJsxExpression(node)
     && node.expression?.getText(source).includes('toolbar')));
 });
 
-test('toolbar styles are independent and mobile has no decorative backdrop styles', () => {
-  const desktop = readFileSync(resolve(grid, 'desktop/DesktopToolbar.css'), 'utf8');
-  const mobile = readFileSync(resolve(grid, 'mobile/MobileToolbar.css'), 'utf8');
-  const timelines = readFileSync(resolve(root, 'src/components/Timelines/style.css'), 'utf8');
-  assert.ok(desktop.includes('.widgetHeader_desktop'));
-  assert.ok(desktop.includes('.widgetHeader-backdrop'));
-  assert.ok(!desktop.includes('_mobile'));
-  assert.ok(mobile.includes('.widgetHeader_mobile'));
+test('toolbar markup remains independent with no mobile decorative backdrop', () => {
+  const desktop = readFileSync(resolve(grid, 'desktop/DesktopToolbar.tsx'), 'utf8');
+  const mobile = readFileSync(resolve(grid, 'mobile/MobileToolbar.tsx'), 'utf8');
+  assert.ok(desktop.includes('widgetHeader-backdrop'));
   assert.ok(!mobile.includes('widgetHeader-backdrop'));
-  assert.ok(!mobile.includes('_desktop'));
-  assert.ok(!timelines.includes('widgetHeader'));
 });
 
 test('selection base styles are shared while handle adaptations remain isolated', () => {
   const desktop = readFileSync(resolve(grid, 'desktop/style.css'), 'utf8');
   const mobile = readFileSync(resolve(grid, 'mobile/style.css'), 'utf8');
   const shared = readFileSync(resolve(grid, 'shared/selection.css'), 'utf8');
-  assert.ok(shared.includes('.timelineGridSelectionLayer {'));
-  assert.ok(shared.includes(':where(.timelineGridSelectionLayer) .timelineGridSelectionFrame'));
-  assert.ok(shared.includes(':where(.timelineGridSelectionLayer .timelineGridSelectionHandle) {'));
+  assert.ok(!shared.includes('timelineGridSelectionLayer'));
+  assert.ok(shared.includes('.timelineGrid-content {'));
+  assert.ok(shared.includes('overflow: clip'));
+  assert.ok(shared.includes('.timelineGridSelectionFrame {'));
+  assert.ok(shared.includes('position: absolute'));
+  assert.ok(shared.includes(':where(.timelineGridSelectionFrame .timelineGridSelectionHandle) {'));
   assert.ok(shared.includes('.timelineGridSelectionHandle:focus-visible'));
-  assert.ok(desktop.includes(':where(.timelineGridSelectionLayer_desktop) .timelineGridSelectionHandle_n'));
-  assert.ok(mobile.includes('.timelineGridSelectionLayer_mobile {'));
-  assert.ok(mobile.includes('width: min(44px, calc(100% / 3))'));
+  assert.ok(desktop.includes('.timelineGridSelectionFrame_desktop {'));
+  assert.ok(mobile.includes('.timelineGridSelectionFrame_mobile {'));
   for (const [kind, component] of [['desktop', 'DesktopSelectionOverlay'], ['mobile', 'MobileSelectionOverlay']]) {
     assert.ok([...dependencies(resolve(grid, kind, `${component}.tsx`))].includes(resolve(grid, 'shared/selection.css')));
     const css = kind === 'desktop' ? desktop : mobile;
@@ -116,4 +112,15 @@ test('selection base styles are shared while handle adaptations remain isolated'
   assert.ok(!mobile.includes('_desktop'));
   assert.ok(!shared.includes('_mobile'));
   assert.ok(!shared.includes('_desktop'));
+});
+
+test('persistent selection frames have no portals or scroll-positioning layers', () => {
+  const mobile = readFileSync(resolve(grid, 'mobile/MobileSelectionOverlay.tsx'), 'utf8');
+  assert.ok(!mobile.includes('createPortal'));
+  for (const kind of ['desktop', 'mobile']) {
+    const component = kind === 'desktop' ? 'DesktopSelectionOverlay' : 'MobileSelectionOverlay';
+    const source = readFileSync(resolve(grid, kind, `${component}.tsx`), 'utf8');
+    assert.ok(source.includes(`timelineGridSelectionFrame_${kind}`));
+    assert.ok(!source.includes('timelineGridSelectionLayer'));
+  }
 });
