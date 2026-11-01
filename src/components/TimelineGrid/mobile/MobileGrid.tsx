@@ -82,29 +82,29 @@ export default function MobileGrid(props: TimelineGridShellProps) {
     <>
       {embedded ? (
         <div className="timelineGridMobileEmbedded">
+          {toolbar}
           <div
             ref={viewportRef}
             className="timelineGrid-scrollViewport"
           >
             <div className="timelineGridBackdrop" aria-hidden="true" />
-            {toolbar}
             {timeline}
             <TimelineGridActiveHourIndicator
               direction={activeHourDirection}
               onClick={scrollActiveHourIntoView}
             />
+          </div>
 
-            <div className="zenPageMobile-footer">
-              <MobileSelectionControls
-                calendarEvent={event}
-                cities={props.cities}
-                selectedHours={selectedHours}
-                isEditMode={props.isEditMode}
-                selectionEnabled={enabled}
-                selectionDisabled={props.isEditMode || props.isDragging || !props.cities.length}
-                onSelectionToggle={toggle}
-              />
-            </div>
+          <div className="zenPageMobile-footer">
+            <MobileSelectionControls
+              calendarEvent={event}
+              cities={props.cities}
+              selectedHours={selectedHours}
+              isEditMode={props.isEditMode}
+              selectionEnabled={enabled}
+              selectionDisabled={props.isEditMode || props.isDragging || !props.cities.length}
+              onSelectionToggle={toggle}
+            />
           </div>
         </div>
       ) :

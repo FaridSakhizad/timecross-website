@@ -58,6 +58,14 @@
     flex: 1 1 auto;
     border-block: 1px solid rgba(var(--accent-color-2), 0.2);
   }
+
+  .timelineGrid-scrollViewport {
+    flex: 1 1 0;
+  }
+
+  .timelineGrid-addTimezoneButtonBox {
+    width: 100dvw;
+  }
 }
 
 .meetingTimePlannerPage .timelinesViewport {

@@ -17,7 +17,6 @@
 
 .timeZoneConverter-header {
   flex: 0 0 auto;
-  justify-content: center;
 }
 
 .timeZoneConverter-header .citiesHeaderButton_converter {
@@ -224,6 +223,7 @@
   .timeZoneConverter {
     border-radius: 28px;
     width: 100%;
+    min-width: unset;
   }
 
   .timeZoneConverter-statement {
@@ -260,7 +260,7 @@
       }
 
       & ~ .timeZoneConverter-resultsLead {
-        margin-top: 55px;
+        margin-top: 119px;
       }
     }
   }

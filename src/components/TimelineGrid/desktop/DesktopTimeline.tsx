@@ -19,11 +19,13 @@ export default function DesktopTimeline(props: GridTimelineProps) {
           timelineDates={props.timelineDates} timeFormat={props.timeFormat}
           selectedHourKeys={props.selectedHourKeys} onDelete={props.onDeleteCity} />
       ))}
-      <button className="timelineGrid-addTimezoneButton"
-        type="button" onClick={props.onAddCityClick}>
-        <i className="timelineGrid-addTimezoneButtonIcon" />
-        <span className="timelineGrid-addTimezoneButtonText">{t('common.addCity')}</span>
-      </button>
+      <div className="timelineGrid-addTimezoneButtonBox">
+        <button className="timelineGrid-addTimezoneButton"
+          type="button" onClick={props.onAddCityClick}>
+          <i className="timelineGrid-addTimezoneButtonIcon" />
+          <span className="timelineGrid-addTimezoneButtonText">{t('common.addCity')}</span>
+        </button>
+      </div>
     </>
   );
 }

@@ -728,10 +728,6 @@
 }
 
 @media (width < 768px) {
-  .citiesHeader {
-    justify-content: center;
-  }
-
   .citiesHeaderButton {
     &:before {
       content: '';

@@ -384,19 +384,25 @@
   cursor: grabbing;
 }
 
+.timelineGrid-addTimezoneButtonBox {
+  margin: 25px 0 35px 0;
+  position: sticky;
+  width: var(--custom-scrollbar-client-width);
+  left: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .timelineGrid-addTimezoneButton {
   min-height: 38px;
   border-radius: 19px;
   padding: 0 15px 0 10px;
-  margin: 25px auto 35px auto;
   border: 2px solid rgba(255 255 255 / 1);
   display: flex;
   align-items: center;
   gap: 12px;
-  position: sticky;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 3;
   color: #fff;
   background-color: rgba(var(--accent-color-1), 0.18);
   font-family: var(--body-font-family-1);

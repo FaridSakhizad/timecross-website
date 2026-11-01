@@ -166,6 +166,14 @@ export default function DesktopGrid(props: TimelineGridShellProps) {
           <i className="widgetFooter-backdropCorner trl" />
           <i className="widgetFooter-backdropCorner trr" />
         </div>
+        <div className="widgetFooterStart">
+          <button
+            className="timelinesNav timelinesNav_prev" type="button"
+            aria-label={t('common.previousHour')} title={t('common.previousHour')}
+            onClick={() => timelineGridViewportRef.current?.scrollBy({ left: -TIMELINE_HOUR_WIDTH, behavior: 'smooth' })}>
+            <ChevronLeft size={36} aria-hidden="true" />
+          </button>
+        </div>
         <div className="widgetFooterMiddle">
           <button
             className="widgetHeaderButton"
@@ -186,19 +194,18 @@ export default function DesktopGrid(props: TimelineGridShellProps) {
             cities={props.cities} hours={selectedHours}
           />
         </div>
+        <div className="widgetFooterStart">
+          <button
+            className="timelinesNav timelinesNav_next"
+            type="button"
+            aria-label={t('common.nextHour')}
+            title={t('common.nextHour')}
+            onClick={() => timelineGridViewportRef.current?.scrollBy({ left: TIMELINE_HOUR_WIDTH, behavior: 'smooth' })}
+          >
+            <ChevronRight size={36} aria-hidden="true" />
+          </button>
+        </div>
       </div>
-      {props.presentation === 'embedded' && <>
-        <button className="timelinesNav timelinesNav_prev" type="button"
-          aria-label={t('common.previousHour')} title={t('common.previousHour')}
-          onClick={() => timelineGridViewportRef.current?.scrollBy({ left: -TIMELINE_HOUR_WIDTH, behavior: 'smooth' })}>
-          <ChevronLeft size={48} aria-hidden="true" />
-        </button>
-        <button className="timelinesNav timelinesNav_next" type="button"
-          aria-label={t('common.nextHour')} title={t('common.nextHour')}
-          onClick={() => timelineGridViewportRef.current?.scrollBy({ left: TIMELINE_HOUR_WIDTH, behavior: 'smooth' })}>
-          <ChevronRight size={48} aria-hidden="true" />
-        </button>
-      </>}
     </div>
   );
 }

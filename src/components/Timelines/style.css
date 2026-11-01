@@ -1,13 +1,15 @@
-.section {
-  &.section_timelines {
-    padding-top: 70px;
+.section_timelines {
+  padding-top: 70px;
 
-    .timelineGridMobileEmbedded {
-      min-height: 540px;
-      height: 90dvh;
-      max-height: 800px;
-    }
+  .timelineGridMobileEmbedded {
+    min-height: 540px;
+    height: 90dvh;
+    max-height: 800px;
   }
+}
+
+.section_timelines:has(.timelinesEmbedded) {
+  padding-inline: 30px;
 }
 
 .gridTopControls {
@@ -99,33 +101,46 @@
 .timelinesNav {
   display: grid;
   place-items: center;
-  width: 50px;
-  height: 50px;
+  width: 40px;
+  height: 40px;
   padding: 0;
-  position: absolute;
-  top: calc(50% + 15px);
-  z-index: 8;
-  border: 1px solid transparent;
+  position: relative;
+  border: 2px solid rgba(var(--accent-color-2), 1);
   border-radius: 50%;
-  background: rgba(var(--accent-color-1), 0.3);
-  color: #fff;
+  background: rgba(var(--accent-color-2), 0.1);
+  color: rgba(var(--accent-color-2), 1);
   cursor: pointer;
-  transform: translateY(-50%);
   transition: background 0.15s ease;
+
+  &:focus-visible {
+    outline: 1px solid rgba(var(--accent-color-2), 1);
+    outline-offset: 3px;
+  }
+}
+
+.timelinesNav_prev {
+  margin: -7px -5px -3px -5px;
+}
+
+.timelinesNav_next {
+  margin: -7px -5px -3px -5px;
 }
 
 .timelinesNav:hover {
-  background: rgba(var(--accent-color-1), 0.4);
+  background: rgba(var(--accent-color-1), 0.7);
 }
 
 .timelinesNav:active {
-  transform: translateY(-50%) scale(0.96);
+  transform: scale(0.96);
 }
 
 @media (width < 1200px) {
-  .section {
-    &.section_timelines {
-      padding-block: 0;
-    }
+  .section_timelines:has(.timelineGridMobileEmbedded) {
+    padding: 0;
+  }
+
+  .section_timelines:has(.timelinesEmbedded) {
+    padding-block: 15px;
+    padding-inline: 15px;
   }
 }

@@ -57,7 +57,7 @@
 .timelineGrid-scrollViewport {
   height: 100%;
   overflow: auto;
-  /*overscroll-behavior: contain;*/
+  /*overscroll-behavior: none;*/
   scroll-padding-inline: calc(50% - var(--timeline-grid-cell-size) / 2);
   scroll-snap-type: x mandatory;
 }
@@ -204,46 +204,11 @@
 }
 
 .timelinesEmbedded {
-  padding-inline: 110px;
   position: relative;
-
-  .timelinesNav_prev {
-    left: 30px;
-  }
-
-  .timelinesNav_next {
-    right: 30px;
-  }
+  padding-inline: 15px;
 
   .timelineGrid {
     max-height: 600px;
-  }
-}
-
-@media (width <= 1440px) and (width >= 1024px) {
-  .timelinesEmbedded {
-    padding-inline: 80px;
-  }
-
-  .timelinesEmbedded {
-    .timelinesNav_prev {
-      left: 15px;
-    }
-
-    .timelinesNav_next {
-      right: 15px;
-    }
-  }
-}
-
-@media (width < 1024px) {
-  .timelinesEmbedded {
-    padding-inline: 0;
-    margin-inline: 15px;
-
-    .timelinesNav {
-      display: none;
-    }
   }
 }
 

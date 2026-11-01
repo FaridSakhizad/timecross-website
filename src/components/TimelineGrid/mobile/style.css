@@ -28,8 +28,8 @@
     top: 67px;
   }
 
-  .timelineGrid-addTimezoneButton {
-    margin-inline: 0;
+  .timelineGrid-addTimezoneButtonBox {
+    width: 100dvw;
     margin-bottom: 95px;
   }
 }
@@ -46,7 +46,9 @@ body:has(.zenPageMobileBackdrop) {
   position: fixed;
   z-index: 0;
   top: 0;
-  background: url("../../../assets/bg--mob-main-1.jpg") center center / cover no-repeat;
+  background:
+      url("/src/assets/bg--noise-1.png") center,
+      url("../../../assets/bg--mob-main-1.jpg") center center / cover no-repeat;
   pointer-events: none;
 }
 
@@ -102,22 +104,34 @@ body:has(.zenPageMobileBackdrop) {
 
 .timelineGridMobileEmbedded {
   position: relative;
-  overflow: scroll;
+  display: flex;
+  flex-direction: column;
+
+  .zenPageMobile-header {
+    background: unset;
+    position: relative;
+  }
+
+  .zenPageMobile-footer {
+    background: unset;
+    position: relative;
+  }
 
   .timelineGridBackdrop {
     position: absolute;
   }
 
+  .timelineGrid-userHours_mobile {
+    top: 0;
+  }
+
   .timelineGridMiddleMarker {
     top: 67px;
+    bottom: 60px;
   }
 
   .timelineGridMiddleHoursMarker {
     top: 68px;
-  }
-
-  .zenPageMobile-footer {
-     position: sticky;
   }
 }
 
@@ -130,7 +144,7 @@ body:has(.zenPageMobileBackdrop) {
   z-index: 1;
   width: 100dvw;
   pointer-events: none;
-  background-color: rgba(var(--accent-color-1), 0.3);
+  background-color: rgba(var(--accent-color-1), 0.1);
 }
 
 .timelineGrid-userHours_mobile {

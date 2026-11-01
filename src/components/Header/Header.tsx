@@ -11,6 +11,7 @@ import {
 } from '../../i18n/languageRouting';
 import { SHORT_LANGUAGE_NAMES } from '../../i18n/languageLabels';
 import type { ColorMode, TimeFormat } from '../../settings';
+import StandaloneMenuModal from '../StandaloneMenuModal';
 
 type HeaderProps = {
   customClassNames?: string;
@@ -28,6 +29,7 @@ export default function Header({
   onTimeFormatButtonClick,
 }: HeaderProps) {
   const [isLangSelectorVisible, setIsLangSelectorVisible] = useState(false);
+  const [isMenuModalOpen, setIsMenuModalOpen] = useState(false);
   const langSelectorRef = useRef<HTMLDivElement>(null);
   const { language, t } = useI18n();
   const location = useLocation();
@@ -61,7 +63,7 @@ export default function Header({
 
   return (
     <header className={['header', customClassNames].filter(Boolean).join(' ')}>
-      <div className="container container_header">
+      <div className="container">
         <Link
           to={getCanonicalLanguagePath(language)}
           className="logo"
@@ -132,8 +134,28 @@ export default function Header({
               </div>
             )}
           </div>
+
+          <button
+            type="button"
+            className="headerMenu-item headerMenu-item_menu"
+            aria-label={t('common.menu')}
+            aria-haspopup="dialog"
+            aria-expanded={isMenuModalOpen}
+            onClick={() => {
+              setIsLangSelectorVisible(false);
+              setIsMenuModalOpen(true);
+            }}
+          />
         </div>
       </div>
+      <StandaloneMenuModal
+        colorMode={colorMode}
+        timeFormat={timeFormat}
+        isOpen={isMenuModalOpen}
+        onClose={() => setIsMenuModalOpen(false)}
+        onColorModeButtonClick={onColorModeButtonClick}
+        onTimeFormatButtonClick={onTimeFormatButtonClick}
+      />
     </header>
   );
 }

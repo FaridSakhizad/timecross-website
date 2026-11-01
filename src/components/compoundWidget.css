@@ -255,13 +255,18 @@
   }
 }
 
-.widgetFooterMiddle {
+.widgetFooterStart,
+.widgetFooterMiddle,
+.widgetFooterEnd {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 20px;
-  margin: auto;
   flex-shrink: 0;
+}
+
+.widgetFooterMiddle {
+  margin: auto;
 }
 
 @media (width <= 830px) {
