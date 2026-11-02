@@ -623,7 +623,7 @@
   max-width: 240px;
 }
 
-@media (width <= 768px) {
+@media (width <= 1200px) {
   :root {
     --timeline-grid-cell-spacing: 6px;
     --timeline-grid-cell-size: 34px;

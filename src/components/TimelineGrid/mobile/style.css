@@ -132,9 +132,13 @@ body:has(.zenPageMobileBackdrop) {
   .timelineGridMiddleHoursMarker {
     top: 68px;
   }
+
+  .timelineGrid-addTimezoneButtonBox {
+    width: 100dvw;
+  }
 }
 
-@media (width <= 768px) {
+@media (width <= 1200px) {
   .timelineGridMobileEmbedded {
     .timelineGridMiddleHoursMarker {
       top: 63px;
@@ -157,7 +161,7 @@ body:has(.zenPageMobileBackdrop) {
   z-index: 1;
   width: 100dvw;
   pointer-events: none;
-  background-color: rgba(var(--accent-color-1), 0.1);
+  background-color: rgba(var(--accent-color-1), 0.15);
 }
 
 .timelineGrid-userHours_mobile {

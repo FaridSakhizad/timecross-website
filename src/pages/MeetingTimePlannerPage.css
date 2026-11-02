@@ -68,6 +68,14 @@
   }
 }
 
+@media (width <= 1200px) {
+  .meetingTimePlannerWidgetSection-widget {
+    min-height: 320px;
+    height: 90dvh;
+    max-height: 680px;
+  }
+}
+
 .meetingTimePlannerPage .timelinesViewport {
   min-height: min(calc(100vh - 270px), 532px);
 }

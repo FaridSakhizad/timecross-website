@@ -212,7 +212,7 @@
   }
 }
 
-@media (width <= 768px) {
+@media (width <= 1200px) {
   .timelineGridMiddleHoursMarker {
     top: 2px;
     height: 33px;
