@@ -133,7 +133,7 @@ function TimelineGridRow({
             {displayName}, <span className="timelineGrid-cityOffset">{offset}</span>
           </span>
 
-          {relativeDayMarker && (
+          {(false && relativeDayMarker) && (
             <span className={`timelineGrid-dayMarker timelineGrid-dayMarker_${relativeDayMarker}`}>
               {relativeDayMarker === 'tomorrow' ? t('cities.tomorrow') : t('cities.yesterday')}
             </span>

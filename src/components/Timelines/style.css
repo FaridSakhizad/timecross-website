@@ -2,14 +2,14 @@
   padding-top: 70px;
 
   .timelineGridMobileEmbedded {
-    min-height: 540px;
+    min-height: 320px;
     height: 90dvh;
-    max-height: 800px;
+    max-height: 540px;
   }
 }
 
 .section_timelines:has(.timelinesEmbedded) {
-  padding-inline: 30px;
+  padding-inline: 15px;
 }
 
 .gridTopControls {

@@ -1,6 +1,7 @@
 :root {
-  --timeline-grid-hour-width: 74px;
   --timeline-grid-cell-size: 64px;
+  --timeline-grid-cell-spacing: 10px;
+  --timeline-grid-hour-width: calc(var(--timeline-grid-cell-size) + var(--timeline-grid-cell-spacing));
   --timeline-grid-side-pad: max(16px, calc(50vw - var(--timeline-grid-cell-size) / 2));
 }
 
@@ -95,7 +96,7 @@
   align-items: center;
   justify-content: center;
   justify-self: center;
-  width: 64px;
+  width: var(--timeline-grid-cell-size);
   height: 24px;
   border: 1px solid rgba(255 255 255 / 0.3);
   border-radius: 65536px;
@@ -147,16 +148,6 @@
   display: block;
 }
 
-.timelineGrid-city {
-  position: sticky;
-  left: 0;
-  z-index: 10;
-  width: var(--custom-scrollbar-client-width);
-  padding: 12px 0 7px;
-  color: #fff;
-  user-select: none;
-}
-
 .timelineGrid-row {
   display: grid;
   grid-template-columns: max-content;
@@ -194,6 +185,19 @@
   .timelineGrid-cellsSpacer {
     background: rgba(255 255 255 / 0.5);
   }
+}
+
+.timelineGrid-city {
+  position: sticky;
+  left: 0;
+  z-index: 10;
+  width: var(--custom-scrollbar-client-width);
+  padding: 12px 0 7px;
+  color: #fff;
+  user-select: none;
+
+  --base-font-size: 16px;
+  --base-line-height: 1.2;
 }
 
 .timelineGrid-cityInner {
@@ -243,8 +247,8 @@
 }
 
 .timelineGrid-cityName {
-  font-size: 16px;
-  line-height: 1.2;
+  font-size: var(--base-font-size);
+  line-height: var(--base-line-height);
   font-weight: 700;
 }
 
@@ -265,8 +269,8 @@
 .timelineGrid-cityTime {
   margin-left: auto;
   color: rgba(255 255 255 / 1);
-  font-size: 16px;
-  line-height: 1.2;
+  font-size: var(--base-font-size);
+  line-height: var(--base-line-height);
 }
 
 .timelineGrid-deleteButton {
@@ -617,4 +621,103 @@
 .timelineGridCalendarError {
   font-size: 12px;
   max-width: 240px;
+}
+
+@media (width <= 768px) {
+  :root {
+    --timeline-grid-cell-spacing: 6px;
+    --timeline-grid-cell-size: 34px;
+  }
+
+  .timelineGrid-userHours {
+    min-height: 36px;
+  }
+
+  .timelineGrid-hour {
+    font-size: 11px;
+    line-height: 24px;
+  }
+
+  .timelineGrid-hourCurrentTime {
+    font-size: 11px;
+  }
+
+  .timelineGrid-cells {
+    padding: 0;
+  }
+
+  .timelineGrid-city {
+    --base-font-size: 12px;
+    padding: 8px 0 4px;
+  }
+
+  .timelineGrid-cityInner {
+    max-width: unset;
+    padding-inline: 15px;
+    min-height: 15px;
+  }
+
+  .timelineGrid-cell {
+    border-radius: 5px;
+    font-size: 18px;
+    font-weight: normal;
+  }
+
+  .timelineGrid-cellDateDetails {
+    font-size: 11px;
+    line-height: 1.2;
+  }
+
+  .timelineGrid-cellCurrentTime {
+    font-size: 10px;
+    line-height: 1.1;
+  }
+
+  .timelineGrid-hour_date {
+    font-size: 10px;
+    line-height: 1.2;
+  }
+}
+
+@media (width >= 99999px) {
+  .timelineGrid-city {
+    position: sticky;
+    left: 0;
+    z-index: 100;
+    width: 215px;
+    padding: 0 10px 0 15px;
+    color: #fff;
+    user-select: none;
+    height: 74px;
+    margin: -5px 0 -69px 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .timelineGrid-row {
+    padding: 5px 0;
+  }
+
+  .timelineGrid-cells {
+    padding: 0;
+  }
+
+  .timelineGrid-cityInner {
+    min-height: unset;
+    padding-inline: unset;
+    margin: unset;
+    max-width: unset;
+  }
+
+  .timelineCitiesBackdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 215px;
+    height: 100%;
+    background: rgba(var(--accent-color-1), 0.3);
+    border-right: 1px solid rgba(var(--accent-color-2), 0.4);
+    z-index: 99;
+  }
 }

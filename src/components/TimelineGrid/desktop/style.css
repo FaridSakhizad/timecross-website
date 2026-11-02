@@ -205,12 +205,22 @@
 
 .timelinesEmbedded {
   position: relative;
-  padding-inline: 15px;
+  margin: auto;
 
   .timelineGrid {
     max-height: 600px;
   }
 }
+
+@media (width <= 768px) {
+  .timelineGridMiddleHoursMarker {
+    top: 2px;
+    height: 33px;
+    border-top-right-radius: 12px;
+    border-top-left-radius: 12px;
+  }
+}
+
 
 @media (width < 700px) {
   .timelineGrid {

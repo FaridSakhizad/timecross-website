@@ -151,8 +151,9 @@ export default function DesktopGrid(props: TimelineGridShellProps) {
           />
           <DesktopSelectionOverlay overlayRef={overlayRef} frameRef={frameRef} />
         </div>
-        <div className="timelineGridMiddleMarker timelineGridMiddleMarker_desktop" />
-        <div className="timelineGridMiddleHoursMarker timelineGridMiddleMarker_desktop" />
+        <div className="timelineCitiesBackdrop" />
+        <div className="timelineGridMiddleMarker" />
+        <div className="timelineGridMiddleHoursMarker" />
       </CustomScrollbar>
       <TimelineGridActiveHourIndicator
         direction={activeHourDirection}

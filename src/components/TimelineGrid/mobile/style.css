@@ -18,7 +18,6 @@
 
   .timelineGridMiddleHoursMarker {
     position: fixed;
-    z-index: 100;
     top: 68px;
   }
 
@@ -132,6 +131,20 @@ body:has(.zenPageMobileBackdrop) {
 
   .timelineGridMiddleHoursMarker {
     top: 68px;
+  }
+}
+
+@media (width <= 768px) {
+  .timelineGridMobileEmbedded {
+    .timelineGridMiddleHoursMarker {
+      top: 63px;
+    }
+  }
+
+  .zenPageMobile {
+    .timelineGridMiddleHoursMarker {
+      top: 63px;
+    }
   }
 }
 
