@@ -1,3 +1,4 @@
+import type { TimeFormat } from '../settings';
 import { formatPartsInTimezone, getAbstractTimezoneOffsetMinutes } from './abstractTimezone.ts';
 
 /** Shared date/time helpers. All timezone math in the app should go through this module. */
@@ -26,6 +27,7 @@ export function getBrowserTimezone() {
 }
 
 export function getZonedDateParts(timezone: string, date: Date): ZonedDateParts {
+  // A fixed locale on purpose: the parts are parsed as numbers, so they must be Latin digits.
   const parts = formatPartsInTimezone(date, timezone, 'en-US', {
     year: 'numeric',
     month: '2-digit',
@@ -135,4 +137,60 @@ export function formatRelativeOffset(offsetMinutes: number, sameLabel: string) {
 /** Absolute offset label such as "UTC+5:30" or "GMT-3". */
 export function formatOffsetLabel(offsetMinutes: number, prefix: 'UTC' | 'GMT' = 'UTC') {
   return `${prefix}${offsetMinutes < 0 ? '-' : '+'}${formatHoursAndMinutes(Math.abs(offsetMinutes))}`;
+}
+
+export type ClockLabel = {
+  /** "21", "21:05", "9", "9:05" */
+  time: string;
+  /** Shown only in 12-hour format. Latin AM/PM in every language, like the format switch in the header. */
+  period: 'AM' | 'PM' | null;
+};
+
+const pad2 = (value: number) => String(value).padStart(2, '0');
+
+/**
+ * Clock label built from numbers, not from a locale: 24-hour times are zero-padded ("09:05"),
+ * 12-hour times are not ("9:05" + "AM"). Without `minute` only the hour is returned ("9" or "21").
+ */
+export function getClockLabel(hour: number, minute: number | null, timeFormat: TimeFormat): ClockLabel {
+  if (timeFormat === '24h') {
+    return { time: minute === null ? String(hour) : `${pad2(hour)}:${pad2(minute)}`, period: null };
+  }
+
+  const hour12 = hour % 12 || 12;
+
+  return {
+    time: minute === null ? String(hour12) : `${hour12}:${pad2(minute)}`,
+    period: hour < 12 ? 'AM' : 'PM',
+  };
+}
+
+/** "09:05" or "9:05 AM" for a moment in the given timezone. */
+export function formatClockTime(date: Date, timezone: string, timeFormat: TimeFormat) {
+  const { hour, minute } = getZonedDateParts(timezone, date);
+  const { time, period } = getClockLabel(hour, minute, timeFormat);
+
+  return period ? `${time} ${period}` : time;
+}
+
+function getLocalizedPart(date: Date, timezone: string, locale: string, options: Intl.DateTimeFormatOptions, type: Intl.DateTimeFormatPartTypes) {
+  // Trailing dots of abbreviations ("нояб.", "Di.") are dropped to keep timeline labels compact.
+  return (formatPartsInTimezone(date, timezone, locale, options).find((part) => part.type === type)?.value ?? '')
+    .replace(/\.$/, '');
+}
+
+/** Day and short month in the locale's order: "Nov 3", "3 нояб", "3 Nov". */
+export function formatShortDate(date: Date, timezone: string, locale: string) {
+  return formatPartsInTimezone(date, timezone, locale, { month: 'short', day: 'numeric' })
+    .filter((part) => part.type === 'day' || part.type === 'month')
+    .map((part) => part.value.replace(/\.$/, ''))
+    .join(' ');
+}
+
+export function formatShortMonth(date: Date, timezone: string, locale: string) {
+  return getLocalizedPart(date, timezone, locale, { month: 'short', day: 'numeric' }, 'month');
+}
+
+export function formatShortWeekday(date: Date, timezone: string, locale: string) {
+  return getLocalizedPart(date, timezone, locale, { weekday: 'short' }, 'weekday');
 }

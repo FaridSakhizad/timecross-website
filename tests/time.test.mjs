@@ -54,3 +54,26 @@ test('offset labels', () => {
   assert.equal(formatOffsetLabel(-180, 'GMT'), 'GMT-3');
   assert.equal(formatOffsetLabel(0), 'UTC+0');
 });
+
+test('clock labels do not depend on a locale', async () => {
+  const { formatClockTime, getClockLabel } = await import('../src/utils/time.ts');
+  assert.deepEqual(getClockLabel(9, 5, '24h'), { time: '09:05', period: null });
+  assert.deepEqual(getClockLabel(0, 0, '12h'), { time: '12:00', period: 'AM' });
+  assert.deepEqual(getClockLabel(12, 30, '12h'), { time: '12:30', period: 'PM' });
+  assert.deepEqual(getClockLabel(21, null, '24h'), { time: '21', period: null });
+  assert.deepEqual(getClockLabel(21, null, '12h'), { time: '9', period: 'PM' });
+  assert.equal(formatClockTime(new Date('2026-11-03T21:05:00Z'), 'Europe/Berlin', '12h'), '10:05 PM');
+  assert.equal(formatClockTime(new Date('2026-11-03T21:05:00Z'), 'Asia/Tokyo', '24h'), '06:05');
+});
+
+test('date labels follow the interface language', async () => {
+  const { formatShortDate, formatShortMonth, formatShortWeekday } = await import('../src/utils/time.ts');
+  const moment = new Date('2026-11-03T12:00:00Z');
+  assert.equal(formatShortDate(moment, 'UTC', 'en-US'), 'Nov 3');
+  assert.equal(formatShortDate(moment, 'UTC', 'ru-RU'), '3 нояб');
+  assert.equal(formatShortDate(moment, 'UTC', 'de-DE'), '3 Nov');
+  assert.equal(formatShortDate(moment, 'UTC', 'pt-BR'), '3 nov');
+  assert.equal(formatShortMonth(moment, 'UTC', 'uk-UA'), 'лист');
+  assert.equal(formatShortWeekday(moment, 'UTC', 'en-US'), 'Tue');
+  assert.equal(formatShortWeekday(moment, 'UTC', 'de-DE'), 'Di');
+});

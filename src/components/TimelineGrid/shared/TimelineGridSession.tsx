@@ -31,6 +31,8 @@ import {
   getTimelineDates,
 } from '../../Timelines/utils';
 import { getBrowserTimezone } from '../../../utils/time';
+import { useI18n } from '../../../i18n';
+import { getIntlLocale } from '../../../i18n/intlLocale';
 import { getSharedGridTimelineDates, readGridEventUrlState, type SharedGridEvent } from './eventUrlState';
 import { readPlannerUrlState, writePlannerUrlState } from '../../Timelines/plannerUrlState';
 import type { TimelineGridProps, TimelineGridShellProps } from './types';
@@ -59,6 +61,7 @@ function GridSession({
   View,
 }: SessionProps & { sharedEvent: SharedGridEvent | null }) {
   const [, setSearchParams] = useSearchParams();
+  const { language } = useI18n();
   const [initialState] = useState(() => readPlannerUrlState(syncUrl ? window.location.search : ''));
   const [anchorDate, setAnchorDate] = useState(initialState.at);
   const [selectedDate, setSelectedDate] = useState(initialState.at);
@@ -121,8 +124,8 @@ function GridSession({
   );
 
   const userCells = useMemo(
-    () => getTimelineCells(browserTimezone, baseDate, timelineDates, timeFormat),
-    [baseDate, browserTimezone, timelineDates, timeFormat],
+    () => getTimelineCells(browserTimezone, baseDate, timelineDates, timeFormat, getIntlLocale(language)),
+    [baseDate, browserTimezone, language, timelineDates, timeFormat],
   );
   const currentUserHourIndex = userCells.findIndex((cell) => cell.isCurrentHour);
 

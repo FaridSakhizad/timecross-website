@@ -1,23 +1,21 @@
 type TimelineCellLabelProps = {
   label: string;
+  period: string | null;
   periodClassName: string;
 };
 
-const DAY_PERIOD_PATTERN = /^(.*)\s(AM|PM)$/;
-
 export default function TimelineCellLabel({
   label,
+  period,
   periodClassName,
 }: TimelineCellLabelProps) {
-  const match = label.match(DAY_PERIOD_PATTERN);
-
-  if (!match) {
+  if (!period) {
     return label;
   }
 
   return (
     <>
-      {match[1]} <span className={periodClassName}>{match[2]}</span>
+      {label} <span className={periodClassName}>{period}</span>
     </>
   );
 }

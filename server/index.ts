@@ -10,7 +10,6 @@ import {
   getClientIp,
   isWithinRateLimit,
   verifyTurnstileToken,
-  type RateLimitBinding,
   type TurnstileVerification,
 } from "./contactProtection";
 import { render } from "./entry-server";
@@ -41,40 +40,9 @@ type ContactRequest = {
   turnstileToken?: string;
 };
 
-type ContactEmailMessage = {
-  to: string;
-  from: {
-    email: string;
-    name: string;
-  };
-  replyTo: {
-    email: string;
-    name: string;
-  };
-  subject: string;
-  text: string;
-};
-
-type ContactEmailBinding = {
-  send: (message: ContactEmailMessage) => Promise<{
-    messageId?: string;
-    [key: string]: unknown;
-  }>;
-};
-
-type WorkerEnv = {
-  CONTACT_EMAIL: ContactEmailBinding;
-  /** Per-IP limit for /api/contact, see `ratelimits` in wrangler.jsonc. */
-  CONTACT_RATE_LIMITER?: RateLimitBinding;
-  /** Set with `wrangler secret put TURNSTILE_SECRET_KEY`; locally in .dev.vars. */
-  TURNSTILE_SECRET_KEY?: string;
-  ASSETS?: {
-    fetch: (request: Request) => Promise<Response>;
-  };
-};
-
+// Env (bindings and secrets) is generated from wrangler.jsonc: npm run cf-typegen.
 type WorkerHandler = {
-  fetch: (request: Request, env: WorkerEnv) => Promise<Response>;
+  fetch: (request: Request, env: Env) => Promise<Response>;
 };
 
 const IS_DEV = import.meta.env.DEV;
@@ -233,11 +201,7 @@ function injectSsrHtml(template: string, appHtml: string, metadata: ReturnType<t
     .replace('<div id="root"></div>', () => `<div id="root">${appHtml}</div>`);
 }
 
-async function serveSsrPage(request: Request, env: WorkerEnv, url: URL) {
-  if (!env.ASSETS) {
-    return new Response("Not Found", { status: 404 });
-  }
-
+async function serveSsrPage(request: Request, env: Env, url: URL) {
   const language = getLanguageFromPathname(url.pathname) ?? getPreferredLanguage(request);
   const indexUrl = new URL("/", url);
   const indexRequest = new Request(indexUrl, request);
@@ -261,11 +225,7 @@ async function serveSsrPage(request: Request, env: WorkerEnv, url: URL) {
   });
 }
 
-async function serveStaticAsset(request: Request, env: WorkerEnv, url: URL) {
-  if (!env.ASSETS) {
-    return new Response("Not Found", { status: 404 });
-  }
-
+async function serveStaticAsset(request: Request, env: Env, url: URL) {
   const redirectResponse = getRedirectResponse(request, url);
 
   if (redirectResponse) {
@@ -283,7 +243,7 @@ async function serveStaticAsset(request: Request, env: WorkerEnv, url: URL) {
   return env.ASSETS.fetch(request);
 }
 
-async function handleContactRequest(request: Request, env: WorkerEnv): Promise<Response> {
+async function handleContactRequest(request: Request, env: Env): Promise<Response> {
   if (request.method !== "POST") {
     return jsonResponse(
       { ok: false, error: "Method not allowed" },
@@ -426,7 +386,7 @@ async function handleContactRequest(request: Request, env: WorkerEnv): Promise<R
 }
 
 export default {
-  async fetch(request: Request, env: WorkerEnv): Promise<Response> {
+  async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
 
     if (url.pathname === CONTACT_API_PATH) {

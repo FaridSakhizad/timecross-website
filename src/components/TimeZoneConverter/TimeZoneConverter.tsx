@@ -4,8 +4,9 @@ import './style.css';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 
-import { MARKETING_DEFAULT_SELECTED_CITIES, type ColorMode, type TimeFormat } from '../../settings';
+import { MARKETING_DEFAULT_SELECTED_CITIES, type AppLanguage, type ColorMode, type TimeFormat } from '../../settings';
 import { useI18n } from '../../i18n';
+import { getIntlLocale } from '../../i18n/intlLocale';
 import { getCanonicalLanguagePath } from '../../i18n/languageRouting';
 import {
   createFavoriteCityFromSearchResult,
@@ -102,18 +103,6 @@ function parseDateInput(dateValue: string, timeValue: string): DateInputParts | 
   return parts;
 }
 
-function getLanguageDateLocale(language: string) {
-  if (language === 'en') {
-    return 'en-US';
-  }
-
-  if (language === 'pt') {
-    return 'pt-PT';
-  }
-
-  return language;
-}
-
 function capitalizeMonthPart(part: Intl.DateTimeFormatPart, locale: string) {
   if (part.type !== 'month' || !part.value) {
     return part.value;
@@ -124,14 +113,14 @@ function capitalizeMonthPart(part: Intl.DateTimeFormatPart, locale: string) {
   return `${month[0].toLocaleUpperCase(locale)}${month.slice(1)}`;
 }
 
-function formatDateButtonLabel(dateValue: string, language: string) {
+function formatDateButtonLabel(dateValue: string, language: AppLanguage) {
   const dateParts = parseDateInput(dateValue, '00:00');
 
   if (!dateParts) {
     return dateValue;
   }
 
-  const locale = getLanguageDateLocale(language);
+  const locale = getIntlLocale(language);
   const formatter = new Intl.DateTimeFormat(locale, {
     day: 'numeric',
     month: 'short',

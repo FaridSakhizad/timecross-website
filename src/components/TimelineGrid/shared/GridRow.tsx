@@ -3,6 +3,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
 import { useI18n } from '../../../i18n';
+import { getIntlLocale } from '../../../i18n/intlLocale';
 import type { TimeFormat } from '../../../settings';
 import type { FavoriteCity } from '../../Cities/fixtures';
 import { getCityDisplayName } from '../../Cities/useLocalizedCities';
@@ -15,7 +16,6 @@ import {
 import { formatRelativeOffset, getTimeZoneOffsetMinutes } from '../../../utils/time';
 import { gridHourKey } from './gridSelection';
 
-const DAY_PERIOD_SUFFIX_PATTERN = /\s(?:AM|PM)$/;
 
 export type GridRowClasses = { row?: string; city?: string; cells: string; spacer: string };
 
@@ -47,12 +47,12 @@ function TimelineGridRow({
   onDelete,
   selectedHourKeys,
 }: TimelineGridRowProps) {
-  const { t } = useI18n();
+  const { language, t } = useI18n();
   const [isPressed, setIsPressed] = useState(false);
   const displayName = getCityDisplayName(city);
   const shouldRenderCells = !isEditMode;
   const cells = shouldRenderCells
-    ? getTimelineCells(city.timezone, baseDate, timelineDates, timeFormat)
+    ? getTimelineCells(city.timezone, baseDate, timelineDates, timeFormat, getIntlLocale(language))
     : [];
   const offsetMinutes = getTimeZoneOffsetMinutes(city.timezone, baseDate)
     - getTimeZoneOffsetMinutes(browserTimezone, baseDate);
@@ -155,12 +155,6 @@ function TimelineGridRow({
         <div className={`timelineGrid-cells ${classNames.cells}`}>
           {cells.map((cell, index) => {
             const shouldShowFullCurrentTime = cell.isCurrentHour && Boolean(cell.dateCellDetails);
-            const cellLabel = cell.isCurrentHour
-              ? cell.label.replace(DAY_PERIOD_SUFFIX_PATTERN, '')
-              : cell.label;
-            const fullCurrentTimeLabel = cell.periodLabel
-              ? cell.currentTimeLabel.replace(cell.periodLabel, '')
-              : cell.currentTimeLabel;
 
             return (
               <span
@@ -188,13 +182,14 @@ function TimelineGridRow({
                   </span>
                 ) : (
                   <TimelineCellLabel
-                    label={cellLabel}
+                    label={cell.label}
+                    period={cell.isCurrentHour ? null : cell.labelPeriod}
                     periodClassName="timelineGrid-periodMarker"
                   />
                 )}
                 {shouldShowFullCurrentTime && (
                   <span className="timelineGrid-cellCurrentTime">
-                    <span className="timelineGrid-cellCurrentMinutes">{fullCurrentTimeLabel}</span>
+                    <span className="timelineGrid-cellCurrentMinutes">{cell.currentTimeLabel}</span>
                     {cell.periodLabel && (
                       <span className="timelineGrid-cellCurrentPeriod">{cell.periodLabel}</span>
                     )}

@@ -1,20 +1,12 @@
 import TimelineCellLabel from '../../Timelines/TimelineCellLabel';
 import type { TimelineCell } from '../../Timelines/types';
 
-const DAY_PERIOD_SUFFIX_PATTERN = /\s(?:AM|PM)$/;
-
 export default function GridUserHours({ userCells, className }: { userCells: TimelineCell[]; className: string }) {
   return (
     <div className={`timelineGrid-userHours ${className}`}>
         {userCells.map((cell, index) => {
           const shouldShowCurrentMinutes = cell.isCurrentHour && !cell.isDateLabel;
           const shouldShowCurrentDateTime = cell.isCurrentHour && cell.isDateLabel;
-          const cellLabel = shouldShowCurrentMinutes
-            ? cell.label.replace(DAY_PERIOD_SUFFIX_PATTERN, '')
-            : cell.label;
-          const currentTimeLabel = cell.periodLabel
-            ? cell.currentTimeLabel.replace(cell.periodLabel, '')
-            : cell.currentTimeLabel;
 
           return (
             <span
@@ -31,7 +23,7 @@ export default function GridUserHours({ userCells, className }: { userCells: Tim
                 <>
                   <span className="timelineGrid-hourDateValue">{cell.label}</span>
                   <span className="timelineGrid-hourCurrentTime">
-                    <span className="timelineGrid-hourCurrentValue">{currentTimeLabel}</span>
+                    <span className="timelineGrid-hourCurrentValue">{cell.currentTimeLabel}</span>
                     {cell.periodLabel && (
                       <span className="timelineGrid-hourCurrentPeriod">{cell.periodLabel}</span>
                     )}
@@ -39,13 +31,13 @@ export default function GridUserHours({ userCells, className }: { userCells: Tim
                 </>
               ) : shouldShowCurrentMinutes ? (
                 <span className="timelineGrid-hourCurrentTime">
-                  <span className="timelineGrid-hourCurrentValue">{currentTimeLabel}</span>
+                  <span className="timelineGrid-hourCurrentValue">{cell.currentTimeLabel}</span>
                   {cell.periodLabel && (
                     <span className="timelineGrid-hourCurrentPeriod">{cell.periodLabel}</span>
                   )}
                 </span>
               ) : (
-                <TimelineCellLabel label={cellLabel} periodClassName="timelineGrid-periodMarker" />
+                <TimelineCellLabel label={cell.label} period={cell.labelPeriod} periodClassName="timelineGrid-periodMarker" />
               )}
             </span>
           );

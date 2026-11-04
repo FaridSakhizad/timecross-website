@@ -11,7 +11,8 @@ React 19 + Vite, server-side rendered by a Cloudflare Worker (`server/index.ts`)
 | `npm run build` | Type-check and build the client and the Worker |
 | `npm test` | Run all tests in `tests/` (Node test runner, no extra dependencies) |
 | `npm run lint` | ESLint |
-| `npm run check` | Type-check, lint and test — run before every commit |
+| `npm run cf-typegen` | Regenerate `worker-configuration.d.ts` (Worker `Env`) after changing `wrangler.jsonc` |
+| `npm run check` | Worker types up to date, type-check, lint and test — run before every commit |
 
 Node version: see `.nvmrc`.
 

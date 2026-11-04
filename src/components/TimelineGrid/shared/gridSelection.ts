@@ -1,4 +1,4 @@
-import { formatPartsInTimezone } from '../../../utils/abstractTimezone.ts';
+import { getTimeZoneOffsetMinutesFromParts, getZonedDateParts } from '../../../utils/time.ts';
 
 export type SelectedGridHour = { rowId: string; start: number };
 export type SelectionRect = { left: number; top: number; right: number; bottom: number };
@@ -81,15 +81,19 @@ export function getGridHourRanges(hours: SelectedGridHour[]) {
   });
 }
 
+/** Machine format for calendar files and links: "2026-11-03", "21:05", "UTC+05:30". */
 function formatZonedDateTime(time: number, timezone: string) {
-  const parts = Object.fromEntries(formatPartsInTimezone(new Date(time), timezone, 'en-GB', {
-    year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23',
-  }).filter((part) => part.type !== 'literal').map((part) => [part.type, part.value]));
-  const offsetMinutes = Math.round((Date.UTC(Number(parts.year), Number(parts.month) - 1, Number(parts.day),
-    Number(parts.hour), Number(parts.minute), Number(parts.second)) - time) / 60000);
+  const date = new Date(time);
+  const parts = getZonedDateParts(timezone, date);
+  const offsetMinutes = getTimeZoneOffsetMinutesFromParts(parts, date);
   const absolute = Math.abs(offsetMinutes);
-  const offset = `UTC${offsetMinutes < 0 ? '-' : '+'}${String(Math.floor(absolute / 60)).padStart(2, '0')}:${String(absolute % 60).padStart(2, '0')}`;
-  return { date: `${parts.year}-${parts.month}-${parts.day}`, time: `${parts.hour}:${parts.minute}`, offset };
+  const pad2 = (value: number) => String(value).padStart(2, '0');
+  const offset = `UTC${offsetMinutes < 0 ? '-' : '+'}${pad2(Math.floor(absolute / 60))}:${pad2(absolute % 60)}`;
+  return {
+    date: `${parts.year}-${pad2(parts.month)}-${pad2(parts.day)}`,
+    time: `${pad2(parts.hour)}:${pad2(parts.minute)}`,
+    offset,
+  };
 }
 
 export function buildGridCalendarEvent(

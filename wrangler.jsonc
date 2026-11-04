@@ -15,6 +15,10 @@
       "simple": { "limit": 3, "period": 60 }
     }
   ],
+  "secrets": {
+    // Checked by `wrangler deploy` (fails if not set) and used by `wrangler types`.
+    "required": ["TURNSTILE_SECRET_KEY"]
+  },
   "send_email": [
     {
       "name": "CONTACT_EMAIL",

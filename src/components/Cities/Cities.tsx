@@ -33,8 +33,10 @@ import { useI18n } from '../../i18n';
 import { getCanonicalLanguagePath } from '../../i18n/languageRouting';
 import { clamp } from '../../utils/number';
 import {
+  formatClockTime,
   formatRelativeOffset,
   getBrowserTimezone,
+  getClockLabel,
   getDateSerial,
   getDayPeriod,
   getTimeZoneOffsetMinutes,
@@ -59,7 +61,6 @@ const TIME_RULER_RANGE_MINUTES = 24 * 60;
 const TIME_RULER_TICK_STEP_MINUTES = 15;
 const TIME_RULER_HOUR_STEP_MINUTES = 60;
 
-const rulerTimeFormatters = new Map<TimeFormat, Intl.DateTimeFormat>();
 
 type CityView = FavoriteCity & {
   currentTime: string;
@@ -94,35 +95,14 @@ type SortableCityItemProps = {
   yesterdayLabel: string;
 };
 
-function getRulerTimeFormatter(timeFormat: TimeFormat) {
-  const cachedFormatter = rulerTimeFormatters.get(timeFormat);
-
-  if (cachedFormatter) {
-    return cachedFormatter;
-  }
-
-  const formatter = new Intl.DateTimeFormat(timeFormat === '24h' ? 'en-GB' : 'en-US', timeFormat === '24h'
-    ? { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }
-    : { hour: 'numeric', minute: '2-digit', hourCycle: 'h12' });
-
-  rulerTimeFormatters.set(timeFormat, formatter);
-
-  return formatter;
-}
-
 function formatTimeRulerOffset(offsetMinutes: number) {
   return offsetMinutes === 0 ? '+0' : formatRelativeOffset(offsetMinutes, 'same');
 }
 
 function formatTimeFromDateParts(dateParts: ZonedDateParts, timeFormat: TimeFormat) {
-  if (timeFormat === '24h') {
-    return `${String(dateParts.hour).padStart(2, '0')}:${String(dateParts.minute).padStart(2, '0')}`;
-  }
+  const { time, period } = getClockLabel(dateParts.hour, dateParts.minute, timeFormat);
 
-  const hour = dateParts.hour % 12 || 12;
-  const dayPeriod = dateParts.hour >= 12 ? 'PM' : 'AM';
-
-  return `${hour}:${String(dateParts.minute).padStart(2, '0')} ${dayPeriod}`;
+  return period ? `${time} ${period}` : time;
 }
 
 function getDayShiftLabel(cityDateParts: ZonedDateParts, baseBrowserDateParts: ZonedDateParts) {
@@ -162,7 +142,7 @@ function getCityView(
 }
 
 function formatRulerTime(date: Date, timeFormat: TimeFormat) {
-  return getRulerTimeFormatter(timeFormat).format(date);
+  return formatClockTime(date, getBrowserTimezone(), timeFormat);
 }
 
 function getDateWithTimeOffset(baseDate: Date, offsetMinutes: number) {

@@ -407,6 +407,7 @@ export function getAbstractTimezoneRows() {
   return ABSTRACT_TIMEZONE_OFFSETS_MINUTES.map(createAbstractTimezoneRow);
 }
 
+/** English abbreviation ("EST", "GMT+5") used to match search queries, never shown as UI text. */
 function getShortTimezoneName(timezone: string, date: Date) {
   try {
     return new Intl.DateTimeFormat('en-US', {
