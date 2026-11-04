@@ -125,7 +125,11 @@
     "send": "Enviar",
     "sending": "Enviando...",
     "sent": "Mensagem enviada. Obrigado!",
-    "error": "Não foi possível enviar a mensagem"
+    "error": "Não foi possível enviar a mensagem",
+    "verificationPending": "Estamos verificando se você não é um robô. Tente novamente em alguns segundos.",
+    "verificationFailed": "Não foi possível confirmar que você não é um robô. Tente novamente.",
+    "verificationUnavailable": "A proteção contra spam não carregou. Verifique sua conexão ou o bloqueador de anúncios e recarregue a página.",
+    "tooManyRequests": "Muitas mensagens seguidas. Aguarde um minuto e tente novamente."
   },
   "faq": {
     "short": "Resumo",

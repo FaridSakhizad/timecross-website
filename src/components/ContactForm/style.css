@@ -43,3 +43,16 @@
     height: 1px;
     overflow: hidden;
 }
+
+/* Collapsed (and without the flex gap) while Turnstile works invisibly. */
+.contactForm-turnstile {
+    height: 0;
+    margin-top: -16px;
+    overflow: hidden;
+}
+
+.contactForm-turnstile_visible {
+    height: auto;
+    margin-top: 0;
+    overflow: visible;
+}

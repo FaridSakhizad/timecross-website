@@ -1,15 +1,26 @@
 import { useRef, useState, type FormEvent } from 'react';
 
-import { CONTACT_API_PATH } from '../../config';
+import { CONTACT_API_PATH, TURNSTILE_ACTION } from '../../config';
 import { useI18n } from '../../i18n';
+import { usePreferences } from '../../usePreferences';
+import TurnstileWidget, { type TurnstileWidgetHandle } from './TurnstileWidget';
 
 import './style.css';
+
+/**
+ * Public Turnstile site key, set with VITE_TURNSTILE_SITE_KEY at build time (.env.production).
+ * In development it falls back to Cloudflare's test key that always passes.
+ */
+const TURNSTILE_SITE_KEY: string = import.meta.env.VITE_TURNSTILE_SITE_KEY
+  || (import.meta.env.DEV ? '1x00000000000000000000AA' : '');
 
 type ContactFormStatus = 'idle' | 'sending' | 'sent' | 'error';
 
 type ContactResponse = {
   ok: boolean;
   error?: string;
+  /** Machine-readable reason set by the Worker: rate-limited, verification-failed, unavailable. */
+  code?: string;
 };
 
 export default function ContactForm() {
@@ -17,7 +28,23 @@ export default function ContactForm() {
   const [contactFormMessage, setContactFormMessage] = useState('');
   // Set on the first interaction, so the server can drop submissions made in under a few seconds.
   const startedAtRef = useRef<number | null>(null);
-  const { t } = useI18n();
+  const { language, t } = useI18n();
+  const { colorMode } = usePreferences();
+  const turnstileRef = useRef<TurnstileWidgetHandle>(null);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [isTurnstileBroken, setIsTurnstileBroken] = useState(false);
+
+  const getErrorMessage = (status: number, result: ContactResponse | null) => {
+    if (status === 429 || result?.code === 'rate-limited') {
+      return t('contactForm.tooManyRequests');
+    }
+
+    if (result?.code === 'verification-failed') {
+      return t('contactForm.verificationFailed');
+    }
+
+    return t('contactForm.error');
+  };
 
   const handleContactFormSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -28,6 +55,12 @@ export default function ContactForm() {
     const email = String(formData.get('email') ?? '').trim();
     const message = String(formData.get('message') ?? '').trim();
     const website = String(formData.get('website') ?? '');
+
+    if (!turnstileToken) {
+      setContactFormStatus('error');
+      setContactFormMessage(t(isTurnstileBroken ? 'contactForm.verificationUnavailable' : 'contactForm.verificationPending'));
+      return;
+    }
 
     setContactFormStatus('sending');
     setContactFormMessage('');
@@ -44,12 +77,14 @@ export default function ContactForm() {
           message,
           website,
           startedAt: startedAtRef.current ?? undefined,
+          turnstileToken,
         }),
       });
-      const result = await response.json() as ContactResponse;
+      // A 429 from Cloudflare itself (WAF rule) is an HTML page, not JSON.
+      const result = await response.json().catch(() => null) as ContactResponse | null;
 
-      if (!response.ok || !result.ok) {
-        throw new Error(t('contactForm.error'));
+      if (!response.ok || !result?.ok) {
+        throw new Error(getErrorMessage(response.status, result));
       }
 
       form.reset();
@@ -59,6 +94,9 @@ export default function ContactForm() {
     } catch (error) {
       setContactFormStatus('error');
       setContactFormMessage(error instanceof Error ? error.message : t('contactForm.error'));
+    } finally {
+      // The token was spent on this request (or rejected), so get a fresh one for the next try.
+      turnstileRef.current?.reset();
     }
   };
 
@@ -103,6 +141,21 @@ export default function ContactForm() {
           required
         ></textarea>
       </div>
+      <TurnstileWidget
+        ref={turnstileRef}
+        siteKey={TURNSTILE_SITE_KEY}
+        action={TURNSTILE_ACTION}
+        language={language}
+        theme={colorMode === 'night' ? 'dark' : 'light'}
+        onTokenChange={(token) => {
+          setTurnstileToken(token);
+
+          if (token) {
+            setIsTurnstileBroken(false);
+          }
+        }}
+        onError={() => setIsTurnstileBroken(true)}
+      />
       <div className="contactForm-row">
         <button
           className="button contactForm-submitButton"

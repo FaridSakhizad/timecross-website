@@ -125,7 +125,11 @@
     "send": "Senden",
     "sending": "Wird gesendet...",
     "sent": "Nachricht gesendet. Danke!",
-    "error": "Nachricht konnte nicht gesendet werden"
+    "error": "Nachricht konnte nicht gesendet werden",
+    "verificationPending": "Wir prüfen, dass du kein Bot bist. Versuche es in ein paar Sekunden erneut.",
+    "verificationFailed": "Wir konnten nicht bestätigen, dass du kein Bot bist. Bitte versuche es erneut.",
+    "verificationUnavailable": "Der Spamschutz wurde nicht geladen. Prüfe deine Verbindung oder deinen Werbeblocker und lade die Seite neu.",
+    "tooManyRequests": "Zu viele Nachrichten hintereinander. Bitte warte eine Minute und versuche es erneut."
   },
   "faq": {
     "short": "Kurzfassung",

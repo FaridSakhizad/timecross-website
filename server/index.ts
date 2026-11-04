@@ -5,6 +5,14 @@ import {
   SITE_NAME,
 } from "../src/config";
 
+import {
+  CONTACT_RATE_LIMIT_PERIOD_SECONDS,
+  getClientIp,
+  isWithinRateLimit,
+  verifyTurnstileToken,
+  type RateLimitBinding,
+  type TurnstileVerification,
+} from "./contactProtection";
 import { render } from "./entry-server";
 
 import {
@@ -29,6 +37,8 @@ type ContactRequest = {
   website?: string;
   /** When the form was rendered (ms since epoch), used to drop instant bot submissions. */
   startedAt?: number;
+  /** Cloudflare Turnstile token from the widget in the form. */
+  turnstileToken?: string;
 };
 
 type ContactEmailMessage = {
@@ -54,6 +64,10 @@ type ContactEmailBinding = {
 
 type WorkerEnv = {
   CONTACT_EMAIL: ContactEmailBinding;
+  /** Per-IP limit for /api/contact, see `ratelimits` in wrangler.jsonc. */
+  CONTACT_RATE_LIMITER?: RateLimitBinding;
+  /** Set with `wrangler secret put TURNSTILE_SECRET_KEY`; locally in .dev.vars. */
+  TURNSTILE_SECRET_KEY?: string;
   ASSETS?: {
     fetch: (request: Request) => Promise<Response>;
   };
@@ -69,9 +83,22 @@ const CONTACT_MIN_FILL_TIME_MS = 3000;
 function jsonResponse(
   body: Record<string, unknown>,
   status = 200,
+  headers?: HeadersInit,
 ): Response {
-  return Response.json(body, { status });
+  return Response.json(body, { status, headers });
 }
+
+const TURNSTILE_FAILURE_RESPONSES: Record<Exclude<TurnstileVerification, { ok: true }>["reason"], {
+  status: number;
+  code: string;
+}> = {
+  "not-configured": { status: 503, code: "unavailable" },
+  unavailable: { status: 502, code: "unavailable" },
+  "missing-token": { status: 403, code: "verification-failed" },
+  rejected: { status: 403, code: "verification-failed" },
+  "wrong-action": { status: 403, code: "verification-failed" },
+  "wrong-hostname": { status: 403, code: "verification-failed" },
+};
 
 function isContactRequest(value: unknown): value is ContactRequest {
   if (!value || typeof value !== "object") {
@@ -85,7 +112,8 @@ function isContactRequest(value: unknown): value is ContactRequest {
     typeof data.email === "string" &&
     typeof data.message === "string" &&
     (data.website === undefined || typeof data.website === "string") &&
-    (data.startedAt === undefined || typeof data.startedAt === "number")
+    (data.startedAt === undefined || typeof data.startedAt === "number") &&
+    (data.turnstileToken === undefined || typeof data.turnstileToken === "string")
   );
 }
 
@@ -263,6 +291,19 @@ async function handleContactRequest(request: Request, env: WorkerEnv): Promise<R
     );
   }
 
+  const clientIp = getClientIp(request);
+
+  // Checked before reading the body, so floods cost as little as possible.
+  if (!await isWithinRateLimit(env.CONTACT_RATE_LIMITER, `contact:${clientIp}`)) {
+    console.warn("Contact form rate limit hit:", { ip: clientIp });
+
+    return jsonResponse(
+      { ok: false, error: "Too many requests", code: "rate-limited" },
+      429,
+      { "retry-after": String(CONTACT_RATE_LIMIT_PERIOD_SECONDS) },
+    );
+  }
+
   let body: unknown;
 
   try {
@@ -315,6 +356,32 @@ async function handleContactRequest(request: Request, env: WorkerEnv): Promise<R
     return jsonResponse(
       { ok: false, error: "Message is too long" },
       400,
+    );
+  }
+
+  // Last check before sending: a Turnstile token is single-use, so it is spent only on a valid message.
+  const verification = await verifyTurnstileToken({
+    token: body.turnstileToken,
+    secret: env.TURNSTILE_SECRET_KEY,
+    remoteIp: clientIp,
+    expectedHostname: new URL(request.url).hostname,
+  });
+
+  if (!verification.ok) {
+    const failure = TURNSTILE_FAILURE_RESPONSES[verification.reason];
+
+    if (verification.reason === "not-configured") {
+      console.error("TURNSTILE_SECRET_KEY is not set; the contact form rejects every message.");
+    } else {
+      console.warn("Contact form Turnstile check failed:", {
+        reason: verification.reason,
+        errorCodes: verification.errorCodes,
+      });
+    }
+
+    return jsonResponse(
+      { ok: false, error: "Verification failed", code: failure.code },
+      failure.status,
     );
   }
 

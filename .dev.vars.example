@@ -1,0 +1,4 @@
+# Copy to .dev.vars for local development (that file is git-ignored).
+# Cloudflare test secret: every token passes. Use 2x0000000000000000000000000000000AA to test failures.
+# The real secret is set only in Cloudflare: npx wrangler secret put TURNSTILE_SECRET_KEY
+TURNSTILE_SECRET_KEY=1x0000000000000000000000000000000AA

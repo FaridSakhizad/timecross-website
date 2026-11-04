@@ -137,7 +137,11 @@
     "send": "Send",
     "sending": "Sending...",
     "sent": "Message sent. Thank you!",
-    "error": "Unable to send message"
+    "error": "Unable to send message",
+    "verificationPending": "Checking that you're not a bot. Try again in a few seconds.",
+    "verificationFailed": "We couldn't verify that you're not a bot. Please try again.",
+    "verificationUnavailable": "Spam protection didn't load. Check your connection or ad blocker and reload the page.",
+    "tooManyRequests": "Too many messages in a row. Please wait a minute and try again."
   },
   "faq": {
     "short": "TL;DR",

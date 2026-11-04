@@ -5,6 +5,8 @@ export const SUPPORT_EMAIL = 'support@timecross.app';
 export const CONTACT_FORM_TO_EMAIL = SUPPORT_EMAIL;
 export const CONTACT_FORM_FROM_EMAIL = 'contact-form@timecross.net';
 export const CONTACT_API_PATH = '/api/contact';
+/** Must match TURNSTILE_ACTION in server/contactProtection.ts. */
+export const TURNSTILE_ACTION = 'contact';
 export const PRIVACY_POLICY_PATH = '/privacy-policy';
 export const TERMS_OF_USE_PATH = '/terms-of-use';
 export const BUY_ME_A_COFFEE_URL = 'https://buy.stripe.com/fZu4gsf6z0M6bROfrrasg00';

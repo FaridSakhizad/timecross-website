@@ -665,7 +665,7 @@
 
   .timelineGrid-cellDateDetails {
     font-size: 11px;
-    line-height: 1.2;
+    line-height: 1.1;
   }
 
   .timelineGrid-cellCurrentTime {
@@ -675,7 +675,16 @@
 
   .timelineGrid-hour_date {
     font-size: 10px;
-    line-height: 1.2;
+    line-height: 1.1;
+  }
+
+  .timelineGrid-cell_date {
+    &.timelineGrid-cell_current {
+      .timelineGrid-cellCurrentTime {
+        font-size: 10px;
+        line-height: 1.1;
+      }
+    }
   }
 }
 

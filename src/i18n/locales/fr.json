@@ -125,7 +125,11 @@
     "send": "Envoyer",
     "sending": "Envoi...",
     "sent": "Message envoyé. Merci !",
-    "error": "Impossible d'envoyer le message"
+    "error": "Impossible d'envoyer le message",
+    "verificationPending": "Nous vérifions que vous n'êtes pas un robot. Réessayez dans quelques secondes.",
+    "verificationFailed": "Impossible de vérifier que vous n'êtes pas un robot. Veuillez réessayer.",
+    "verificationUnavailable": "La protection anti-spam ne s'est pas chargée. Vérifiez votre connexion ou votre bloqueur de publicités, puis rechargez la page.",
+    "tooManyRequests": "Trop de messages à la suite. Patientez une minute, puis réessayez."
   },
   "faq": {
     "short": "En bref",

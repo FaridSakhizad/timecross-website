@@ -23,3 +23,13 @@ Node version: see `.nvmrc`.
 - `src/utils/time.ts` — all timezone and date math (offsets, DST, day shifts). Do not re-implement these helpers in components.
 - `src/i18n/` — translations (`locales/*.json`, English is the reference) and language routing.
 - `server/` — Worker: SSR, SEO tags, language redirects and the `/api/contact` endpoint.
+
+## Contact form protection
+
+`/api/contact` checks, in this order: a per-IP rate limit (`CONTACT_RATE_LIMITER` in `wrangler.jsonc`,
+3 requests per 60 s), a honeypot field and a minimum fill time, field validation, then Cloudflare Turnstile
+(`server/contactProtection.ts`).
+
+- Local development: `cp .dev.vars.example .dev.vars` (Cloudflare's test secret). The client uses the test site key automatically.
+- Production: put the public site key into `.env.production` as `VITE_TURNSTILE_SITE_KEY` (see `.env.example`)
+  and the secret into Cloudflare: `npx wrangler secret put TURNSTILE_SECRET_KEY`. Without the secret the form rejects every message (503).
