@@ -8,12 +8,11 @@ import type { FavoriteCity } from '../../Cities/fixtures';
 import { getCityDisplayName } from '../../Cities/useLocalizedCities';
 import TimelineCellLabel from '../../Timelines/TimelineCellLabel';
 import {
-  formatOffset,
   formatTime,
   getRelativeDayMarker,
   getTimelineCells,
-  getTimeZoneOffsetMinutes,
 } from '../../Timelines/utils';
+import { formatRelativeOffset, getTimeZoneOffsetMinutes } from '../../../utils/time';
 import { gridHourKey } from './gridSelection';
 
 const DAY_PERIOD_SUFFIX_PATTERN = /\s(?:AM|PM)$/;
@@ -57,7 +56,7 @@ function TimelineGridRow({
     : [];
   const offsetMinutes = getTimeZoneOffsetMinutes(city.timezone, baseDate)
     - getTimeZoneOffsetMinutes(browserTimezone, baseDate);
-  const offset = formatOffset(offsetMinutes, t('cities.sameOffset'));
+  const offset = formatRelativeOffset(offsetMinutes, t('cities.sameOffset'));
   const relativeDayMarker = getRelativeDayMarker(city.timezone, browserTimezone, baseDate);
   const {
     attributes,

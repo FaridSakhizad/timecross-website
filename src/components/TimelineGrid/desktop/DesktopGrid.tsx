@@ -1,13 +1,14 @@
 import './style.css';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ChevronLeft, ChevronRight, Scan, X } from 'lucide-react';
+import { Scan, X } from 'lucide-react';
 import { usePanPreference } from '../../../usePanPreference';
 import { useI18n } from '../../../i18n';
 import CustomScrollbar from '../../CustomScrollbar';
-import { TIMELINE_DESKTOP_SCROLLBAR_THUMB_WIDTH, TIMELINE_HOUR_WIDTH } from '../../Timelines/constants';
+import { TIMELINE_DESKTOP_SCROLLBAR_THUMB_WIDTH } from '../../Timelines/constants';
 import TimelineGridActiveHourIndicator from '../shared/GridActiveHourIndicator';
 import DesktopTimeline from './DesktopTimeline';
 import DesktopToolbar from './DesktopToolbar';
+import HourNavButton from './HourNavButton';
 import GridCalendarActions from '../shared/GridCalendarActions';
 import DesktopSelectionOverlay from './DesktopSelectionOverlay';
 import type { TimelineGridShellProps } from '../shared/types';
@@ -168,12 +169,7 @@ export default function DesktopGrid(props: TimelineGridShellProps) {
           <i className="widgetFooter-backdropCorner trr" />
         </div>
         <div className="widgetFooterStart">
-          <button
-            className="timelinesNav timelinesNav_prev" type="button"
-            aria-label={t('common.previousHour')} title={t('common.previousHour')}
-            onClick={() => timelineGridViewportRef.current?.scrollBy({ left: -TIMELINE_HOUR_WIDTH, behavior: 'smooth' })}>
-            <ChevronLeft size={36} aria-hidden="true" />
-          </button>
+          <HourNavButton direction="prev" viewportRef={timelineGridViewportRef} />
         </div>
         <div className="widgetFooterMiddle">
           <button
@@ -195,16 +191,8 @@ export default function DesktopGrid(props: TimelineGridShellProps) {
             cities={props.cities} hours={selectedHours}
           />
         </div>
-        <div className="widgetFooterStart">
-          <button
-            className="timelinesNav timelinesNav_next"
-            type="button"
-            aria-label={t('common.nextHour')}
-            title={t('common.nextHour')}
-            onClick={() => timelineGridViewportRef.current?.scrollBy({ left: TIMELINE_HOUR_WIDTH, behavior: 'smooth' })}
-          >
-            <ChevronRight size={36} aria-hidden="true" />
-          </button>
+        <div className="widgetFooterEnd">
+          <HourNavButton direction="next" viewportRef={timelineGridViewportRef} />
         </div>
       </div>
     </div>

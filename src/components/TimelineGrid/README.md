@@ -24,7 +24,7 @@ with an explicit page or element target, without deciding which implementation s
 Shared modules do not import either implementation or perform device detection.
 
 `DesktopToolbar.tsx` and `MobileToolbar.tsx` own their markup, menu state and button sets.
-Their CSS is in `DesktopToolbar.css` and `MobileToolbar.css`. Mobile has no decorative backdrop or
+Their styles live in `desktop/style.css` and `mobile/style.css`. Mobile has no decorative backdrop or
 placeholder controls. Calendar actions and the toolbar data contract are shared; there is no shared
 toolbar component or arbitrary control slot.
 

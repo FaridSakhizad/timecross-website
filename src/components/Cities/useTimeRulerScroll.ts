@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { clamp } from '../../utils/number';
 
 type UseTimeRulerScrollOptions = {
   offsetMinutes: number;
@@ -14,10 +15,6 @@ type TimeRulerDrag = {
 };
 
 const OFFSET_SYNC_INTERVAL_MS = 50;
-
-function clamp(value: number, min: number, max: number) {
-  return Math.min(Math.max(value, min), max);
-}
 
 function getWheelDelta(event: WheelEvent, viewport: HTMLElement) {
   const lineHeight = 16;

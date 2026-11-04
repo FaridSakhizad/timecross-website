@@ -1,5 +1,5 @@
 import { Navigate, Route, Routes, useLocation, useParams } from 'react-router';
-import { useEffect, useLayoutEffect, useState, type ReactNode } from 'react';
+import { useEffect, useLayoutEffect, type ComponentType, type ReactNode } from 'react';
 
 import './App.css';
 
@@ -20,22 +20,14 @@ import {
   stripLanguageFromPathname,
 } from './i18n/languageRouting';
 import {
-  getSettings,
-  getDefaultSettings,
   getStoredLanguageSetting,
-  updateSettings,
-  type AppSettings,
   type ColorMode,
   type TimeFormat,
 } from './settings';
+import { usePreferences } from './usePreferences';
 
 type LocalizedRouteProps = {
   children: ReactNode;
-};
-
-type AppProps = {
-  hydrateStoredSettings?: boolean;
-  initialSettings?: AppSettings;
 };
 
 const useIsomorphicLayoutEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect;
@@ -95,24 +87,28 @@ function LocalizedRoute({ children }: LocalizedRouteProps) {
   return children;
 }
 
-function App({
-  hydrateStoredSettings = true,
-  initialSettings = getDefaultSettings(),
-}: AppProps) {
-  const [timeFormat, setTimeFormat] = useState<TimeFormat>(() => initialSettings.timeFormat);
-  const [colorMode, setColorMode] = useState<ColorMode>(() => initialSettings.colorMode);
+type PageProps = {
+  colorMode: ColorMode;
+  timeFormat: TimeFormat;
+  onColorModeButtonClick: () => void;
+  onTimeFormatButtonClick: () => void;
+};
+
+const PAGE_ROUTES: { path: string; Page: ComponentType<PageProps> }[] = [
+  { path: '', Page: HomePage },
+  { path: 'privacy-policy', Page: PrivacyPolicyPage },
+  { path: 'terms-of-use', Page: TermsOfUsePage },
+  { path: 'cities', Page: CitiesPage },
+  { path: 'grid', Page: GridPage },
+  { path: 'convert', Page: ConverterPage },
+  { path: 'world-clock', Page: WorldClockPage },
+  { path: 'meeting-time-planner', Page: MeetingTimePlannerPage },
+  { path: 'time-zone-converter', Page: TimeZoneConverterPage },
+];
+
+function App() {
+  const { timeFormat, colorMode, toggleTimeFormat, toggleColorMode } = usePreferences();
   const location = useLocation();
-
-  useEffect(() => {
-    if (!hydrateStoredSettings) {
-      return;
-    }
-
-    const storedSettings = getSettings();
-
-    setTimeFormat(storedSettings.timeFormat);
-    setColorMode(storedSettings.colorMode);
-  }, [hydrateStoredSettings]);
 
   useEffect(() => {
     document.documentElement.dataset.colorMode = colorMode;
@@ -122,264 +118,34 @@ function App({
     document.documentElement.dataset.route = getRouteName(location.pathname);
   }, [location.pathname]);
 
-  const handleTimeFormatButtonClick = () => {
-    const nextSettings = updateSettings((settings) => ({
-      ...settings,
-      timeFormat: settings.timeFormat === '24h' ? '12h' : '24h',
-    }));
-
-    setTimeFormat(nextSettings.timeFormat);
-  };
-
-  const handleColorModeButtonClick = () => {
-    const nextSettings = updateSettings((settings) => ({
-      ...settings,
-      colorMode: settings.colorMode === 'night' ? 'day' : 'night',
-    }));
-
-    setColorMode(nextSettings.colorMode);
-  };
-
   if (location.pathname.startsWith('/api/')) {
     return null;
   }
 
+  const pageProps: PageProps = {
+    colorMode,
+    timeFormat,
+    onColorModeButtonClick: toggleColorMode,
+    onTimeFormatButtonClick: toggleTimeFormat,
+  };
+
   return (
     <Routes>
-      <Route
-        index
-        element={(
+      {PAGE_ROUTES.flatMap(({ path, Page }) => {
+        const element = (
           <LocalizedRoute>
-            <HomePage
-              colorMode={colorMode}
-              timeFormat={timeFormat}
-              onColorModeButtonClick={handleColorModeButtonClick}
-              onTimeFormatButtonClick={handleTimeFormatButtonClick}
-            />
+            <Page {...pageProps} />
           </LocalizedRoute>
-        )}
-      />
-      <Route
-        path="privacy-policy"
-        element={(
-          <LocalizedRoute>
-            <PrivacyPolicyPage
-              colorMode={colorMode}
-              timeFormat={timeFormat}
-              onColorModeButtonClick={handleColorModeButtonClick}
-              onTimeFormatButtonClick={handleTimeFormatButtonClick}
-            />
-          </LocalizedRoute>
-        )}
-      />
-      <Route
-        path="terms-of-use"
-        element={(
-          <LocalizedRoute>
-            <TermsOfUsePage
-              colorMode={colorMode}
-              timeFormat={timeFormat}
-              onColorModeButtonClick={handleColorModeButtonClick}
-              onTimeFormatButtonClick={handleTimeFormatButtonClick}
-            />
-          </LocalizedRoute>
-        )}
-      />
-      <Route
-        path="cities"
-        element={(
-          <LocalizedRoute>
-            <CitiesPage
-              colorMode={colorMode}
-              timeFormat={timeFormat}
-              onColorModeButtonClick={handleColorModeButtonClick}
-              onTimeFormatButtonClick={handleTimeFormatButtonClick}
-            />
-          </LocalizedRoute>
-        )}
-      />
-      <Route
-        path="grid"
-        element={(
-          <LocalizedRoute>
-            <GridPage
-              colorMode={colorMode}
-              timeFormat={timeFormat}
-              onColorModeButtonClick={handleColorModeButtonClick}
-              onTimeFormatButtonClick={handleTimeFormatButtonClick}
-            />
-          </LocalizedRoute>
-        )}
-      />
-      <Route
-        path="convert"
-        element={(
-          <LocalizedRoute>
-            <ConverterPage
-              colorMode={colorMode}
-              timeFormat={timeFormat}
-              onColorModeButtonClick={handleColorModeButtonClick}
-              onTimeFormatButtonClick={handleTimeFormatButtonClick}
-            />
-          </LocalizedRoute>
-        )}
-      />
-      <Route
-        path="world-clock"
-        element={(
-          <LocalizedRoute>
-            <WorldClockPage
-              colorMode={colorMode}
-              timeFormat={timeFormat}
-              onColorModeButtonClick={handleColorModeButtonClick}
-              onTimeFormatButtonClick={handleTimeFormatButtonClick}
-            />
-          </LocalizedRoute>
-        )}
-      />
-      <Route
-        path="meeting-time-planner"
-        element={(
-          <LocalizedRoute>
-            <MeetingTimePlannerPage
-              colorMode={colorMode}
-              timeFormat={timeFormat}
-              onColorModeButtonClick={handleColorModeButtonClick}
-              onTimeFormatButtonClick={handleTimeFormatButtonClick}
-            />
-          </LocalizedRoute>
-        )}
-      />
-      <Route
-        path="time-zone-converter"
-        element={(
-          <LocalizedRoute>
-            <TimeZoneConverterPage
-              colorMode={colorMode}
-              timeFormat={timeFormat}
-              onColorModeButtonClick={handleColorModeButtonClick}
-              onTimeFormatButtonClick={handleTimeFormatButtonClick}
-            />
-          </LocalizedRoute>
-        )}
-      />
-      <Route
-        path=":lang"
-        element={(
-          <LocalizedRoute>
-            <HomePage
-              colorMode={colorMode}
-              timeFormat={timeFormat}
-              onColorModeButtonClick={handleColorModeButtonClick}
-              onTimeFormatButtonClick={handleTimeFormatButtonClick}
-            />
-          </LocalizedRoute>
-        )}
-      />
-      <Route
-        path=":lang/privacy-policy"
-        element={(
-          <LocalizedRoute>
-            <PrivacyPolicyPage
-              colorMode={colorMode}
-              timeFormat={timeFormat}
-              onColorModeButtonClick={handleColorModeButtonClick}
-              onTimeFormatButtonClick={handleTimeFormatButtonClick}
-            />
-          </LocalizedRoute>
-        )}
-      />
-      <Route
-        path=":lang/terms-of-use"
-        element={(
-          <LocalizedRoute>
-            <TermsOfUsePage
-              colorMode={colorMode}
-              timeFormat={timeFormat}
-              onColorModeButtonClick={handleColorModeButtonClick}
-              onTimeFormatButtonClick={handleTimeFormatButtonClick}
-            />
-          </LocalizedRoute>
-        )}
-      />
-      <Route
-        path=":lang/cities"
-        element={(
-          <LocalizedRoute>
-            <CitiesPage
-              colorMode={colorMode}
-              timeFormat={timeFormat}
-              onColorModeButtonClick={handleColorModeButtonClick}
-              onTimeFormatButtonClick={handleTimeFormatButtonClick}
-            />
-          </LocalizedRoute>
-        )}
-      />
-      <Route
-        path=":lang/grid"
-        element={(
-          <LocalizedRoute>
-            <GridPage
-              colorMode={colorMode}
-              timeFormat={timeFormat}
-              onColorModeButtonClick={handleColorModeButtonClick}
-              onTimeFormatButtonClick={handleTimeFormatButtonClick}
-            />
-          </LocalizedRoute>
-        )}
-      />
-      <Route
-        path=":lang/convert"
-        element={(
-          <LocalizedRoute>
-            <ConverterPage
-              colorMode={colorMode}
-              timeFormat={timeFormat}
-              onColorModeButtonClick={handleColorModeButtonClick}
-              onTimeFormatButtonClick={handleTimeFormatButtonClick}
-            />
-          </LocalizedRoute>
-        )}
-      />
-      <Route
-        path=":lang/world-clock"
-        element={(
-          <LocalizedRoute>
-            <WorldClockPage
-              colorMode={colorMode}
-              timeFormat={timeFormat}
-              onColorModeButtonClick={handleColorModeButtonClick}
-              onTimeFormatButtonClick={handleTimeFormatButtonClick}
-            />
-          </LocalizedRoute>
-        )}
-      />
-      <Route
-        path=":lang/meeting-time-planner"
-        element={(
-          <LocalizedRoute>
-            <MeetingTimePlannerPage
-              colorMode={colorMode}
-              timeFormat={timeFormat}
-              onColorModeButtonClick={handleColorModeButtonClick}
-              onTimeFormatButtonClick={handleTimeFormatButtonClick}
-            />
-          </LocalizedRoute>
-        )}
-      />
-      <Route
-        path=":lang/time-zone-converter"
-        element={(
-          <LocalizedRoute>
-            <TimeZoneConverterPage
-              colorMode={colorMode}
-              timeFormat={timeFormat}
-              onColorModeButtonClick={handleColorModeButtonClick}
-              onTimeFormatButtonClick={handleTimeFormatButtonClick}
-            />
-          </LocalizedRoute>
-        )}
-      />
+        );
+
+        // Every page is available both without a language prefix (redirects) and with one.
+        return [
+          path
+            ? <Route key={path} path={path} element={element} />
+            : <Route key="index" index element={element} />,
+          <Route key={`lang:${path}`} path={path ? `:lang/${path}` : ':lang'} element={element} />,
+        ];
+      })}
       <Route path="api/*" element={null} />
       <Route path="*" element={<Navigate replace to="/" />} />
     </Routes>

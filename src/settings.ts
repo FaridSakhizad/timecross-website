@@ -1,5 +1,7 @@
+export const APP_LANGUAGES = ['en', 'fr', 'uk', 'ru', 'es', 'pt', 'de'] as const;
+
 export type TimeFormat = '24h' | '12h';
-export type AppLanguage = 'en' | 'fr' | 'uk' | 'ru' | 'es' | 'pt' | 'de';
+export type AppLanguage = (typeof APP_LANGUAGES)[number];
 export type ColorMode = 'day' | 'night';
 
 export type StoredCity = {
@@ -193,6 +195,8 @@ const DEFAULT_SETTINGS: AppSettings = {
   selectedCities: DEFAULT_SELECTED_CITIES,
 };
 
+const SERVER_SETTINGS: AppSettings = getDefaultSettings();
+
 export function getDefaultSettings(): AppSettings {
   return {
     ...DEFAULT_SETTINGS,
@@ -243,6 +247,10 @@ function getLegacyCityOrder() {
   }
 }
 
+export function isSupportedLanguage(value: unknown): value is AppLanguage {
+  return typeof value === 'string' && (APP_LANGUAGES as readonly string[]).includes(value);
+}
+
 function normalizeSettings(settings: Partial<AppSettings> | null): AppSettings {
   return {
     ...DEFAULT_SETTINGS,
@@ -259,19 +267,13 @@ function normalizeSettings(settings: Partial<AppSettings> | null): AppSettings {
   };
 }
 
-function isSupportedLanguage(value: unknown): value is AppLanguage {
-  return (
-    value === 'en' ||
-    value === 'fr' ||
-    value === 'uk' ||
-    value === 'ru' ||
-    value === 'es' ||
-    value === 'pt' ||
-    value === 'de'
-  );
-}
+type SettingsListener = () => void;
 
-export function getSettings(): AppSettings {
+const settingsListeners = new Set<SettingsListener>();
+let cachedSettings: AppSettings | null = null;
+let isStorageListenerAttached = false;
+
+function readStoredSettings(): AppSettings {
   if (typeof window === 'undefined') {
     return normalizeSettings(null);
   }
@@ -279,14 +281,56 @@ export function getSettings(): AppSettings {
   try {
     const storedSettings = window.localStorage.getItem(SETTINGS_STORAGE_KEY);
 
-    if (!storedSettings) {
-      return normalizeSettings(null);
-    }
-
-    return normalizeSettings(JSON.parse(storedSettings));
+    return normalizeSettings(storedSettings ? JSON.parse(storedSettings) : null);
   } catch {
     return normalizeSettings(null);
   }
+}
+
+function notifySettingsListeners() {
+  settingsListeners.forEach((listener) => listener());
+}
+
+function handleStorageEvent(event: StorageEvent) {
+  if (event.key !== null && event.key !== SETTINGS_STORAGE_KEY) {
+    return;
+  }
+
+  cachedSettings = null;
+  notifySettingsListeners();
+}
+
+/**
+ * Returns the current settings snapshot. The same object is returned until the
+ * settings change, so it is safe to use with useSyncExternalStore. Treat it as read-only.
+ */
+export function getSettings(): AppSettings {
+  if (typeof window === 'undefined') {
+    return SERVER_SETTINGS;
+  }
+
+  cachedSettings ??= readStoredSettings();
+
+  return cachedSettings;
+}
+
+/** Snapshot used for SSR and during hydration, so server and client markup match. */
+export function getServerSettings(): AppSettings {
+  return SERVER_SETTINGS;
+}
+
+export function subscribeSettings(listener: SettingsListener) {
+  settingsListeners.add(listener);
+
+  if (typeof window !== 'undefined' && !isStorageListenerAttached) {
+    // Keeps several open tabs in sync.
+    window.addEventListener('storage', handleStorageEvent);
+    isStorageListenerAttached = true;
+  }
+
+  return () => {
+    settingsListeners.delete(listener);
+  };
 }
 
 export function getStoredLanguageSetting(): AppLanguage | null {
@@ -314,7 +358,15 @@ export function saveSettings(settings: AppSettings) {
     return;
   }
 
-  window.localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+  cachedSettings = settings;
+
+  try {
+    window.localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+  } catch {
+    // Storage can be unavailable (private mode, quota). Keep the in-memory value.
+  }
+
+  notifySettingsListeners();
 }
 
 export function updateSettings(updater: (settings: AppSettings) => AppSettings) {

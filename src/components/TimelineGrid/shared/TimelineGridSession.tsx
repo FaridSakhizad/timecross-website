@@ -17,21 +17,20 @@ import {
   arrayMove,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { getSettings } from '../../../settings';
 import { useCurrentMinuteDate } from '../../../useCurrentMinuteDate';
 import AddCityModal from '../../Cities/AddCityModal';
 import {
   createFavoriteCityFromSearchResult,
-  getOrderedSelectedCities,
   saveSelectedCities,
-  SELECTED_CITIES_CHANGED_EVENT,
+  getStoredOrderedSelectedCities,
+  subscribeSelectedCities,
 } from '../../Cities/selectedCities';
 import { useLocalizedCities } from '../../Cities/useLocalizedCities';
 import {
-  getBrowserTimezone,
   getTimelineCells,
   getTimelineDates,
 } from '../../Timelines/utils';
+import { getBrowserTimezone } from '../../../utils/time';
 import { getSharedGridTimelineDates, readGridEventUrlState, type SharedGridEvent } from './eventUrlState';
 import { readPlannerUrlState, writePlannerUrlState } from '../../Timelines/plannerUrlState';
 import type { TimelineGridProps, TimelineGridShellProps } from './types';
@@ -66,7 +65,7 @@ function GridSession({
   const [hasSelection, setHasSelection] = useState(Boolean(initialState.at || initialState.cities));
   const baseDate = useCurrentMinuteDate();
   const browserTimezone = useMemo(() => getBrowserTimezone(), []);
-  const [cities, setCities] = useState(() => sharedEvent?.cities ?? initialState.cities ?? getOrderedSelectedCities(getSettings().cityOrder));
+  const [cities, setCities] = useState(() => sharedEvent?.cities ?? initialState.cities ?? getStoredOrderedSelectedCities());
   const [selectedHours, setSelectedHours] = useState(sharedEvent?.hours ?? []);
   const [isAddCityModalOpen, setIsAddCityModalOpen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -99,7 +98,7 @@ function GridSession({
     if (!syncUrl || sharedEvent) return;
     const restore = () => {
       const state = readPlannerUrlState(window.location.search);
-      setCities(state.cities ?? getOrderedSelectedCities(getSettings().cityOrder));
+      setCities(state.cities ?? getStoredOrderedSelectedCities());
       setAnchorDate(state.at);
       setSelectedDate(state.at);
       setSelectedHours([]);
@@ -111,15 +110,9 @@ function GridSession({
 
   useEffect(() => {
     if (sharedEvent) return;
-    const handleSelectedCitiesChange = () => {
-      setCities(getOrderedSelectedCities(getSettings().cityOrder));
-    };
-
-    window.addEventListener(SELECTED_CITIES_CHANGED_EVENT, handleSelectedCitiesChange);
-
-    return () => {
-      window.removeEventListener(SELECTED_CITIES_CHANGED_EVENT, handleSelectedCitiesChange);
-    };
+    return subscribeSelectedCities(() => {
+      setCities(getStoredOrderedSelectedCities());
+    });
   }, [sharedEvent]);
 
   const timelineDates = useMemo(

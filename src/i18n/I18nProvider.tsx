@@ -1,13 +1,12 @@
 import {
-  createContext,
   useCallback,
-  useContext,
   useMemo,
   useState,
   type ReactNode,
 } from 'react';
 
 import { getStoredLanguageSetting, updateSettings, type AppLanguage } from '../settings';
+import { I18nContext, type I18nContextValue, type TranslationValues } from './i18nContext';
 import { getBrowserLanguage, getLanguageFromPathname } from './languageRouting';
 import en from './locales/en.json';
 import fr from './locales/fr.json';
@@ -28,18 +27,6 @@ const DICTIONARIES: Record<AppLanguage, Dictionary> = {
   pt,
   de,
 };
-
-export const SUPPORTED_LANGUAGES: AppLanguage[] = ['en', 'fr', 'uk', 'ru', 'es', 'pt', 'de'];
-
-type TranslationValues = Record<string, string | number>;
-
-type I18nContextValue = {
-  language: AppLanguage;
-  setLanguage: (language: AppLanguage) => void;
-  t: (key: string, values?: TranslationValues) => string;
-};
-
-const I18nContext = createContext<I18nContextValue | null>(null);
 
 function getNestedValue(dictionary: Dictionary, key: string) {
   return key.split('.').reduce<unknown>((value, part) => {
@@ -107,14 +94,4 @@ export function I18nProvider({ children, initialLanguage }: I18nProviderProps) {
       {children}
     </I18nContext>
   );
-}
-
-export function useI18n() {
-  const value = useContext(I18nContext);
-
-  if (!value) {
-    throw new Error('useI18n must be used inside I18nProvider');
-  }
-
-  return value;
 }

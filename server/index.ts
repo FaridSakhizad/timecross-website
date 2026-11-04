@@ -1,4 +1,5 @@
 import {
+  CONTACT_API_PATH,
   CONTACT_FORM_FROM_EMAIL,
   CONTACT_FORM_TO_EMAIL,
   SITE_NAME,
@@ -13,8 +14,8 @@ import {
 } from "../src/seoMetadata";
 import {
   getCanonicalLanguagePath,
+  getLanguageFromAcceptLanguage,
   getLanguageFromPathname,
-  getLanguageFromUrlSegment,
   isLocalizedPagePath,
   stripLanguageFromPathname,
 } from "../src/i18n/languageRouting";
@@ -24,6 +25,10 @@ type ContactRequest = {
   name: string;
   email: string;
   message: string;
+  /** Honeypot: hidden from people, usually filled in by bots. */
+  website?: string;
+  /** When the form was rendered (ms since epoch), used to drop instant bot submissions. */
+  startedAt?: number;
 };
 
 type ContactEmailMessage = {
@@ -59,6 +64,7 @@ type WorkerHandler = {
 };
 
 const IS_DEV = import.meta.env.DEV;
+const CONTACT_MIN_FILL_TIME_MS = 3000;
 
 function jsonResponse(
   body: Record<string, unknown>,
@@ -77,20 +83,27 @@ function isContactRequest(value: unknown): value is ContactRequest {
   return (
     typeof data.name === "string" &&
     typeof data.email === "string" &&
-    typeof data.message === "string"
+    typeof data.message === "string" &&
+    (data.website === undefined || typeof data.website === "string") &&
+    (data.startedAt === undefined || typeof data.startedAt === "number")
   );
+}
+
+function isLikelySpam(body: ContactRequest) {
+  if (body.website) {
+    return true;
+  }
+
+  return typeof body.startedAt === "number" && Date.now() - body.startedAt < CONTACT_MIN_FILL_TIME_MS;
+}
+
+/** Removes line breaks so user input cannot add lines to email headers such as Subject. */
+function toSingleLine(value: string) {
+  return value.replace(/[\r\n]+/g, " ");
 }
 
 function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
-
-function serializeForLog(value: unknown): unknown {
-  try {
-    return JSON.parse(JSON.stringify(value));
-  } catch {
-    return String(value);
-  }
 }
 
 function isSpaNavigationRequest(request: Request, url: URL) {
@@ -114,28 +127,7 @@ function escapeHtml(value: string) {
 }
 
 function getPreferredLanguage(request: Request): AppLanguage {
-  const acceptLanguage = request.headers.get("accept-language");
-
-  if (!acceptLanguage) {
-    return "en";
-  }
-
-  const languageCandidates = acceptLanguage
-    .split(",")
-    .map((entry) => {
-      const [languageTag, qualityValue] = entry.trim().split(";q=");
-
-      return {
-        language: getLanguageFromUrlSegment(languageTag.split("-")[0]),
-        quality: qualityValue ? Number(qualityValue) : 1,
-      };
-    })
-    .filter((entry): entry is { language: AppLanguage; quality: number } => (
-      Boolean(entry.language) && Number.isFinite(entry.quality)
-    ))
-    .sort((left, right) => right.quality - left.quality);
-
-  return languageCandidates[0]?.language ?? "en";
+  return getLanguageFromAcceptLanguage(request.headers.get("accept-language"));
 }
 
 function getRedirectResponse(request: Request, url: URL) {
@@ -200,13 +192,17 @@ function getManagedHead(metadata: ReturnType<typeof getSeoMetadata>, pathname: s
 function injectSsrHtml(template: string, appHtml: string, metadata: ReturnType<typeof getSeoMetadata>, pathname: string) {
   const managedHead = getManagedHead(metadata, pathname);
 
+  // Replacements are passed as functions: in a replacement string "$&", "$'" and similar
+  // sequences are special, and the rendered HTML may contain them.
   return template
-    .replace(/<html([^>]*)lang="[^"]*"([^>]*)>/, `<html$1lang="${metadata.language}"$2>`)
-    .replace(/<title>.*?<\/title>/s, `<title>${escapeHtml(metadata.title)}</title>`)
+    .replace(/<html([^>]*)lang="[^"]*"([^>]*)>/, (_match, before: string, after: string) => (
+      `<html${before}lang="${metadata.language}"${after}>`
+    ))
+    .replace(/<title>.*?<\/title>/s, () => `<title>${escapeHtml(metadata.title)}</title>`)
     .replace(/\n?\s*<(?:meta|link)[^>]+data-managed-seo="true"[^>]*>/g, "")
     .replace(/\n?\s*<script[^>]+data-managed-seo="true"[^>]*>.*?<\/script>/gs, "")
-    .replace("</head>", `    ${managedHead}\n</head>`)
-    .replace('<div id="root"></div>', `<div id="root">${appHtml}</div>`);
+    .replace("</head>", () => `    ${managedHead}\n</head>`)
+    .replace('<div id="root"></div>', () => `<div id="root">${appHtml}</div>`);
 }
 
 async function serveSsrPage(request: Request, env: WorkerEnv, url: URL) {
@@ -259,122 +255,121 @@ async function serveStaticAsset(request: Request, env: WorkerEnv, url: URL) {
   return env.ASSETS.fetch(request);
 }
 
+async function handleContactRequest(request: Request, env: WorkerEnv): Promise<Response> {
+  if (request.method !== "POST") {
+    return jsonResponse(
+      { ok: false, error: "Method not allowed" },
+      405,
+    );
+  }
+
+  let body: unknown;
+
+  try {
+    body = await request.json();
+  } catch {
+    return jsonResponse(
+      { ok: false, error: "Invalid JSON" },
+      400,
+    );
+  }
+
+  if (!isContactRequest(body)) {
+    return jsonResponse(
+      { ok: false, error: "Invalid request body" },
+      400,
+    );
+  }
+
+  if (isLikelySpam(body)) {
+    // Pretend success so bots get no signal to adapt.
+    return jsonResponse({ ok: true });
+  }
+
+  const name = toSingleLine(body.name.trim());
+  const email = body.email.trim();
+  const message = body.message.trim();
+
+  if (!name || !email || !message) {
+    return jsonResponse(
+      { ok: false, error: "All fields are required" },
+      400,
+    );
+  }
+
+  if (name.length > 100) {
+    return jsonResponse(
+      { ok: false, error: "Name is too long" },
+      400,
+    );
+  }
+
+  if (!isValidEmail(email) || email.length > 254) {
+    return jsonResponse(
+      { ok: false, error: "Invalid email address" },
+      400,
+    );
+  }
+
+  if (message.length > 5000) {
+    return jsonResponse(
+      { ok: false, error: "Message is too long" },
+      400,
+    );
+  }
+
+  try {
+    const result = await env.CONTACT_EMAIL.send({
+      to: CONTACT_FORM_TO_EMAIL,
+      from: {
+        email: CONTACT_FORM_FROM_EMAIL,
+        name: `${SITE_NAME} Contact Form`,
+      },
+      replyTo: {
+        email,
+        name,
+      },
+      subject: `${SITE_NAME} contact form: ${name}`,
+      text: [
+        `New message from the ${SITE_NAME} website`,
+        "",
+        `Name: ${name}`,
+        `Email: ${email}`,
+        "",
+        "Message:",
+        message,
+      ].join("\n"),
+    });
+
+    console.log("Contact email sent:", { messageId: result.messageId });
+
+    // Only a success flag goes back to the browser; delivery details stay in the logs.
+    return jsonResponse({ ok: true });
+  } catch (error) {
+    console.error("Contact email failed:", error);
+
+    return jsonResponse(
+      {
+        ok: false,
+        error: "Unable to send message",
+      },
+      500,
+    );
+  }
+}
+
 export default {
   async fetch(request: Request, env: WorkerEnv): Promise<Response> {
     const url = new URL(request.url);
 
-    if (url.pathname !== "/api/contact") {
-      if (url.pathname.startsWith("/api/")) {
-        return new Response("Not Found", { status: 404 });
-      }
-
-      return serveStaticAsset(request, env, url);
+    if (url.pathname === CONTACT_API_PATH) {
+      return handleContactRequest(request, env);
     }
 
-    if (request.method !== "POST") {
-      return jsonResponse(
-        { ok: false, error: "Method not allowed" },
-        405,
-      );
+    if (url.pathname.startsWith("/api/")) {
+      return new Response("Not Found", { status: 404 });
     }
 
-    let body: unknown;
-
-    try {
-      body = await request.json();
-    } catch {
-      return jsonResponse(
-        { ok: false, error: "Invalid JSON" },
-        400,
-      );
-    }
-
-    if (!isContactRequest(body)) {
-      return jsonResponse(
-        { ok: false, error: "Invalid request body" },
-        400,
-      );
-    }
-
-    const name = body.name.trim();
-    const email = body.email.trim();
-    const message = body.message.trim();
-
-    if (!name || !email || !message) {
-      return jsonResponse(
-        { ok: false, error: "All fields are required" },
-        400,
-      );
-    }
-
-    if (name.length > 100) {
-      return jsonResponse(
-        { ok: false, error: "Name is too long" },
-        400,
-      );
-    }
-
-    if (!isValidEmail(email) || email.length > 254) {
-      return jsonResponse(
-        { ok: false, error: "Invalid email address" },
-        400,
-      );
-    }
-
-    if (message.length > 5000) {
-      return jsonResponse(
-        { ok: false, error: "Message is too long" },
-        400,
-      );
-    }
-
-    try {
-      const result = await env.CONTACT_EMAIL.send({
-        to: CONTACT_FORM_TO_EMAIL,
-        from: {
-          email: CONTACT_FORM_FROM_EMAIL,
-          name: `${SITE_NAME} Contact Form`,
-        },
-        replyTo: {
-          email,
-          name,
-        },
-        subject: `${SITE_NAME} contact form: ${name}`,
-        text: [
-          `New message from the ${SITE_NAME} website`,
-          "",
-          `Name: ${name}`,
-          `Email: ${email}`,
-          "",
-          "Message:",
-          message,
-        ].join("\n"),
-      });
-
-      const emailResult = serializeForLog(result);
-
-      console.log("Contact email sent:", {
-        to: CONTACT_FORM_TO_EMAIL,
-        from: CONTACT_FORM_FROM_EMAIL,
-        messageId: result.messageId,
-        result: emailResult,
-      });
-
-      return jsonResponse({
-        ok: true,
-        messageId: result.messageId,
-        emailResult,
-      });
-    } catch (error) {
-      console.error("Contact email failed:", error);
-
-      return jsonResponse(
-        {
-          ok: false,
-          error: "Unable to send message",
-        },
-        500,
-      );
-    }
+    return serveStaticAsset(request, env, url);
   },
 } satisfies WorkerHandler;

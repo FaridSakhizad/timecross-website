@@ -2,6 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
+    <script>
+      /* Apply the saved color mode before the first paint to avoid a day/night flash. */
+      try {
+        var timecrossSettings = JSON.parse(localStorage.getItem('timecross:settings') || 'null');
+        if (timecrossSettings && timecrossSettings.colorMode === 'night') {
+          document.documentElement.dataset.colorMode = 'night';
+        }
+      } catch (error) {}
+    </script>
     <title>TimeCross — World Clock and Time Zone Planner</title>
     <meta name="description" content="Compare time across cities, organize favorite time zones, and plan calls, meetings, travel, and reminders with TimeCross." data-managed-seo="true" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />

@@ -1,1 +1,2 @@
-export { I18nProvider, SUPPORTED_LANGUAGES, useI18n } from './I18nProvider';
+export { I18nProvider } from './I18nProvider';
+export { SUPPORTED_LANGUAGES, useI18n } from './i18nContext';

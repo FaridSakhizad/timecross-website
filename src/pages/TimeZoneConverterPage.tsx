@@ -7,12 +7,8 @@ import Footer from '../components/Footer';
 import Header from '../components/Header';
 import Seo from '../components/Seo';
 import TimeZoneConverter from '../components/TimeZoneConverter';
-import {
-  formatTime,
-  getRelativeDayMarker,
-  getUtcDateForZonedTime,
-  getZonedDateParts,
-} from '../components/Timelines/utils';
+import { formatTime, getRelativeDayMarker } from '../components/Timelines/utils';
+import { getUtcDateForZonedTime, getZonedDateParts } from '../utils/time';
 import { useI18n } from '../i18n';
 import { getCanonicalLanguagePath } from '../i18n/languageRouting';
 import type { ColorMode, TimeFormat } from '../settings';
@@ -51,9 +47,7 @@ const converterExampleGroups = [
   },
 ] as const;
 
-const converterExampleIds = converterExampleGroups.flatMap((group) => group.examples);
-
-type ConverterExampleCityId = typeof converterExampleIds[number];
+type ConverterExampleCityId = (typeof converterExampleGroups)[number]['examples'][number];
 
 const converterBusinessHours = [9, 10, 11, 12, 13, 14, 15, 16, 17, 18] as const;
 

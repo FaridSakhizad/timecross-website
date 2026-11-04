@@ -1,19 +1,6 @@
 const ABSTRACT_TIMEZONE_CITY_ID_BASE = -100000;
 const ABSTRACT_TIMEZONE_PREFIX = 'GMT_OFFSET:';
 
-export function formatGmtOffsetLabel(offsetMinutes: number) {
-  const prefix = offsetMinutes < 0 ? '-' : '+';
-  const absoluteMinutes = Math.abs(offsetMinutes);
-  const hours = Math.floor(absoluteMinutes / 60);
-  const minutes = absoluteMinutes % 60;
-
-  if (minutes === 0) {
-    return `GMT${prefix}${hours}`;
-  }
-
-  return `GMT${prefix}${hours}:${minutes.toString().padStart(2, '0')}`;
-}
-
 export function getAbstractTimezoneId(offsetMinutes: number) {
   return ABSTRACT_TIMEZONE_CITY_ID_BASE - offsetMinutes;
 }
@@ -40,6 +27,24 @@ function getShiftedUtcDate(date: Date, offsetMinutes: number) {
   return new Date(date.getTime() + offsetMinutes * 60000);
 }
 
+const dateTimeFormatCache = new Map<string, Intl.DateTimeFormat>();
+
+/**
+ * Creating Intl.DateTimeFormat is expensive and timelines call it hundreds of times per render,
+ * so formatters are cached by locale, timezone and options.
+ */
+function getDateTimeFormat(locale: string, timeZone: string, options: Intl.DateTimeFormatOptions) {
+  const cacheKey = `${locale}|${timeZone}|${JSON.stringify(options)}`;
+  let formatter = dateTimeFormatCache.get(cacheKey);
+
+  if (!formatter) {
+    formatter = new Intl.DateTimeFormat(locale, { ...options, timeZone });
+    dateTimeFormatCache.set(cacheKey, formatter);
+  }
+
+  return formatter;
+}
+
 export function formatPartsInTimezone(
   date: Date,
   timezone: string,
@@ -48,10 +53,7 @@ export function formatPartsInTimezone(
 ) {
   const abstractOffsetMinutes = getAbstractTimezoneOffsetMinutes(timezone);
 
-  return new Intl.DateTimeFormat(locale, {
-    ...options,
-    timeZone: abstractOffsetMinutes === null ? timezone : 'UTC',
-  }).formatToParts(
+  return getDateTimeFormat(locale, abstractOffsetMinutes === null ? timezone : 'UTC', options).formatToParts(
     abstractOffsetMinutes === null ? date : getShiftedUtcDate(date, abstractOffsetMinutes),
   );
 }
@@ -64,8 +66,5 @@ export function formatInTimezone(
 ) {
   const abstractOffsetMinutes = getAbstractTimezoneOffsetMinutes(timezone);
 
-  return new Intl.DateTimeFormat(locale, {
-    ...options,
-    timeZone: abstractOffsetMinutes === null ? timezone : 'UTC',
-  }).format(abstractOffsetMinutes === null ? date : getShiftedUtcDate(date, abstractOffsetMinutes));
+  return getDateTimeFormat(locale, abstractOffsetMinutes === null ? timezone : 'UTC', options).format(abstractOffsetMinutes === null ? date : getShiftedUtcDate(date, abstractOffsetMinutes));
 }

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { ReactNode } from 'react';
+import type { KeyboardEvent, ReactNode } from 'react';
 import { SITE_NAME } from '../../config';
 import { useI18n } from '../../i18n';
 
@@ -24,7 +24,7 @@ type FAQProps = {
 };
 
 export default function FAQ({ items }: FAQProps) {
-  const {t} = useI18n();
+  const { t } = useI18n();
 
   const DATA: FAQItem[] = items ?? [
     {
@@ -101,17 +101,21 @@ export default function FAQ({ items }: FAQProps) {
     },
   ];
 
-  const [ accordionData, setAccordionData, ] = useState<[IAccordionItemData] | []>([]);
+  const [accordionData, setAccordionData] = useState<Record<number, IAccordionItemData>>({});
 
-  const setActiveAccordionItem = (idx:number) => {
-    if (!accordionData[idx]) {
-      accordionData[idx] = { isOpen: false }
+  const toggleAccordionItem = (idx: number) => {
+    setAccordionData((currentData) => ({
+      ...currentData,
+      [idx]: { isOpen: !currentData[idx]?.isOpen },
+    }));
+  };
+
+  const handleHeaderKeyDown = (event: KeyboardEvent<HTMLDivElement>, idx: number) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      toggleAccordionItem(idx);
     }
-
-    accordionData[idx].isOpen = !accordionData[idx].isOpen;
-
-    setAccordionData([...accordionData]);
-  }
+  };
 
   return (
     <div className="accordion accordion_faq">
@@ -119,9 +123,16 @@ export default function FAQ({ items }: FAQProps) {
         return (
           <div
             key={accordionItem.id}
-            className={`accordion-item ${accordionData[idx] && accordionData[idx].isOpen ? 'isOpen' : ''}`}
+            className={`accordion-item ${accordionData[idx]?.isOpen ? 'isOpen' : ''}`}
           >
-            <div className="accordion-header" onClick={() => setActiveAccordionItem(idx)}>
+            <div
+              className="accordion-header"
+              role="button"
+              tabIndex={0}
+              aria-expanded={Boolean(accordionData[idx]?.isOpen)}
+              onClick={() => toggleAccordionItem(idx)}
+              onKeyDown={(event) => handleHeaderKeyDown(event, idx)}
+            >
               <h3 className="accordion-title">{accordionItem.title}</h3>
 
               {accordionItem.tooltipData && (

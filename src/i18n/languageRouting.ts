@@ -108,3 +108,29 @@ export function isLocalizedPagePath(pathname: string) {
 
   return pagePath === '/' || LOCALIZED_PAGE_PATHS.includes(pagePath);
 }
+
+/** Picks the best supported language from an Accept-Language header; 'en' by default. */
+export function getLanguageFromAcceptLanguage(acceptLanguage: string | null): AppLanguage {
+  if (!acceptLanguage) {
+    return 'en';
+  }
+
+  const languageCandidates = acceptLanguage
+    .split(',')
+    .map((entry) => {
+      const [languageTag, ...parameters] = entry.trim().split(';');
+      const qualityParameter = parameters.find((parameter) => parameter.trim().startsWith('q='));
+
+      return {
+        language: getLanguageFromUrlSegment(normalizeLanguageCode(languageTag.trim())),
+        quality: qualityParameter ? Number(qualityParameter.trim().slice(2)) : 1,
+      };
+    })
+    // q=0 means "not acceptable", so such languages are skipped.
+    .filter((entry): entry is { language: AppLanguage; quality: number } => (
+      Boolean(entry.language) && Number.isFinite(entry.quality) && entry.quality > 0
+    ))
+    .sort((left, right) => right.quality - left.quality);
+
+  return languageCandidates[0]?.language ?? 'en';
+}

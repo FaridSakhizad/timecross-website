@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useRef, useState, type FormEvent } from 'react';
 
 import { CONTACT_API_PATH } from '../../config';
 import { useI18n } from '../../i18n';
@@ -15,6 +15,8 @@ type ContactResponse = {
 export default function ContactForm() {
   const [contactFormStatus, setContactFormStatus] = useState<ContactFormStatus>('idle');
   const [contactFormMessage, setContactFormMessage] = useState('');
+  // Set on the first interaction, so the server can drop submissions made in under a few seconds.
+  const startedAtRef = useRef<number | null>(null);
   const { t } = useI18n();
 
   const handleContactFormSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -25,6 +27,7 @@ export default function ContactForm() {
     const name = String(formData.get('name') ?? '').trim();
     const email = String(formData.get('email') ?? '').trim();
     const message = String(formData.get('message') ?? '').trim();
+    const website = String(formData.get('website') ?? '');
 
     setContactFormStatus('sending');
     setContactFormMessage('');
@@ -39,6 +42,8 @@ export default function ContactForm() {
           name,
           email,
           message,
+          website,
+          startedAt: startedAtRef.current ?? undefined,
         }),
       });
       const result = await response.json() as ContactResponse;
@@ -48,6 +53,7 @@ export default function ContactForm() {
       }
 
       form.reset();
+      startedAtRef.current = null;
       setContactFormStatus('sent');
       setContactFormMessage(t('contactForm.sent'));
     } catch (error) {
@@ -57,7 +63,17 @@ export default function ContactForm() {
   };
 
   return (
-    <form className="contactForm" onSubmit={handleContactFormSubmit}>
+    <form
+      className="contactForm"
+      onSubmit={handleContactFormSubmit}
+      onFocus={() => {
+        startedAtRef.current ??= Date.now();
+      }}
+    >
+      {/* Honeypot: invisible to people and screen readers, bots tend to fill it in. */}
+      <div className="contactForm-honeypot" aria-hidden="true">
+        <input type="text" name="website" tabIndex={-1} autoComplete="off" />
+      </div>
       <div className="contactForm-row">
         <input
           type="text"

@@ -1,17 +1,17 @@
 import '../Cities/cities.css';
 import './style.css';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 
-import { getSettings, MARKETING_DEFAULT_SELECTED_CITIES, type ColorMode, type TimeFormat } from '../../settings';
+import { MARKETING_DEFAULT_SELECTED_CITIES, type ColorMode, type TimeFormat } from '../../settings';
 import { useI18n } from '../../i18n';
 import { getCanonicalLanguagePath } from '../../i18n/languageRouting';
 import {
   createFavoriteCityFromSearchResult,
-  getOrderedSelectedCities,
   saveSelectedCities,
-  SELECTED_CITIES_CHANGED_EVENT,
+  getStoredOrderedSelectedCities,
+  subscribeSelectedCities,
 } from '../Cities/selectedCities';
 import { getCityDisplayName, useLocalizedCities } from '../Cities/useLocalizedCities';
 import AddCityModal from '../Cities/AddCityModal';
@@ -21,12 +21,17 @@ import StandaloneMenuModal from '../StandaloneMenuModal';
 import { getBrowserTimezoneCity } from './browserTimezoneCities';
 import DatePickerModal from './DatePickerModal';
 import { readConverterUrlState, writeConverterUrlState } from './urlState';
+import { formatTime } from '../Timelines/utils';
 import {
-  formatOffset,
-  formatTime,
+  formatOffsetLabel,
+  formatRelativeOffset,
+  getBrowserTimezone,
+  getDayPeriod,
+  getDayShift,
   getTimeZoneOffsetMinutes,
+  getUtcDateForZonedTime,
   getZonedDateParts,
-} from '../Timelines/utils';
+} from '../../utils/time';
 
 type TimeZoneConverterProps = {
   colorMode?: ColorMode;
@@ -46,10 +51,6 @@ type DateInputParts = {
   hour: number;
   minute: number;
 };
-
-function getDateSerial(dateParts: Pick<DateInputParts, 'year' | 'month' | 'day'>) {
-  return Date.UTC(dateParts.year, dateParts.month - 1, dateParts.day) / 86400000;
-}
 
 function getDateInputValue(timezone: string, date: Date) {
   const dateParts = getZonedDateParts(timezone, date);
@@ -83,11 +84,13 @@ function parseDateInput(dateValue: string, timeValue: string): DateInputParts | 
     minute: Number(timeMatch[2]),
   };
 
+  // Round-trip through Date.UTC rejects impossible dates such as 2026-02-31.
+  const calendarDate = new Date(Date.UTC(parts.year, parts.month - 1, parts.day));
+
   if (
-    parts.month < 1
-    || parts.month > 12
-    || parts.day < 1
-    || parts.day > 31
+    calendarDate.getUTCFullYear() !== parts.year
+    || calendarDate.getUTCMonth() !== parts.month - 1
+    || calendarDate.getUTCDate() !== parts.day
     || parts.hour < 0
     || parts.hour > 23
     || parts.minute < 0
@@ -150,23 +153,6 @@ function formatDateButtonLabel(dateValue: string, language: string) {
     .trim();
 }
 
-function getUtcDateForZonedInput(timezone: string, dateParts: DateInputParts) {
-  const utcTime = Date.UTC(
-    dateParts.year,
-    dateParts.month - 1,
-    dateParts.day,
-    dateParts.hour,
-    dateParts.minute,
-    0,
-  );
-  const firstPassDate = new Date(utcTime);
-  const firstPassOffset = getTimeZoneOffsetMinutes(timezone, firstPassDate);
-  const secondPassDate = new Date(utcTime - firstPassOffset * 60000);
-  const secondPassOffset = getTimeZoneOffsetMinutes(timezone, secondPassDate);
-
-  return new Date(utcTime - secondPassOffset * 60000);
-}
-
 function getRelativeDayLabel(
   targetTimezone: string,
   sourceTimezone: string,
@@ -174,9 +160,7 @@ function getRelativeDayLabel(
   yesterdayLabel: string,
   tomorrowLabel: string,
 ) {
-  const targetSerial = getDateSerial(getZonedDateParts(targetTimezone, date));
-  const sourceSerial = getDateSerial(getZonedDateParts(sourceTimezone, date));
-  const diff = targetSerial - sourceSerial;
+  const diff = getDayShift(targetTimezone, sourceTimezone, date);
 
   if (diff > 0) {
     return tomorrowLabel;
@@ -187,43 +171,6 @@ function getRelativeDayLabel(
   }
 
   return null;
-}
-
-function getPeriodFromHour(hour: number) {
-  if (hour >= 5 && hour < 11) {
-    return 'morning';
-  }
-
-  if (hour >= 11 && hour < 18) {
-    return 'day';
-  }
-
-  if (hour >= 18 && hour < 22) {
-    return 'evening';
-  }
-
-  return 'night';
-}
-
-function formatUtcOffsetLabel(offsetMinutes: number) {
-  const prefix = offsetMinutes < 0 ? '-' : '+';
-  const absoluteMinutes = Math.abs(offsetMinutes);
-  const hours = Math.floor(absoluteMinutes / 60);
-  const minutes = absoluteMinutes % 60;
-
-  if (minutes === 0) {
-    return `UTC${prefix}${hours}`;
-  }
-
-  return `UTC${prefix}${hours}:${String(minutes).padStart(2, '0')}`;
-}
-
-function getBrowserTimezone() {
-  if (typeof window === 'undefined') {
-    return null;
-  }
-
-  return Intl.DateTimeFormat().resolvedOptions().timeZone || null;
 }
 
 function hasSameTimezoneProfile(leftTimezone: string, rightTimezone: string) {
@@ -238,7 +185,7 @@ function hasSameTimezoneProfile(leftTimezone: string, rightTimezone: string) {
 }
 
 function getDefaultSourceCity(cities: FavoriteCity[]) {
-  const browserTimezone = getBrowserTimezone();
+  const browserTimezone = typeof window === 'undefined' ? null : getBrowserTimezone();
 
   if (!browserTimezone) {
     return cities[0] ?? null;
@@ -247,12 +194,10 @@ function getDefaultSourceCity(cities: FavoriteCity[]) {
   const marketingCities = MARKETING_DEFAULT_SELECTED_CITIES as FavoriteCity[];
   const sourcePools = [cities, marketingCities, favoriteCities];
 
-  for (const sourcePool of [cities]) {
-    const city = sourcePool.find((sourceCity) => sourceCity.timezone === browserTimezone);
+  const selectedBrowserCity = cities.find((city) => city.timezone === browserTimezone);
 
-    if (city) {
-      return city;
-    }
+  if (selectedBrowserCity) {
+    return selectedBrowserCity;
   }
 
   const browserTimezoneCity = getBrowserTimezoneCity(browserTimezone);
@@ -292,7 +237,7 @@ export default function TimeZoneConverter({
 }: TimeZoneConverterProps) {
   const { language, t } = useI18n();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [cities, setCities] = useState(() => getOrderedSelectedCities(getSettings().cityOrder));
+  const [cities, setCities] = useState(() => getStoredOrderedSelectedCities());
   const [initialUrlState] = useState(() => readConverterUrlState(
     (syncUrl || hasStandaloneControls) && typeof window !== 'undefined' ? window.location.search : '',
   ));
@@ -353,49 +298,34 @@ export default function TimeZoneConverter({
     return () => window.removeEventListener('popstate', restoreUrlState);
   }, [cities, syncUrl]);
 
-  useEffect(() => {
-    const handleSelectedCitiesChange = () => {
-      setCities(getOrderedSelectedCities(getSettings().cityOrder));
-    };
+  /**
+   * Updates the city list. If no source city could be chosen yet (for example, the list
+   * was empty), picks the default one from the new list and fills in an empty date and time.
+   */
+  const applyCities = useCallback((nextCities: FavoriteCity[]) => {
+    setCities(nextCities);
 
-    window.addEventListener(SELECTED_CITIES_CHANGED_EVENT, handleSelectedCitiesChange);
-
-    return () => {
-      window.removeEventListener(SELECTED_CITIES_CHANGED_EVENT, handleSelectedCitiesChange);
-    };
-  }, []);
-
-  useEffect(() => {
     if (hasInitializedDefaultSourceCityRef.current || hasUserSelectedSourceCityRef.current) {
       return;
     }
 
-    const nextSourceCity = getDefaultSourceCity(cities);
+    const nextSourceCity = getDefaultSourceCity(nextCities);
 
     if (!nextSourceCity) {
       return;
     }
 
+    const now = new Date();
+
     hasInitializedDefaultSourceCityRef.current = true;
     setSourceCity(nextSourceCity);
+    setDateValue((currentValue) => currentValue || getDateInputValue(nextSourceCity.timezone, now));
+    setTimeValue((currentValue) => currentValue || getTimeInputValue(nextSourceCity.timezone, now));
+  }, []);
 
-    if (!hasCustomDate) {
-      const now = new Date();
-
-      setDateValue(getDateInputValue(nextSourceCity.timezone, now));
-      setTimeValue(getTimeInputValue(nextSourceCity.timezone, now));
-    }
-  }, [cities, hasCustomDate]);
-
-  useEffect(() => {
-    if (!dateValue && localizedSourceCity) {
-      setDateValue(getDateInputValue(localizedSourceCity.timezone, new Date()));
-    }
-
-    if (!timeValue && localizedSourceCity) {
-      setTimeValue(getTimeInputValue(localizedSourceCity.timezone, new Date()));
-    }
-  }, [dateValue, localizedSourceCity, timeValue]);
+  useEffect(() => subscribeSelectedCities(() => {
+    applyCities(getStoredOrderedSelectedCities());
+  }), [applyCities]);
 
   useEffect(() => {
     const sentinel = statementStickySentinelRef.current;
@@ -432,7 +362,7 @@ export default function TimeZoneConverter({
       return null;
     }
 
-    return getUtcDateForZonedInput(localizedSourceCity.timezone, dateParts);
+    return getUtcDateForZonedTime(localizedSourceCity.timezone, dateParts);
   }, [dateValue, localizedSourceCity, timeValue]);
 
   const results = useMemo(() => {
@@ -456,10 +386,10 @@ export default function TimeZoneConverter({
           t('cities.yesterday'),
           t('cities.tomorrow'),
         ),
-        offsetLabel: formatOffset(offsetMinutes, t('cities.sameOffset')),
-        period: getPeriodFromHour(cityDateParts.hour),
+        offsetLabel: formatRelativeOffset(offsetMinutes, t('cities.sameOffset')),
+        period: getDayPeriod(cityDateParts.hour),
         timeLabel: formatTime(convertedDate, city.timezone, timeFormat),
-        timezoneLabel: formatUtcOffsetLabel(cityOffsetMinutes),
+        timezoneLabel: formatOffsetLabel(cityOffsetMinutes),
       };
     });
   }, [convertedDate, localizedCities, localizedSourceCity, t, timeFormat]);
@@ -491,7 +421,7 @@ export default function TimeZoneConverter({
     ];
 
     setCityModalMode(null);
-    setCities(nextCities);
+    applyCities(nextCities);
     saveSelectedCities(nextCities);
   };
 
@@ -503,7 +433,7 @@ export default function TimeZoneConverter({
         order: index,
       }));
 
-    setCities(nextCities);
+    applyCities(nextCities);
     saveSelectedCities(nextCities);
   };
 
@@ -655,7 +585,10 @@ export default function TimeZoneConverter({
             ref={timeInputRef}
             onChange={(event) => {
               setHasConversionSelection(true);
-              setTimeValue(event.target.value);
+              // A cleared time input falls back to the current time in the source city.
+              setTimeValue(event.target.value || (
+                localizedSourceCity ? getTimeInputValue(localizedSourceCity.timezone, new Date()) : ''
+              ));
             }}
           />
         </div>

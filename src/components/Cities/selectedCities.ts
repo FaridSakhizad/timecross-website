@@ -1,7 +1,5 @@
-import { getSettings, updateSettings } from '../../settings';
+import { getSettings, subscribeSettings, updateSettings } from '../../settings';
 import type { FavoriteCity } from './fixtures';
-
-export const SELECTED_CITIES_CHANGED_EVENT = 'timecross:selected-cities-changed';
 
 export type SelectedCityInput = {
   id: number | string;
@@ -48,8 +46,25 @@ export function saveSelectedCities(cities: FavoriteCity[]) {
     cityOrder: normalizedCities.map((city) => city.id),
     selectedCities: normalizedCities,
   }));
+}
 
-  window.dispatchEvent(new CustomEvent(SELECTED_CITIES_CHANGED_EVENT));
+/**
+ * Calls the listener only when the list of selected cities changes
+ * (in this tab or in another open tab), not on every settings change.
+ */
+export function subscribeSelectedCities(listener: () => void) {
+  let previousCities = getSettings().selectedCities;
+
+  return subscribeSettings(() => {
+    const nextCities = getSettings().selectedCities;
+
+    if (nextCities === previousCities) {
+      return;
+    }
+
+    previousCities = nextCities;
+    listener();
+  });
 }
 
 export function createFavoriteCityFromSearchResult(
@@ -87,4 +102,8 @@ export function getOrderedSelectedCities(cityOrder: string[]) {
   const newCities = selectedCities.filter((city) => !orderedCityIds.has(city.id));
 
   return [...orderedCities, ...newCities];
+}
+
+export function getStoredOrderedSelectedCities() {
+  return getOrderedSelectedCities(getSettings().cityOrder);
 }

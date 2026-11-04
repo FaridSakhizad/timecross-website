@@ -1,10 +1,9 @@
 import type { AppLanguage } from '../../settings';
 import {
-  formatGmtOffsetLabel,
   getAbstractTimezoneId,
   getFixedOffsetTimezoneForOffsetMinutes,
 } from '../../utils/abstractTimezone';
-import { getTimeZoneOffsetMinutes } from '../Timelines/utils';
+import { formatOffsetLabel, getTimeZoneOffsetMinutes } from '../../utils/time';
 
 export type CitySearchRow = {
   id: number;
@@ -393,7 +392,7 @@ function parseGmtOffsetQuery(query: string): ParsedGmtOffsetQuery | null {
 function createAbstractTimezoneRow(offsetMinutes: number): CitySearchRow {
   return {
     id: getAbstractTimezoneId(offsetMinutes),
-    name: formatGmtOffsetLabel(offsetMinutes),
+    name: formatOffsetLabel(offsetMinutes, 'GMT'),
     country: '',
     admin1: null,
     tz: getFixedOffsetTimezoneForOffsetMinutes(offsetMinutes),

@@ -51,9 +51,7 @@ export function useLocalizedCities(cities: FavoriteCity[]) {
     const cityIds = cityIdsKey ? cityIdsKey.split(',') : [];
 
     if (cityIds.length === 0) {
-      setLocalizedNames((currentNames) => (
-        currentNames.size === 0 ? currentNames : new Map()
-      ));
+      // Nothing to look up: the result below maps an empty list, so stale names are never shown.
       return undefined;
     }
 

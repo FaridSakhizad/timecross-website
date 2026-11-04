@@ -34,10 +34,19 @@ export default function StandaloneMenuModal({
   const langSelectorRef = useRef<HTMLDivElement>(null);
   const { language, t } = useI18n();
   const location = useLocation();
+  const [wasOpen, setWasOpen] = useState(isOpen);
+
+  // Collapse the language list when the modal closes (state adjusted during render, not in an effect).
+  if (wasOpen !== isOpen) {
+    setWasOpen(isOpen);
+
+    if (!isOpen) {
+      setIsLangSelectorVisible(false);
+    }
+  }
 
   useEffect(() => {
     if (!isOpen) {
-      setIsLangSelectorVisible(false);
       return undefined;
     }
 
