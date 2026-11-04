@@ -41,12 +41,12 @@ export type TimelineGridContentProps = {
 export type TimelineGridShellProps = Omit<TimelineGridContentProps, 'onResetClick'>;
 
 export type GridTimelineProps = Pick<TimelineGridContentProps,
-  'baseDate' | 'browserTimezone' | 'cities' | 'isEditMode' | 'timelineDates' | 'timeFormat' |
-  'userCells' | 'selectedHourKeys' | 'onAddCityClick' | 'onDeleteCity'>;
+  'baseDate' | 'browserTimezone' | 'cities' | 'isEditMode' | 'timelineDates' | 'timeFormat'
+  | 'userCells' | 'selectedHourKeys' | 'onAddCityClick' | 'onDeleteCity'>;
 
 export type GridToolbarProps = Pick<TimelineGridContentProps,
-  'presentation' | 'colorMode' | 'timeFormat' | 'isEditMode' | 'onAddCityClick' |
-  'onEditModeToggle' | 'onResetClick' | 'onColorModeButtonClick' | 'onTimeFormatButtonClick' | 'cities'> & {
-  calendarEvent: GridCalendarEvent | null;
-  selectedHours: SelectedGridHour[];
-};
+  'presentation' | 'colorMode' | 'timeFormat' | 'isEditMode' | 'onAddCityClick'
+  | 'onEditModeToggle' | 'onResetClick' | 'onColorModeButtonClick' | 'onTimeFormatButtonClick' | 'cities'> & {
+    calendarEvent: GridCalendarEvent | null;
+    selectedHours: SelectedGridHour[];
+  };

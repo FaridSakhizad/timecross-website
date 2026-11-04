@@ -17,14 +17,19 @@ export default function MobileToolbar(props: MobileToolbarProps) {
     <>
       <div className="zenPageMobile-header">
         <div className="zenPageMobile-headerStart">
-          {embedded ? (
-              <i className="widgetHeaderControlPlaceholder" />
-            ) : (
-            <Link to={getCanonicalLanguagePath(language, '/')}
-              className="widgetHeaderButton citiesHeaderButton_home" aria-label={t('common.home')}>
-              <i className="citiesHeaderButton-icon citiesHeaderButton-icon_home" />
-            </Link>
-          )}
+          {embedded
+            ? (
+                <i className="widgetHeaderControlPlaceholder" />
+              )
+            : (
+                <Link
+                  to={getCanonicalLanguagePath(language, '/')}
+                  className="widgetHeaderButton citiesHeaderButton_home"
+                  aria-label={t('common.home')}
+                >
+                  <i className="citiesHeaderButton-icon citiesHeaderButton-icon_home" />
+                </Link>
+              )}
         </div>
 
         <div className="zenPageMobile-headerMiddle">
@@ -55,24 +60,26 @@ export default function MobileToolbar(props: MobileToolbarProps) {
           </button>
         </div>
         <div className="zenPageMobile-headerEnd">
-          {embedded ? (
-            <Link
-              to={getCanonicalLanguagePath(language, '/grid')}
-              className="widgetHeaderButton"
-              aria-label={t('common.openGrid')}
-            >
-              <i className="citiesHeaderButton-icon citiesHeaderButton-icon_open" />
-            </Link>
-          ) : (
-            <button
-              className="widgetHeaderButton citiesHeaderButton_menu"
-              type="button"
-              aria-label={t('common.menu')}
-              onClick={() => setMenuOpen(true)}
-            >
-              <i className="citiesHeaderButton-icon citiesHeaderButton-icon_menu" />
-            </button>
-          )}
+          {embedded
+            ? (
+                <Link
+                  to={getCanonicalLanguagePath(language, '/grid')}
+                  className="widgetHeaderButton"
+                  aria-label={t('common.openGrid')}
+                >
+                  <i className="citiesHeaderButton-icon citiesHeaderButton-icon_open" />
+                </Link>
+              )
+            : (
+                <button
+                  className="widgetHeaderButton citiesHeaderButton_menu"
+                  type="button"
+                  aria-label={t('common.menu')}
+                  onClick={() => setMenuOpen(true)}
+                >
+                  <i className="citiesHeaderButton-icon citiesHeaderButton-icon_menu" />
+                </button>
+              )}
         </div>
       </div>
       {!embedded && (

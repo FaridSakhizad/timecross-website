@@ -61,7 +61,13 @@ export default function TermsOfUsePage({
           <h2 className="legalPage-sectionTitle">{t('legal.terms.contactTitle')}</h2>
           <p className="legalPage-para">
             {t('legal.terms.contactPrefix')}
-            <a className="legalPage-link" href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>.
+            <a
+              className="legalPage-link"
+              href={`mailto:${SUPPORT_EMAIL}`}
+            >
+              {SUPPORT_EMAIL}
+            </a>
+            .
           </p>
         </section>
       </LegalPage>

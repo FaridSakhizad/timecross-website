@@ -25,7 +25,10 @@ export default function HourNavButton({ direction, viewportRef }: HourNavButtonP
         behavior: 'smooth',
       })}
     >
-      <Icon size={36} aria-hidden="true" />
+      <Icon
+        size={36}
+        aria-hidden="true"
+      />
     </button>
   );
 }

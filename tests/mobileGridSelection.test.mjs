@@ -3,11 +3,25 @@ import { afterEach, beforeEach, test } from 'node:test';
 import { getInitialMobileGridSelection, getVisibleMobileGridSelection } from '../src/components/TimelineGrid/mobile/mobileGridSelectionGeometry.ts';
 import { attachMobileGridSelection } from '../src/components/TimelineGrid/mobile/mobileGridSelectionController.ts';
 
+/** Offset of a resize handle along one axis: -distance, distance or 0. */
+function handleStep(direction, backSide, forwardSide, distance) {
+  if (direction.includes(backSide)) {
+    return -distance;
+  }
+
+  if (direction.includes(forwardSide)) {
+    return distance;
+  }
+
+  return 0;
+}
+
 const hour = 3600000;
 const geometry = Array.from({ length: 7 }, (_, row) => Array.from({ length: 8 }, (_, col) => ({
   hour: { rowId: `r${row}`, start: col * hour },
   rect: { left: 100 + col * 74, right: 164 + col * 74, top: 160 + row * 111, bottom: 224 + row * 111 },
-  rowTop: 120 + row * 111, rowBottom: 231 + row * 111,
+  rowTop: 120 + row * 111,
+  rowBottom: 231 + row * 111,
 }))).flat();
 
 test('button seed selects three centered hours and a three-city frame nearest the screen center', () => {
@@ -29,7 +43,7 @@ test('equally centered three-city frames favor the lower group without changing 
 });
 
 test('centering compares complete frame bounds when city rows have different heights', () => {
-  const uneven = geometry.map((cell) => cell.hour.rowId === 'r1' ? { ...cell, rowTop: cell.rowTop - 20 } : cell);
+  const uneven = geometry.map((cell) => (cell.hour.rowId === 'r1' ? { ...cell, rowTop: cell.rowTop - 20 } : cell));
   const selected = getInitialMobileGridSelection(uneven, { left: 100, right: 490, top: 106, bottom: 800 }, 295, 450);
   assert.deepEqual([...new Set(selected.map((cell) => cell.rowId))], ['r2', 'r3', 'r4']);
 });
@@ -62,25 +76,48 @@ let original, layer, frame, handles, elements, initial, committed, active, contr
 function emit(target, type, values = {}) {
   const event = new Event(type, { cancelable: true });
   const { target: eventTarget, ...properties } = values;
-  Object.assign(event, { pointerId: 1, pointerType: 'touch', isPrimary: true,
-    button: 0, buttons: type === 'pointerup' ? 0 : 1, clientX: 200, clientY: 400, ...properties });
-  if (eventTarget) Object.defineProperty(event, 'target', { value: eventTarget });
+  Object.assign(event, {
+    pointerId: 1,
+    pointerType: 'touch',
+    isPrimary: true,
+    button: 0,
+    buttons: type === 'pointerup' ? 0 : 1,
+    clientX: 200,
+    clientY: 400,
+    ...properties,
+  });
+  if (eventTarget) {
+    Object.defineProperty(event, 'target', { value: eventTarget });
+  }
   target.dispatchEvent(event);
   return event;
 }
 function flush() {
-  const pending = [...frames.values()]; frames.clear(); pending.forEach((callback) => callback());
+  const pending = [...frames.values()];
+  frames.clear();
+  pending.forEach((callback) => callback());
 }
 beforeEach(() => {
   original = ['window', 'document', 'Element', 'requestAnimationFrame', 'cancelAnimationFrame']
     .map((key) => [key, Object.getOwnPropertyDescriptor(globalThis, key)]);
   globalThis.Element = FakeElement;
-  frames = new Map(); nextFrame = 0;
-  globalThis.requestAnimationFrame = (callback) => { const id = ++nextFrame; frames.set(id, callback); return id; };
+  frames = new Map();
+  nextFrame = 0;
+  globalThis.requestAnimationFrame = (callback) => {
+    nextFrame += 1;
+    const id = nextFrame;
+    frames.set(id, callback);
+    return id;
+  };
   globalThis.cancelAnimationFrame = (id) => frames.delete(id);
   globalThis.window = Object.assign(new EventTarget(), {
-    scrollX: 100, scrollY: 0, innerHeight: 800,
-    scrollTo({ left, top }) { this.scrollX = left; this.scrollY = top; },
+    scrollX: 100,
+    scrollY: 0,
+    innerHeight: 800,
+    scrollTo({ left, top }) {
+      this.scrollX = left;
+      this.scrollY = top;
+    },
     scrollBy({ left, top }) {
       this.scrollX = Math.max(0, Math.min(600, this.scrollX + left));
       this.scrollY = Math.max(0, Math.min(800, this.scrollY + top));
@@ -89,36 +126,51 @@ beforeEach(() => {
   elements = geometry.map((cell) => {
     const element = new FakeElement();
     element.dataset = { gridSelectionRow: cell.hour.rowId, gridHourStart: String(cell.hour.start) };
-    element.getBoundingClientRect = () => ({ left: cell.rect.left - window.scrollX, right: cell.rect.right - window.scrollX,
-      top: cell.rect.top - window.scrollY, bottom: cell.rect.bottom - window.scrollY });
+    element.getBoundingClientRect = () => ({
+      left: cell.rect.left - window.scrollX,
+      right: cell.rect.right - window.scrollX,
+      top: cell.rect.top - window.scrollY,
+      bottom: cell.rect.bottom - window.scrollY,
+    });
     return element;
   });
   const rows = Array.from({ length: 7 }, (_, index) => ({
     getBoundingClientRect: () => ({ top: 120 + index * 111 - window.scrollY, bottom: 231 + index * 111 - window.scrollY }),
     querySelectorAll: () => elements.slice(index * 8, (index + 1) * 8),
   }));
-  globalThis.document = Object.assign(new EventTarget(), { documentElement: { clientWidth: 390 }, visibilityState: 'visible',
+  globalThis.document = Object.assign(new EventTarget(), {
+    documentElement: { clientWidth: 390 },
+    visibilityState: 'visible',
     querySelector: () => ({ getBoundingClientRect: () => ({ bottom: 106 }) }),
-    querySelectorAll: (selector) => selector === '.timelineGrid-row_mobile' ? rows : elements,
+    querySelectorAll: (selector) => (selector === '.timelineGrid-row_mobile' ? rows : elements),
   });
-  frame = new FakeElement(); layer = frame;
+  frame = new FakeElement();
+  layer = frame;
   frame.parentElement = {
     querySelectorAll: (selector) => document.querySelectorAll(selector),
     getBoundingClientRect: () => ({ left: -window.scrollX, top: -window.scrollY }),
   };
   handles = Object.fromEntries(['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw'].map((direction) => {
-    const handle = new FakeElement(); handle.dataset.gridResize = direction; return [direction, handle];
+    const handle = new FakeElement();
+    handle.dataset.gridResize = direction;
+    return [direction, handle];
   }));
   initial = geometry.filter((cell) => ['r1', 'r2', 'r3'].includes(cell.hour.rowId)
     && cell.hour.start >= hour && cell.hour.start <= 3 * hour).map((cell) => cell.hour);
-  committed = initial; active = false;
-  controller = attachMobileGridSelection(layer, initial, (value) => { committed = value; }, (value) => { active = value; });
+  committed = initial;
+  active = false;
+  controller = attachMobileGridSelection(layer, initial, (value) => {
+    committed = value;
+  }, (value) => { active = value; });
 });
 afterEach(() => {
   controller.destroy();
   for (const [key, descriptor] of original) {
-    if (descriptor) Object.defineProperty(globalThis, key, descriptor);
-    else delete globalThis[key];
+    if (descriptor) {
+      Object.defineProperty(globalThis, key, descriptor);
+    } else {
+      delete globalThis[key];
+    }
   }
 });
 
@@ -131,8 +183,11 @@ test('frame initially includes city titles and full hour cells, not only the hou
 });
 
 test('zen seed stays over visible hours even when the add-city button is far outside the screen', () => {
-  document.querySelector = (selector) => ({ getBoundingClientRect: () => selector === '.timelineGrid-userHours_mobile'
-    ? { bottom: 106 } : { left: 3000, right: 3200 } });
+  document.querySelector = (selector) => ({
+    getBoundingClientRect: () => (selector === '.timelineGrid-userHours_mobile'
+      ? { bottom: 106 }
+      : { left: 3000, right: 3200 }),
+  });
   window.scrollX = 300;
   const selected = getVisibleMobileGridSelection();
   assert.deepEqual([...new Set(selected.map((cell) => cell.start))], [4 * hour, 5 * hour, 6 * hour]);
@@ -158,12 +213,15 @@ test('zen seed follows both axes of page scrolling when selection is enabled aga
 
 test('all eight touch handles resize in complete hours/cities while fixing opposite edges', () => {
   for (const direction of Object.keys(handles)) {
-    controller.destroy(); committed = initial;
-    controller = attachMobileGridSelection(layer, initial, (value) => { committed = value; }, (value) => { active = value; });
+    controller.destroy();
+    committed = initial;
+    controller = attachMobileGridSelection(layer, initial, (value) => {
+      committed = value;
+    }, (value) => { active = value; });
     const x = direction.includes('w') ? 74 : 286;
     const y = direction.includes('n') ? 231 : 564;
-    const dx = direction.includes('w') ? -74 : direction.includes('e') ? 74 : 0;
-    const dy = direction.includes('n') ? -111 : direction.includes('s') ? 111 : 0;
+    const dx = handleStep(direction, 'w', 'e', 74);
+    const dy = handleStep(direction, 'n', 's', 111);
     const down = emit(layer, 'pointerdown', { target: handles[direction], clientX: x, clientY: y });
     assert.equal(down.defaultPrevented, true);
     assert.equal(active, true);
@@ -186,23 +244,29 @@ test('fast touch release commits final coordinates even without intermediate mov
 
 function nativeTouch(target, type, handle, x, y, identifier = 7, touches) {
   const touch = { identifier, clientX: x, clientY: y };
-  return emit(target, type, { target: handle, changedTouches: [touch],
-    touches: touches ?? (type === 'touchend' || type === 'touchcancel' ? [] : [touch]) });
+  return emit(target, type, {
+    target: handle,
+    changedTouches: [touch],
+    touches: touches ?? (type === 'touchend' || type === 'touchcancel' ? [] : [touch]),
+  });
 }
 
 function enableNativeTouch(viewport) {
   controller.destroy();
   window.TouchEvent = class {};
-  controller = attachMobileGridSelection(layer, initial, (value) => { committed = value; }, (value) => { active = value; }, viewport);
+  controller = attachMobileGridSelection(layer, initial, (value) => {
+    committed = value;
+  }, (value) => { active = value; }, viewport);
 }
 
 test('native first-contact dragging resizes all eight handles without a preliminary tap', () => {
   for (const direction of Object.keys(handles)) {
-    enableNativeTouch(); committed = initial;
+    enableNativeTouch();
+    committed = initial;
     const x = direction.includes('w') ? 74 : 286;
     const y = direction.includes('n') ? 231 : 564;
-    const dx = direction.includes('w') ? -74 : direction.includes('e') ? 74 : 0;
-    const dy = direction.includes('n') ? -111 : direction.includes('s') ? 111 : 0;
+    const dx = handleStep(direction, 'w', 'e', 74);
+    const dy = handleStep(direction, 'n', 's', 111);
     const pointer = emit(layer, 'pointerdown', { target: handles[direction], clientX: x, clientY: y });
     assert.equal(pointer.defaultPrevented, false);
     assert.equal(active, false);
@@ -229,14 +293,16 @@ test('native touch release uses final coordinates without a rendered move frame'
 
 test('native resizing moves freely by pixels on every handle then snaps on release', () => {
   for (const direction of Object.keys(handles)) {
-    enableNativeTouch(); committed = initial;
+    enableNativeTouch();
+    committed = initial;
     const x = direction.includes('w') ? 74 : 286;
     const y = direction.includes('n') ? 231 : 564;
-    const dx = direction.includes('w') ? -13.5 : direction.includes('e') ? 13.5 : 0;
-    const dy = direction.includes('n') ? -13.5 : direction.includes('s') ? 13.5 : 0;
+    const dx = handleStep(direction, 'w', 'e', 13.5);
+    const dy = handleStep(direction, 'n', 's', 13.5);
     const before = { ...frame.style };
     nativeTouch(layer, 'touchstart', handles[direction], x, y);
-    nativeTouch(layer, 'touchmove', handles[direction], x + dx, y + dy); flush();
+    nativeTouch(layer, 'touchmove', handles[direction], x + dx, y + dy);
+    flush();
     assert.equal(parseFloat(frame.style.width), 224 + (dx ? 13.5 : 0), direction);
     assert.equal(parseFloat(frame.style.height), 328 + (dy ? 13.5 : 0), direction);
     assert.equal(committed, initial);
@@ -250,12 +316,19 @@ test('native snap animation survives selection state sync and stops on the next 
   enableNativeTouch();
   const animations = [];
   frame.animate = (keyframes) => {
-    const animation = { keyframes, cancelled: false, cancel() { this.cancelled = true; } };
+    const animation = {
+      keyframes,
+      cancelled: false,
+      cancel() {
+        this.cancelled = true;
+      },
+    };
     animations.push(animation);
     return animation;
   };
   nativeTouch(layer, 'touchstart', handles.e, 286, 400);
-  nativeTouch(layer, 'touchmove', handles.e, 299.5, 400); flush();
+  nativeTouch(layer, 'touchmove', handles.e, 299.5, 400);
+  flush();
   assert.equal(animations.length, 0);
   nativeTouch(layer, 'touchend', handles.e, 299.5, 400);
   assert.equal(animations.length, 1);
@@ -272,10 +345,12 @@ test('native touch cancellation and a second finger roll back the range and rele
     () => nativeTouch(layer, 'touchcancel', handles.e, 360, 400),
     () => nativeTouch(window, 'touchstart', handles.e, 360, 400, 8, [{ identifier: 7 }, { identifier: 8 }]),
   ]) {
-    enableNativeTouch(); committed = initial;
+    enableNativeTouch();
+    committed = initial;
     const originalStyle = { ...frame.style };
     nativeTouch(layer, 'touchstart', handles.e, 286, 400);
-    nativeTouch(layer, 'touchmove', handles.e, 360, 400); flush();
+    nativeTouch(layer, 'touchmove', handles.e, 360, 400);
+    flush();
     assert.equal(elements.filter((element) => element.selected).length, 12);
     cancel();
     assert.equal(active, false);
@@ -313,12 +388,20 @@ test('pointercancel, second finger, blur, resize and hidden tab roll back previe
   for (const stop of [
     () => emit(window, 'pointercancel'),
     () => emit(window, 'pointerdown', { pointerId: 2, isPrimary: false }),
-    () => emit(window, 'blur'), () => { document.documentElement.clientWidth += 10; emit(window, 'resize'); },
-    () => { document.visibilityState = 'hidden'; emit(document, 'visibilitychange'); },
+    () => emit(window, 'blur'),
+    () => {
+      document.documentElement.clientWidth += 10;
+      emit(window, 'resize');
+    },
+    () => {
+      document.visibilityState = 'hidden';
+      emit(document, 'visibilitychange');
+    },
   ]) {
     document.visibilityState = 'visible';
     emit(layer, 'pointerdown', { target: handles.e, clientX: 286, clientY: 400 });
-    emit(window, 'pointermove', { clientX: 360, clientY: 400 }); flush();
+    emit(window, 'pointermove', { clientX: 360, clientY: 400 });
+    flush();
     assert.equal(elements.filter((el) => el.selected).length, 12);
     stop();
     assert.equal(active, false);
@@ -342,10 +425,12 @@ test('pointer capture loss with released buttons commits, held buttons cancel', 
 
 test('edge autoscroll runs only during handle resizing and stops on release', () => {
   emit(layer, 'pointerdown', { target: handles.e, clientX: 286, clientY: 400 });
-  emit(window, 'pointermove', { clientX: 389, clientY: 400 }); flush();
+  emit(window, 'pointermove', { clientX: 389, clientY: 400 });
+  flush();
   assert.ok(window.scrollX > 100);
   emit(window, 'pointerup', { clientX: 389, clientY: 400 });
-  const finalX = window.scrollX; flush();
+  const finalX = window.scrollX;
+  flush();
   assert.equal(window.scrollX, finalX);
   assert.equal(frames.size, 0);
 });
@@ -374,7 +459,8 @@ test('keyboard users can adjust a handle by one whole block without scrolling th
 
 test('Escape during resizing restores the range instead of passing through to mode dismissal', () => {
   emit(layer, 'pointerdown', { target: handles.e, clientX: 286, clientY: 400 });
-  emit(window, 'pointermove', { clientX: 360, clientY: 400 }); flush();
+  emit(window, 'pointermove', { clientX: 360, clientY: 400 });
+  flush();
   const event = emit(window, 'keydown', { key: 'Escape' });
   assert.equal(event.defaultPrevented, true);
   assert.equal(active, false);
@@ -384,33 +470,49 @@ test('Escape during resizing restores the range instead of passing through to mo
 function embeddedViewport() {
   controller.destroy();
   const viewport = Object.assign(new FakeElement(), {
-    scrollLeft: 148, scrollTop: 111,
+    scrollLeft: 148,
+    scrollTop: 111,
     getBoundingClientRect: () => ({ left: 20, right: 370, top: 140, bottom: 720 }),
     querySelector: () => ({ getBoundingClientRect: () => ({ bottom: 186 }) }),
-    scrollTo({ left, top }) { this.scrollLeft = left; this.scrollTop = top; },
-    scrollBy({ left, top }) { this.scrollLeft = Math.max(0, this.scrollLeft + left); this.scrollTop = Math.max(0, this.scrollTop + top); },
+    scrollTo({ left, top }) {
+      this.scrollLeft = left;
+      this.scrollTop = top;
+    },
+    scrollBy({ left, top }) {
+      this.scrollLeft = Math.max(0, this.scrollLeft + left);
+      this.scrollTop = Math.max(0, this.scrollTop + top);
+    },
   });
   for (const element of elements) {
     const originalRect = element.getBoundingClientRect;
     element.getBoundingClientRect = () => {
       const rect = originalRect();
-      return { left: rect.left - viewport.scrollLeft, right: rect.right - viewport.scrollLeft,
-        top: rect.top - viewport.scrollTop, bottom: rect.bottom - viewport.scrollTop };
+      return {
+        left: rect.left - viewport.scrollLeft,
+        right: rect.right - viewport.scrollLeft,
+        top: rect.top - viewport.scrollTop,
+        bottom: rect.bottom - viewport.scrollTop,
+      };
     };
   }
   const rows = Array.from({ length: 7 }, (_, index) => ({
-    getBoundingClientRect: () => ({ top: 120 + index * 111 - window.scrollY - viewport.scrollTop,
-      bottom: 231 + index * 111 - window.scrollY - viewport.scrollTop }),
+    getBoundingClientRect: () => ({
+      top: 120 + index * 111 - window.scrollY - viewport.scrollTop,
+      bottom: 231 + index * 111 - window.scrollY - viewport.scrollTop,
+    }),
     querySelectorAll: () => elements.slice(index * 8, (index + 1) * 8),
   }));
-  viewport.querySelectorAll = (selector) => selector === '.timelineGrid-row_mobile' ? rows : elements;
+  viewport.querySelectorAll = (selector) => (selector === '.timelineGrid-row_mobile' ? rows : elements);
   frame.parentElement = {
     querySelectorAll: (selector) => viewport.querySelectorAll(selector),
-    getBoundingClientRect: () => ({ left: -window.scrollX - viewport.scrollLeft,
-      top: -window.scrollY - viewport.scrollTop }),
+    getBoundingClientRect: () => ({
+      left: -window.scrollX - viewport.scrollLeft,
+      top: -window.scrollY - viewport.scrollTop,
+    }),
   };
-  controller = attachMobileGridSelection(layer, initial, (value) => { committed = value; },
-    (value) => { active = value; }, viewport);
+  controller = attachMobileGridSelection(layer, initial, (value) => {
+    committed = value;
+  }, (value) => { active = value; }, viewport);
   return viewport;
 }
 
@@ -455,7 +557,8 @@ test('embedded touch resize uses widget scroll offsets and autoscroll never scro
   emit(window, 'pointerup', { clientX: 274, clientY: 400 });
   assert.equal(committed.length, 12);
   emit(layer, 'pointerdown', { target: handles.e, clientX: 274, clientY: 400 });
-  emit(window, 'pointermove', { clientX: 369, clientY: 400 }); flush();
+  emit(window, 'pointermove', { clientX: 369, clientY: 400 });
+  flush();
   assert.ok(viewport.scrollLeft > 148);
   assert.equal(window.scrollX, 100);
   assert.equal(window.scrollY, 0);
@@ -475,7 +578,8 @@ test('native embedded resizing and edge autoscroll affect only the widget', () =
   nativeTouch(layer, 'touchend', handles.e, 274, 400);
   assert.equal(committed.length, 12);
   nativeTouch(layer, 'touchstart', handles.e, 274, 400);
-  nativeTouch(layer, 'touchmove', handles.e, 369, 400); flush();
+  nativeTouch(layer, 'touchmove', handles.e, 369, 400);
+  flush();
   assert.ok(viewport.scrollLeft > 148);
   assert.equal(window.scrollX, 100);
   assert.equal(window.scrollY, 0);

@@ -14,7 +14,9 @@ export function createCalendarEventFile(event: Pick<GridCalendarEvent, 'start' |
     productId: 'timecross.app',
     method: 'PUBLISH',
   });
-  if (error || !value) throw error ?? new Error('Unable to generate calendar file');
+  if (error || !value) {
+    throw error ?? new Error('Unable to generate calendar file');
+  }
   const stamp = new Date(event.start).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z');
   return new File([value], `timecross-${stamp}.ics`, { type: 'text/calendar' });
 }

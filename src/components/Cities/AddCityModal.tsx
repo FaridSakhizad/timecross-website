@@ -277,7 +277,10 @@ export default function AddCityModal({
         <div className="appModal-header">
           <span className="appModal-headerPlaceholder" />
 
-          <h3 className="appModal-title" id="add-city-modal-title">
+          <h3
+            className="appModal-title"
+            id="add-city-modal-title"
+          >
             {t('common.addCity')}
           </h3>
 
@@ -331,7 +334,10 @@ export default function AddCityModal({
                     onClick={handleTimezonePickerToggle}
                   >
                     <span>{t('addCity.chooseTimezone')}</span>
-                    <i className="addCityModal-timezonePickerToggleIcon" aria-hidden="true" />
+                    <i
+                      className="addCityModal-timezonePickerToggleIcon"
+                      aria-hidden="true"
+                    />
                   </button>
 
                   <button
@@ -341,7 +347,10 @@ export default function AddCityModal({
                     onClick={handleAbbreviationPickerToggle}
                   >
                     <span>{t('addCity.chooseAbbreviation')}</span>
-                    <i className="addCityModal-timezonePickerToggleIcon" aria-hidden="true" />
+                    <i
+                      className="addCityModal-timezonePickerToggleIcon"
+                      aria-hidden="true"
+                    />
                   </button>
                 </div>
 

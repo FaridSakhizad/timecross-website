@@ -22,19 +22,23 @@ export default function MobileGrid(props: TimelineGridShellProps) {
   const contentRef = useRef<HTMLDivElement>(null);
   const embedded = props.presentation === 'embedded';
   useMobileGridHorizontalScrollLock(!embedded && props.isEditMode);
-  const getScrollTarget = useCallback(() => embedded
-    ? viewportRef.current ? { type: 'element' as const, element: viewportRef.current } : null
-    : { type: 'page' as const }, [embedded]);
+  const getScrollTarget = useCallback(() => {
+    if (!embedded) {
+      return { type: 'page' as const };
+    }
+
+    return viewportRef.current ? { type: 'element' as const, element: viewportRef.current } : null;
+  }, [embedded]);
   const selectedHours = props.initialSelectedHours ?? EMPTY_SELECTION;
   const { enabled, toggle, clear, frameRef, interactionRef, isResizing } = useMobileGridSelection(
-    selectedHours, props.onSelectionChange, props.isEditMode || props.isDragging,
-    JSON.stringify([props.timelineDates[0]?.getTime(), props.cities.map((city) => city.id)]),
-    embedded ? viewportRef : undefined, contentRef);
+    selectedHours, props.onSelectionChange, props.isEditMode || props.isDragging, JSON.stringify([props.timelineDates[0]?.getTime(), props.cities.map((city) => city.id)]), embedded ? viewportRef : undefined, contentRef,
+  );
   const shouldSuspendSnap = useCallback(() => interactionRef.current, [interactionRef]);
   const selectedHourKeys = useMemo(() => new Set(selectedHours.map(gridHourKey)), [selectedHours]);
   const event = buildGridCalendarEvent(selectedHours,
     props.cities.map((city) => ({ id: city.id, name: getCityDisplayName(city), timezone: city.timezone })),
-    props.browserTimezone, t('common.calendarEventTitle'));
+    props.browserTimezone,
+    t('common.calendarEventTitle'));
   const resetGridScroll = useTimelineGridSnap(
     getScrollTarget,
     props.currentUserHourIndex,
@@ -52,26 +56,47 @@ export default function MobileGrid(props: TimelineGridShellProps) {
   );
 
   const toolbar = (
-    <MobileToolbar {...props}
+    <MobileToolbar
+      {...props}
       calendarEvent={event}
       selectedHours={selectedHours}
       selectionEnabled={enabled}
       selectionDisabled={props.isEditMode || props.isDragging || !props.cities.length}
       onSelectionToggle={toggle}
-      onResetClick={() => { clear(); resetGridScroll(); props.onReset?.(); }}
-      onEditModeToggle={() => { clear(); props.onEditModeToggle(); }}
-      onAddCityClick={() => { clear(); props.onAddCityClick(); }} />
+      onResetClick={() => {
+        clear();
+        resetGridScroll();
+        props.onReset?.();
+      }}
+      onEditModeToggle={() => {
+        clear();
+        props.onEditModeToggle();
+      }}
+      onAddCityClick={() => {
+        clear();
+        props.onAddCityClick();
+      }}
+    />
   );
 
   const timeline = (
     <>
-      <div ref={contentRef} className="timelineGrid-content">
+      <div
+        ref={contentRef}
+        className="timelineGrid-content"
+      >
         <MobileTimeline
           {...props}
           selectedHourKeys={selectedHourKeys}
-          onAddCityClick={() => { clear(); props.onAddCityClick(); }}
+          onAddCityClick={() => {
+            clear();
+            props.onAddCityClick();
+          }}
         />
-        <MobileSelectionOverlay enabled={enabled} frameRef={frameRef} />
+        <MobileSelectionOverlay
+          enabled={enabled}
+          frameRef={frameRef}
+        />
       </div>
       <div className="timelineGridMiddleMarker" />
       <div className="timelineGridMiddleHoursMarker" />
@@ -80,58 +105,66 @@ export default function MobileGrid(props: TimelineGridShellProps) {
 
   return (
     <>
-      {embedded ? (
-        <div className="timelineGridMobileEmbedded">
-          {toolbar}
-          <div
-            ref={viewportRef}
-            className="timelineGrid-scrollViewport"
-          >
-            <div className="timelineGridBackdrop" aria-hidden="true" />
-            {timeline}
-            <TimelineGridActiveHourIndicator
-              direction={activeHourDirection}
-              onClick={scrollActiveHourIntoView}
-            />
-          </div>
+      {embedded
+        ? (
+            <div className="timelineGridMobileEmbedded">
+              {toolbar}
+              <div
+                ref={viewportRef}
+                className="timelineGrid-scrollViewport"
+              >
+                <div
+                  className="timelineGridBackdrop"
+                  aria-hidden="true"
+                />
+                {timeline}
+                <TimelineGridActiveHourIndicator
+                  direction={activeHourDirection}
+                  onClick={scrollActiveHourIntoView}
+                />
+              </div>
 
-          <div className="zenPageMobile-footer">
-            <MobileSelectionControls
-              calendarEvent={event}
-              cities={props.cities}
-              selectedHours={selectedHours}
-              isEditMode={props.isEditMode}
-              selectionEnabled={enabled}
-              selectionDisabled={props.isEditMode || props.isDragging || !props.cities.length}
-              onSelectionToggle={toggle}
-            />
-          </div>
-        </div>
-      ) :
-        <>
-          <div className="zenPageMobile">
-            <div className="timelineGridBackdrop" aria-hidden="true" />
-            {toolbar}
-            {timeline}
-            <TimelineGridActiveHourIndicator
-              direction={activeHourDirection}
-              onClick={scrollActiveHourIntoView}
-            />
-            <div className="zenPageMobile-footer">
-              <MobileSelectionControls
-                calendarEvent={event}
-                cities={props.cities}
-                selectedHours={selectedHours}
-                isEditMode={props.isEditMode}
-                selectionEnabled={enabled}
-                selectionDisabled={props.isEditMode || props.isDragging || !props.cities.length}
-                onSelectionToggle={toggle}
-              />
+              <div className="zenPageMobile-footer">
+                <MobileSelectionControls
+                  calendarEvent={event}
+                  cities={props.cities}
+                  selectedHours={selectedHours}
+                  isEditMode={props.isEditMode}
+                  selectionEnabled={enabled}
+                  selectionDisabled={props.isEditMode || props.isDragging || !props.cities.length}
+                  onSelectionToggle={toggle}
+                />
+              </div>
             </div>
-          </div>
-          <div className="zenPageMobileBackdrop" />
-        </>
-      }
+          )
+        : (
+            <>
+              <div className="zenPageMobile">
+                <div
+                  className="timelineGridBackdrop"
+                  aria-hidden="true"
+                />
+                {toolbar}
+                {timeline}
+                <TimelineGridActiveHourIndicator
+                  direction={activeHourDirection}
+                  onClick={scrollActiveHourIntoView}
+                />
+                <div className="zenPageMobile-footer">
+                  <MobileSelectionControls
+                    calendarEvent={event}
+                    cities={props.cities}
+                    selectedHours={selectedHours}
+                    isEditMode={props.isEditMode}
+                    selectionEnabled={enabled}
+                    selectionDisabled={props.isEditMode || props.isDragging || !props.cities.length}
+                    onSelectionToggle={toggle}
+                  />
+                </div>
+              </div>
+              <div className="zenPageMobileBackdrop" />
+            </>
+          )}
     </>
   );
 }

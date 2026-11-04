@@ -16,12 +16,12 @@ These presentation options select page framing and scroll ownership, not an inpu
 
 `desktop/` owns mouse panning, marquee selection, its frame/handles, desktop layout, toolbar and styles.
 `mobile/` owns touch resizing, initial range selection, page scroll locking, mobile layout, toolbar and styles.
-Neither implementation imports anything from the other folder.
+Neither implementation imports anything from the other folder (enforced by `no-restricted-imports` in `eslint.config.js`).
 
 `shared/` owns city/session state, URL restoration, date calculations, hour blocks, user hour blocks,
 city row markup, calendar actions and pure range geometry. Its scroll helpers work
 with an explicit page or element target, without deciding which implementation should be displayed.
-Shared modules do not import either implementation or perform device detection.
+Shared modules do not import either implementation or perform device detection (also enforced by ESLint).
 
 `DesktopToolbar.tsx` and `MobileToolbar.tsx` own their markup, menu state and button sets.
 Their styles live in `desktop/style.css` and `mobile/style.css`. Mobile has no decorative backdrop or

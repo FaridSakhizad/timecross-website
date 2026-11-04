@@ -15,7 +15,7 @@ export default function Footer() {
   return (
     <footer className="footer">
       <div className="container container_footer">
-        <span className="copyright">&copy; {COPYRIGHT_HOLDER} {COPYRIGHT_YEAR}</span>
+        <span className="copyright">{`© ${COPYRIGHT_HOLDER} ${COPYRIGHT_YEAR}`}</span>
 
         <ul className="footerMenu">
           <li className="footerMenu-item">
@@ -59,7 +59,12 @@ export default function Footer() {
             </a>
           </li>
           <li className="footerMenu-item">
-            <a href={`mailto:${SUPPORT_EMAIL}`} className="footerMenu-link">{t('common.support')}</a>
+            <a
+              href={`mailto:${SUPPORT_EMAIL}`}
+              className="footerMenu-link"
+            >
+              {t('common.support')}
+            </a>
           </li>
         </ul>
       </div>

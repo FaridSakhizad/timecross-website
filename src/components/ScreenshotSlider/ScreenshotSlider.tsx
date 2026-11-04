@@ -42,15 +42,14 @@ const SLIDES = [
     id: 6,
     img: slide6,
     altKey: 'seo.images.screenshotNotifications',
-  }
+  },
 ];
-
 
 export default function ScreenshotSlider() {
   const { t } = useI18n();
-  const [ activeSlideIdx, setActiveSlideIdx ] = useState<number>(0);
+  const [activeSlideIdx, setActiveSlideIdx] = useState<number>(0);
 
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true })
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
 
   const scrollPrev = () => {
     emblaApi?.scrollPrev();
@@ -69,22 +68,25 @@ export default function ScreenshotSlider() {
 
       setActiveSlideIdx(index);
     },
-    [emblaApi]
-  )
+    [emblaApi],
+  );
 
   useEffect(() => {
     if (!emblaApi) {
-      return
+      return;
     }
 
     emblaApi.on('select', (emblaApi) => {
       setActiveSlideIdx(emblaApi.selectedScrollSnap());
     });
-  }, [emblaApi])
+  }, [emblaApi]);
 
   return (
     <div className="screenshotsSlider">
-      <button className="screenshotsSlider-navButton screenshotsSlider-navButton_prev" onClick={scrollPrev}>
+      <button
+        className="screenshotsSlider-navButton screenshotsSlider-navButton_prev"
+        onClick={scrollPrev}
+      >
         <svg
           className="screenshotsSlider-navIcon"
           width="48"
@@ -97,21 +99,33 @@ export default function ScreenshotSlider() {
         </svg>
       </button>
 
-      <div className="screenshotsSliderBox" ref={emblaRef}>
+      <div
+        className="screenshotsSliderBox"
+        ref={emblaRef}
+      >
         <div className="screenshotsSliderContainer">
-          {SLIDES.map((item) => {
-            return (
-              <div key={item.id} id={`${item.id}`} className="screenshotsSlider-item">
-                <div className="screenshotsSlider-imageBox">
-                  <img className="screenshotsSlider-image" src={item.img} alt={t(item.altKey)} />
-                </div>
+          {SLIDES.map((item) => (
+            <div
+              key={item.id}
+              id={`${item.id}`}
+              className="screenshotsSlider-item"
+            >
+              <div className="screenshotsSlider-imageBox">
+                <img
+                  className="screenshotsSlider-image"
+                  src={item.img}
+                  alt={t(item.altKey)}
+                />
               </div>
-            )
-          })}
+            </div>
+          ))}
         </div>
       </div>
 
-      <button className="screenshotsSlider-navButton screenshotsSlider-navButton_next" onClick={scrollNext}>
+      <button
+        className="screenshotsSlider-navButton screenshotsSlider-navButton_next"
+        onClick={scrollNext}
+      >
         <svg
           className="screenshotsSlider-navIcon"
           width="48"
@@ -125,16 +139,14 @@ export default function ScreenshotSlider() {
       </button>
 
       <div className="screenshotsSliderPagination">
-        {SLIDES.map((_, idx) => {
-          return (
-            <button
-              key={idx}
-              className={`screenshotsSlider-dot ${activeSlideIdx === idx ? 'active' : ''}`}
-              onClick={() => handleSliderDotButtonClick(idx)}
-            />
-          )
-        })}
+        {SLIDES.map((_, idx) => (
+          <button
+            key={idx}
+            className={`screenshotsSlider-dot ${activeSlideIdx === idx ? 'active' : ''}`}
+            onClick={() => handleSliderDotButtonClick(idx)}
+          />
+        ))}
       </div>
     </div>
-  )
+  );
 }

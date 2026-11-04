@@ -1,5 +1,6 @@
 import {
-  getGridSelectionBounds, gridHourKey, intersectsSelection, resizeGridSelection, resizeGridSelectionRect,
+  getArrowKeyStep, getEdgeScrollSpeed, getGridSelectionBounds, getKeyboardResizeAxis, gridHourKey,
+  intersectsSelection, resizeGridSelection, resizeGridSelectionRect,
   type GridResizeDirection, type GridSelectionCellGeometry, type SelectedGridHour, type SelectionRect,
 } from '../shared/gridSelection.ts';
 import { getInitialDesktopGridSelection } from './initialGridSelection.ts';
@@ -7,6 +8,7 @@ import { createGridSelectionSnapAnimation } from '../shared/gridSelectionSnapAni
 
 const INTERACTIVE_TARGET = 'a, button, input, select, textarea, [contenteditable], [role="button"], [role="slider"], .timelineGrid-userHours';
 type Cell = GridSelectionCellGeometry & { element: HTMLElement };
+const DESKTOP_EDGE_SCROLL = { edge: 28, maxSpeed: 16, slowdown: 3 };
 export const GRID_SELECTION_FRAME_HORIZONTAL_PADDING = 6;
 export const GRID_SELECTION_FRAME_TOP_PADDING = -5;
 export const GRID_SELECTION_FRAME_BOTTOM_PADDING = 0;
@@ -25,8 +27,13 @@ export function attachGridSelection(
   let committed = initialSelection;
   let preview = committed;
   let session: {
-    pointerId: number; x: number; y: number; clientX: number; clientY: number;
-    moved: boolean; cells: Cell[];
+    pointerId: number;
+    x: number;
+    y: number;
+    clientX: number;
+    clientY: number;
+    moved: boolean;
+    cells: Cell[];
     resizeDirection?: GridResizeDirection;
     resizeBounds?: SelectionRect;
     resizeLimits?: SelectionRect;
@@ -36,7 +43,9 @@ export function attachGridSelection(
   let panClick: { pointerId: number; x: number; y: number; moved: boolean } | null = null;
 
   const isOutsideFrame = (clientX: number, clientY: number) => {
-    if (!frameBounds) return false;
+    if (!frameBounds) {
+      return false;
+    }
     const origin = viewport.getBoundingClientRect();
     const x = clientX - origin.left - viewport.clientLeft + viewport.scrollLeft;
     const y = clientY - origin.top - viewport.clientTop + viewport.scrollTop;
@@ -66,9 +75,13 @@ export function attachGridSelection(
     });
   };
   const positionFrame = () => {
-    if (!selectionFrame) return;
+    if (!selectionFrame) {
+      return;
+    }
     selectionFrame.hidden = !frameBounds || Boolean(session && !session.resizeDirection);
-    if (!frameBounds || selectionFrame.hidden) return;
+    if (!frameBounds || selectionFrame.hidden) {
+      return;
+    }
     selectionFrame.style.left = `${frameBounds.left - GRID_SELECTION_FRAME_HORIZONTAL_PADDING}px`;
     selectionFrame.style.top = `${frameBounds.top - GRID_SELECTION_FRAME_TOP_PADDING}px`;
     selectionFrame.style.width = `${frameBounds.right - frameBounds.left + GRID_SELECTION_FRAME_HORIZONTAL_PADDING * 2}px`;
@@ -76,35 +89,49 @@ export function attachGridSelection(
   };
   const paint = (cells: Cell[], hours: SelectedGridHour[], visualBounds?: SelectionRect) => {
     const keys = new Set(hours.map(gridHourKey));
-    for (const cell of cells) cell.element.classList.toggle('isSelected', keys.has(gridHourKey(cell.hour)));
+    for (const cell of cells) {
+      cell.element.classList.toggle('isSelected', keys.has(gridHourKey(cell.hour)));
+    }
     frameBounds = visualBounds ?? getGridSelectionBounds(cells, hours);
     positionFrame();
   };
   const finish = (commit: boolean) => {
     const previous = session;
-    if (!previous) return;
+    if (!previous) {
+      return;
+    }
     session = null;
     cancelAnimationFrame(frame);
     frame = 0;
     overlay.hidden = true;
-    if (commit) committed = preview;
-    else paint(previous.cells, committed);
+    if (commit) {
+      committed = preview;
+    } else {
+      paint(previous.cells, committed);
+    }
     frameBounds = getGridSelectionBounds(previous.cells, committed);
-    if (commit && previous.resizeDirection) snapAnimation.snap(positionFrame);
-    else positionFrame();
-    if (commit) onCommit(committed);
+    if (commit && previous.resizeDirection) {
+      snapAnimation.snap(positionFrame);
+    } else {
+      positionFrame();
+    }
+    if (commit) {
+      onCommit(committed);
+    }
     onInteractionChange(false);
-    if (viewport.hasPointerCapture(previous.pointerId)) viewport.releasePointerCapture(previous.pointerId);
+    if (viewport.hasPointerCapture(previous.pointerId)) {
+      viewport.releasePointerCapture(previous.pointerId);
+    }
   };
   const draw = (autoScroll = true) => {
     const current = session;
-    if (!current?.moved) return;
+    if (!current?.moved) {
+      return;
+    }
     const origin = viewport.getBoundingClientRect();
     const right = origin.left + viewport.clientLeft + viewport.clientWidth;
     const bottom = origin.top + viewport.clientTop + viewport.clientHeight;
-    const edgeSpeed = (value: number, min: number, max: number) => value < min + 28
-      ? -Math.min(16, (min + 28 - value) / 3)
-      : value > max - 28 ? Math.min(16, (value - max + 28) / 3) : 0;
+    const edgeSpeed = (value: number, min: number, max: number) => getEdgeScrollSpeed(value, min, max, DESKTOP_EDGE_SCROLL);
     const beforeLeft = viewport.scrollLeft;
     const beforeTop = viewport.scrollTop;
     if (autoScroll) {
@@ -120,9 +147,10 @@ export function attachGridSelection(
       const targetX = edgeX + x - current.x;
       const targetY = edgeY + y - current.y;
       preview = resizeGridSelection(current.cells, committed, current.resizeDirection, targetX, targetY);
-      paint(current.cells, preview, resizeGridSelectionRect(current.resizeBounds, current.resizeLimits,
-        current.resizeDirection, targetX, targetY));
-      if (viewport.scrollLeft !== beforeLeft || viewport.scrollTop !== beforeTop) scheduleDraw();
+      paint(current.cells, preview, resizeGridSelectionRect(current.resizeBounds, current.resizeLimits, current.resizeDirection, targetX, targetY));
+      if (viewport.scrollLeft !== beforeLeft || viewport.scrollTop !== beforeTop) {
+        scheduleDraw();
+      }
       return;
     }
     const rect = { left: Math.min(current.x, x), top: Math.min(current.y, y), right: Math.max(current.x, x), bottom: Math.max(current.y, y) };
@@ -138,15 +166,27 @@ export function attachGridSelection(
     const hits = current.cells.filter((cell) => intersectsSelection(rect, cell.rect)).map((cell) => cell.hour);
     preview = hits;
     paint(current.cells, preview);
-    if (viewport.scrollLeft !== beforeLeft || viewport.scrollTop !== beforeTop) scheduleDraw();
+    if (viewport.scrollLeft !== beforeLeft || viewport.scrollTop !== beforeTop) {
+      scheduleDraw();
+    }
   };
   const scheduleDraw = () => {
-    if (!frame) frame = requestAnimationFrame(() => { frame = 0; draw(); });
+    if (!frame) {
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        draw();
+      });
+    }
   };
   const start = (event: PointerEvent) => {
-    if (event.button === 1 && session) { finish(false); return; }
+    if (event.button === 1 && session) {
+      finish(false);
+      return;
+    }
     if (event.pointerType !== 'mouse' || !event.isPrimary || event.button !== 0 || session
-      || event.altKey || !(event.target instanceof Element) || event.target.closest(INTERACTIVE_TARGET)) return;
+      || event.altKey || !(event.target instanceof Element) || event.target.closest(INTERACTIVE_TARGET)) {
+      return;
+    }
     snapAnimation.cancel();
     if (options.marqueeEnabled === false) {
       panClick = { pointerId: event.pointerId, x: event.clientX, y: event.clientY, moved: false };
@@ -158,7 +198,9 @@ export function attachGridSelection(
       pointerId: event.pointerId,
       x: event.clientX - origin.left - viewport.clientLeft + viewport.scrollLeft,
       y: event.clientY - origin.top - viewport.clientTop + viewport.scrollTop,
-      clientX: event.clientX, clientY: event.clientY, moved: false,
+      clientX: event.clientX,
+      clientY: event.clientY,
+      moved: false,
       cells: getCells(),
     };
     suppressClick = false;
@@ -169,20 +211,29 @@ export function attachGridSelection(
   };
   const startResize = (event: PointerEvent) => {
     if (event.pointerType !== 'mouse' || !event.isPrimary || event.button !== 0 || session
-      || !(event.target instanceof Element)) return;
+      || !(event.target instanceof Element)) {
+      return;
+    }
     const direction = event.target.closest<HTMLElement>('[data-grid-resize]')?.dataset.gridResize as GridResizeDirection | undefined;
-    if (!direction || !committed.length) return;
+    if (!direction || !committed.length) {
+      return;
+    }
     snapAnimation.cancel();
     const origin = viewport.getBoundingClientRect();
     viewport.scrollTo({ left: viewport.scrollLeft, top: viewport.scrollTop, behavior: 'instant' });
     const cells = getCells();
     const resizeBounds = getGridSelectionBounds(cells, committed);
-    if (!resizeBounds) return;
+    if (!resizeBounds) {
+      return;
+    }
     session = {
       pointerId: event.pointerId,
       x: event.clientX - origin.left - viewport.clientLeft + viewport.scrollLeft,
       y: event.clientY - origin.top - viewport.clientTop + viewport.scrollTop,
-      clientX: event.clientX, clientY: event.clientY, moved: false, cells,
+      clientX: event.clientX,
+      clientY: event.clientY,
+      moved: false,
+      cells,
       resizeDirection: direction,
       resizeBounds,
       resizeLimits: getGridSelectionBounds(cells, cells.map((cell) => cell.hour))!,
@@ -194,26 +245,37 @@ export function attachGridSelection(
     event.stopPropagation();
   };
   const updatePointer = (event: PointerEvent) => {
-    if (!session) return;
+    if (!session) {
+      return;
+    }
     session.clientX = event.clientX;
     session.clientY = event.clientY;
     const origin = viewport.getBoundingClientRect();
     const x = event.clientX - origin.left - viewport.clientLeft + viewport.scrollLeft;
     const y = event.clientY - origin.top - viewport.clientTop + viewport.scrollTop;
-    if (Math.hypot(x - session.x, y - session.y) >= 4) session.moved = true;
+    if (Math.hypot(x - session.x, y - session.y) >= 4) {
+      session.moved = true;
+    }
   };
   const complete = (event?: PointerEvent) => {
-    if (!session) return;
-    if (event) updatePointer(event);
+    if (!session) {
+      return;
+    }
+    if (event) {
+      updatePointer(event);
+    }
     if (session.moved) {
       suppressClick = true;
-      cancelAnimationFrame(frame); frame = 0;
+      cancelAnimationFrame(frame);
+      frame = 0;
       // Commit the release position synchronously; do not wait for a frame or scroll further.
       draw(false);
     } else {
       const outside = !session.resizeDirection && isOutsideFrame(session.clientX, session.clientY);
       finish(false);
-      if (outside) clear();
+      if (outside) {
+        clear();
+      }
       return;
     }
     finish(true);
@@ -222,32 +284,54 @@ export function attachGridSelection(
     if (panClick?.pointerId === event.pointerId && Math.hypot(event.clientX - panClick.x, event.clientY - panClick.y) >= 4) {
       panClick.moved = true;
     }
-    if (!session || session.pointerId !== event.pointerId) return;
+    if (!session || session.pointerId !== event.pointerId) {
+      return;
+    }
     if (!(event.buttons & 1)) {
-      if (event.buttons === 0) complete(event);
-      else finish(false);
+      if (event.buttons === 0) {
+        complete(event);
+      } else {
+        finish(false);
+      }
       return;
     }
     updatePointer(event);
-    if (session?.moved) { suppressClick = true; scheduleDraw(); }
+    if (session?.moved) {
+      suppressClick = true;
+      scheduleDraw();
+    }
     event.preventDefault();
   };
   const up = (event: PointerEvent) => {
     if (panClick?.pointerId === event.pointerId && event.button === 0 && !(event.buttons & 1)) {
       const isClick = !panClick.moved && Math.hypot(event.clientX - panClick.x, event.clientY - panClick.y) < 4;
       panClick = null;
-      if (isClick && isOutsideFrame(event.clientX, event.clientY)) clear();
+      if (isClick && isOutsideFrame(event.clientX, event.clientY)) {
+        clear();
+      }
     }
-    if (!session || session.pointerId !== event.pointerId || event.button !== 0 || (event.buttons & 1)) return;
+    if (!session || session.pointerId !== event.pointerId || event.button !== 0 || (event.buttons & 1)) {
+      return;
+    }
     complete(event);
   };
   const preventNativeDrag = (event: DragEvent) => {
-    if (session) event.preventDefault();
+    if (session) {
+      event.preventDefault();
+    }
   };
-  const cancel = () => { snapAnimation.cancel(); panClick = null; finish(false); };
+  const cancel = () => {
+    snapAnimation.cancel();
+    panClick = null;
+    finish(false);
+  };
   const cancelPointer = (event: PointerEvent) => {
-    if (panClick?.pointerId === event.pointerId) panClick = null;
-    if (session?.pointerId !== event.pointerId) return;
+    if (panClick?.pointerId === event.pointerId) {
+      panClick = null;
+    }
+    if (session?.pointerId !== event.pointerId) {
+      return;
+    }
     if (event.type === 'lostpointercapture' && event.target === viewport
       && event.buttons === 0 && viewport.isConnected !== false) {
       // Chrome can release capture before delivering pointerup. Capture-loss coordinates
@@ -258,34 +342,49 @@ export function attachGridSelection(
     }
   };
   const clear = () => {
-    cancel(); committed = []; preview = []; paint(getCells(), []); onCommit([]);
+    cancel();
+    committed = [];
+    preview = [];
+    paint(getCells(), []);
+    onCommit([]);
   };
   const keydown = (event: KeyboardEvent) => {
     if (event.key === 'Escape' && (session || committed.length)) {
-      if (session?.resizeDirection) cancel();
-      else clear();
+      if (session?.resizeDirection) {
+        cancel();
+      } else {
+        clear();
+      }
       event.preventDefault();
     }
   };
   const resizeKeydown = (event: KeyboardEvent) => {
-    if (session || !(event.target instanceof Element)) return;
+    if (session || !(event.target instanceof Element)) {
+      return;
+    }
     const direction = event.target.closest<HTMLElement>('[data-grid-resize]')?.dataset.gridResize as GridResizeDirection | undefined;
-    if (!direction || !['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) return;
+    if (!direction || !['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) {
+      return;
+    }
     snapAnimation.cancel();
     const cells = getCells();
     const bounds = getGridSelectionBounds(cells, committed);
-    if (!bounds) return;
+    if (!bounds) {
+      return;
+    }
     const horizontal = direction.includes('w') || direction.includes('e');
     const vertical = direction.includes('n') || direction.includes('s');
-    const dx = horizontal ? event.key === 'ArrowLeft' ? -1 : event.key === 'ArrowRight' ? 1 : 0 : 0;
-    const dy = vertical ? event.key === 'ArrowUp' ? -1 : event.key === 'ArrowDown' ? 1 : 0 : 0;
-    if (!dx && !dy) return;
+    const dx = horizontal ? getArrowKeyStep(event.key, 'ArrowLeft', 'ArrowRight') : 0;
+    const dy = vertical ? getArrowKeyStep(event.key, 'ArrowUp', 'ArrowDown') : 0;
+    if (!dx && !dy) {
+      return;
+    }
     const columns = [...new Set(cells.map((cell) => cell.rect.left))].sort((a, b) => a - b);
     const rows = [...new Set(cells.map((cell) => cell.rowTop))].sort((a, b) => a - b);
     const x = (direction.includes('w') ? bounds.left : bounds.right) + dx * (columns.length > 1 ? columns[1] - columns[0] : 1);
     const y = (direction.includes('n') ? bounds.top : bounds.bottom) + dy * (rows.length > 1 ? rows[1] - rows[0] : 1);
     // A corner handle changes only the axis of the arrow key that was pressed.
-    const axisDirection = (dx ? direction.includes('w') ? 'w' : 'e' : direction.includes('n') ? 'n' : 's') as GridResizeDirection;
+    const axisDirection = getKeyboardResizeAxis(direction, Boolean(dx));
     committed = resizeGridSelection(cells, committed, axisDirection, x, y);
     preview = committed;
     paint(cells, committed);
@@ -296,18 +395,35 @@ export function attachGridSelection(
   const click = (event: MouseEvent) => {
     if (suppressClick && event.detail !== 0) {
       suppressClick = false;
-      if (event.target instanceof Element && event.target.closest(INTERACTIVE_TARGET)) return;
-      event.preventDefault(); event.stopImmediatePropagation();
+      if (event.target instanceof Element && event.target.closest(INTERACTIVE_TARGET)) {
+        return;
+      }
+      event.preventDefault();
+      event.stopImmediatePropagation();
     }
   };
-  const visibility = () => { if (document.visibilityState === 'hidden') cancel(); };
-  const resize = () => { cancel(); frameBounds = getGridSelectionBounds(getCells(), committed); positionFrame(); };
-  const interactionScroll = () => { if (session?.moved) scheduleDraw(); };
+  const visibility = () => {
+    if (document.visibilityState === 'hidden') {
+      cancel();
+    }
+  };
+  const resize = () => {
+    cancel();
+    frameBounds = getGridSelectionBounds(getCells(), committed);
+    positionFrame();
+  };
+  const interactionScroll = () => {
+    if (session?.moved) {
+      scheduleDraw();
+    }
+  };
   selectionFrame?.addEventListener('pointerdown', startResize);
   selectionFrame?.addEventListener('keydown', resizeKeydown);
   const content = selectionFrame?.parentElement;
   const contentObserver = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(resize);
-  if (content) contentObserver?.observe(content);
+  if (content) {
+    contentObserver?.observe(content);
+  }
   frameBounds = getGridSelectionBounds(getCells(), committed);
   positionFrame();
   viewport.addEventListener('pointerdown', start);
@@ -337,30 +453,40 @@ export function attachGridSelection(
     };
     const cells = getCells();
     const next = getInitialDesktopGridSelection(cells, visible);
-    if (!next.length) return false;
+    if (!next.length) {
+      return false;
+    }
     committed = preview = next;
     paint(cells, committed);
     onCommit(committed);
     return true;
   };
-  return { clear, create, cancel, destroy: () => {
-    cancel(); cancelAnimationFrame(frame);
-    if (selectionFrame) selectionFrame.hidden = true;
-    contentObserver?.disconnect();
-    selectionFrame?.removeEventListener('pointerdown', startResize);
-    selectionFrame?.removeEventListener('keydown', resizeKeydown);
-    viewport.removeEventListener('pointerdown', start);
-    viewport.removeEventListener('lostpointercapture', cancelPointer);
-    viewport.removeEventListener('click', click, true);
-    viewport.removeEventListener('dragstart', preventNativeDrag);
-    viewport.removeEventListener('scroll', interactionScroll);
-    window.removeEventListener('scroll', interactionScroll);
-    window.removeEventListener('pointermove', move);
-    window.removeEventListener('pointerup', up, true);
-    window.removeEventListener('pointercancel', cancelPointer);
-    window.removeEventListener('blur', cancel);
-    window.removeEventListener('resize', resize);
-    window.removeEventListener('keydown', keydown);
-    document.removeEventListener('visibilitychange', visibility);
-  } };
+  return {
+    clear,
+    create,
+    cancel,
+    destroy: () => {
+      cancel();
+      cancelAnimationFrame(frame);
+      if (selectionFrame) {
+        selectionFrame.hidden = true;
+      }
+      contentObserver?.disconnect();
+      selectionFrame?.removeEventListener('pointerdown', startResize);
+      selectionFrame?.removeEventListener('keydown', resizeKeydown);
+      viewport.removeEventListener('pointerdown', start);
+      viewport.removeEventListener('lostpointercapture', cancelPointer);
+      viewport.removeEventListener('click', click, true);
+      viewport.removeEventListener('dragstart', preventNativeDrag);
+      viewport.removeEventListener('scroll', interactionScroll);
+      window.removeEventListener('scroll', interactionScroll);
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up, true);
+      window.removeEventListener('pointercancel', cancelPointer);
+      window.removeEventListener('blur', cancel);
+      window.removeEventListener('resize', resize);
+      window.removeEventListener('keydown', keydown);
+      document.removeEventListener('visibilitychange', visibility);
+    },
+  };
 }

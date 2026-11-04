@@ -65,7 +65,7 @@ test('fixed offsets, duplicate instances, long midnight ranges and Unicode survi
 
 test('every supported duration fits the ordinary grid and remains shareable without truncation', () => {
   assert.equal(TIMELINE_RENDERED_HOURS, TIMELINE_TOTAL_HOURS + TIMELINE_EDGE_FADE_HOURS * 2);
-  for (let count = 1; count <= TIMELINE_RENDERED_HOURS; count++) {
+  for (let count = 1; count <= TIMELINE_RENDERED_HOURS; count += 1) {
     const state = readGridEventUrlState(hashFor({ ...valid, e: valid.s + count * 3600 }));
     assert.ok(state);
     const dates = getSharedGridTimelineDates(state);
@@ -95,7 +95,7 @@ test('context contracts around large events and keeps short-event padding unchan
 
 test('repeated opening, selecting the entire timeline and sharing cannot grow the grid', () => {
   let state = readGridEventUrlState(hashFor({ ...valid, e: valid.s + 72 * 3600 }));
-  for (let iteration = 0; iteration < 8; iteration++) {
+  for (let iteration = 0; iteration < 8; iteration += 1) {
     const dates = getSharedGridTimelineDates(state);
     assert.equal(dates.length, TIMELINE_RENDERED_HOURS);
     const selection = dates.map((date) => ({ rowId: state.cities[0].id, start: date.getTime() }));
@@ -113,18 +113,30 @@ test('one hour beyond actual grid capacity is rejected on both encoding and deco
 });
 
 test('invalid or excessively large payloads fail closed without partial events', () => {
-  for (const hash of ['', '#event={', '#event=null', '#event=%FF', '#event=' + 'x'.repeat(100001)]) {
+  for (const hash of ['', '#event={', '#event=null', '#event=%FF', `#event=${'x'.repeat(100001)}`]) {
     assert.equal(readGridEventUrlState(hash), null);
   }
   for (const data of [
-    { ...valid, v: 2 }, { ...valid, s: '123' }, { ...valid, e: valid.s },
-    { ...valid, e: valid.s + 3600 * (TIMELINE_RENDERED_HOURS + 1) }, { ...valid, s: valid.s + 1 },
-    { ...valid, s: -1e15 }, { ...valid, e: 1e15 }, { ...valid, c: [] },
+    { ...valid, v: 2 },
+    { ...valid, s: '123' },
+    { ...valid, e: valid.s },
+    { ...valid, e: valid.s + 3600 * (TIMELINE_RENDERED_HOURS + 1) },
+    { ...valid, s: valid.s + 1 },
+    { ...valid, s: -1e15 },
+    { ...valid, e: 1e15 },
+    { ...valid, c: [] },
     { ...valid, c: Array(101).fill(['City', 'UTC']) },
-    ...[['', 'UTC'], ['City', 'bad/zone'], ['City', 'GMT_OFFSET:9999'],
-      ['City', 'GMT_OFFSET:3.5'], [null, 'UTC'], ['City', 'UTC', 123],
-      ['City', 'UTC', '', { unsafe: true }], ['x'.repeat(201), 'UTC']].map((entry) => ({ ...valid, c: [entry] })),
-  ]) assert.equal(readGridEventUrlState(hashFor(data)), null);
+    ...[['', 'UTC'],
+      ['City', 'bad/zone'],
+      ['City', 'GMT_OFFSET:9999'],
+      ['City', 'GMT_OFFSET:3.5'],
+      [null, 'UTC'],
+      ['City', 'UTC', 123],
+      ['City', 'UTC', '', { unsafe: true }],
+      ['x'.repeat(201), 'UTC']].map((entry) => ({ ...valid, c: [entry] })),
+  ]) {
+    assert.equal(readGridEventUrlState(hashFor(data)), null);
+  }
 });
 
 test('unknown rows and disjoint ranges cannot silently turn into a different event', () => {
@@ -136,8 +148,15 @@ test('unknown rows and disjoint ranges cannot silently turn into a different eve
 test('native sharing receives only a URL and is invoked synchronously before any await', async () => {
   let called = false;
   const pending = shareEventLink(baseUrl, {
-    canShare: (data) => { assert.deepEqual(data, { url: baseUrl }); return true; },
-    share(data) { assert.deepEqual(data, { url: baseUrl }); called = true; return Promise.resolve(); },
+    canShare: (data) => {
+      assert.deepEqual(data, { url: baseUrl });
+      return true;
+    },
+    share(data) {
+      assert.deepEqual(data, { url: baseUrl });
+      called = true;
+      return Promise.resolve();
+    },
   });
   assert.equal(called, true);
   assert.equal(await pending, 'shared');
@@ -145,12 +164,20 @@ test('native sharing receives only a URL and is invoked synchronously before any
 
 test('unsupported, denied or broken sharing falls back to copying the same URL', async () => {
   for (const browser of [
-    {}, { share: async () => {}, canShare: () => false },
+    {},
+    { share: async () => {}, canShare: () => false },
     { share: async () => { throw new DOMException('Denied', 'NotAllowedError'); } },
     { share: async () => {}, canShare: () => { throw new Error('Unavailable'); } },
   ]) {
     let copied = null;
-    assert.equal(await shareEventLink(baseUrl, { ...browser, clipboard: { writeText: async (text) => { copied = text; } } }), 'copied');
+    assert.equal(await shareEventLink(baseUrl, {
+      ...browser,
+      clipboard: {
+        writeText: async (text) => {
+          copied = text;
+        },
+      },
+    }), 'copied');
     assert.equal(copied, baseUrl);
   }
 });
@@ -165,5 +192,11 @@ test('cancelling the share sheet is silent and does not modify the clipboard', a
 
 test('missing or denied clipboard reports failure rather than claiming success', async () => {
   await assert.rejects(shareEventLink(baseUrl, {}), /Clipboard unavailable/);
-  await assert.rejects(shareEventLink(baseUrl, { clipboard: { writeText: async () => { throw new Error('Denied'); } } }), /Denied/);
+  await assert.rejects(shareEventLink(baseUrl, {
+    clipboard: {
+      writeText: async () => {
+        throw new Error('Denied');
+      },
+    },
+  }), /Denied/);
 });

@@ -18,8 +18,11 @@ export function useGridSelection(viewportRef: RefObject<HTMLDivElement | null>, 
     onChange?.(hours);
   }, [onChange]);
   const clearSelection = useCallback(() => {
-    if (controllerRef.current) controllerRef.current.clear();
-    else commit([]);
+    if (controllerRef.current) {
+      controllerRef.current.clear();
+    } else {
+      commit([]);
+    }
   }, [commit]);
   const createSelection = useCallback(() => controllerRef.current?.create() ?? false, []);
 
@@ -30,13 +33,18 @@ export function useGridSelection(viewportRef: RefObject<HTMLDivElement | null>, 
     }
     const viewport = viewportRef.current;
     const overlay = overlayRef.current;
-    if (blocked || !viewport || !overlay) return;
+    if (blocked || !viewport || !overlay) {
+      return;
+    }
     const controller = attachGridSelection(viewport, overlay, selectionRef.current, commit, (active) => {
       interactionRef.current = active;
       setIsSelecting(active);
     }, { selectionFrame: frameRef.current ?? undefined, marqueeEnabled: enabled });
     controllerRef.current = controller;
-    return () => { controller.destroy(); controllerRef.current = null; };
+    return () => {
+      controller.destroy();
+      controllerRef.current = null;
+    };
   }, [blocked, commit, contentKey, enabled, viewportRef]);
 
   return { selectedHours, isSelecting, interactionRef, overlayRef, frameRef, clearSelection, createSelection };

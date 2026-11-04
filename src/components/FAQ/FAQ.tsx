@@ -29,45 +29,45 @@ export default function FAQ({ items }: FAQProps) {
   const DATA: FAQItem[] = items ?? [
     {
       id: 1,
-      title: t('faq.free.title', {siteName: SITE_NAME}),
+      title: t('faq.free.title', { siteName: SITE_NAME }),
       content: (
         <>
-          <p className="accordion-para">{t('faq.free.paragraph1', {siteName: SITE_NAME})}</p>
+          <p className="accordion-para">{t('faq.free.paragraph1', { siteName: SITE_NAME })}</p>
           <p className="accordion-para">{t('faq.free.paragraph2')}</p>
         </>
       ),
       tooltipData: {
         title: <span className="accordionTooltip-title">{t('faq.short')}</span>,
         content: <span className="accordionTooltip-para">{t('faq.yes')}</span>,
-      }
+      },
     },
     {
       id: 2,
       title: t('faq.offline.title'),
       content: (
         <>
-          <p className="accordion-para">{t('faq.offline.paragraph1', {siteName: SITE_NAME})}</p>
+          <p className="accordion-para">{t('faq.offline.paragraph1', { siteName: SITE_NAME })}</p>
           <p className="accordion-para">{t('faq.offline.paragraph2')}</p>
         </>
       ),
       tooltipData: {
         title: <span className="accordionTooltip-title">{t('faq.short')}</span>,
         content: <span className="accordionTooltip-para">{t('faq.yes')}</span>,
-      }
+      },
     },
     {
       id: 3,
       title: t('faq.account.title'),
       content: (
         <>
-          <p className="accordion-para">{t('faq.account.paragraph1', {siteName: SITE_NAME})}</p>
+          <p className="accordion-para">{t('faq.account.paragraph1', { siteName: SITE_NAME })}</p>
           <p className="accordion-para">{t('faq.account.paragraph2')}</p>
         </>
       ),
       tooltipData: {
         title: <span className="accordionTooltip-title">{t('faq.short')}</span>,
         content: <span className="accordionTooltip-para">{t('faq.no')}</span>,
-      }
+      },
     },
 
     {
@@ -75,14 +75,14 @@ export default function FAQ({ items }: FAQProps) {
       title: t('faq.platforms.title'),
       content: (
         <>
-          <p className="accordion-para">{t('faq.platforms.paragraph1', {siteName: SITE_NAME})}</p>
+          <p className="accordion-para">{t('faq.platforms.paragraph1', { siteName: SITE_NAME })}</p>
           <p className="accordion-para">{t('faq.platforms.paragraph2')}</p>
         </>
       ),
       tooltipData: {
         title: <span className="accordionTooltip-title">{t('faq.short')}</span>,
         content: <span className="accordionTooltip-para">{t('faq.platformsShort')}</span>,
-      }
+      },
     },
 
     {
@@ -91,13 +91,13 @@ export default function FAQ({ items }: FAQProps) {
       content: (
         <>
           <p className="accordion-para">{t('faq.notifications.paragraph1')}</p>
-          <p className="accordion-para">{t('faq.notifications.paragraph2', {siteName: SITE_NAME})}</p>
+          <p className="accordion-para">{t('faq.notifications.paragraph2', { siteName: SITE_NAME })}</p>
         </>
       ),
       tooltipData: {
         title: <span className="accordionTooltip-title">{t('faq.short')}</span>,
         content: <span className="accordionTooltip-para">{t('faq.notificationsShort')}</span>,
-      }
+      },
     },
   ];
 
@@ -119,38 +119,36 @@ export default function FAQ({ items }: FAQProps) {
 
   return (
     <div className="accordion accordion_faq">
-      {DATA.map((accordionItem, idx) => {
-        return (
+      {DATA.map((accordionItem, idx) => (
+        <div
+          key={accordionItem.id}
+          className={`accordion-item ${accordionData[idx]?.isOpen ? 'isOpen' : ''}`}
+        >
           <div
-            key={accordionItem.id}
-            className={`accordion-item ${accordionData[idx]?.isOpen ? 'isOpen' : ''}`}
+            className="accordion-header"
+            role="button"
+            tabIndex={0}
+            aria-expanded={Boolean(accordionData[idx]?.isOpen)}
+            onClick={() => toggleAccordionItem(idx)}
+            onKeyDown={(event) => handleHeaderKeyDown(event, idx)}
           >
-            <div
-              className="accordion-header"
-              role="button"
-              tabIndex={0}
-              aria-expanded={Boolean(accordionData[idx]?.isOpen)}
-              onClick={() => toggleAccordionItem(idx)}
-              onKeyDown={(event) => handleHeaderKeyDown(event, idx)}
-            >
-              <h3 className="accordion-title">{accordionItem.title}</h3>
+            <h3 className="accordion-title">{accordionItem.title}</h3>
 
-              {accordionItem.tooltipData && (
-                <span className="accordionTooltip">
-                  {accordionItem.tooltipData.title}
-                  {accordionItem.tooltipData.content}
-                </span>
-              )}
-            </div>
+            {accordionItem.tooltipData && (
+              <span className="accordionTooltip">
+                {accordionItem.tooltipData.title}
+                {accordionItem.tooltipData.content}
+              </span>
+            )}
+          </div>
 
-            <div className="accordion-contentWrapper">
-              <div className="accordion-content">
-                {accordionItem.content}
-              </div>
+          <div className="accordion-contentWrapper">
+            <div className="accordion-content">
+              {accordionItem.content}
             </div>
           </div>
-        )
-      })}
+        </div>
+      ))}
     </div>
   );
 }

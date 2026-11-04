@@ -144,7 +144,10 @@ export default function RenameCityModal({
         <div className="appModal-header">
           <span className="appModal-headerPlaceholder" />
 
-          <h3 className="appModal-title" id="rename-city-modal-title">
+          <h3
+            className="appModal-title"
+            id="rename-city-modal-title"
+          >
             {title}
           </h3>
 

@@ -63,7 +63,13 @@ export default function PrivacyPolicyPage({
           <h2 className="legalPage-sectionTitle">{t('legal.privacy.contactTitle')}</h2>
           <p className="legalPage-para">
             {t('legal.privacy.contactPrefix')}
-            <a className="legalPage-link" href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>.
+            <a
+              className="legalPage-link"
+              href={`mailto:${SUPPORT_EMAIL}`}
+            >
+              {SUPPORT_EMAIL}
+            </a>
+            .
           </p>
         </section>
       </LegalPage>

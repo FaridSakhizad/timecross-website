@@ -73,15 +73,30 @@ function LocalizedRoute({ children }: LocalizedRouteProps) {
   }, [effectiveRouteLanguage, language, setLanguage]);
 
   if (lang && !routeLanguage) {
-    return <Navigate replace to={getCanonicalLanguagePath(fallbackLanguage)} />;
+    return (
+      <Navigate
+        replace
+        to={getCanonicalLanguagePath(fallbackLanguage)}
+      />
+    );
   }
 
   if (!lang) {
-    return <Navigate replace to={getCanonicalLanguagePath(fallbackLanguage, pagePath)} />;
+    return (
+      <Navigate
+        replace
+        to={getCanonicalLanguagePath(fallbackLanguage, pagePath)}
+      />
+    );
   }
 
   if (lang === 'uk') {
-    return <Navigate replace to={getCanonicalLanguagePath(routeLanguage ?? 'en', pagePath)} />;
+    return (
+      <Navigate
+        replace
+        to={getCanonicalLanguagePath(routeLanguage ?? 'en', pagePath)}
+      />
+    );
   }
 
   return children;
@@ -141,13 +156,40 @@ function App() {
         // Every page is available both without a language prefix (redirects) and with one.
         return [
           path
-            ? <Route key={path} path={path} element={element} />
-            : <Route key="index" index element={element} />,
-          <Route key={`lang:${path}`} path={path ? `:lang/${path}` : ':lang'} element={element} />,
+            ? (
+                <Route
+                  key={path}
+                  path={path}
+                  element={element}
+                />
+              )
+            : (
+                <Route
+                  key="index"
+                  index
+                  element={element}
+                />
+              ),
+          <Route
+            key={`lang:${path}`}
+            path={path ? `:lang/${path}` : ':lang'}
+            element={element}
+          />,
         ];
       })}
-      <Route path="api/*" element={null} />
-      <Route path="*" element={<Navigate replace to="/" />} />
+      <Route
+        path="api/*"
+        element={null}
+      />
+      <Route
+        path="*"
+        element={(
+          <Navigate
+            replace
+            to="/"
+          />
+        )}
+      />
     </Routes>
   );
 }

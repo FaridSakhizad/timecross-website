@@ -10,7 +10,7 @@ export default function FeaturesList() {
     <ul className="featuresList">
       <li className="featuresList-item">
         <div className="featuresList-header">
-          <i className="featuresList-headerIcon featuresList-headerIcon_notifications"></i>
+          <i className="featuresList-headerIcon featuresList-headerIcon_notifications" />
           <h3 className="featuresList-title">{t('home.features.notifications.title')}</h3>
         </div>
         <div className="featuresList-content">
@@ -21,7 +21,7 @@ export default function FeaturesList() {
 
       <li className="featuresList-item">
         <div className="featuresList-header">
-          <i className="featuresList-headerIcon featuresList-headerIcon_calendar"></i>
+          <i className="featuresList-headerIcon featuresList-headerIcon_calendar" />
           <h3 className="featuresList-title">{t('home.features.synchronisation.title')}</h3>
         </div>
         <div className="featuresList-content">
@@ -32,7 +32,7 @@ export default function FeaturesList() {
 
       <li className="featuresList-item">
         <div className="featuresList-header">
-          <i className="featuresList-headerIcon featuresList-headerIcon_countdowns"></i>
+          <i className="featuresList-headerIcon featuresList-headerIcon_countdowns" />
           <h3 className="featuresList-title">{t('home.features.countdowns.title')}</h3>
         </div>
         <div className="featuresList-content">

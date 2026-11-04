@@ -16,7 +16,6 @@ import {
 import { formatRelativeOffset, getTimeZoneOffsetMinutes } from '../../../utils/time';
 import { gridHourKey } from './gridSelection';
 
-
 export type GridRowClasses = { row?: string; city?: string; cells: string; spacer: string };
 
 type TimelineGridRowProps = {
@@ -129,7 +128,8 @@ function TimelineGridRow({
           )}
 
           <span className="timelineGrid-cityName">
-            {displayName}, <span className="timelineGrid-cityOffset">{offset}</span>
+            {`${displayName}, `}
+            <span className="timelineGrid-cityOffset">{offset}</span>
           </span>
 
           {(false && relativeDayMarker) && (
@@ -171,22 +171,24 @@ function TimelineGridRow({
                 data-grid-selection-row={city.id}
                 data-grid-hour-start={cell.date.getTime()}
               >
-                {cell.dateCellDetails ? (
-                  <span className="timelineGrid-cellDateDetails">
-                    <span className="timelineGrid-cellDateWeekday">
-                      {cell.dateCellDetails.weekdayLabel}
-                    </span>
-                    <span className="timelineGrid-cellDateDay">
-                      {cell.dateCellDetails.dateLabel}
-                    </span>
-                  </span>
-                ) : (
-                  <TimelineCellLabel
-                    label={cell.label}
-                    period={cell.isCurrentHour ? null : cell.labelPeriod}
-                    periodClassName="timelineGrid-periodMarker"
-                  />
-                )}
+                {cell.dateCellDetails
+                  ? (
+                      <span className="timelineGrid-cellDateDetails">
+                        <span className="timelineGrid-cellDateWeekday">
+                          {cell.dateCellDetails.weekdayLabel}
+                        </span>
+                        <span className="timelineGrid-cellDateDay">
+                          {cell.dateCellDetails.dateLabel}
+                        </span>
+                      </span>
+                    )
+                  : (
+                      <TimelineCellLabel
+                        label={cell.label}
+                        period={cell.isCurrentHour ? null : cell.labelPeriod}
+                        periodClassName="timelineGrid-periodMarker"
+                      />
+                    )}
                 {shouldShowFullCurrentTime && (
                   <span className="timelineGrid-cellCurrentTime">
                     <span className="timelineGrid-cellCurrentMinutes">{cell.currentTimeLabel}</span>

@@ -7,9 +7,17 @@ const to = { left: '10px', top: '20px', width: '224px', height: '328px' };
 
 function element() {
   const calls = [];
-  const frame = { style: { ...from }, hidden: false,
+  const frame = {
+    style: { ...from },
+    hidden: false,
     animate(keyframes, options) {
-      const animation = { cancelled: false, cancel() { this.cancelled = true; this.oncancel?.(); } };
+      const animation = {
+        cancelled: false,
+        cancel() {
+          this.cancelled = true;
+          this.oncancel?.();
+        },
+      };
       calls.push({ keyframes, options, animation });
       return animation;
     },
@@ -34,7 +42,9 @@ test('repeated snaps cancel the previous animation; an already aligned frame doe
   const { frame, calls } = element();
   const snap = createGridSelectionSnapAnimation(frame);
   snap.snap(() => Object.assign(frame.style, to));
-  snap.snap(() => { frame.style.width = '298px'; });
+  snap.snap(() => {
+    frame.style.width = '298px';
+  });
   assert.equal(calls[0].animation.cancelled, true);
   assert.equal(calls.length, 2);
   calls[1].animation.onfinish();
@@ -51,23 +61,30 @@ test('hidden frames and browsers without animation support still receive the fin
     assert.deepEqual(frame.style, to);
   }
   let updated = false;
-  createGridSelectionSnapAnimation().snap(() => { updated = true; });
+  createGridSelectionSnapAnimation().snap(() => {
+    updated = true;
+  });
   assert.equal(updated, true);
 });
 
 test('reduced-motion preference commits immediately without an animation', () => {
   const original = Object.getOwnPropertyDescriptor(globalThis, 'window');
   try {
-    globalThis.window = { matchMedia(query) {
-      assert.equal(query, '(prefers-reduced-motion: reduce)');
-      return { matches: true };
-    } };
+    globalThis.window = {
+      matchMedia(query) {
+        assert.equal(query, '(prefers-reduced-motion: reduce)');
+        return { matches: true };
+      },
+    };
     const { frame, calls } = element();
     createGridSelectionSnapAnimation(frame).snap(() => Object.assign(frame.style, to));
     assert.deepEqual(frame.style, to);
     assert.equal(calls.length, 0);
   } finally {
-    if (original) Object.defineProperty(globalThis, 'window', original);
-    else delete globalThis.window;
+    if (original) {
+      Object.defineProperty(globalThis, 'window', original);
+    } else {
+      delete globalThis.window;
+    }
   }
 });

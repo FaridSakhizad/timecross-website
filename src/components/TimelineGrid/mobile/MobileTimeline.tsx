@@ -14,13 +14,23 @@ export default function MobileTimeline(props: GridTimelineProps) {
   const { t } = useI18n();
   return (
     <>
-      <GridUserHours userCells={props.userCells} className="timelineGrid-userHours_mobile" />
+      <GridUserHours
+        userCells={props.userCells}
+        className="timelineGrid-userHours_mobile"
+      />
       {props.cities.map((city) => (
         <GridRow
-          key={city.id} city={city} classNames={ROW_CLASSES}
-          baseDate={props.baseDate} browserTimezone={props.browserTimezone} isEditMode={props.isEditMode}
-          timelineDates={props.timelineDates} timeFormat={props.timeFormat}
-          selectedHourKeys={props.selectedHourKeys} onDelete={props.onDeleteCity} />
+          key={city.id}
+          city={city}
+          classNames={ROW_CLASSES}
+          baseDate={props.baseDate}
+          browserTimezone={props.browserTimezone}
+          isEditMode={props.isEditMode}
+          timelineDates={props.timelineDates}
+          timeFormat={props.timeFormat}
+          selectedHourKeys={props.selectedHourKeys}
+          onDelete={props.onDeleteCity}
+        />
       ))}
       <div className="timelineGrid-addTimezoneButtonBox">
         <button

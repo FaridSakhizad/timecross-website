@@ -47,7 +47,27 @@ type SessionProps = TimelineGridProps & { View: ComponentType<TimelineGridShellP
 export default function TimelineGridSession(props: SessionProps) {
   const { pathname, hash } = useLocation();
   const sharedEvent = useMemo(() => readGridEventUrlState(hash), [hash]);
-  return <GridSession key={`${pathname}${hash}`} {...props} sharedEvent={sharedEvent} />;
+  return (
+    <GridSession
+      key={`${pathname}${hash}`}
+      {...props}
+      sharedEvent={sharedEvent}
+    />
+  );
+}
+
+/** Hour to scroll to on open: the middle of a shared event, else the time from the URL. */
+function getInitialFocusHourIndex(timelineDates: Date[], sharedEvent: SharedGridEvent | null, anchorDate: Date | null) {
+  if (sharedEvent) {
+    return timelineDates.findIndex((date) => date.getTime() === sharedEvent.start)
+      + Math.floor((sharedEvent.end - sharedEvent.start) / 7200000);
+  }
+
+  if (anchorDate) {
+    return timelineDates.findIndex((date) => date.getTime() === anchorDate.getTime());
+  }
+
+  return undefined;
 }
 
 function GridSession({
@@ -90,7 +110,9 @@ function GridSession({
   );
 
   useEffect(() => {
-    if (!syncUrl || !hasSelection || sharedEvent) return;
+    if (!syncUrl || !hasSelection || sharedEvent) {
+      return;
+    }
     const params = writePlannerUrlState(new URLSearchParams(window.location.search), cities, selectedDate);
     if (params.toString() !== new URLSearchParams(window.location.search).toString()) {
       setSearchParams(params, { replace: true, preventScrollReset: true });
@@ -98,7 +120,9 @@ function GridSession({
   }, [cities, hasSelection, selectedDate, setSearchParams, sharedEvent, syncUrl]);
 
   useEffect(() => {
-    if (!syncUrl || sharedEvent) return;
+    if (!syncUrl || sharedEvent) {
+      return;
+    }
     const restore = () => {
       const state = readPlannerUrlState(window.location.search);
       setCities(state.cities ?? getStoredOrderedSelectedCities());
@@ -112,14 +136,16 @@ function GridSession({
   }, [sharedEvent, syncUrl]);
 
   useEffect(() => {
-    if (sharedEvent) return;
+    if (sharedEvent) {
+      return;
+    }
     return subscribeSelectedCities(() => {
       setCities(getStoredOrderedSelectedCities());
     });
   }, [sharedEvent]);
 
   const timelineDates = useMemo(
-    () => sharedEvent ? getSharedGridTimelineDates(sharedEvent) : getTimelineDates(browserTimezone, anchorDate ?? baseDate),
+    () => (sharedEvent ? getSharedGridTimelineDates(sharedEvent) : getTimelineDates(browserTimezone, anchorDate ?? baseDate)),
     [anchorDate, baseDate, browserTimezone, sharedEvent],
   );
 
@@ -131,7 +157,9 @@ function GridSession({
 
   const handleHourChange = useCallback((index: number) => {
     const date = timelineDates[index];
-    if (!date) return;
+    if (!date) {
+      return;
+    }
     setSelectedDate(date);
     setHasSelection(true);
   }, [timelineDates]);
@@ -144,7 +172,9 @@ function GridSession({
 
     setCities(nextCities);
     setHasSelection(true);
-    if (!sharedEvent) saveSelectedCities(nextCities);
+    if (!sharedEvent) {
+      saveSelectedCities(nextCities);
+    }
     setIsAddCityModalOpen(false);
   };
 
@@ -157,7 +187,9 @@ function GridSession({
 
     setCities(nextCities);
     setHasSelection(true);
-    if (!sharedEvent) saveSelectedCities(nextCities);
+    if (!sharedEvent) {
+      saveSelectedCities(nextCities);
+    }
   };
 
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
@@ -181,7 +213,9 @@ function GridSession({
 
     setCities(nextCities);
     setHasSelection(true);
-    if (!sharedEvent) saveSelectedCities(nextCities);
+    if (!sharedEvent) {
+      saveSelectedCities(nextCities);
+    }
   };
 
   const handleDragCancel = () => {
@@ -191,11 +225,13 @@ function GridSession({
   const shellProps = {
     presentation,
     onHourChange: syncUrl && !sharedEvent ? handleHourChange : undefined,
-    onReset: syncUrl && !sharedEvent ? () => {
-      setAnchorDate(null);
-      setSelectedDate(null);
-      setHasSelection(true);
-    } : undefined,
+    onReset: syncUrl && !sharedEvent
+      ? () => {
+          setAnchorDate(null);
+          setSelectedDate(null);
+          setHasSelection(true);
+        }
+      : undefined,
     baseDate,
     browserTimezone,
     cities: localizedCities,
@@ -208,10 +244,7 @@ function GridSession({
     userCells,
     initialSelectedHours: selectedHours,
     onSelectionChange: setSelectedHours,
-    initialFocusHourIndex: sharedEvent
-      ? timelineDates.findIndex((date) => date.getTime() === sharedEvent.start)
-        + Math.floor((sharedEvent.end - sharedEvent.start) / 7200000)
-      : anchorDate ? timelineDates.findIndex((date) => date.getTime() === anchorDate.getTime()) : undefined,
+    initialFocusHourIndex: getInitialFocusHourIndex(timelineDates, sharedEvent, anchorDate),
     onAddCityClick: () => setIsAddCityModalOpen(true),
     onColorModeButtonClick,
     onDeleteCity: handleDeleteCity,
@@ -229,7 +262,10 @@ function GridSession({
         onDragEnd={handleDragEnd}
         onDragStart={() => setIsDragging(true)}
       >
-        <SortableContext items={cityIds} strategy={verticalListSortingStrategy}>
+        <SortableContext
+          items={cityIds}
+          strategy={verticalListSortingStrategy}
+        >
           <View {...shellProps} />
         </SortableContext>
       </DndContext>

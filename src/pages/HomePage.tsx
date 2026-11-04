@@ -126,13 +126,13 @@ export default function HomePage({
               className="downloadLink downloadLink_appStore"
               aria-label={t('common.appStore')}
               target="_blank"
-            ></a>
+            />
             <a
               href={GOOGLE_PLAY_URL}
               className="downloadLink downloadLink_googlePlay"
               data-coming-soon={t('common.comingSoon')}
               aria-label={t('common.googlePlay')}
-            ></a>
+            />
           </div>
         </div>
       </section>

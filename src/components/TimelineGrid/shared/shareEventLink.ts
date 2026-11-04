@@ -8,7 +8,9 @@ export async function shareEventLink(url: string, browser: ShareBrowser): Promis
   const data = { url };
   let canShare = typeof browser.share === 'function';
   try {
-    if (browser.canShare) canShare = canShare && browser.canShare(data);
+    if (browser.canShare) {
+      canShare = canShare && browser.canShare(data);
+    }
   } catch {
     canShare = false;
   }
@@ -18,10 +20,14 @@ export async function shareEventLink(url: string, browser: ShareBrowser): Promis
       await browser.share(data);
       return 'shared';
     } catch (error) {
-      if (error instanceof Error && error.name === 'AbortError') return 'cancelled';
+      if (error instanceof Error && error.name === 'AbortError') {
+        return 'cancelled';
+      }
     }
   }
-  if (!browser.clipboard) throw new Error('Clipboard unavailable');
+  if (!browser.clipboard) {
+    throw new Error('Clipboard unavailable');
+  }
   await browser.clipboard.writeText(url);
   return 'copied';
 }

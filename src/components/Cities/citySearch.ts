@@ -51,16 +51,15 @@ type CitySearchData = CitiesSearchJson & {
   distinctTimezones: string[];
 };
 
-type ParsedGmtOffsetQuery =
-  | {
-      kind: 'exact';
-      offsetMinutes: number;
-    }
-  | {
-      kind: 'prefix';
-      sign: '+' | '-';
-      hours: number;
-    };
+type ParsedGmtOffsetQuery = | {
+  kind: 'exact';
+  offsetMinutes: number;
+}
+| {
+  kind: 'prefix';
+  sign: '+' | '-';
+  hours: number;
+};
 
 const CITY_SEARCH_DATA_URL = '/data/cities-search.json';
 const SEARCH_RESULTS_LIMIT = 30;

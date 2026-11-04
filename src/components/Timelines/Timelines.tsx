@@ -13,5 +13,10 @@ type TimelinesProps = {
 };
 
 export default function Timelines(props: TimelinesProps) {
-  return <TimelineGrid {...props} presentation="embedded" />;
+  return (
+    <TimelineGrid
+      {...props}
+      presentation="embedded"
+    />
+  );
 }

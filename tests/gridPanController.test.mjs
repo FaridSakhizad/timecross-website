@@ -19,6 +19,7 @@ class FakeViewport extends EventTarget {
     this.captured.delete(id);
     emit(this, 'lostpointercapture', { pointerId: id });
   }
+
   scrollTo(options) {
     this.scrollCalls.push(options);
     this.scrollLeft = options.left;
@@ -29,8 +30,14 @@ class FakeViewport extends EventTarget {
 function emit(target, type, values = {}) {
   const event = new Event(type, { cancelable: true });
   Object.assign(event, {
-    pointerType: 'mouse', isPrimary: true, pointerId: 1,
-    button: 0, buttons: type === 'pointerup' ? 0 : 1, clientX: 100, clientY: 100, detail: 1,
+    pointerType: 'mouse',
+    isPrimary: true,
+    pointerId: 1,
+    button: 0,
+    buttons: type === 'pointerup' ? 0 : 1,
+    clientX: 100,
+    clientY: 100,
+    detail: 1,
     ...values,
   });
   target.dispatchEvent(event);
@@ -48,13 +55,18 @@ beforeEach(() => {
   globalThis.Element = FakeViewport;
   viewport = new FakeViewport();
   active = false;
-  controller = attachDesktopGridPan(viewport, (value) => { active = value; });
+  controller = attachDesktopGridPan(viewport, (value) => {
+    active = value;
+  });
 });
 afterEach(() => {
   controller.destroy();
   for (const [key, descriptor] of originalGlobals) {
-    if (descriptor) Object.defineProperty(globalThis, key, descriptor);
-    else delete globalThis[key];
+    if (descriptor) {
+      Object.defineProperty(globalThis, key, descriptor);
+    } else {
+      delete globalThis[key];
+    }
   }
 });
 
@@ -83,8 +95,14 @@ test('small movements remain clicks and do not move the grid', () => {
 
 test('interactive controls, modified clicks, touch and other pointers are ignored', () => {
   for (const values of [
-    { pointerType: 'touch' }, { pointerType: 'pen' }, { button: 2 },
-    { ctrlKey: true }, { metaKey: true }, { altKey: true }, { shiftKey: true }, { isPrimary: false },
+    { pointerType: 'touch' },
+    { pointerType: 'pen' },
+    { button: 2 },
+    { ctrlKey: true },
+    { metaKey: true },
+    { altKey: true },
+    { shiftKey: true },
+    { isPrimary: false },
   ]) {
     emit(viewport, 'pointerdown', values);
     assert.equal(active, false);
@@ -107,7 +125,10 @@ test('cancel, capture loss, lost buttons, blur and hidden document end the inter
     () => viewport.releasePointerCapture(1),
     () => emit(window, 'pointermove', { buttons: 0 }),
     () => emit(window, 'blur'),
-    () => { document.visibilityState = 'hidden'; emit(document, 'visibilitychange'); },
+    () => {
+      document.visibilityState = 'hidden';
+      emit(document, 'visibilitychange');
+    },
   ]) {
     document.visibilityState = 'visible';
     emit(viewport, 'pointerdown');
@@ -163,7 +184,9 @@ test('destroy during a drag releases capture and removes handlers', () => {
 
 test('middle-button dragging works with left-button Pan disabled and suppresses autoscroll', () => {
   controller.destroy();
-  controller = attachDesktopGridPan(viewport, (value) => { active = value; }, false);
+  controller = attachDesktopGridPan(viewport, (value) => {
+    active = value;
+  }, false);
   emit(viewport, 'pointerdown');
   assert.equal(active, false);
   const down = emit(viewport, 'pointerdown', { button: 1, buttons: 4 });

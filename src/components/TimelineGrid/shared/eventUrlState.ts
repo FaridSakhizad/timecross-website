@@ -17,7 +17,9 @@ export type SharedGridEvent = {
 
 function validTimezone(timezone: string) {
   if (timezone.startsWith('GMT_OFFSET:')) {
-    if (!/^GMT_OFFSET:-?\d+$/.test(timezone)) return false;
+    if (!/^GMT_OFFSET:-?\d+$/.test(timezone)) {
+      return false;
+    }
     const minutes = getAbstractTimezoneOffsetMinutes(timezone);
     return minutes !== null && Number.isInteger(minutes) && Math.abs(minutes) <= 14 * 60;
   }
@@ -30,27 +32,51 @@ function validTimezone(timezone: string) {
 }
 
 export function readGridEventUrlState(hash: string): SharedGridEvent | null {
-  if (hash.length > MAX_HASH_LENGTH) return null;
+  if (hash.length > MAX_HASH_LENGTH) {
+    return null;
+  }
   const raw = new URLSearchParams(hash.replace(/^#/, '')).get('event');
-  if (!raw) return null;
+  if (!raw) {
+    return null;
+  }
   try {
     const data = JSON.parse(raw);
-    if (!data || data.v !== 1 || !Number.isInteger(data.s) || !Number.isInteger(data.e)) return null;
+    if (!data || data.v !== 1 || !Number.isInteger(data.s) || !Number.isInteger(data.e)) {
+      return null;
+    }
     const start = data.s * 1000;
     const end = data.e * 1000;
     if (start < MIN_DATE || end > MAX_DATE || start % GRID_HOUR_MS !== 0 || end % GRID_HOUR_MS !== 0
-      || end <= start || end - start > TIMELINE_RENDERED_HOURS * GRID_HOUR_MS) return null;
-    if (!Array.isArray(data.c) || !data.c.length || data.c.length > MAX_CITIES) return null;
+      || end <= start || end - start > TIMELINE_RENDERED_HOURS * GRID_HOUR_MS) {
+      return null;
+    }
+    if (!Array.isArray(data.c) || !data.c.length || data.c.length > MAX_CITIES) {
+      return null;
+    }
     const cities: FavoriteCity[] = [];
     for (const [index, entry] of data.c.entries()) {
-      if (!Array.isArray(entry) || entry.length < 2 || entry.length > 4) return null;
+      if (!Array.isArray(entry) || entry.length < 2 || entry.length > 4) {
+        return null;
+      }
       const [city, timezone, cityId = '', customName = ''] = entry;
       if (typeof city !== 'string' || !city.trim() || city.length > 200
         || typeof timezone !== 'string' || !timezone || timezone.length > 100 || !validTimezone(timezone)
         || typeof cityId !== 'string' || cityId.length > 100
-        || typeof customName !== 'string' || customName.length > 200) return null;
-      cities.push({ id: `shared-${index}`, city, timezone, cityId: cityId || undefined, customName,
-        order: index, utcOffset: '', timeOffset: '', time: '', period: 'day' });
+        || typeof customName !== 'string' || customName.length > 200) {
+        return null;
+      }
+      cities.push({
+        id: `shared-${index}`,
+        city,
+        timezone,
+        cityId: cityId || undefined,
+        customName,
+        order: index,
+        utcOffset: '',
+        timeOffset: '',
+        time: '',
+        period: 'day',
+      });
     }
     const hours = cities.flatMap((city) => Array.from({ length: (end - start) / GRID_HOUR_MS }, (_, index) => (
       { rowId: city.id, start: start + index * GRID_HOUR_MS }
@@ -64,17 +90,29 @@ export function readGridEventUrlState(hash: string): SharedGridEvent | null {
 export function buildGridEventUrl(baseUrl: string, cities: FavoriteCity[], hours: SelectedGridHour[]): string | null {
   const ranges = getGridHourRanges(hours);
   const first = ranges[0];
-  if (!first || ranges.some((range) => range.start !== first.start || range.end !== first.end)) return null;
+  if (!first || ranges.some((range) => range.start !== first.start || range.end !== first.end)) {
+    return null;
+  }
   const selectedIds = new Set(ranges.map((range) => range.rowId));
   const selectedCities = cities.filter((city) => selectedIds.has(city.id));
-  if (selectedCities.length !== selectedIds.size) return null;
-  const data = { v: 1, s: first.start / 1000, e: first.end / 1000,
+  if (selectedCities.length !== selectedIds.size) {
+    return null;
+  }
+  const data = {
+    v: 1,
+    s: first.start / 1000,
+    e: first.end / 1000,
     c: selectedCities.map((city) => {
       const entry = [city.city, city.timezone];
-      if (city.cityId || city.customName) entry.push(city.cityId ?? '');
-      if (city.customName) entry.push(city.customName);
+      if (city.cityId || city.customName) {
+        entry.push(city.cityId ?? '');
+      }
+      if (city.customName) {
+        entry.push(city.customName);
+      }
       return entry;
-    }) };
+    }),
+  };
   const url = new URL(baseUrl);
   url.search = '';
   url.hash = new URLSearchParams({ event: JSON.stringify(data) }).toString();

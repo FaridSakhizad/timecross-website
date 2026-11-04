@@ -21,10 +21,14 @@ export function attachDesktopGridPan(
   let suppressAuxClick = false;
   const cancel = () => {
     const previous = session;
-    if (!previous) return;
+    if (!previous) {
+      return;
+    }
     session = null;
     onInteractionChange(false);
-    if (viewport.hasPointerCapture(previous.pointerId)) viewport.releasePointerCapture(previous.pointerId);
+    if (viewport.hasPointerCapture(previous.pointerId)) {
+      viewport.releasePointerCapture(previous.pointerId);
+    }
   };
   const start = (event: PointerEvent) => {
     suppressClick = false;
@@ -34,12 +38,18 @@ export function attachDesktopGridPan(
       || !(isMiddleButton || (event.button === 0 && leftButtonEnabled))
       || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey
       || session || !(event.target instanceof Element)
-      || event.target.closest(INTERACTIVE_TARGET)) return;
+      || event.target.closest(INTERACTIVE_TARGET)) {
+      return;
+    }
     // Stop any smooth snap before measuring the drag's starting position.
     viewport.scrollTo({ left: viewport.scrollLeft, top: viewport.scrollTop, behavior: 'instant' });
     session = {
-      pointerId: event.pointerId, x: event.clientX, y: event.clientY,
-      scrollLeft: viewport.scrollLeft, scrollTop: viewport.scrollTop, moved: false,
+      pointerId: event.pointerId,
+      x: event.clientX,
+      y: event.clientY,
+      scrollLeft: viewport.scrollLeft,
+      scrollTop: viewport.scrollTop,
+      moved: false,
       buttonsMask: isMiddleButton ? 4 : 1,
     };
     suppressAuxClick = isMiddleButton;
@@ -48,11 +58,18 @@ export function attachDesktopGridPan(
     event.preventDefault();
   };
   const move = (event: PointerEvent) => {
-    if (!session || session.pointerId !== event.pointerId) return;
-    if (!(event.buttons & session.buttonsMask)) { cancel(); return; }
+    if (!session || session.pointerId !== event.pointerId) {
+      return;
+    }
+    if (!(event.buttons & session.buttonsMask)) {
+      cancel();
+      return;
+    }
     const dx = event.clientX - session.x;
     const dy = event.clientY - session.y;
-    if (!session.moved && Math.hypot(dx, dy) < PAN_THRESHOLD) return;
+    if (!session.moved && Math.hypot(dx, dy) < PAN_THRESHOLD) {
+      return;
+    }
     session.moved = true;
     suppressClick = session.buttonsMask === 1;
     event.preventDefault();
@@ -60,27 +77,41 @@ export function attachDesktopGridPan(
     viewport.scrollTop = session.scrollTop - dy;
   };
   const finish = (event: PointerEvent) => {
-    if (event.type === 'pointerup' && session && (event.buttons & session.buttonsMask)) return;
-    if (session?.pointerId === event.pointerId) cancel();
+    if (event.type === 'pointerup' && session && (event.buttons & session.buttonsMask)) {
+      return;
+    }
+    if (session?.pointerId === event.pointerId) {
+      cancel();
+    }
   };
   const handleAuxClick = (event: MouseEvent) => {
-    if (event.button !== 1 || !suppressAuxClick) return;
+    if (event.button !== 1 || !suppressAuxClick) {
+      return;
+    }
     suppressAuxClick = false;
     event.preventDefault();
     event.stopImmediatePropagation();
   };
   const handleClick = (event: MouseEvent) => {
-    if (event.detail === 0 || !suppressClick) return;
+    if (event.detail === 0 || !suppressClick) {
+      return;
+    }
     suppressClick = false;
-    if (event.target instanceof Element && event.target.closest(INTERACTIVE_TARGET)) return;
+    if (event.target instanceof Element && event.target.closest(INTERACTIVE_TARGET)) {
+      return;
+    }
     event.preventDefault();
     event.stopImmediatePropagation();
   };
   const preventNativeDrag = (event: DragEvent) => {
-    if (session) event.preventDefault();
+    if (session) {
+      event.preventDefault();
+    }
   };
   const handleVisibility = () => {
-    if (document.visibilityState === 'hidden') cancel();
+    if (document.visibilityState === 'hidden') {
+      cancel();
+    }
   };
   viewport.addEventListener('pointerdown', start);
   viewport.addEventListener('lostpointercapture', finish);

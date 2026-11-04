@@ -14,7 +14,9 @@ export function useDesktopGridPan(
 
   useEffect(() => {
     const viewport = viewportRef.current;
-    if (blocked || !viewport) return;
+    if (blocked || !viewport) {
+      return;
+    }
     const controller = attachDesktopGridPan(viewport, (active) => {
       // Stop pending snaps synchronously, before React updates the UI.
       interactionRef.current = active;

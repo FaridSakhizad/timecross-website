@@ -3,7 +3,7 @@ import {
   CONTACT_FORM_FROM_EMAIL,
   CONTACT_FORM_TO_EMAIL,
   SITE_NAME,
-} from "../src/config";
+} from '../src/config';
 
 import {
   CONTACT_RATE_LIMIT_PERIOD_SECONDS,
@@ -11,22 +11,23 @@ import {
   isWithinRateLimit,
   verifyTurnstileToken,
   type TurnstileVerification,
-} from "./contactProtection";
-import { render } from "./entry-server";
+} from './contactProtection';
+import { render } from './entry-server';
+import { loadDictionary } from '../src/i18n/dictionaries';
 
 import {
   getAlternateLinks,
   getSeoJsonLd,
   getSeoMetadata,
-} from "../src/seoMetadata";
+} from '../src/seoMetadata';
 import {
   getCanonicalLanguagePath,
   getLanguageFromAcceptLanguage,
   getLanguageFromPathname,
   isLocalizedPagePath,
   stripLanguageFromPathname,
-} from "../src/i18n/languageRouting";
-import type { AppLanguage } from "../src/settings";
+} from '../src/i18n/languageRouting';
+import type { AppLanguage } from '../src/settings';
 
 type ContactRequest = {
   name: string;
@@ -56,32 +57,32 @@ function jsonResponse(
   return Response.json(body, { status, headers });
 }
 
-const TURNSTILE_FAILURE_RESPONSES: Record<Exclude<TurnstileVerification, { ok: true }>["reason"], {
+const TURNSTILE_FAILURE_RESPONSES: Record<Exclude<TurnstileVerification, { ok: true }>['reason'], {
   status: number;
   code: string;
 }> = {
-  "not-configured": { status: 503, code: "unavailable" },
-  unavailable: { status: 502, code: "unavailable" },
-  "missing-token": { status: 403, code: "verification-failed" },
-  rejected: { status: 403, code: "verification-failed" },
-  "wrong-action": { status: 403, code: "verification-failed" },
-  "wrong-hostname": { status: 403, code: "verification-failed" },
+  'not-configured': { status: 503, code: 'unavailable' },
+  unavailable: { status: 502, code: 'unavailable' },
+  'missing-token': { status: 403, code: 'verification-failed' },
+  rejected: { status: 403, code: 'verification-failed' },
+  'wrong-action': { status: 403, code: 'verification-failed' },
+  'wrong-hostname': { status: 403, code: 'verification-failed' },
 };
 
 function isContactRequest(value: unknown): value is ContactRequest {
-  if (!value || typeof value !== "object") {
+  if (!value || typeof value !== 'object') {
     return false;
   }
 
   const data = value as Record<string, unknown>;
 
   return (
-    typeof data.name === "string" &&
-    typeof data.email === "string" &&
-    typeof data.message === "string" &&
-    (data.website === undefined || typeof data.website === "string") &&
-    (data.startedAt === undefined || typeof data.startedAt === "number") &&
-    (data.turnstileToken === undefined || typeof data.turnstileToken === "string")
+    typeof data.name === 'string'
+    && typeof data.email === 'string'
+    && typeof data.message === 'string'
+    && (data.website === undefined || typeof data.website === 'string')
+    && (data.startedAt === undefined || typeof data.startedAt === 'number')
+    && (data.turnstileToken === undefined || typeof data.turnstileToken === 'string')
   );
 }
 
@@ -90,12 +91,12 @@ function isLikelySpam(body: ContactRequest) {
     return true;
   }
 
-  return typeof body.startedAt === "number" && Date.now() - body.startedAt < CONTACT_MIN_FILL_TIME_MS;
+  return typeof body.startedAt === 'number' && Date.now() - body.startedAt < CONTACT_MIN_FILL_TIME_MS;
 }
 
 /** Removes line breaks so user input cannot add lines to email headers such as Subject. */
 function toSingleLine(value: string) {
-  return value.replace(/[\r\n]+/g, " ");
+  return value.replace(/[\r\n]+/g, ' ');
 }
 
 function isValidEmail(email: string): boolean {
@@ -103,27 +104,27 @@ function isValidEmail(email: string): boolean {
 }
 
 function isSpaNavigationRequest(request: Request, url: URL) {
-  if (request.method !== "GET" && request.method !== "HEAD") {
+  if (request.method !== 'GET' && request.method !== 'HEAD') {
     return false;
   }
 
-  if (url.pathname.includes(".")) {
+  if (url.pathname.includes('.')) {
     return false;
   }
 
-  return request.headers.get("accept")?.includes("text/html") ?? false;
+  return request.headers.get('accept')?.includes('text/html') ?? false;
 }
 
 function escapeHtml(value: string) {
   return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 
 function getPreferredLanguage(request: Request): AppLanguage {
-  return getLanguageFromAcceptLanguage(request.headers.get("accept-language"));
+  return getLanguageFromAcceptLanguage(request.headers.get('accept-language'));
 }
 
 function getRedirectResponse(request: Request, url: URL) {
@@ -131,7 +132,7 @@ function getRedirectResponse(request: Request, url: URL) {
     return null;
   }
 
-  const pathnameParts = url.pathname.split("/").filter(Boolean);
+  const pathnameParts = url.pathname.split('/').filter(Boolean);
   const firstPathPart = pathnameParts[0];
   const routeLanguage = getLanguageFromPathname(url.pathname);
   const pagePath = stripLanguageFromPathname(url.pathname);
@@ -140,15 +141,15 @@ function getRedirectResponse(request: Request, url: URL) {
     return Response.redirect(new URL(getCanonicalLanguagePath(getPreferredLanguage(request), pagePath), url), 302);
   }
 
-  if (firstPathPart === "uk") {
-    return Response.redirect(new URL(getCanonicalLanguagePath(routeLanguage ?? "en", pagePath), url), 302);
+  if (firstPathPart === 'uk') {
+    return Response.redirect(new URL(getCanonicalLanguagePath(routeLanguage ?? 'en', pagePath), url), 302);
   }
 
   if (!routeLanguage && isLocalizedPagePath(url.pathname)) {
     return Response.redirect(new URL(getCanonicalLanguagePath(getPreferredLanguage(request), pagePath), url), 302);
   }
 
-  if (firstPathPart && !routeLanguage && !url.pathname.startsWith("/api/") && !url.pathname.includes(".")) {
+  if (firstPathPart && !routeLanguage && !url.pathname.startsWith('/api/') && !url.pathname.includes('.')) {
     return Response.redirect(new URL(getCanonicalLanguagePath(getPreferredLanguage(request)), url), 302);
   }
 
@@ -158,10 +159,10 @@ function getRedirectResponse(request: Request, url: URL) {
 function getManagedHead(metadata: ReturnType<typeof getSeoMetadata>, pathname: string) {
   const alternateLinks = getAlternateLinks(pathname)
     .map((link) => `<link rel="alternate" hreflang="${escapeHtml(link.hreflang)}" href="${escapeHtml(link.href)}" data-managed-seo="true" />`)
-    .join("\n    ");
+    .join('\n    ');
   const jsonLd = getSeoJsonLd(metadata.language, pathname)
-    .map((schema) => `<script type="application/ld+json" data-managed-seo="true" data-seo-id="${escapeHtml(schema.id)}">${JSON.stringify(schema.value).replace(/</g, "\\u003c")}</script>`)
-    .join("\n    ");
+    .map((schema) => `<script type="application/ld+json" data-managed-seo="true" data-seo-id="${escapeHtml(schema.id)}">${JSON.stringify(schema.value).replace(/</g, '\\u003c')}</script>`)
+    .join('\n    ');
 
   return [
     `<meta name="description" content="${escapeHtml(metadata.description)}" data-managed-seo="true" />`,
@@ -182,7 +183,7 @@ function getManagedHead(metadata: ReturnType<typeof getSeoMetadata>, pathname: s
     `<meta name="twitter:image" content="${escapeHtml(metadata.imageUrl)}" data-managed-seo="true" />`,
     alternateLinks,
     jsonLd,
-  ].filter(Boolean).join("\n    ");
+  ].filter(Boolean).join('\n    ');
 }
 
 function injectSsrHtml(template: string, appHtml: string, metadata: ReturnType<typeof getSeoMetadata>, pathname: string) {
@@ -195,15 +196,18 @@ function injectSsrHtml(template: string, appHtml: string, metadata: ReturnType<t
       `<html${before}lang="${metadata.language}"${after}>`
     ))
     .replace(/<title>.*?<\/title>/s, () => `<title>${escapeHtml(metadata.title)}</title>`)
-    .replace(/\n?\s*<(?:meta|link)[^>]+data-managed-seo="true"[^>]*>/g, "")
-    .replace(/\n?\s*<script[^>]+data-managed-seo="true"[^>]*>.*?<\/script>/gs, "")
-    .replace("</head>", () => `    ${managedHead}\n</head>`)
+    .replace(/\n?\s*<(?:meta|link)[^>]+data-managed-seo="true"[^>]*>/g, '')
+    .replace(/\n?\s*<script[^>]+data-managed-seo="true"[^>]*>.*?<\/script>/gs, '')
+    .replace('</head>', () => `    ${managedHead}\n</head>`)
     .replace('<div id="root"></div>', () => `<div id="root">${appHtml}</div>`);
 }
 
 async function serveSsrPage(request: Request, env: Env, url: URL) {
   const language = getLanguageFromPathname(url.pathname) ?? getPreferredLanguage(request);
-  const indexUrl = new URL("/", url);
+
+  // Translations other than English are separate chunks; SSR renders synchronously, so load first.
+  await loadDictionary(language);
+  const indexUrl = new URL('/', url);
   const indexRequest = new Request(indexUrl, request);
   const templateResponse = await env.ASSETS.fetch(indexRequest);
 
@@ -217,9 +221,9 @@ async function serveSsrPage(request: Request, env: Env, url: URL) {
   const html = injectSsrHtml(template, appHtml, metadata, url.pathname);
   const headers = new Headers(templateResponse.headers);
 
-  headers.set("content-type", "text/html; charset=utf-8");
+  headers.set('content-type', 'text/html; charset=utf-8');
 
-  return new Response(request.method === "HEAD" ? null : html, {
+  return new Response(request.method === 'HEAD' ? null : html, {
     headers,
     status: templateResponse.status,
   });
@@ -244,9 +248,9 @@ async function serveStaticAsset(request: Request, env: Env, url: URL) {
 }
 
 async function handleContactRequest(request: Request, env: Env): Promise<Response> {
-  if (request.method !== "POST") {
+  if (request.method !== 'POST') {
     return jsonResponse(
-      { ok: false, error: "Method not allowed" },
+      { ok: false, error: 'Method not allowed' },
       405,
     );
   }
@@ -255,12 +259,12 @@ async function handleContactRequest(request: Request, env: Env): Promise<Respons
 
   // Checked before reading the body, so floods cost as little as possible.
   if (!await isWithinRateLimit(env.CONTACT_RATE_LIMITER, `contact:${clientIp}`)) {
-    console.warn("Contact form rate limit hit:", { ip: clientIp });
+    console.warn('Contact form rate limit hit:', { ip: clientIp });
 
     return jsonResponse(
-      { ok: false, error: "Too many requests", code: "rate-limited" },
+      { ok: false, error: 'Too many requests', code: 'rate-limited' },
       429,
-      { "retry-after": String(CONTACT_RATE_LIMIT_PERIOD_SECONDS) },
+      { 'retry-after': String(CONTACT_RATE_LIMIT_PERIOD_SECONDS) },
     );
   }
 
@@ -270,14 +274,14 @@ async function handleContactRequest(request: Request, env: Env): Promise<Respons
     body = await request.json();
   } catch {
     return jsonResponse(
-      { ok: false, error: "Invalid JSON" },
+      { ok: false, error: 'Invalid JSON' },
       400,
     );
   }
 
   if (!isContactRequest(body)) {
     return jsonResponse(
-      { ok: false, error: "Invalid request body" },
+      { ok: false, error: 'Invalid request body' },
       400,
     );
   }
@@ -293,28 +297,28 @@ async function handleContactRequest(request: Request, env: Env): Promise<Respons
 
   if (!name || !email || !message) {
     return jsonResponse(
-      { ok: false, error: "All fields are required" },
+      { ok: false, error: 'All fields are required' },
       400,
     );
   }
 
   if (name.length > 100) {
     return jsonResponse(
-      { ok: false, error: "Name is too long" },
+      { ok: false, error: 'Name is too long' },
       400,
     );
   }
 
   if (!isValidEmail(email) || email.length > 254) {
     return jsonResponse(
-      { ok: false, error: "Invalid email address" },
+      { ok: false, error: 'Invalid email address' },
       400,
     );
   }
 
   if (message.length > 5000) {
     return jsonResponse(
-      { ok: false, error: "Message is too long" },
+      { ok: false, error: 'Message is too long' },
       400,
     );
   }
@@ -330,17 +334,17 @@ async function handleContactRequest(request: Request, env: Env): Promise<Respons
   if (!verification.ok) {
     const failure = TURNSTILE_FAILURE_RESPONSES[verification.reason];
 
-    if (verification.reason === "not-configured") {
-      console.error("TURNSTILE_SECRET_KEY is not set; the contact form rejects every message.");
+    if (verification.reason === 'not-configured') {
+      console.error('TURNSTILE_SECRET_KEY is not set; the contact form rejects every message.');
     } else {
-      console.warn("Contact form Turnstile check failed:", {
+      console.warn('Contact form Turnstile check failed:', {
         reason: verification.reason,
         errorCodes: verification.errorCodes,
       });
     }
 
     return jsonResponse(
-      { ok: false, error: "Verification failed", code: failure.code },
+      { ok: false, error: 'Verification failed', code: failure.code },
       failure.status,
     );
   }
@@ -359,26 +363,26 @@ async function handleContactRequest(request: Request, env: Env): Promise<Respons
       subject: `${SITE_NAME} contact form: ${name}`,
       text: [
         `New message from the ${SITE_NAME} website`,
-        "",
+        '',
         `Name: ${name}`,
         `Email: ${email}`,
-        "",
-        "Message:",
+        '',
+        'Message:',
         message,
-      ].join("\n"),
+      ].join('\n'),
     });
 
-    console.log("Contact email sent:", { messageId: result.messageId });
+    console.log('Contact email sent:', { messageId: result.messageId });
 
     // Only a success flag goes back to the browser; delivery details stay in the logs.
     return jsonResponse({ ok: true });
   } catch (error) {
-    console.error("Contact email failed:", error);
+    console.error('Contact email failed:', error);
 
     return jsonResponse(
       {
         ok: false,
-        error: "Unable to send message",
+        error: 'Unable to send message',
       },
       500,
     );
@@ -393,8 +397,8 @@ export default {
       return handleContactRequest(request, env);
     }
 
-    if (url.pathname.startsWith("/api/")) {
-      return new Response("Not Found", { status: 404 });
+    if (url.pathname.startsWith('/api/')) {
+      return new Response('Not Found', { status: 404 });
     }
 
     return serveStaticAsset(request, env, url);

@@ -31,16 +31,13 @@ export default function DesktopGrid(props: TimelineGridShellProps) {
   const { t } = useI18n();
   const canPan = panEnabled && !props.isEditMode && !props.isDragging;
   const { selectedHours, isSelecting, interactionRef: selectionInteractionRef, overlayRef, frameRef, clearSelection, createSelection } = useGridSelection(
-    timelineGridViewportRef, !panEnabled && !props.isEditMode && !props.isDragging,
-    JSON.stringify([props.timelineDates[0]?.getTime(), props.cities.map((city) => city.id)]),
-    props.isEditMode || props.isDragging,
-    props.initialSelectedHours,
-    props.onSelectionChange,
+    timelineGridViewportRef, !panEnabled && !props.isEditMode && !props.isDragging, JSON.stringify([props.timelineDates[0]?.getTime(), props.cities.map((city) => city.id)]), props.isEditMode || props.isDragging, props.initialSelectedHours, props.onSelectionChange,
   );
   const selectedHourKeys = useMemo(() => new Set(selectedHours.map(gridHourKey)), [selectedHours]);
   const calendarEvent = buildGridCalendarEvent(selectedHours,
     props.cities.map((city) => ({ id: city.id, name: getCityDisplayName(city), timezone: city.timezone })),
-    props.browserTimezone, t('common.calendarEventTitle'));
+    props.browserTimezone,
+    t('common.calendarEventTitle'));
   const { isPanning, interactionRef, cancelPan } = useDesktopGridPan(
     timelineGridViewportRef, canPan, undefined, props.isEditMode || props.isDragging,
   );
@@ -51,7 +48,9 @@ export default function DesktopGrid(props: TimelineGridShellProps) {
   const interactionActive = isPanning || isScrollbarDragging || isSelecting;
   const scrollbarCenterHourIndex = props.initialFocusHourIndex ?? props.currentUserHourIndex;
   const getScrollbarMetrics = useCallback((axis: 'horizontal' | 'vertical', viewport: HTMLDivElement) => {
-    if (axis === 'vertical') return undefined;
+    if (axis === 'vertical') {
+      return undefined;
+    }
 
     const anchor = viewport.querySelectorAll<HTMLElement>('.timelineGrid-hour')[scrollbarCenterHourIndex];
     const maxScrollOffset = Math.max(0, viewport.scrollWidth - viewport.clientWidth);
@@ -65,7 +64,9 @@ export default function DesktopGrid(props: TimelineGridShellProps) {
   }, [scrollbarCenterHourIndex]);
 
   useEffect(() => {
-    if (!panEnabled) return;
+    if (!panEnabled) {
+      return;
+    }
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         cancelPan();
@@ -93,73 +94,86 @@ export default function DesktopGrid(props: TimelineGridShellProps) {
   );
 
   const toolbar = (
-    <DesktopToolbar {...props}
-      panEnabled={canPan} panDisabled={props.isEditMode || props.isDragging}
-      onPanToggle={() => { cancelPan(); setPanEnabled((value) => !value); }}
+    <DesktopToolbar
+      {...props}
+      panEnabled={canPan}
+      panDisabled={props.isEditMode || props.isDragging}
+      onPanToggle={() => {
+        cancelPan();
+        setPanEnabled((value) => !value);
+      }}
       onEditModeToggle={() => {
         clearSelection();
         cancelPan();
         setPanEnabled(false);
         props.onEditModeToggle();
       }}
-      onResetClick={() => { clearSelection(); cancelPan(); resetGridScroll(); props.onReset?.(); }} />
+      onResetClick={() => {
+        clearSelection();
+        cancelPan();
+        resetGridScroll();
+        props.onReset?.();
+      }}
+    />
   );
 
   return (
     <div className={props.presentation === 'embedded' ? 'widget timelinesEmbedded' : 'widget timelinesZen'}>
       {toolbar}
-      <div
-        className={[
-          'widgetContent timelineGrid',
-          canPan ? 'timelineGrid_panEnabled' : '',
-          props.isEditMode ? 'timelineGrid_editMode' : '',
-          props.isDragging ? 'timelineGrid_dragging' : '',
-        ].filter(Boolean).join(' ')}
+      <div className={[
+        'widgetContent timelineGrid',
+        canPan ? 'timelineGrid_panEnabled' : '',
+        props.isEditMode ? 'timelineGrid_editMode' : '',
+        props.isDragging ? 'timelineGrid_dragging' : '',
+      ].filter(Boolean).join(' ')}
       >
-      <CustomScrollbar
-        className="timelineGrid-scroll"
-        contentClassName="timelineGrid-scrollViewport"
-        contentRef={(element) => {
-          timelineGridViewportRef.current = element;
-        }}
-        mode="both"
-        verticalTrackTop={GRID_VERTICAL_SCROLLBAR_TOP}
-        verticalTrackBottom={GRID_VERTICAL_SCROLLBAR_BOTTOM}
-        horizontalTrackLeft={GRID_HORIZONTAL_SCROLLBAR_LEFT}
-        horizontalTrackRight={GRID_HORIZONTAL_SCROLLBAR_RIGHT}
-        getScrollbarMetrics={getScrollbarMetrics}
-        onThumbDragStart={() => {
-          scrollbarInteractionRef.current = true;
-          setIsScrollbarDragging(true);
-        }}
-        onThumbDragEnd={() => {
-          scrollbarInteractionRef.current = false;
-          setIsScrollbarDragging(false);
-        }}
-      >
-        <div className="timelineGrid-content">
-          <DesktopTimeline
-            baseDate={props.baseDate}
-            browserTimezone={props.browserTimezone}
-            cities={props.cities}
-            isEditMode={props.isEditMode}
-            timelineDates={props.timelineDates}
-            timeFormat={props.timeFormat}
-            userCells={props.userCells}
-            selectedHourKeys={selectedHourKeys}
-            onAddCityClick={props.onAddCityClick}
-            onDeleteCity={props.onDeleteCity}
-          />
-          <DesktopSelectionOverlay overlayRef={overlayRef} frameRef={frameRef} />
-        </div>
-        <div className="timelineCitiesBackdrop" />
-        <div className="timelineGridMiddleMarker" />
-        <div className="timelineGridMiddleHoursMarker" />
-      </CustomScrollbar>
-      <TimelineGridActiveHourIndicator
-        direction={activeHourDirection}
-        onClick={scrollActiveHourIntoView}
-      />
+        <CustomScrollbar
+          className="timelineGrid-scroll"
+          contentClassName="timelineGrid-scrollViewport"
+          contentRef={(element) => {
+            timelineGridViewportRef.current = element;
+          }}
+          mode="both"
+          verticalTrackTop={GRID_VERTICAL_SCROLLBAR_TOP}
+          verticalTrackBottom={GRID_VERTICAL_SCROLLBAR_BOTTOM}
+          horizontalTrackLeft={GRID_HORIZONTAL_SCROLLBAR_LEFT}
+          horizontalTrackRight={GRID_HORIZONTAL_SCROLLBAR_RIGHT}
+          getScrollbarMetrics={getScrollbarMetrics}
+          onThumbDragStart={() => {
+            scrollbarInteractionRef.current = true;
+            setIsScrollbarDragging(true);
+          }}
+          onThumbDragEnd={() => {
+            scrollbarInteractionRef.current = false;
+            setIsScrollbarDragging(false);
+          }}
+        >
+          <div className="timelineGrid-content">
+            <DesktopTimeline
+              baseDate={props.baseDate}
+              browserTimezone={props.browserTimezone}
+              cities={props.cities}
+              isEditMode={props.isEditMode}
+              timelineDates={props.timelineDates}
+              timeFormat={props.timeFormat}
+              userCells={props.userCells}
+              selectedHourKeys={selectedHourKeys}
+              onAddCityClick={props.onAddCityClick}
+              onDeleteCity={props.onDeleteCity}
+            />
+            <DesktopSelectionOverlay
+              overlayRef={overlayRef}
+              frameRef={frameRef}
+            />
+          </div>
+          <div className="timelineCitiesBackdrop" />
+          <div className="timelineGridMiddleMarker" />
+          <div className="timelineGridMiddleHoursMarker" />
+        </CustomScrollbar>
+        <TimelineGridActiveHourIndicator
+          direction={activeHourDirection}
+          onClick={scrollActiveHourIntoView}
+        />
       </div>
       <div className="widgetFooter">
         <div className="widgetFooter-backdrop">
@@ -169,7 +183,10 @@ export default function DesktopGrid(props: TimelineGridShellProps) {
           <i className="widgetFooter-backdropCorner trr" />
         </div>
         <div className="widgetFooterStart">
-          <HourNavButton direction="prev" viewportRef={timelineGridViewportRef} />
+          <HourNavButton
+            direction="prev"
+            viewportRef={timelineGridViewportRef}
+          />
         </div>
         <div className="widgetFooterMiddle">
           <button
@@ -177,22 +194,43 @@ export default function DesktopGrid(props: TimelineGridShellProps) {
             type="button"
             disabled={props.isEditMode || props.isDragging || !props.cities.length}
             onClick={() => {
-              if (selectedHours.length) { clearSelection(); return; }
+              if (selectedHours.length) {
+                clearSelection();
+                return;
+              }
               cancelPan();
-              if (createSelection()) setPanEnabled(false);
+              if (createSelection()) {
+                setPanEnabled(false);
+              }
             }}
             aria-label={t(selectedHours.length ? 'common.clearSelection' : 'common.selectHours')}
             title={t(selectedHours.length ? 'common.clearSelection' : 'common.selectHours')}
           >
-            {selectedHours.length ? <X size={16} aria-hidden="true" /> : <Scan size={16} aria-hidden="true" />}
+            {selectedHours.length
+              ? (
+                  <X
+                    size={16}
+                    aria-hidden="true"
+                  />
+                )
+              : (
+                  <Scan
+                    size={16}
+                    aria-hidden="true"
+                  />
+                )}
           </button>
           <GridCalendarActions
             event={props.isEditMode || props.isDragging ? null : calendarEvent}
-            cities={props.cities} hours={selectedHours}
+            cities={props.cities}
+            hours={selectedHours}
           />
         </div>
         <div className="widgetFooterEnd">
-          <HourNavButton direction="next" viewportRef={timelineGridViewportRef} />
+          <HourNavButton
+            direction="next"
+            viewportRef={timelineGridViewportRef}
+          />
         </div>
       </div>
     </div>

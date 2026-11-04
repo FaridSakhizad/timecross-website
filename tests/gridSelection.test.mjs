@@ -38,8 +38,7 @@ test('free resize stays inside the grid and never inverts or collapses the recta
 });
 
 test('Outlook receives the same instants and unmodified multilingual event text as Google Calendar', () => {
-  const event = buildGridCalendarEvent([...selected('ny'), ...selected('lon')], cities,
-    'America/Edmonton', 'Встреча & friends + team?');
+  const event = buildGridCalendarEvent([...selected('ny'), ...selected('lon')], cities, 'America/Edmonton', 'Встреча & friends + team?');
   const url = new URL(buildOutlookCalendarUrl(event));
   assert.equal(url.origin, 'https://outlook.live.com');
   assert.equal(url.pathname, '/calendar/0/deeplink/compose');
@@ -128,7 +127,8 @@ test('empty, invalid or removed rows cannot produce a calendar event', () => {
 const geometry = Array.from({ length: 4 }, (_, row) => Array.from({ length: 5 }, (_, col) => ({
   hour: { rowId: String(row), start: start + col * hour },
   rect: { left: col * 74, right: col * 74 + 64, top: row * 111 + 41, bottom: row * 111 + 105 },
-  rowTop: row * 111, rowBottom: (row + 1) * 111,
+  rowTop: row * 111,
+  rowBottom: (row + 1) * 111,
 }))).flat();
 const initial = geometry.filter((cell) => ['1', '2'].includes(cell.hour.rowId) && cell.hour.start >= start + hour && cell.hour.start <= start + 2 * hour).map((cell) => cell.hour);
 
@@ -146,14 +146,21 @@ test('side handles expand and shrink by whole hours or whole cities', () => {
 
 test('all eight handles keep their opposite edges fixed and never cross to zero cells', () => {
   for (const direction of ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw']) {
-    const result = resizeGridSelection(geometry, initial, direction, direction.includes('w') ? 9999 : -9999,
-      direction.includes('n') ? 9999 : -9999);
+    const result = resizeGridSelection(geometry, initial, direction, direction.includes('w') ? 9999 : -9999, direction.includes('n') ? 9999 : -9999);
     assert.ok(result.length >= 1);
     const bounds = getGridSelectionBounds(geometry, result);
-    if (!direction.includes('w')) assert.equal(bounds.left, 74);
-    if (!direction.includes('e')) assert.equal(bounds.right, 212);
-    if (!direction.includes('n')) assert.equal(bounds.top, 111);
-    if (!direction.includes('s')) assert.equal(bounds.bottom, 333);
+    if (!direction.includes('w')) {
+      assert.equal(bounds.left, 74);
+    }
+    if (!direction.includes('e')) {
+      assert.equal(bounds.right, 212);
+    }
+    if (!direction.includes('n')) {
+      assert.equal(bounds.top, 111);
+    }
+    if (!direction.includes('s')) {
+      assert.equal(bounds.bottom, 333);
+    }
   }
 });
 

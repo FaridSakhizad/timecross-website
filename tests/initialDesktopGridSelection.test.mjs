@@ -5,7 +5,8 @@ import { getInitialDesktopGridSelection } from '../src/components/TimelineGrid/d
 const cells = Array.from({ length: 8 }, (_, row) => Array.from({ length: 12 }, (_, col) => ({
   hour: { rowId: `r${row}`, start: col * 3600000 },
   rect: { left: col * 74, right: col * 74 + 64, top: row * 110 + 40, bottom: row * 110 + 104 },
-  rowTop: row * 110, rowBottom: row * 110 + 110,
+  rowTop: row * 110,
+  rowBottom: row * 110 + 110,
 }))).flat();
 
 test('desktop seed uses three centered hours and visible cities after both axes scroll', () => {

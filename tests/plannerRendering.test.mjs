@@ -25,20 +25,30 @@ const hooks = registerHooks({
       const path = fileURLToPath(new URL(specifier, context.parentURL));
       const file = [path, `${path}.ts`, `${path}.tsx`, `${path}/index.ts`, `${path}/index.tsx`]
         .find((candidate) => existsSync(candidate) && statSync(candidate).isFile());
-      if (file) return nextResolve(pathToFileURL(file).href, context);
+      if (file) {
+        return nextResolve(pathToFileURL(file).href, context);
+      }
     }
     return nextResolve(specifier, context);
   },
   load(url, context, nextLoad) {
-    if (!url.startsWith('file:')) return nextLoad(url, context);
+    if (!url.startsWith('file:')) {
+      return nextLoad(url, context);
+    }
     const path = fileURLToPath(url);
-    if (!path.startsWith(sourceRoot)) return nextLoad(url, context);
+    if (!path.startsWith(sourceRoot)) {
+      return nextLoad(url, context);
+    }
     const extension = extname(path);
     if (extension === '.ts' || extension === '.tsx') {
       const result = ts.transpileModule(readFileSync(path, 'utf8'), {
         fileName: path,
-        compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022,
-          jsx: ts.JsxEmit.ReactJSX, verbatimModuleSyntax: true },
+        compilerOptions: {
+          module: ts.ModuleKind.ESNext,
+          target: ts.ScriptTarget.ES2022,
+          jsx: ts.JsxEmit.ReactJSX,
+          verbatimModuleSyntax: true,
+        },
       });
       return { format: 'module', source: result.outputText, shortCircuit: true };
     }
@@ -62,17 +72,19 @@ const { useMobileWidgetLayout } = await import('../src/useMobileWidgetLayout.ts'
 const { default: GridCalendarActions } = await import('../src/components/TimelineGrid/shared/GridCalendarActions.tsx');
 const { buildGridEventUrl } = await import('../src/components/TimelineGrid/shared/eventUrlState.ts');
 
-const props = { colorMode: 'day', timeFormat: '24h',
-  onColorModeButtonClick() {}, onTimeFormatButtonClick() {} };
+const props = {
+  colorMode: 'day',
+  timeFormat: '24h',
+  onColorModeButtonClick() {},
+  onTimeFormatButtonClick() {},
+};
 
 function render(Component, presentation, url = '/en/grid', extraProps = {}) {
   const componentProps = { ...props, presentation, ...extraProps };
   const content = Component === Desktop || Component === Mobile
     ? React.createElement(TimelineGridSession, { ...componentProps, View: Component })
     : React.createElement(Component, componentProps);
-  return renderToStaticMarkup(React.createElement(MemoryRouter, { initialEntries: [url] },
-    React.createElement(I18nProvider, { initialLanguage: 'en' },
-      content)));
+  return renderToStaticMarkup(React.createElement(MemoryRouter, { initialEntries: [url] }, React.createElement(I18nProvider, { initialLanguage: 'en' }, content)));
 }
 
 test('application boundary can force either view without a browser or device detection', () => {
@@ -87,17 +99,22 @@ test('widget layout is correct on the first render and on each subsequent page m
   }
   try {
     for (const mobile of [true, true, false, false]) {
-      globalThis.window = { matchMedia(query) {
-        assert.equal(query, '(hover: none) and (pointer: coarse)');
-        return { matches: mobile };
-      } };
+      globalThis.window = {
+        matchMedia(query) {
+          assert.equal(query, '(hover: none) and (pointer: coarse)');
+          return { matches: mobile };
+        },
+      };
       assert.equal(renderToStaticMarkup(React.createElement(LayoutProbe)), `<span>${mobile ? 'mobile' : 'desktop'}</span>`);
     }
     delete globalThis.window;
     assert.equal(renderToStaticMarkup(React.createElement(LayoutProbe)), '<span>desktop</span>');
   } finally {
-    if (originalWindow) Object.defineProperty(globalThis, 'window', originalWindow);
-    else delete globalThis.window;
+    if (originalWindow) {
+      Object.defineProperty(globalThis, 'window', originalWindow);
+    } else {
+      delete globalThis.window;
+    }
   }
 });
 
@@ -127,12 +144,19 @@ for (const [name, Component] of [['desktop', Desktop], ['mobile', Mobile]]) {
     test(`${name}/${presentation} renders independently with shared cells and the existing header structure`, () => {
       const html = render(Component, presentation);
       const header = name === 'desktop' ? 'widgetHeader' : 'zenPageMobile-header';
-      for (const section of ['Start', 'Middle', 'End']) assert.ok(html.includes(`${header}${section}`));
+      for (const section of ['Start', 'Middle', 'End']) {
+        assert.ok(html.includes(`${header}${section}`));
+      }
       assert.equal(html.includes('widgetHeader-backdrop'), name === 'desktop');
       assert.equal(html.includes('widgetHeaderControlPlaceholder'), presentation === 'embedded');
       assert.equal(html.includes('aria-label="Pan"'), name === 'desktop');
       assert.ok(html.includes('aria-label="Select hours"'));
       if (name === 'desktop') {
+        // The toolbar is rendered in every presentation, before the grid and never inside it.
+        const toolbarIndex = html.indexOf('class="widgetHeader"');
+        const gridIndex = html.indexOf('class="widgetContent timelineGrid');
+        assert.ok(toolbarIndex >= 0 && gridIndex > toolbarIndex);
+        assert.equal((html.match(/class="widgetHeader"/g) ?? []).length, 1);
         const footerIndex = html.indexOf('class="widgetFooter"');
         const actionsIndex = html.indexOf('timelineGridCalendarButton');
         assert.ok(footerIndex > 0 && actionsIndex > footerIndex);
@@ -162,8 +186,16 @@ for (const [name, Component] of [['desktop', Desktop], ['mobile', Mobile]]) {
 
   test(`${name} restores a shared event with identical selected hours and calendar dates`, () => {
     const start = Date.UTC(2026, 9, 26, 12);
-    const city = { id: 'ny', city: 'New York', timezone: 'America/New_York',
-      utcOffset: '', timeOffset: '', time: '', period: 'day', order: 0 };
+    const city = {
+      id: 'ny',
+      city: 'New York',
+      timezone: 'America/New_York',
+      utcOffset: '',
+      timeOffset: '',
+      time: '',
+      period: 'day',
+      order: 0,
+    };
     const hours = [0, 1, 2].map((offset) => ({ rowId: city.id, start: start + offset * 3600000 }));
     const url = buildGridEventUrl('https://timecross.app/en/grid', [city], hours);
     assert.ok(url);
@@ -194,3 +226,14 @@ for (const [name, Component] of [['desktop', Desktop], ['mobile', Mobile]]) {
     }
   });
 }
+
+test('translations other than English load on demand and fall back to English until then', async () => {
+  const { isDictionaryLoaded, loadDictionary, translate } = await import('../src/i18n/dictionaries.ts');
+  assert.equal(isDictionaryLoaded('en'), true);
+  assert.equal(isDictionaryLoaded('de'), false);
+  assert.equal(translate('de', 'contactForm.send'), 'Send');
+  const [first, second] = await Promise.all([loadDictionary('de'), loadDictionary('de')]);
+  assert.equal(first, second);
+  assert.equal(translate('de', 'contactForm.send'), 'Senden');
+  assert.equal(translate('de', 'no.such.key'), 'no.such.key');
+});

@@ -15,7 +15,9 @@ export default function TimelineCellLabel({
 
   return (
     <>
-      {label} <span className={periodClassName}>{period}</span>
+      {label}
+      {' '}
+      <span className={periodClassName}>{period}</span>
     </>
   );
 }

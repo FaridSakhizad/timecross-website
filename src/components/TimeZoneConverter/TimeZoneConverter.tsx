@@ -1,7 +1,7 @@
 import '../Cities/cities.css';
 import './style.css';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 
 import { MARKETING_DEFAULT_SELECTED_CITIES, type AppLanguage, type ColorMode, type TimeFormat } from '../../settings';
@@ -20,7 +20,9 @@ import { favoriteCities, type FavoriteCity } from '../Cities/fixtures';
 import type { CitySearchRow } from '../Cities/citySearch';
 import StandaloneMenuModal from '../StandaloneMenuModal';
 import { getBrowserTimezoneCity } from './browserTimezoneCities';
-import DatePickerModal from './DatePickerModal';
+// The date picker (react-day-picker + date-fns locales) is loaded only when it is first needed.
+const loadDatePickerModal = () => import('./DatePickerModal');
+const DatePickerModal = lazy(loadDatePickerModal);
 import { readConverterUrlState, writeConverterUrlState } from './urlState';
 import { formatTime } from '../Timelines/utils';
 import {
@@ -273,7 +275,9 @@ export default function TimeZoneConverter({
   }, [dateValue, hasConversionSelection, setSearchParams, sourceCity, syncUrl, timeValue]);
 
   useEffect(() => {
-    if (!syncUrl) return;
+    if (!syncUrl) {
+      return;
+    }
     const restoreUrlState = () => {
       const state = readConverterUrlState(window.location.search);
       setHasConversionSelection(Boolean(state.sourceCity || state.date || state.time));
@@ -606,6 +610,8 @@ export default function TimeZoneConverter({
             type="button"
             aria-haspopup="dialog"
             aria-expanded={isDatePickerOpen}
+            onPointerEnter={loadDatePickerModal}
+            onFocus={loadDatePickerModal}
             onClick={() => setIsDatePickerOpen(true)}
           >
             {dateButtonLabel}
@@ -619,7 +625,10 @@ export default function TimeZoneConverter({
       <div className="citiesListBox scrollControl timeZoneConverter-listBox">
         <div className="citiesList timeZoneConverter-list">
           {results.map(({ city, dayLabel, offsetLabel, period, timeLabel }) => (
-            <article className="citiesList-item timeZoneConverter-listItem" key={city.id}>
+            <article
+              className="citiesList-item timeZoneConverter-listItem"
+              key={city.id}
+            >
               <i className={`citiesList-periodIcon citiesList-periodIcon_${period} timeZoneConverter-resultIcon`} />
               <span className="timeZoneConverter-resultText timeZoneConverter-resultTime">{timeLabel}</span>
               <span className="timeZoneConverter-resultText timeZoneConverter-resultIn">{t('timeZoneConverter.inLabel')}</span>
@@ -659,19 +668,23 @@ export default function TimeZoneConverter({
         onClose={() => setCityModalMode(null)}
         onSave={handleCityModalSave}
       />
-      <DatePickerModal
-        closeLabel={t('common.close')}
-        dateLabel={t('timeZoneConverter.dateLabel')}
-        isOpen={isDatePickerOpen}
-        language={language}
-        value={dateValue}
-        onClose={() => setIsDatePickerOpen(false)}
-        onSelectDate={(nextDateValue) => {
-          setHasConversionSelection(true);
-          setHasCustomDate(true);
-          setDateValue(nextDateValue);
-        }}
-      />
+      {isDatePickerOpen && (
+        <Suspense fallback={null}>
+          <DatePickerModal
+            closeLabel={t('common.close')}
+            dateLabel={t('timeZoneConverter.dateLabel')}
+            isOpen
+            language={language}
+            value={dateValue}
+            onClose={() => setIsDatePickerOpen(false)}
+            onSelectDate={(nextDateValue) => {
+              setHasConversionSelection(true);
+              setHasCustomDate(true);
+              setDateValue(nextDateValue);
+            }}
+          />
+        </Suspense>
+      )}
       {hasStandaloneMenu && onColorModeButtonClick && onTimeFormatButtonClick && (
         <StandaloneMenuModal
           colorMode={colorMode}

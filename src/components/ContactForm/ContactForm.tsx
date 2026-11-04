@@ -109,8 +109,16 @@ export default function ContactForm() {
       }}
     >
       {/* Honeypot: invisible to people and screen readers, bots tend to fill it in. */}
-      <div className="contactForm-honeypot" aria-hidden="true">
-        <input type="text" name="website" tabIndex={-1} autoComplete="off" />
+      <div
+        className="contactForm-honeypot"
+        aria-hidden="true"
+      >
+        <input
+          type="text"
+          name="website"
+          tabIndex={-1}
+          autoComplete="off"
+        />
       </div>
       <div className="contactForm-row">
         <input
@@ -139,7 +147,7 @@ export default function ContactForm() {
           placeholder={t('contactForm.message')}
           maxLength={5000}
           required
-        ></textarea>
+        />
       </div>
       <TurnstileWidget
         ref={turnstileRef}

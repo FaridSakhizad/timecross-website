@@ -41,7 +41,10 @@ export default function Hero({ timeFormat }: HeroProps) {
       <div className="container container_hero">
         <div className="citiesBox">
           <ClientOnly>
-            <Cities showHomeButton={false} timeFormat={timeFormat} />
+            <Cities
+              showHomeButton={false}
+              timeFormat={timeFormat}
+            />
           </ClientOnly>
         </div>
 
@@ -49,7 +52,12 @@ export default function Hero({ timeFormat }: HeroProps) {
           <div className="iphonePreviewContainer">
             <div className="iphonePreviewBox">
               {IPHONE_PREVIEW_IMAGES.map(({ image, altKey }) => (
-                <img src={image} className="iphonePreview-image" alt={t(altKey)} key={image} />
+                <img
+                  src={image}
+                  className="iphonePreview-image"
+                  alt={t(altKey)}
+                  key={image}
+                />
               ))}
             </div>
             <i className="iphonePreviewShadow" />
@@ -58,7 +66,12 @@ export default function Hero({ timeFormat }: HeroProps) {
           <div className="androidPreviewContainer">
             <div className="androidPreviewBox">
               {ANDROID_PREVIEW_IMAGES.map(({ image, altKey }) => (
-                <img src={image} className="androidPreview-image" alt={t(altKey)} key={image} />
+                <img
+                  src={image}
+                  className="androidPreview-image"
+                  alt={t(altKey)}
+                  key={image}
+                />
               ))}
             </div>
           </div>
@@ -81,14 +94,14 @@ export default function Hero({ timeFormat }: HeroProps) {
             className="heroDownload-button heroDownload-button_appStore"
             aria-label={t('common.appStore')}
             target="_blank"
-          ></a>
+          />
 
           <a
             href={GOOGLE_PLAY_URL}
             className="heroDownload-button heroDownload-button_googlePlay"
             data-coming-soon={t('common.comingSoon')}
             target="_blank"
-          ></a>
+          />
 
         </div>
       </div>

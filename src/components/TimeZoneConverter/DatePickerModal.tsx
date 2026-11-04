@@ -117,7 +117,10 @@ export default function DatePickerModal({
         <div className="appModal-header">
           <span className="appModal-headerPlaceholder" />
 
-          <h3 className="appModal-title" id="time-zone-date-picker-modal-title">
+          <h3
+            className="appModal-title"
+            id="time-zone-date-picker-modal-title"
+          >
             {dateLabel}
           </h3>
 

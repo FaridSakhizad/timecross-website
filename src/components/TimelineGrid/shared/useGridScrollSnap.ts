@@ -3,8 +3,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 const TIMELINE_GRID_SNAP_DELAY_MS = 500;
 const TIMELINE_GRID_SNAP_EPSILON = 0.5;
 
-type TimelineGridScrollTarget =
-  | { type: 'page' }
+type TimelineGridScrollTarget = | { type: 'page' }
   | { type: 'element'; element: HTMLDivElement };
 
 function getTimelineGridPageScroller() {
@@ -234,7 +233,9 @@ export function useTimelineGridSnap(
       clearSnapTimeout();
       snapTimeoutId = window.setTimeout(() => {
         snapTimeoutId = undefined;
-        if (shouldSuspend?.()) return;
+        if (shouldSuspend?.()) {
+          return;
+        }
         const snapTarget = snapTimelineGridToNearestHour(scrollTarget);
 
         if (snapTarget) {
@@ -248,7 +249,9 @@ export function useTimelineGridSnap(
     };
 
     const handleScroll = () => {
-      if (shouldSuspend?.()) return;
+      if (shouldSuspend?.()) {
+        return;
+      }
       const scrollLeft = getTimelineGridScrollLeft(scrollTarget);
       const scrollLeftDelta = Math.abs(scrollLeft - lastScrollLeft);
 
@@ -268,7 +271,9 @@ export function useTimelineGridSnap(
     };
 
     const handleScrollEnd = () => {
-      if (shouldSuspend?.()) return;
+      if (shouldSuspend?.()) {
+        return;
+      }
       const scrollLeft = getTimelineGridScrollLeft(scrollTarget);
       const scrollLeftDelta = Math.abs(scrollLeft - lastScrollLeft);
 
@@ -282,7 +287,9 @@ export function useTimelineGridSnap(
     };
 
     const recenterAfterResize = () => {
-      if (shouldSuspend?.()) return;
+      if (shouldSuspend?.()) {
+        return;
+      }
       const viewportWidth = getTimelineGridViewportWidth(scrollTarget);
 
       if (Math.abs(viewportWidth - lastViewportWidth) <= TIMELINE_GRID_SNAP_EPSILON) {
@@ -307,7 +314,9 @@ export function useTimelineGridSnap(
     window.addEventListener('resize', recenterAfterResize);
 
     // Resume alignment after an element interaction ends, even without a new scroll event.
-    if (scrollTarget.type === 'element' && shouldSuspend) scheduleSnap();
+    if (scrollTarget.type === 'element' && shouldSuspend) {
+      scheduleSnap();
+    }
 
     return () => {
       clearSnapTimeout();

@@ -11,9 +11,9 @@ export type RateLimitBinding = {
 export const CONTACT_RATE_LIMIT_PERIOD_SECONDS = 60;
 
 /** Must match the `action` the widget is rendered with in ContactForm. */
-export const TURNSTILE_ACTION = "contact";
+export const TURNSTILE_ACTION = 'contact';
 
-const TURNSTILE_SITEVERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
+const TURNSTILE_SITEVERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
 const TURNSTILE_TIMEOUT_MS = 5000;
 const TURNSTILE_MAX_TOKEN_LENGTH = 2048;
 
@@ -22,13 +22,13 @@ const TURNSTILE_MAX_TOKEN_LENGTH = 2048;
  * Their responses carry no real action or hostname, so those checks are skipped for them.
  */
 const TURNSTILE_TEST_SECRETS = new Set([
-  "1x0000000000000000000000000000000AA",
-  "2x0000000000000000000000000000000AA",
-  "3x0000000000000000000000000000000AA",
+  '1x0000000000000000000000000000000AA',
+  '2x0000000000000000000000000000000AA',
+  '3x0000000000000000000000000000000AA',
 ]);
 
 export function getClientIp(request: Request) {
-  return request.headers.get("cf-connecting-ip") ?? "unknown";
+  return request.headers.get('cf-connecting-ip') ?? 'unknown';
 }
 
 /**
@@ -37,7 +37,7 @@ export function getClientIp(request: Request) {
  */
 export async function isWithinRateLimit(limiter: RateLimitBinding | undefined, key: string) {
   if (!limiter) {
-    console.warn("Contact rate limiter binding is missing; skipping the check.");
+    console.warn('Contact rate limiter binding is missing; skipping the check.');
     return true;
   }
 
@@ -46,7 +46,7 @@ export async function isWithinRateLimit(limiter: RateLimitBinding | undefined, k
 
     return success;
   } catch (error) {
-    console.error("Contact rate limiter failed; letting the request through:", error);
+    console.error('Contact rate limiter failed; letting the request through:', error);
     return true;
   }
 }
@@ -55,15 +55,14 @@ type SiteverifyResponse = {
   success?: boolean;
   action?: string;
   hostname?: string;
-  "error-codes"?: string[];
+  'error-codes'?: string[];
 };
 
-export type TurnstileVerification =
-  | { ok: true }
+export type TurnstileVerification = | { ok: true }
   | {
     ok: false;
     /** not-configured → 503, unavailable → 502, the rest → 403. */
-    reason: "not-configured" | "missing-token" | "rejected" | "wrong-action" | "wrong-hostname" | "unavailable";
+    reason: 'not-configured' | 'missing-token' | 'rejected' | 'wrong-action' | 'wrong-hostname' | 'unavailable';
     errorCodes?: string[];
   };
 
@@ -78,8 +77,8 @@ type VerifyTurnstileOptions = {
 
 async function callSiteverify(body: Record<string, string>, fetchImpl: typeof fetch) {
   const response = await fetchImpl(TURNSTILE_SITEVERIFY_URL, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
     body: JSON.stringify(body),
     signal: AbortSignal.timeout(TURNSTILE_TIMEOUT_MS),
   });
@@ -99,11 +98,11 @@ export async function verifyTurnstileToken({
   fetchImpl = fetch,
 }: VerifyTurnstileOptions): Promise<TurnstileVerification> {
   if (!secret) {
-    return { ok: false, reason: "not-configured" };
+    return { ok: false, reason: 'not-configured' };
   }
 
-  if (typeof token !== "string" || !token || token.length > TURNSTILE_MAX_TOKEN_LENGTH) {
-    return { ok: false, reason: "missing-token" };
+  if (typeof token !== 'string' || !token || token.length > TURNSTILE_MAX_TOKEN_LENGTH) {
+    return { ok: false, reason: 'missing-token' };
   }
 
   const body: Record<string, string> = {
@@ -113,7 +112,7 @@ export async function verifyTurnstileToken({
     idempotency_key: crypto.randomUUID(),
   };
 
-  if (remoteIp !== "unknown") {
+  if (remoteIp !== 'unknown') {
     body.remoteip = remoteIp;
   }
 
@@ -125,13 +124,13 @@ export async function verifyTurnstileToken({
     try {
       result = await callSiteverify(body, fetchImpl);
     } catch (secondError) {
-      console.error("Turnstile Siteverify is unavailable:", firstError, secondError);
-      return { ok: false, reason: "unavailable" };
+      console.error('Turnstile Siteverify is unavailable:', firstError, secondError);
+      return { ok: false, reason: 'unavailable' };
     }
   }
 
   if (!result.success) {
-    return { ok: false, reason: "rejected", errorCodes: result["error-codes"] ?? [] };
+    return { ok: false, reason: 'rejected', errorCodes: result['error-codes'] ?? [] };
   }
 
   if (TURNSTILE_TEST_SECRETS.has(secret)) {
@@ -139,11 +138,11 @@ export async function verifyTurnstileToken({
   }
 
   if (result.action !== TURNSTILE_ACTION) {
-    return { ok: false, reason: "wrong-action" };
+    return { ok: false, reason: 'wrong-action' };
   }
 
   if (result.hostname !== expectedHostname) {
-    return { ok: false, reason: "wrong-hostname" };
+    return { ok: false, reason: 'wrong-hostname' };
   }
 
   return { ok: true };

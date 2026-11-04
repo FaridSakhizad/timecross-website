@@ -128,25 +128,33 @@ export default function StandaloneMenuModal({
             href={BUY_ME_A_COFFEE_URL}
             className="standaloneMenuModal-item standaloneMenuModal-item_thanks"
             target="_blank"
-          >{t('common.sayThanks')}</a>
+          >
+            {t('common.sayThanks')}
+          </a>
 
           <Link
             to={getCanonicalLanguagePath(language, '/cities')}
             className="standaloneMenuModal-item"
             onClick={onClose}
-          >{t('common.citiesLabel')}</Link>
+          >
+            {t('common.citiesLabel')}
+          </Link>
 
           <Link
             to={getCanonicalLanguagePath(language, '/grid')}
             className="standaloneMenuModal-item"
             onClick={onClose}
-          >{t('common.gridLabel')}</Link>
+          >
+            {t('common.gridLabel')}
+          </Link>
 
           <Link
             to={getCanonicalLanguagePath(language, '/convert')}
             className="standaloneMenuModal-item"
             onClick={onClose}
-          >{t('common.timeZoneConverterLabel')}</Link>
+          >
+            {t('common.timeZoneConverterLabel')}
+          </Link>
 
           <button
             type="button"
@@ -164,7 +172,10 @@ export default function StandaloneMenuModal({
             {t(colorMode === 'night' ? 'common.lightMode' : 'common.darkMode')}
           </button>
 
-          <div className="langSelectButtonBox" ref={langSelectorRef}>
+          <div
+            className="langSelectButtonBox"
+            ref={langSelectorRef}
+          >
             <button
               type="button"
               className="standaloneMenuModal-item standaloneMenuModal-item_langs"

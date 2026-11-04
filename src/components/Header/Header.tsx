@@ -43,8 +43,8 @@ export default function Header({
       const target = event.target;
 
       if (
-        target instanceof Node &&
-        !langSelectorRef.current?.contains(target)
+        target instanceof Node
+        && !langSelectorRef.current?.contains(target)
       ) {
         setIsLangSelectorVisible(false);
       }
@@ -78,28 +78,40 @@ export default function Header({
             href={BUY_ME_A_COFFEE_URL}
             className="headerMenu-item headerMenu-item_thanks"
             target="_blank"
-          >{t('common.sayThanks')}</a>
+          >
+            {t('common.sayThanks')}
+          </a>
 
           <i className="headerMenu-separator headerMenu-separator_1" />
 
           <Link
             to={getCanonicalLanguagePath(language, '/cities')}
             className="headerMenu-item headerMenu-item_link"
-          >{t('common.citiesLabel')}</Link>
+          >
+            {t('common.citiesLabel')}
+          </Link>
 
           <Link
             to={getCanonicalLanguagePath(language, '/grid')}
             className="headerMenu-item headerMenu-item_link"
-          >{t('common.gridLabel')}</Link>
+          >
+            {t('common.gridLabel')}
+          </Link>
 
           <Link
             to={getCanonicalLanguagePath(language, '/convert')}
             className="headerMenu-item headerMenu-item_link"
-          >{t('common.timeZoneConverterLabel')}</Link>
+          >
+            {t('common.timeZoneConverterLabel')}
+          </Link>
 
           <i className="headerMenu-separator headerMenu-separator_2" />
 
-          <button type="button" className="headerMenu-item headerMenu-item_ampm" onClick={onTimeFormatButtonClick}>
+          <button
+            type="button"
+            className="headerMenu-item headerMenu-item_ampm"
+            onClick={onTimeFormatButtonClick}
+          >
             {timeFormat === '24h' ? 'AM/PM' : '24H'}
           </button>
 
@@ -110,7 +122,10 @@ export default function Header({
             onClick={onColorModeButtonClick}
           />
 
-          <div className="langSelectButtonBox" ref={langSelectorRef}>
+          <div
+            className="langSelectButtonBox"
+            ref={langSelectorRef}
+          >
             <button
               type="button"
               className="headerMenu-item langSelectButton"

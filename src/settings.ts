@@ -217,9 +217,9 @@ function isStoredCity(value: unknown): value is StoredCity {
   const city = value as Partial<StoredCity>;
 
   return (
-    typeof city.id === 'string' &&
-    typeof city.city === 'string' &&
-    typeof city.timezone === 'string'
+    typeof city.id === 'string'
+    && typeof city.city === 'string'
+    && typeof city.timezone === 'string'
   );
 }
 

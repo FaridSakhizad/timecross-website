@@ -61,7 +61,6 @@ const TIME_RULER_RANGE_MINUTES = 24 * 60;
 const TIME_RULER_TICK_STEP_MINUTES = 15;
 const TIME_RULER_HOUR_STEP_MINUTES = 60;
 
-
 type CityView = FavoriteCity & {
   currentTime: string;
   currentPeriod: FavoriteCity['period'];
@@ -275,46 +274,53 @@ function SortableCityItem({
       />
       <i className={`citiesList-periodIcon citiesList-periodIcon_${favoriteCity.currentPeriod}`} />
       <div className="citiesList-city">
-        {isRenaming ? (
-          <div className="citiesList-nameInputBox" ref={renameBoxRef}>
-            <input
-              className="citiesList-nameInput"
-              ref={renameInputRef}
-              value={renameValue}
-              aria-label={renameLabel}
-              placeholder={customNamePlaceholder}
-              onChange={(event) => setRenameValue(event.target.value)}
-              onKeyDown={handleRenameKeyDown}
-            />
-            {renameValue.length > 0 && (
+        {isRenaming
+          ? (
+              <div
+                className="citiesList-nameInputBox"
+                ref={renameBoxRef}
+              >
+                <input
+                  className="citiesList-nameInput"
+                  ref={renameInputRef}
+                  value={renameValue}
+                  aria-label={renameLabel}
+                  placeholder={customNamePlaceholder}
+                  onChange={(event) => setRenameValue(event.target.value)}
+                  onKeyDown={handleRenameKeyDown}
+                />
+                {renameValue.length > 0 && (
+                  <button
+                    type="button"
+                    className="citiesList-nameClear"
+                    aria-label={clearNameLabel}
+                    onPointerDown={(event) => event.preventDefault()}
+                    onClick={clearCustomName}
+                  />
+                )}
+                <button
+                  type="button"
+                  className="citiesList-nameSave"
+                  aria-label={saveNameLabel}
+                  onClick={finishRenaming}
+                />
+              </div>
+            )
+          : (
               <button
+                className="citiesList-nameButton"
                 type="button"
-                className="citiesList-nameClear"
-                aria-label={clearNameLabel}
-                onPointerDown={(event) => event.preventDefault()}
-                onClick={clearCustomName}
-              />
+                onClick={startRenaming}
+                aria-label={renameLabel}
+              >
+                <span className="citiesList-name">
+                  {displayName}
+                  {favoriteCity.customName && (
+                    <span className="citiesList-originalName">{` (${baseName})`}</span>
+                  )}
+                </span>
+              </button>
             )}
-            <button
-              type="button"
-              className="citiesList-nameSave"
-              aria-label={saveNameLabel}
-              onClick={finishRenaming}
-            />
-          </div>
-        ) : (
-          <button
-            className="citiesList-nameButton"
-            type="button"
-            onClick={startRenaming}
-            aria-label={renameLabel}
-          >
-            <span className="citiesList-name">
-              {displayName}
-              {favoriteCity.customName && (<span className="citiesList-originalName"> ({baseName})</span>)}
-            </span>
-          </button>
-        )}
         <span className="citiesList-timeOffset">
           {favoriteCity.relativeTimeOffset}
           {favoriteCity.dayShift && (
@@ -345,7 +351,7 @@ export default function Cities({
   onColorModeButtonClick,
   onTimeFormatButtonClick,
 }: CitiesProps) {
-  const {language, t} = useI18n();
+  const { language, t } = useI18n();
   const customClassNameList = customClassNames.split(/\s+/).filter(Boolean);
 
   const [cities, setCities] = useState(getStoredOrderedSelectedCities);
@@ -567,7 +573,10 @@ export default function Cities({
           onDragEnd={handleDragEnd}
         >
           <div className="citiesList">
-            <SortableContext items={cityIds} strategy={verticalListSortingStrategy}>
+            <SortableContext
+              items={cityIds}
+              strategy={verticalListSortingStrategy}
+            >
               {cityViews.map((favoriteCity) => (
                 <SortableCityItem
                   clearNameLabel={t('cities.clearCustomName', { city: getCityDisplayName(favoriteCity) })}
@@ -644,8 +653,7 @@ export default function Cities({
                 ].filter(Boolean).join(' ')}
                 key={minute}
                 style={{ left: `${(minute + TIME_RULER_RANGE_MINUTES) * PIXELS_IN_MINUTE}px` }}
-              >
-              </span>
+              />
             ))}
           </div>
         </div>
@@ -679,5 +687,5 @@ export default function Cities({
         />
       )}
     </div>
-  )
+  );
 }

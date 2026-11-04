@@ -27,19 +27,26 @@ export function getInitialMobileGridSelection(
   const count = Math.min(MOBILE_SELECTION_INITIAL_CITIES, candidates.length);
   let firstRow = 0;
   let nearestDistance = Infinity;
-  for (let index = 0; count && index <= candidates.length - count; index++) {
+  for (let index = 0; count && index <= candidates.length - count; index += 1) {
     const center = (candidates[index].rowTop + candidates[index + count - 1].rowBottom) / 2;
     const distance = Math.abs(center - targetY);
     // Equal distances favor the lower group, including when the center falls between two cities.
-    if (distance <= nearestDistance) { firstRow = index; nearestDistance = distance; }
+    if (distance <= nearestDistance) {
+      firstRow = index;
+      nearestDistance = distance;
+    }
   }
   const selectedRows = candidates.slice(firstRow, firstRow + count);
-  if (!selectedRows.length) return [];
+  if (!selectedRows.length) {
+    return [];
+  }
   const rowIds = new Set(selectedRows.map((cell) => cell.hour.rowId));
   const columns = cells.filter((cell) => cell.hour.rowId === selectedRows[0].hour.rowId)
     .sort((a, b) => a.hour.start - b.hour.start);
-  const center = columns.reduce((best, cell, index) => Math.abs((cell.rect.left + cell.rect.right) / 2 - targetX)
-    < Math.abs((columns[best].rect.left + columns[best].rect.right) / 2 - targetX) ? index : best, 0);
+  const center = columns.reduce((best, cell, index) => (Math.abs((cell.rect.left + cell.rect.right) / 2 - targetX)
+    < Math.abs((columns[best].rect.left + columns[best].rect.right) / 2 - targetX)
+    ? index
+    : best), 0);
   const first = Math.max(0, Math.min(columns.length - MOBILE_SELECTION_INITIAL_HOURS, center - 1));
   const starts = new Set(columns.slice(first, first + MOBILE_SELECTION_INITIAL_HOURS).map((cell) => cell.hour.start));
   return cells.filter((cell) => rowIds.has(cell.hour.rowId) && starts.has(cell.hour.start)).map((cell) => cell.hour);
@@ -54,9 +61,14 @@ export function getMobileGridSelectionCells(root: ParentNode = document, viewpor
       const rect = element.getBoundingClientRect();
       return {
         hour: { rowId: element.dataset.gridSelectionRow!, start: Number(element.dataset.gridHourStart) },
-        rect: { left: rect.left + x, right: rect.right + x,
-          top: rect.top + y, bottom: rect.bottom + y },
-        rowTop: rowRect.top + y, rowBottom: rowRect.bottom + y,
+        rect: {
+          left: rect.left + x,
+          right: rect.right + x,
+          top: rect.top + y,
+          bottom: rect.bottom + y,
+        },
+        rowTop: rowRect.top + y,
+        rowBottom: rowRect.bottom + y,
       };
     });
   });
@@ -68,10 +80,18 @@ export function getMobileGridVisibleRect(viewport?: HTMLDivElement): SelectionRe
     const rect = viewport.getBoundingClientRect();
     const x = window.scrollX + viewport.scrollLeft;
     const y = window.scrollY + viewport.scrollTop;
-    return { left: x + Math.max(0, rect.left), right: x + Math.min(document.documentElement.clientWidth, rect.right),
-      top: y + Math.max(0, rect.top, header?.bottom ?? 0), bottom: y + Math.min(window.innerHeight, rect.bottom) };
+    return {
+      left: x + Math.max(0, rect.left),
+      right: x + Math.min(document.documentElement.clientWidth, rect.right),
+      top: y + Math.max(0, rect.top, header?.bottom ?? 0),
+      bottom: y + Math.min(window.innerHeight, rect.bottom),
+    };
   }
   const top = Math.max(0, header?.bottom ?? 0);
-  return { left: window.scrollX, right: window.scrollX + document.documentElement.clientWidth,
-    top: window.scrollY + top, bottom: window.scrollY + window.innerHeight };
+  return {
+    left: window.scrollX,
+    right: window.scrollX + document.documentElement.clientWidth,
+    top: window.scrollY + top,
+    bottom: window.scrollY + window.innerHeight,
+  };
 }

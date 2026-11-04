@@ -30,58 +30,102 @@ export default function DesktopToolbar(props: DesktopToolbarProps) {
         </div>
 
         <div className="widgetHeaderStart">
-          {embedded ? <>
-            <i className="widgetHeaderControlPlaceholder" />
-          </> : (
-            <Link to={getCanonicalLanguagePath(language, '/')}
-              className="widgetHeaderButton citiesHeaderButton_home" aria-label={t('common.home')}>
-              <i className="citiesHeaderButton-icon citiesHeaderButton-icon_home" />
-            </Link>
-          )}
+          {embedded
+            ? (
+                <>
+                  <i className="widgetHeaderControlPlaceholder" />
+                </>
+              )
+            : (
+                <Link
+                  to={getCanonicalLanguagePath(language, '/')}
+                  className="widgetHeaderButton citiesHeaderButton_home"
+                  aria-label={t('common.home')}
+                >
+                  <i className="citiesHeaderButton-icon citiesHeaderButton-icon_home" />
+                </Link>
+              )}
         </div>
 
         <div className="widgetHeaderMiddle">
-          <button className={`widgetHeaderButton citiesHeaderButton_edit ${props.isEditMode ? 'isActive' : ''}`}
-            type="button" aria-label="edit" aria-pressed={props.isEditMode} onClick={props.onEditModeToggle}>
+          <button
+            className={`widgetHeaderButton citiesHeaderButton_edit ${props.isEditMode ? 'isActive' : ''}`}
+            type="button"
+            aria-label="edit"
+            aria-pressed={props.isEditMode}
+            onClick={props.onEditModeToggle}
+          >
             <i className="citiesHeaderButton-icon citiesHeaderButton-icon_edit" />
           </button>
-          <button className="widgetHeaderButton citiesHeaderButton_add" type="button"
-            aria-label={t('common.addCity')} onClick={props.onAddCityClick}>
+          <button
+            className="widgetHeaderButton citiesHeaderButton_add"
+            type="button"
+            aria-label={t('common.addCity')}
+            onClick={props.onAddCityClick}
+          >
             <i className="citiesHeaderButton-icon citiesHeaderButton-icon_add" />
           </button>
-          <button className="widgetHeaderButton" type="button"
-            aria-label={t('common.reset')} onClick={props.onResetClick}>
+          <button
+            className="widgetHeaderButton"
+            type="button"
+            aria-label={t('common.reset')}
+            onClick={props.onResetClick}
+          >
             <i className="citiesHeaderButton-icon citiesHeaderButton-icon_reset" />
           </button>
           {PAN_CONTROLS_VISIBLE && (
-            <button className={`widgetHeaderButton ${props.panEnabled ? 'isActive' : ''}`}
-              type="button" title={t('common.panMode')} aria-label={t('common.panMode')}
-              aria-pressed={props.panEnabled} disabled={props.panDisabled} onClick={props.onPanToggle}>
-              <Hand size={16} strokeWidth={2} aria-hidden="true" />
+            <button
+              className={`widgetHeaderButton ${props.panEnabled ? 'isActive' : ''}`}
+              type="button"
+              title={t('common.panMode')}
+              aria-label={t('common.panMode')}
+              aria-pressed={props.panEnabled}
+              disabled={props.panDisabled}
+              onClick={props.onPanToggle}
+            >
+              <Hand
+                size={16}
+                strokeWidth={2}
+                aria-hidden="true"
+              />
             </button>
           )}
         </div>
 
         <div className="widgetHeaderEnd">
-          {embedded ? (
-            <>
-              <Link to={getCanonicalLanguagePath(language, '/grid')}
-                className="widgetHeaderButton" aria-label={t('common.openGrid')}>
-                <i className="citiesHeaderButton-icon citiesHeaderButton-icon_open" />
-              </Link>
-            </>
-          ) : (
-            <button className="widgetHeaderButton citiesHeaderButton_menu" type="button"
-              aria-label={t('common.menu')} onClick={() => setMenuOpen(true)}>
-              <i className="citiesHeaderButton-icon citiesHeaderButton-icon_menu" />
-            </button>
-          )}
+          {embedded
+            ? (
+                <>
+                  <Link
+                    to={getCanonicalLanguagePath(language, '/grid')}
+                    className="widgetHeaderButton"
+                    aria-label={t('common.openGrid')}
+                  >
+                    <i className="citiesHeaderButton-icon citiesHeaderButton-icon_open" />
+                  </Link>
+                </>
+              )
+            : (
+                <button
+                  className="widgetHeaderButton citiesHeaderButton_menu"
+                  type="button"
+                  aria-label={t('common.menu')}
+                  onClick={() => setMenuOpen(true)}
+                >
+                  <i className="citiesHeaderButton-icon citiesHeaderButton-icon_menu" />
+                </button>
+              )}
         </div>
       </div>
       {!embedded && (
-        <StandaloneMenuModal colorMode={props.colorMode} timeFormat={props.timeFormat} isOpen={menuOpen}
-          onClose={() => setMenuOpen(false)} onColorModeButtonClick={props.onColorModeButtonClick}
-          onTimeFormatButtonClick={props.onTimeFormatButtonClick} />
+        <StandaloneMenuModal
+          colorMode={props.colorMode}
+          timeFormat={props.timeFormat}
+          isOpen={menuOpen}
+          onClose={() => setMenuOpen(false)}
+          onColorModeButtonClick={props.onColorModeButtonClick}
+          onTimeFormatButtonClick={props.onTimeFormatButtonClick}
+        />
       )}
     </>
   );

@@ -12,51 +12,10 @@ import {
 } from './i18n/languageRouting';
 import type { AppLanguage } from './settings';
 
-import de from './i18n/locales/de.json';
-import en from './i18n/locales/en.json';
-import es from './i18n/locales/es.json';
-import fr from './i18n/locales/fr.json';
-import pt from './i18n/locales/pt.json';
-import ru from './i18n/locales/ru.json';
-import uk from './i18n/locales/uk.json';
+import { translate } from './i18n/dictionaries';
 
 type SeoPage = 'home' | 'cities' | 'grid' | 'worldClock' | 'meetingTimePlanner' | 'timeZoneConverter' | 'privacy' | 'terms';
-type Dictionary = Record<string, unknown>;
-type TranslationValues = Record<string, string | number>;
 type SeoJsonLdSchema = { id: string; value: unknown };
-
-const DICTIONARIES: Record<AppLanguage, Dictionary> = {
-  en,
-  fr,
-  uk,
-  ru,
-  es,
-  pt,
-  de,
-};
-
-function getNestedValue(dictionary: Dictionary, key: string) {
-  return key.split('.').reduce<unknown>((value, part) => {
-    if (!value || typeof value !== 'object') {
-      return undefined;
-    }
-
-    return (value as Record<string, unknown>)[part];
-  }, dictionary);
-}
-
-function interpolate(value: string, values: TranslationValues = {}) {
-  return value.replace(/\{(\w+)\}/g, (match, key) => (
-    values[key] === undefined ? match : String(values[key])
-  ));
-}
-
-function translate(language: AppLanguage, key: string, values?: TranslationValues) {
-  const dictionary = DICTIONARIES[language];
-  const value = getNestedValue(dictionary, key) ?? getNestedValue(DICTIONARIES.en, key);
-
-  return typeof value === 'string' ? interpolate(value, values) : key;
-}
 
 function getAbsoluteUrl(pathname: string) {
   return new URL(pathname, SITE_URL).toString();

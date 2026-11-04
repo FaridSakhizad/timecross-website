@@ -169,7 +169,10 @@ export default function TimeZoneConverterPage({
           <div className="container timeZoneConverterToolSection-container">
             <div className="timeZoneConverterToolSection-widget">
               <ClientOnly>
-                <TimeZoneConverter timeFormat={timeFormat} syncUrl />
+                <TimeZoneConverter
+                  timeFormat={timeFormat}
+                  syncUrl
+                />
               </ClientOnly>
             </div>
             <p className="timeZoneConverterHero-lead">{t('timeZoneConverter.lead')}</p>
@@ -245,7 +248,10 @@ export default function TimeZoneConverterPage({
             <p className="timeZoneConverterExamples-lead">{t('timeZoneConverter.examplesLead')}</p>
             <div className="timeZoneConverterExamples-groups">
               {converterExampleGroups.map((group) => (
-                <section className="timeZoneConverterExamples-group" key={group.id}>
+                <section
+                  className="timeZoneConverterExamples-group"
+                  key={group.id}
+                >
                   <h3 className="timeZoneConverterExamples-groupTitle">
                     {t(`timeZoneConverter.exampleGroups.${group.id}`)}
                   </h3>
@@ -256,7 +262,10 @@ export default function TimeZoneConverterPage({
                       const exampleCityName = t(`timeZoneConverter.exampleCityNames.${exampleId}`);
 
                       return (
-                        <article className="timeZoneConverterExamples-item" key={exampleId}>
+                        <article
+                          className="timeZoneConverterExamples-item"
+                          key={exampleId}
+                        >
                           <h4 className="timeZoneConverterExamples-title">
                             {t('timeZoneConverter.exampleTitle', {
                               city: exampleCityName,
@@ -272,7 +281,10 @@ export default function TimeZoneConverterPage({
                               );
 
                               return (
-                                <section className="timeZoneConverterExamples-hour" key={hour}>
+                                <section
+                                  className="timeZoneConverterExamples-hour"
+                                  key={hour}
+                                >
                                   <p className="timeZoneConverterExamples-source">
                                     {t('timeZoneConverter.exampleSource', {
                                       city: exampleCityName,
@@ -331,37 +343,36 @@ export default function TimeZoneConverterPage({
         <section className="section timeZoneConverterFaq">
           <div className="container timeZoneConverterFaq-container">
             <h2 className="section-title">{t('timeZoneConverter.faqTitle')}</h2>
-            <FAQ
-              items={[
-                {
-                  id: 'what',
-                  title: t('timeZoneConverter.faq.what.title'),
-                  content: (
-                    <p className="accordion-para">{t('timeZoneConverter.faq.what.text')}</p>
-                  ),
-                },
-                {
-                  id: 'dst',
-                  title: t('timeZoneConverter.faq.dst.title'),
-                  content: (
-                    <p className="accordion-para">{t('timeZoneConverter.faq.dst.text')}</p>
-                  ),
-                },
-                {
-                  id: 'cities',
-                  title: t('timeZoneConverter.faq.cities.title'),
-                  content: (
-                    <p className="accordion-para">{t('timeZoneConverter.faq.cities.text')}</p>
-                  ),
-                },
-                {
-                  id: 'offsets',
-                  title: t('timeZoneConverter.faq.offsets.title'),
-                  content: (
-                    <p className="accordion-para">{t('timeZoneConverter.faq.offsets.text')}</p>
-                  ),
-                },
-              ]}
+            <FAQ items={[
+              {
+                id: 'what',
+                title: t('timeZoneConverter.faq.what.title'),
+                content: (
+                  <p className="accordion-para">{t('timeZoneConverter.faq.what.text')}</p>
+                ),
+              },
+              {
+                id: 'dst',
+                title: t('timeZoneConverter.faq.dst.title'),
+                content: (
+                  <p className="accordion-para">{t('timeZoneConverter.faq.dst.text')}</p>
+                ),
+              },
+              {
+                id: 'cities',
+                title: t('timeZoneConverter.faq.cities.title'),
+                content: (
+                  <p className="accordion-para">{t('timeZoneConverter.faq.cities.text')}</p>
+                ),
+              },
+              {
+                id: 'offsets',
+                title: t('timeZoneConverter.faq.offsets.title'),
+                content: (
+                  <p className="accordion-para">{t('timeZoneConverter.faq.offsets.text')}</p>
+                ),
+              },
+            ]}
             />
           </div>
         </section>

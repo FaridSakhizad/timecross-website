@@ -16,7 +16,9 @@ function fakeSiteverify(...responses) {
   const fetchImpl = async (url, init) => {
     calls.push({ url, body: JSON.parse(init.body) });
     const next = responses.shift();
-    if (next instanceof Error) throw next;
+    if (next instanceof Error) {
+      throw next;
+    }
     return Response.json(next);
   };
   return { calls, fetchImpl };
@@ -102,12 +104,23 @@ test('rate limiter: over the limit blocks, a missing or failing binding lets req
   console.error = () => {};
   try {
     const keys = [];
-    const limiter = { limit: async ({ key }) => { keys.push(key); return { success: keys.length <= 3 }; } };
+    const limiter = {
+      limit: async ({ key }) => {
+        keys.push(key);
+        return { success: keys.length <= 3 };
+      },
+    };
     const results = [];
-    for (let i = 0; i < 4; i += 1) results.push(await isWithinRateLimit(limiter, 'contact:1.2.3.4'));
+    for (let i = 0; i < 4; i += 1) {
+      results.push(await isWithinRateLimit(limiter, 'contact:1.2.3.4'));
+    }
     assert.deepEqual(results, [true, true, true, false]);
     assert.equal(await isWithinRateLimit(undefined, 'k'), true);
-    assert.equal(await isWithinRateLimit({ limit: async () => { throw new Error('down'); } }, 'k'), true);
+    assert.equal(await isWithinRateLimit({
+      limit: async () => {
+        throw new Error('down');
+      },
+    }, 'k'), true);
   } finally {
     console.warn = originalWarn;
     console.error = originalError;

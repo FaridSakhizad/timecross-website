@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
-type TimelineGridScrollTarget =
-  | { type: 'page' }
+type TimelineGridScrollTarget = | { type: 'page' }
   | { type: 'element'; element: HTMLDivElement };
 
 export type TimelineGridActiveHourDirection = 'left' | 'right' | null;

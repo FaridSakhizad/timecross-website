@@ -19,13 +19,17 @@ const OFFSET_SYNC_INTERVAL_MS = 50;
 function getWheelDelta(event: WheelEvent, viewport: HTMLElement) {
   const lineHeight = 16;
   const pageWidth = viewport.clientWidth || 1;
-  const deltaMultiplier = event.deltaMode === WheelEvent.DOM_DELTA_LINE
-    ? lineHeight
-    : event.deltaMode === WheelEvent.DOM_DELTA_PAGE
-      ? pageWidth
-      : 1;
+  const delta = event.deltaX || event.deltaY;
 
-  return (event.deltaX || event.deltaY) * deltaMultiplier;
+  if (event.deltaMode === WheelEvent.DOM_DELTA_LINE) {
+    return delta * lineHeight;
+  }
+
+  if (event.deltaMode === WheelEvent.DOM_DELTA_PAGE) {
+    return delta * pageWidth;
+  }
+
+  return delta;
 }
 
 export function useTimeRulerScroll({

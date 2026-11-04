@@ -9,8 +9,12 @@ function createPanPreference(mode: 'desktop' | 'mobile') {
   let hasUnsavedValue = false;
 
   const getSnapshot = () => {
-    if (!PAN_CONTROLS_VISIBLE) return true;
-    if (hasUnsavedValue) return fallback;
+    if (!PAN_CONTROLS_VISIBLE) {
+      return true;
+    }
+    if (hasUnsavedValue) {
+      return fallback;
+    }
     try {
       return window.localStorage.getItem(key) !== 'false';
     } catch {
@@ -19,18 +23,26 @@ function createPanPreference(mode: 'desktop' | 'mobile') {
   };
   const notify = () => listeners.forEach((listener) => listener());
   const handleStorage = (event: StorageEvent) => {
-    if (event.key === key || event.key === null) notify();
+    if (event.key === key || event.key === null) {
+      notify();
+    }
   };
   const subscribe = (listener: () => void) => {
-    if (listeners.size === 0) window.addEventListener('storage', handleStorage);
+    if (listeners.size === 0) {
+      window.addEventListener('storage', handleStorage);
+    }
     listeners.add(listener);
     return () => {
       listeners.delete(listener);
-      if (listeners.size === 0) window.removeEventListener('storage', handleStorage);
+      if (listeners.size === 0) {
+        window.removeEventListener('storage', handleStorage);
+      }
     };
   };
   const set = (value: SetStateAction<boolean>) => {
-    if (!PAN_CONTROLS_VISIBLE) return;
+    if (!PAN_CONTROLS_VISIBLE) {
+      return;
+    }
     fallback = typeof value === 'function' ? value(getSnapshot()) : value;
     try {
       window.localStorage.setItem(key, String(fallback));

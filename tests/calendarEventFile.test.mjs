@@ -22,7 +22,7 @@ test('ICS exports the same UTC interval and description as Google Calendar, incl
   assert.match(text, /DTEND:20261101T060000Z\r\n/);
   assert.match(text, /UID:.+\r\n/);
   assert.match(text, /DTSTAMP:\d{8}T\d{6}Z\r\n/);
-  const unescape = (value) => value.replace(/\\([nN,;\\])/g, (_, char) => /n/i.test(char) ? '\n' : char);
+  const unescape = (value) => value.replace(/\\([nN,;\\])/g, (_, char) => (/n/i.test(char) ? '\n' : char));
   assert.equal(unescape(text.match(/^DESCRIPTION:(.*)$/m)[1]), event.details);
   assert.equal(unescape(text.match(/^SUMMARY:(.*)$/m)[1]), event.title);
   assert.match(event.details, /UTC-04:00 -> UTC-05:00/);
@@ -32,10 +32,21 @@ test('ICS exports the same UTC interval and description as Google Calendar, incl
 test('download uses a temporary anchor and releases its object URL after browser consumption', (t) => {
   const file = createCalendarEventFile(event);
   const calls = [];
-  const link = { click() { calls.push('click'); }, remove() { calls.push('remove'); } };
-  t.mock.method(URL, 'createObjectURL', (value) => { assert.equal(value, file); return 'blob:event'; });
+  const link = {
+    click() {
+      calls.push('click');
+    },
+    remove() { calls.push('remove'); },
+  };
+  t.mock.method(URL, 'createObjectURL', (value) => {
+    assert.equal(value, file);
+    return 'blob:event';
+  });
   t.mock.method(URL, 'revokeObjectURL', (url) => calls.push(url));
-  t.mock.method(globalThis, 'setTimeout', (callback, delay) => { assert.equal(delay, 30000); calls.push(callback); });
+  t.mock.method(globalThis, 'setTimeout', (callback, delay) => {
+    assert.equal(delay, 30000);
+    calls.push(callback);
+  });
   const previous = globalThis.document;
   globalThis.document = { createElement: () => link, body: { append: () => calls.push('append') } };
   try {
@@ -46,8 +57,10 @@ test('download uses a temporary anchor and releases its object URL after browser
     calls[3]();
     assert.equal(calls[4], 'blob:event');
   } finally {
-    if (previous === undefined) delete globalThis.document;
-    else globalThis.document = previous;
+    if (previous === undefined) {
+      delete globalThis.document;
+    } else {
+      globalThis.document = previous;
+    }
   }
 });
-

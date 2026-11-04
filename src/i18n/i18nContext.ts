@@ -1,10 +1,11 @@
 import { createContext, useContext } from 'react';
 
 import { APP_LANGUAGES, type AppLanguage } from '../settings';
+import type { TranslationValues } from './dictionaries';
+
+export type { TranslationValues };
 
 export const SUPPORTED_LANGUAGES = APP_LANGUAGES;
-
-export type TranslationValues = Record<string, string | number>;
 
 export type I18nContextValue = {
   language: AppLanguage;

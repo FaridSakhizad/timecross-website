@@ -197,21 +197,21 @@ export default function CustomScrollbar({
     const horizontalTrackLength = Math.max(clientWidth - horizontalPadding, 0);
     const verticalThumbLength = verticalVisible
       ? Math.min(
-        verticalTrackLength,
-        Math.max(
-          verticalMetrics?.thumbLength ?? (clientHeight / scrollHeight) * verticalTrackLength,
-          MIN_SCROLLBAR_THUMB_HEIGHT,
-        ),
-      )
+          verticalTrackLength,
+          Math.max(
+            verticalMetrics?.thumbLength ?? (clientHeight / scrollHeight) * verticalTrackLength,
+            MIN_SCROLLBAR_THUMB_HEIGHT,
+          ),
+        )
       : MIN_SCROLLBAR_THUMB_HEIGHT;
     const horizontalThumbLength = horizontalVisible
       ? Math.min(
-        horizontalTrackLength,
-        Math.max(
-          horizontalMetrics?.thumbLength ?? (clientWidth / scrollWidth) * horizontalTrackLength,
-          MIN_SCROLLBAR_THUMB_WIDTH,
-        ),
-      )
+          horizontalTrackLength,
+          Math.max(
+            horizontalMetrics?.thumbLength ?? (clientWidth / scrollWidth) * horizontalTrackLength,
+            MIN_SCROLLBAR_THUMB_WIDTH,
+          ),
+        )
       : MIN_SCROLLBAR_THUMB_WIDTH;
     const maxVerticalThumbOffset = verticalTrackLength - verticalThumbLength;
     const maxHorizontalThumbOffset = horizontalTrackLength - horizontalThumbLength;

@@ -8,7 +8,9 @@ globalThis.window = Object.assign(new EventTarget(), {
   localStorage: {
     getItem: (key) => storage.get(key) ?? null,
     setItem: (key, value) => {
-      if (failWrites) throw new Error('QuotaExceededError');
+      if (failWrites) {
+        throw new Error('QuotaExceededError');
+      }
       storage.set(key, value);
     },
   },
@@ -31,7 +33,9 @@ test('snapshot keeps its identity until settings change', () => {
 
 test('subscribers are notified about local and cross-tab changes', () => {
   let calls = 0;
-  const unsubscribe = settings.subscribeSettings(() => { calls += 1; });
+  const unsubscribe = settings.subscribeSettings(() => {
+    calls += 1;
+  });
 
   settings.updateSettings((current) => ({ ...current, colorMode: 'night' }));
   storage.set('timecross:settings', JSON.stringify({ ...settings.getSettings(), colorMode: 'day' }));
