@@ -11,8 +11,6 @@ export type CitySearchRow = {
   country: string;
   admin1: string | null;
   tz: string;
-  lat: number;
-  lon: number;
   pop: number;
   isAbstractTimezone?: boolean;
   localizedName?: string | null;
@@ -20,6 +18,30 @@ export type CitySearchRow = {
   timezoneAbbreviationName?: string;
 };
 
+/** As stored in cities-search.json (see scripts/city-data/build.mjs). */
+type CityJsonTuple = [
+  id: number,
+  name: string,
+  country: string,
+  admin1: string | null,
+  tz: string,
+  pop: number,
+];
+
+/** Sorted by city, locale, preferred first, then name: the first alias per language is the display name. */
+type AliasJsonTuple = [
+  cityId: number,
+  locale: string,
+  name: string,
+  isPreferred: number,
+];
+
+type CitiesSearchJson = {
+  cities: CityJsonTuple[];
+  aliases: AliasJsonTuple[];
+};
+
+/** In memory, with the normalized name used for prefix search. */
 type CityTuple = [
   id: number,
   name: string,
@@ -27,8 +49,6 @@ type CityTuple = [
   country: string,
   admin1: string | null,
   tz: string,
-  lat: number,
-  lon: number,
   pop: number,
 ];
 
@@ -37,15 +57,11 @@ type AliasTuple = [
   locale: string,
   name: string,
   nameNorm: string,
-  isPreferred: number,
 ];
 
-type CitiesSearchJson = {
+type CitySearchData = {
   cities: CityTuple[];
   aliases: AliasTuple[];
-};
-
-type CitySearchData = CitiesSearchJson & {
   cityById: Map<number, CityTuple>;
   localizedNames: Map<string, string>;
   distinctTimezones: string[];
@@ -238,7 +254,7 @@ function getCityTupleById(data: CitySearchData, cityId: number) {
 }
 
 function getCityRow(data: CitySearchData, city: CityTuple, language: AppLanguage): CitySearchRow {
-  const [id, name, , country, admin1, tz, lat, lon, pop] = city;
+  const [id, name, , country, admin1, tz, pop] = city;
 
   return {
     id,
@@ -246,39 +262,34 @@ function getCityRow(data: CitySearchData, city: CityTuple, language: AppLanguage
     country,
     admin1,
     tz,
-    lat,
-    lon,
     pop,
     localizedName: data.localizedNames.get(getLocalizedNameKey(id, language)) ?? null,
   };
 }
 
 function buildCitySearchData(data: CitiesSearchJson): CitySearchData {
+  const cities = data.cities.map(([id, name, country, admin1, tz, pop]): CityTuple => (
+    [id, name, normalizeSearchText(name), country, admin1, tz, pop]
+  ));
+  const aliases = data.aliases.map(([cityId, locale, name]): AliasTuple => (
+    [cityId, locale, name, normalizeSearchText(name)]
+  ));
   const localizedNames = new Map<string, string>();
-  const seenLocalizedNames = new Set<string>();
-  const cityById = new Map(data.cities.map((city) => [city[0], city]));
-  const distinctTimezones = Array.from(new Set(data.cities.map((city) => city[5])));
 
-  data.aliases
-    .sort((aliasA, aliasB) => (
-      aliasA[0] - aliasB[0]
-      || aliasA[1].localeCompare(aliasB[1])
-      || aliasB[4] - aliasA[4]
-      || aliasA[2].localeCompare(aliasB[2])
-    ))
-    .forEach(([cityId, locale, name]) => {
-      const key = getLocalizedNameKey(cityId, locale);
+  // Aliases come pre-sorted, so the first one per city and language is its display name.
+  aliases.forEach(([cityId, locale, name]) => {
+    const key = getLocalizedNameKey(cityId, locale);
 
-      if (!seenLocalizedNames.has(key)) {
-        localizedNames.set(key, name);
-        seenLocalizedNames.add(key);
-      }
-    });
+    if (!localizedNames.has(key)) {
+      localizedNames.set(key, name);
+    }
+  });
 
   return {
-    ...data,
-    cityById,
-    distinctTimezones,
+    cities,
+    aliases,
+    cityById: new Map(cities.map((city) => [city[0], city])),
+    distinctTimezones: Array.from(new Set(cities.map((city) => city[5]))),
     localizedNames,
   };
 }
@@ -299,18 +310,38 @@ export async function loadCitySearchData() {
   return citiesSearchDataPromise;
 }
 
+const CITY_NAMES_DATA_URL = '/data/city-names';
+const cityNamesPromises = new Map<AppLanguage, Promise<Record<string, string>>>();
+
+/** Localized display names (only those that differ from the base name), one small file per language. */
+function loadCityNames(language: AppLanguage) {
+  let promise = cityNamesPromises.get(language);
+
+  if (!promise) {
+    promise = fetch(`${CITY_NAMES_DATA_URL}/${language}.json`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Failed to load city names: ${response.status}`);
+        }
+
+        return response.json() as Promise<Record<string, string>>;
+      })
+      .catch((error: unknown) => {
+        cityNamesPromises.delete(language);
+        throw error;
+      });
+    cityNamesPromises.set(language, promise);
+  }
+
+  return promise;
+}
+
 export async function getLocalizedCityNamesByIds(cityIds: string[], language: AppLanguage) {
-  const data = await loadCitySearchData();
+  const names = await loadCityNames(language);
   const localizedNames = new Map<string, string>();
 
   cityIds.forEach((cityId) => {
-    const cityIdNumber = Number(cityId);
-
-    if (!Number.isInteger(cityIdNumber)) {
-      return;
-    }
-
-    const localizedName = data.localizedNames.get(getLocalizedNameKey(cityIdNumber, language));
+    const localizedName = names[cityId];
 
     if (localizedName) {
       localizedNames.set(cityId, localizedName);
@@ -395,8 +426,6 @@ function createAbstractTimezoneRow(offsetMinutes: number): CitySearchRow {
     country: '',
     admin1: null,
     tz: getFixedOffsetTimezoneForOffsetMinutes(offsetMinutes),
-    lat: 0,
-    lon: 0,
     pop: 0,
     isAbstractTimezone: true,
   };
@@ -454,8 +483,6 @@ export function getNorthAmericanTimezoneRows(date = new Date()) {
     country: timezone.country,
     admin1: null,
     tz: timezone.timezone,
-    lat: 0,
-    lon: 0,
     pop: 0,
     timezoneAbbreviationShortName: getNorthAmericanTimezoneAbbreviation(timezone, date),
     timezoneAbbreviationName: [
@@ -490,7 +517,7 @@ function searchCitiesByTimezones(
 
   return data.cities
     .filter((city) => timezoneSet.has(city[5]))
-    .sort((cityA, cityB) => cityB[8] - cityA[8] || cityA[1].localeCompare(cityB[1]))
+    .sort((cityA, cityB) => cityB[6] - cityA[6] || cityA[1].localeCompare(cityB[1]))
     .slice(0, SEARCH_RESULTS_LIMIT)
     .map((city) => getCityRow(data, city, language));
 }
@@ -554,7 +581,7 @@ function searchCitiesByName(data: CitySearchData, query: string, language: AppLa
     .filter((result): result is { city: CityTuple; rank: number } => result !== null)
     .sort((resultA, resultB) => (
       resultA.rank - resultB.rank
-      || resultB.city[8] - resultA.city[8]
+      || resultB.city[6] - resultA.city[6]
       || resultA.city[1].localeCompare(resultB.city[1])
     ))
     .slice(0, SEARCH_RESULTS_LIMIT)

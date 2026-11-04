@@ -34,3 +34,10 @@ Node version: see `.nvmrc`.
 - Local development: `cp .dev.vars.example .dev.vars` (Cloudflare's test secret). The client uses the test site key automatically.
 - Production: put the public site key into `.env.production` as `VITE_TURNSTILE_SITE_KEY` (see `.env.example`)
   and the secret into Cloudflare: `npx wrangler secret put TURNSTILE_SECRET_KEY`. Without the secret the form rejects every message (503).
+
+## City data
+
+`public/data/cities-search.json` (search in "Add city") and `public/data/city-names/{lang}.json` (localized names of
+selected cities) are generated from the mobile app's SQLite database by `npm run data:cities`. Put the database at
+`data-source/cities.db` (git-ignored) or pass its path. Commit the generated files; `tests/cityData.test.mjs`
+checks they are consistent.

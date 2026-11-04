@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "test": "node --experimental-strip-types --test tests/*.test.mjs",
+    "data:cities": "node --experimental-strip-types --no-warnings scripts/city-data/build.mjs",
     "cf-typegen": "wrangler types --include-runtime=false",
     "check": "wrangler types --include-runtime=false --check && tsc -b && eslint . && npm test",
     "test:grid-pan": "node --experimental-strip-types --test tests/gridPanController.test.mjs",

@@ -9,3 +9,6 @@
 .dev.vars*
 !.dev.vars.example
 .env*.local
+
+# Raw data for scripts/city-data (mobile app database)
+/data-source/

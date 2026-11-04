@@ -7,8 +7,6 @@ export type SelectedCityInput = {
   country: string;
   admin1: string | null;
   tz: string;
-  lat: number;
-  lon: number;
   pop: number;
   isAbstractTimezone?: boolean;
   localizedName?: string | null;
