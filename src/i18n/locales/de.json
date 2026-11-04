@@ -179,6 +179,10 @@
       "notificationsText": "Wenn du Benachrichtigungen aktivierst, nutzt {siteName} das Benachrichtigungssystem deines Geräts, um die von dir gewählten Erinnerungen anzuzeigen. Du kannst Benachrichtigungsberechtigungen in den Geräteeinstellungen deaktivieren.",
       "thirdPartyTitle": "Dienste Dritter",
       "thirdPartyText": "Das Öffnen von Store-Links, E-Mail-Links oder externen Support-Links kann dich zu Diensten Dritter führen. Deren Datenschutzpraktiken unterliegen ihren eigenen Richtlinien.",
+      "cityDataTitle": "Städtedaten",
+      "cityDataPrefix": "Städtenamen und Zeitzonen basieren auf Daten von ",
+      "cityDataLicensePrefix": ", lizenziert unter ",
+      "cityDataSuffix": ". Die Daten wurden für die App und die Website angepasst.",
       "contactTitle": "Kontakt",
       "contactPrefix": "Bei Datenschutzfragen kontaktiere uns unter "
     },

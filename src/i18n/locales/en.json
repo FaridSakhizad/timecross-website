@@ -191,6 +191,10 @@
       "notificationsText": "If you enable notifications, {siteName} uses your device notification system to show reminders you choose. You can disable notification permissions in your device settings.",
       "thirdPartyTitle": "Third-Party Services",
       "thirdPartyText": "Opening store links, email links, or external support links may take you to services operated by third parties. Their privacy practices are governed by their own policies.",
+      "cityDataTitle": "City data",
+      "cityDataPrefix": "City names and time zones are based on data from ",
+      "cityDataLicensePrefix": ", licensed under ",
+      "cityDataSuffix": ". The data has been adapted for the app and the website.",
       "contactTitle": "Contact",
       "contactPrefix": "For privacy questions, contact us at "
     },

@@ -179,6 +179,10 @@
       "notificationsText": "Si activas notificaciones, {siteName} usa el sistema de notificaciones de tu dispositivo para mostrar los recordatorios que elijas. Puedes desactivar los permisos de notificación en los ajustes del dispositivo.",
       "thirdPartyTitle": "Servicios de terceros",
       "thirdPartyText": "Abrir enlaces de tiendas, emails o soporte externo puede llevarte a servicios operados por terceros. Sus prácticas de privacidad se rigen por sus propias políticas.",
+      "cityDataTitle": "Datos de ciudades",
+      "cityDataPrefix": "Los nombres de ciudades y las zonas horarias se basan en datos de ",
+      "cityDataLicensePrefix": ", con licencia ",
+      "cityDataSuffix": ". Los datos se han adaptado para la app y el sitio web.",
       "contactTitle": "Contacto",
       "contactPrefix": "Para preguntas sobre privacidad, contáctanos en "
     },

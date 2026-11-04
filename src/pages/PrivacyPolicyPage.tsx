@@ -27,7 +27,7 @@ export default function PrivacyPolicyPage({
         colorMode={colorMode}
         timeFormat={timeFormat}
         title={t('legal.privacy.title')}
-        updatedAt="July 16, 2026"
+        updatedAt="November 4, 2026"
         onColorModeButtonClick={onColorModeButtonClick}
         onTimeFormatButtonClick={onTimeFormatButtonClick}
       >
@@ -57,6 +57,31 @@ export default function PrivacyPolicyPage({
         <section className="legalPage-section">
           <h2 className="legalPage-sectionTitle">{t('legal.privacy.thirdPartyTitle')}</h2>
           <p className="legalPage-para">{t('legal.privacy.thirdPartyText')}</p>
+        </section>
+
+        <section className="legalPage-section">
+          <h2 className="legalPage-sectionTitle">{t('legal.privacy.cityDataTitle')}</h2>
+          <p className="legalPage-para">
+            {t('legal.privacy.cityDataPrefix')}
+            <a
+              className="legalPage-link"
+              href="https://www.geonames.org/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              GeoNames
+            </a>
+            {t('legal.privacy.cityDataLicensePrefix')}
+            <a
+              className="legalPage-link"
+              href="https://creativecommons.org/licenses/by/4.0/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              CC BY 4.0
+            </a>
+            {t('legal.privacy.cityDataSuffix')}
+          </p>
         </section>
 
         <section className="legalPage-section">

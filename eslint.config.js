@@ -109,7 +109,7 @@ const gridBoundary = (folder, forbidden) => ({
 });
 
 export default defineConfig([
-  globalIgnores(['dist', 'worker-configuration.d.ts']),
+  globalIgnores(['dist', '.vite', 'worker-configuration.d.ts']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [

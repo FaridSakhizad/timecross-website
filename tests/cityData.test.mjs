@@ -9,11 +9,12 @@ const dataUrl = new URL('../public/data/', import.meta.url);
 const readJson = (path) => JSON.parse(readFileSync(new URL(path, dataUrl), 'utf8'));
 const search = readJson('cities-search.json');
 
+// Grouped by city and language, preferred names first. The order inside the rest of a group is the
+// generator's display ranking.
 const compareAliases = (left, right) => (
   left[0] - right[0]
   || left[1].localeCompare(right[1])
   || right[3] - left[3]
-  || left[2].localeCompare(right[2])
 );
 
 test('search data has the compact tuple format', () => {

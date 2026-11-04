@@ -179,6 +179,10 @@
       "notificationsText": "Si vous activez les notifications, {siteName} utilise le système de notifications de votre appareil pour afficher les rappels que vous choisissez. Vous pouvez désactiver ces permissions dans les réglages de l'appareil.",
       "thirdPartyTitle": "Services tiers",
       "thirdPartyText": "Ouvrir des liens vers les stores, des liens email ou des liens de support externes peut vous diriger vers des services exploités par des tiers. Leurs pratiques de confidentialité sont régies par leurs propres politiques.",
+      "cityDataTitle": "Données des villes",
+      "cityDataPrefix": "Les noms de villes et les fuseaux horaires proviennent des données de ",
+      "cityDataLicensePrefix": ", sous licence ",
+      "cityDataSuffix": ". Les données ont été adaptées pour l'app et le site.",
       "contactTitle": "Contact",
       "contactPrefix": "Pour toute question de confidentialité, contactez-nous à "
     },

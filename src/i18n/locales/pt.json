@@ -1,19 +1,19 @@
 {
   "common": {
-    "downloadCalendarEvent": "Baixar evento (.ics)",
-    "shareEvent": "Compartilhar evento",
-    "calendarFileError": "Não foi possível baixar o evento.",
-    "calendarShareError": "Não foi possível compartilhar ou copiar o link do evento.",
-    "eventLinkCopied": "Link do evento copiado",
+    "downloadCalendarEvent": "Transferir evento (.ics)",
+    "shareEvent": "Partilhar evento",
+    "calendarFileError": "Não foi possível transferir o evento.",
+    "calendarShareError": "Não foi possível partilhar ou copiar a ligação do evento.",
+    "eventLinkCopied": "Ligação do evento copiada",
     "createCalendarEvent": "Criar evento no Google Calendar",
     "createOutlookEvent": "Criar evento no Outlook",
     "clearSelection": "Limpar seleção",
     "selectHours": "Selecionar horas",
     "resizeSelection": "Redimensionar seleção",
     "calendarEventTitle": "Reunião TimeCross",
-    "sitePitch": "Entenda o horário no mundo todo",
+    "sitePitch": "Perceba as horas em todo o mundo",
     "sayThanks": "Agradecer",
-    "appStore": "Baixar na App Store",
+    "appStore": "Descarregar na App Store",
     "googlePlay": "Disponível no Google Play",
     "comingSoon": "Em breve",
     "home": "Início",
@@ -21,24 +21,24 @@
     "darkMode": "Modo escuro",
     "lightMode": "Modo claro",
     "citiesLabel": "Cidades",
-    "gridLabel": "Planejador",
+    "gridLabel": "Planeador",
     "addCity": "Adicionar fuso horário",
-    "openGrid": "Abrir o planejador",
+    "openGrid": "Abrir o planeador",
     "openCities": "Abrir cidades",
     "noResults": "Sem resultados",
-    "loading": "Carregando...",
+    "loading": "A carregar...",
     "close": "Fechar",
-    "reset": "Redefinir",
+    "reset": "Repor",
     "panMode": "Panorama",
     "scrollMode": "Scroll",
-    "previousHour": "Uma hora atrás",
-    "nextHour": "Uma hora à frente",
+    "previousHour": "Uma hora antes",
+    "nextHour": "Uma hora depois",
     "showCurrentHour": "Mostrar hora atual",
     "previousScreenshot": "Captura anterior",
     "nextScreenshot": "Próxima captura",
     "lastUpdated": "Última atualização: {date}",
     "support": "Suporte",
-    "termsOfUse": "Termos de uso",
+    "termsOfUse": "Termos de utilização",
     "privacyPolicy": "Política de privacidade",
     "worldClockLabel": "Relógio mundial",
     "meetingPlannerLabel": "Reuniões",
@@ -60,9 +60,9 @@
     "renameCity": "Renomear {city}",
     "clearCustomName": "Limpar nome personalizado de {city}",
     "customNamePlaceholder": "Introduza um nome personalizado...",
-    "saveCustomName": "Salvar nome personalizado de {city}",
-    "resetSelectedTime": "Redefinir hora selecionada",
-    "selectedTimeOffset": "Deslocamento de hora selecionado",
+    "saveCustomName": "Guardar nome personalizado de {city}",
+    "resetSelectedTime": "Repor hora selecionada",
+    "selectedTimeOffset": "Diferença da hora selecionada",
     "sameOffset": "igual",
     "yesterday": "Ontem",
     "tomorrow": "Amanhã"
@@ -75,266 +75,270 @@
     "databaseUnavailable": "A pesquisa de cidades está temporariamente indisponível."
   },
   "home": {
-    "heroText": "Use este app para comparar horários entre cidades, organizá-las do seu jeito e ver rapidamente a hora atual em cada lugar.\nCrie lembretes para cidades específicas e mantenha pessoas, planos e rotinas coordenados entre fusos horários.",
-    "moreFeaturesTitle": "Mais recursos",
-    "contactTitle": "Fale conosco",
+    "heroText": "Use esta aplicação para comparar as horas entre cidades, organizá-las à sua maneira e ver rapidamente a hora atual em cada lugar.\nCrie lembretes para cidades específicas e mantenha pessoas, planos e rotinas coordenados entre fusos horários.",
+    "moreFeaturesTitle": "Mais funcionalidades",
+    "contactTitle": "Contacte-nos",
     "faqTitle": "FAQ",
     "realUseCasesTitle": "Casos de uso reais",
-    "realUseCasesSubtitle": "Por que você precisa do app?",
-    "downloadTitle": "Baixar",
+    "realUseCasesSubtitle": "Porque precisa da aplicação?",
+    "downloadTitle": "Descarregar",
     "features": {
       "notifications": {
         "title": "Notificações",
-        "paragraph1": "Configure lembretes por cidade para chamadas, reuniões, passagens de tarefa ou rotinas diárias sem fazer contas de fuso horário de cabeça.",
-        "paragraph2": "{siteName} ajuda você a escolher primeiro o momento local certo e depois lembra quando esse momento chega."
+        "paragraph1": "Configure lembretes por cidade para chamadas, reuniões, passagens de turno ou rotinas diárias sem fazer contas de fusos horários de cabeça.",
+        "paragraph2": "O {siteName} ajuda-o a escolher primeiro o momento local certo e depois avisa quando esse momento chega."
       },
       "synchronisation": {
         "title": "Eventos do calendário",
-        "paragraph1": "Veja eventos do calendário no contexto das cidades importantes para você, para posicionar chamadas, reuniões e planos com mais facilidade na timeline.",
-        "paragraph2": "{siteName} conecta momentos agendados ao horário local, deixando mais claro o que acontece hoje, amanhã ou mais tarde entre fusos horários."
+        "paragraph1": "Veja os eventos do calendário no contexto das cidades que lhe interessam e posicione chamadas, reuniões e planos com mais facilidade na linha do tempo.",
+        "paragraph2": "O {siteName} liga os momentos agendados à hora local e torna mais claro o que acontece hoje, amanhã ou mais tarde noutros fusos horários."
       },
       "countdowns": {
-        "title": "Contagens regressivas",
-        "paragraph1": "Veja quanto tempo falta para um horário específico em outra cidade, mesmo quando essa cidade já está no dia seguinte.",
-        "paragraph2": "Contagens regressivas tornam o planejamento mais concreto: chega de adivinhar se um prazo, transmissão, voo ou chamada está a uma hora ou a meio dia de distância."
+        "title": "Contagens decrescentes",
+        "paragraph1": "Veja quanto tempo falta para uma hora específica noutra cidade, mesmo quando essa cidade já está no dia seguinte.",
+        "paragraph2": "As contagens decrescentes tornam o planeamento mais concreto: deixa de ter de adivinhar se um prazo, uma transmissão, um voo ou uma chamada está a uma hora ou a meio dia de distância."
       }
     },
     "useCases": {
       "remoteTeams": {
-        "title": "Equipes remotas",
+        "title": "Equipas remotas",
         "text": "Coordene reuniões entre continentes."
       },
       "familyAbroad": {
-        "title": "Família no exterior",
-        "text": "Saiba quando é um bom momento para ligar."
+        "title": "Família no estrangeiro",
+        "text": "Saiba quando é boa altura para ligar."
       },
       "travelers": {
         "title": "Viajantes",
-        "text": "Adapte-se mais rápido a novos fusos horários."
+        "text": "Adapte-se mais depressa a novos fusos horários."
       },
       "freelancers": {
         "title": "Freelancers",
-        "text": "Agende trabalhos com clientes internacionais."
+        "text": "Marque trabalho com clientes internacionais."
       }
     }
   },
   "contactForm": {
     "name": "Nome*",
-    "email": "Email*",
+    "email": "E-mail*",
     "message": "Mensagem*",
     "send": "Enviar",
-    "sending": "Enviando...",
+    "sending": "A enviar...",
     "sent": "Mensagem enviada. Obrigado!",
     "error": "Não foi possível enviar a mensagem",
-    "verificationPending": "Estamos verificando se você não é um robô. Tente novamente em alguns segundos.",
-    "verificationFailed": "Não foi possível confirmar que você não é um robô. Tente novamente.",
-    "verificationUnavailable": "A proteção contra spam não carregou. Verifique sua conexão ou o bloqueador de anúncios e recarregue a página.",
-    "tooManyRequests": "Muitas mensagens seguidas. Aguarde um minuto e tente novamente."
+    "verificationPending": "Estamos a verificar que não é um robô. Tente novamente dentro de alguns segundos.",
+    "verificationFailed": "Não foi possível confirmar que não é um robô. Tente novamente.",
+    "verificationUnavailable": "A proteção contra spam não carregou. Verifique a ligação ou o bloqueador de anúncios e recarregue a página.",
+    "tooManyRequests": "Demasiadas mensagens seguidas. Aguarde um minuto e tente novamente."
   },
   "faq": {
     "short": "Resumo",
     "yes": "Sim",
     "no": "Não",
     "platformsShort": "iOS e Android",
-    "notificationsShort": "Menu > Ajustes > Notificações",
+    "notificationsShort": "Menu > Definições > Notificações",
     "free": {
-      "title": "{siteName} é gratuito?",
-      "paragraph1": "Sim. {siteName} pode ser baixado e usado gratuitamente na experiência principal: acompanhar cidades favoritas, comparar fusos horários e consultar timelines ao longo do dia.",
-      "paragraph2": "Se recursos pagos forem adicionados depois, eles serão claramente indicados antes de você ativá-los. O app foi pensado para ser útil sem obrigar você a criar uma conta ou assinatura."
+      "title": "O {siteName} é gratuito?",
+      "paragraph1": "Sim. O {siteName} pode ser descarregado e usado gratuitamente na experiência principal: acompanhar cidades favoritas, comparar fusos horários e consultar linhas do tempo ao longo do dia.",
+      "paragraph2": "Se forem adicionadas funcionalidades pagas mais tarde, serão claramente indicadas antes de as ativar. A aplicação foi pensada para ser útil sem o obrigar a criar uma conta ou uma subscrição."
     },
     "offline": {
       "title": "Funciona offline?",
-      "paragraph1": "Sim. {siteName} pode calcular horários de cidades e diferenças de fuso horário no seu dispositivo, então a timeline principal e a lista de cidades continuam funcionando sem internet.",
-      "paragraph2": "Algumas coisas ainda dependem das configurações do dispositivo, como o relógio do sistema e a base de dados de fusos horários fornecida pelo sistema operacional."
+      "paragraph1": "Sim. O {siteName} calcula as horas das cidades e as diferenças de fuso horário no seu dispositivo, pelo que a linha do tempo principal e a lista de cidades continuam a funcionar sem internet.",
+      "paragraph2": "Algumas coisas continuam a depender das definições do dispositivo, como o relógio do sistema e a base de dados de fusos horários fornecida pelo sistema operativo."
     },
     "account": {
-      "title": "Preciso criar uma conta?",
-      "paragraph1": "Não. Você pode começar a usar {siteName} imediatamente sem criar conta. Suas cidades, ordem, formato de hora e outras preferências ficam salvas localmente no seu dispositivo.",
-      "paragraph2": "Isso também mantém o app leve: não há etapa de login apenas para verificar se é um bom momento para ligar, reunir ou enviar uma mensagem."
+      "title": "Tenho de criar uma conta?",
+      "paragraph1": "Não. Pode começar a usar o {siteName} de imediato, sem criar conta. As suas cidades, a ordem, o formato de hora e outras preferências ficam guardadas localmente no seu dispositivo.",
+      "paragraph2": "Isto também mantém a aplicação leve: não há início de sessão só para verificar se é boa altura para ligar, reunir ou enviar uma mensagem."
     },
     "platforms": {
-      "title": "Quais plataformas são compatíveis?",
-      "paragraph1": "{siteName} está disponível para iOS e Android, com a mesma lista simples de cidades, visualização de timeline e fluxo de notificações nas duas versões.",
-      "paragraph2": "O site também oferece uma prévia leve da experiência principal, para que você possa explorar como a timeline e a comparação de cidades funcionam antes de instalar o app."
+      "title": "Que plataformas são suportadas?",
+      "paragraph1": "O {siteName} está disponível para iOS e Android, com a mesma lista simples de cidades, a mesma linha do tempo e o mesmo fluxo de notificações nas duas versões.",
+      "paragraph2": "O site também oferece uma pré-visualização leve da experiência principal, para que possa explorar como funcionam a linha do tempo e a comparação de cidades antes de instalar a aplicação."
     },
     "notifications": {
       "title": "Como ativo as notificações?",
-      "paragraph1": "Abra o menu do app, vá para Ajustes e escolha Notificações. A partir daí, você pode ativar lembretes para as cidades e horários importantes para você.",
-      "paragraph2": "Seu dispositivo também pode pedir permissão para notificações. Se elas não aparecerem, verifique se {siteName} tem permissão para enviar alertas nas configurações do sistema."
+      "paragraph1": "Abra o menu da aplicação, vá a Definições e escolha Notificações. A partir daí, pode ativar lembretes para as cidades e horas que lhe interessam.",
+      "paragraph2": "O seu dispositivo também pode pedir autorização para notificações. Se não aparecerem, verifique nas definições do sistema se o {siteName} tem permissão para enviar alertas."
     }
   },
   "legal": {
     "privacy": {
       "title": "Política de privacidade",
       "overviewTitle": "Visão geral",
-      "overviewText": "{siteName} foi criado para ajudar você a comparar horários entre cidades sem exigir uma conta. O app e o site procuram manter a coleta de dados pessoais no mínimo.",
-      "infoTitle": "Informações que você fornece",
-      "infoText1": "Se você entrar em contato pelo formulário do site, seu nome, email e mensagem serão enviados ao suporte de {siteName} para que possamos responder.",
-      "infoText2": "O formulário de contato é processado pelo backend do nosso site e encaminhado ao nosso email de suporte.",
-      "infoText3": "Não inclua informações sensíveis em mensagens de suporte, a menos que sejam necessárias para sua solicitação.",
-      "localDataTitle": "Dados locais do app",
-      "localDataText1": "{siteName} pode armazenar preferências localmente no seu dispositivo ou navegador, como cidades selecionadas, ordem das cidades e formato de hora. Essas informações são usadas para que o app pareça familiar quando você voltar.",
-      "localDataText2": "Dados locais não são backup de conta. Limpar o armazenamento do navegador, excluir o app ou redefinir o dispositivo pode remover essas preferências.",
+      "overviewText": "O {siteName} foi criado para o ajudar a comparar horas entre cidades sem exigir uma conta. A aplicação e o site procuram reduzir ao mínimo a recolha de dados pessoais.",
+      "infoTitle": "Informações que nos fornece",
+      "infoText1": "Se nos contactar através do formulário do site, o seu nome, e-mail e mensagem são enviados para o apoio do {siteName} para que possamos responder.",
+      "infoText2": "O formulário de contacto é processado pelo backend do nosso site e encaminhado para o nosso e-mail de apoio.",
+      "infoText3": "Não inclua informações sensíveis nas mensagens de apoio, a menos que sejam necessárias para o seu pedido.",
+      "localDataTitle": "Dados locais da aplicação",
+      "localDataText1": "O {siteName} pode guardar preferências localmente no seu dispositivo ou navegador, como as cidades selecionadas, a ordem das cidades e o formato de hora. Estas informações servem para que a aplicação lhe pareça familiar quando voltar.",
+      "localDataText2": "Os dados locais não são uma cópia de segurança da conta. Limpar o armazenamento do navegador, eliminar a aplicação ou repor o dispositivo pode remover estas preferências.",
       "notificationsTitle": "Notificações",
-      "notificationsText": "Se você ativar notificações, {siteName} usa o sistema de notificações do seu dispositivo para mostrar os lembretes que você escolher. Você pode desativar permissões de notificação nas configurações do dispositivo.",
+      "notificationsText": "Se ativar as notificações, o {siteName} usa o sistema de notificações do seu dispositivo para mostrar os lembretes que escolher. Pode desativar as autorizações de notificação nas definições do dispositivo.",
       "thirdPartyTitle": "Serviços de terceiros",
-      "thirdPartyText": "Abrir links de lojas, emails ou suporte externo pode levar você a serviços operados por terceiros. As práticas de privacidade deles são regidas por suas próprias políticas.",
-      "contactTitle": "Contato",
-      "contactPrefix": "Para perguntas sobre privacidade, entre em contato em "
+      "thirdPartyText": "Abrir ligações para lojas, e-mail ou apoio externo pode levá-lo a serviços operados por terceiros. As práticas de privacidade desses serviços regem-se pelas respetivas políticas.",
+      "cityDataTitle": "Dados das cidades",
+      "cityDataPrefix": "Os nomes das cidades e os fusos horários baseiam-se em dados do ",
+      "cityDataLicensePrefix": ", licenciados ao abrigo da ",
+      "cityDataSuffix": ". Os dados foram adaptados para a aplicação e o site.",
+      "contactTitle": "Contacto",
+      "contactPrefix": "Para questões sobre privacidade, contacte-nos através de "
     },
     "terms": {
-      "title": "Termos de uso",
+      "title": "Termos de utilização",
       "acceptanceTitle": "Aceitação",
-      "acceptanceText": "Ao usar {siteName} ou este site, você concorda com estes Termos de uso. Se não concordar, não use o app nem o site.",
-      "purposeTitle": "Finalidade de {siteName}",
-      "purposeText": "{siteName} ajuda a comparar horários entre cidades, planejar entre fusos horários e entender diferenças de hora local. É uma ferramenta de planejamento, não uma garantia de que todo cronograma, calendário ou relógio do dispositivo esteja sempre correto.",
-      "responsibilityTitle": "Sua responsabilidade",
-      "responsibilityText1": "Você é responsável por verificar horários importantes antes de confiar neles para viagens, trabalho, decisões médicas, legais, financeiras ou outras situações críticas.",
-      "responsibilityText2": "Regras de fuso horário podem mudar, e configurações do dispositivo podem afetar os horários exibidos.",
-      "acceptableUseTitle": "Uso aceitável",
-      "acceptableUseText": "Você concorda em não usar indevidamente o app ou o site, tentar interromper seu funcionamento ou usá-lo de forma que viole leis aplicáveis.",
-      "availabilityTitle": "Disponibilidade e mudanças",
-      "availabilityText": "Podemos atualizar, alterar, pausar ou encerrar partes de {siteName} conforme o produto evolui. Recursos descritos no site podem mudar com o tempo.",
-      "contactTitle": "Contato",
-      "contactPrefix": "Perguntas sobre estes termos podem ser enviadas para "
+      "acceptanceText": "Ao usar o {siteName} ou este site, aceita estes Termos de utilização. Se não concordar, não use a aplicação nem o site.",
+      "purposeTitle": "Finalidade do {siteName}",
+      "purposeText": "O {siteName} ajuda a comparar horas entre cidades, planear entre fusos horários e perceber diferenças de hora local. É uma ferramenta de planeamento, não uma garantia de que todos os horários, calendários ou relógios do dispositivo estejam sempre corretos.",
+      "responsibilityTitle": "A sua responsabilidade",
+      "responsibilityText1": "É responsável por verificar as horas importantes antes de confiar nelas para viagens, trabalho, decisões médicas, jurídicas ou financeiras, ou outras situações críticas.",
+      "responsibilityText2": "As regras dos fusos horários podem mudar e as definições do dispositivo podem afetar as horas apresentadas.",
+      "acceptableUseTitle": "Utilização aceitável",
+      "acceptableUseText": "Compromete-se a não utilizar indevidamente a aplicação ou o site, a não tentar perturbar o seu funcionamento e a não os usar de forma que viole a legislação aplicável.",
+      "availabilityTitle": "Disponibilidade e alterações",
+      "availabilityText": "Podemos atualizar, alterar, suspender ou descontinuar partes do {siteName} à medida que o produto evolui. As funcionalidades descritas no site podem mudar ao longo do tempo.",
+      "contactTitle": "Contacto",
+      "contactPrefix": "As questões sobre estes termos podem ser enviadas para "
     }
   },
   "seo": {
     "pages": {
       "home": {
-        "title": "TimeCross — Relógio mundial e planejador de fusos horários",
-        "description": "Compare horários entre cidades, organize seus fusos favoritos e planeje chamadas, reuniões, viagens e lembretes com o TimeCross.",
-        "ogTitle": "TimeCross — Entenda o horário pelo mundo",
-        "ogDescription": "Um relógio mundial claro e timelines para pessoas, equipes e famílias que vivem entre fusos horários."
+        "title": "TimeCross — Relógio mundial e planeador de fusos horários",
+        "description": "Compare horas entre cidades, organize os seus fusos favoritos e planeie chamadas, reuniões, viagens e lembretes com o TimeCross.",
+        "ogTitle": "TimeCross — Perceba as horas em todo o mundo",
+        "ogDescription": "Um relógio mundial claro e linhas do tempo para pessoas, equipas e famílias que vivem entre fusos horários."
       },
       "cities": {
         "title": "Cidades — TimeCross",
-        "description": "Crie uma lista de cidades e fusos horários, reordene, personalize nomes e veja o horário local rapidamente.",
+        "description": "Crie uma lista de cidades e fusos horários, reordene-a, personalize nomes e veja a hora local num instante.",
         "ogTitle": "Cidades no TimeCross",
-        "ogDescription": "Monte sua própria lista de cidades e mantenha os fusos horários importantes sempre à mão."
+        "ogDescription": "Monte a sua própria lista de cidades e tenha sempre à mão os fusos horários que importam."
       },
       "grid": {
-        "title": "Planejador — TimeCross",
-        "description": "Compare os horários das cidades, selecione um período para a reunião e adicione ao calendário ou compartilhe um link.",
-        "ogTitle": "TimeCross Planejador",
-        "ogDescription": "Planeje entre fusos horários, crie eventos e compartilhe os horários selecionados."
+        "title": "Planeador — TimeCross",
+        "description": "Compare as horas das cidades, selecione um período para a reunião e adicione-o ao calendário ou partilhe uma ligação.",
+        "ogTitle": "TimeCross Planeador",
+        "ogDescription": "Planeie entre fusos horários, crie eventos e partilhe as horas selecionadas."
       },
       "privacy": {
         "title": "Política de privacidade — TimeCross",
-        "description": "Veja como o TimeCross lida com mensagens do formulário de contato, dados locais do app, notificações e links externos.",
+        "description": "Veja como o TimeCross trata as mensagens do formulário de contacto, os dados locais da aplicação, as notificações e as ligações externas.",
         "ogTitle": "Política de privacidade do TimeCross",
-        "ogDescription": "Como o TimeCross mantém a coleta de dados mínima e explica as informações usadas pelo app e pelo site."
+        "ogDescription": "Como o TimeCross reduz ao mínimo a recolha de dados e explica as informações usadas pela aplicação e pelo site."
       },
       "terms": {
-        "title": "Termos de uso — TimeCross",
-        "description": "Leia os termos aplicáveis ao usar o app e o site do TimeCross.",
-        "ogTitle": "Termos de uso do TimeCross",
-        "ogDescription": "As regras e responsabilidades básicas para usar o TimeCross como ferramenta de planejamento de tempo."
+        "title": "Termos de utilização — TimeCross",
+        "description": "Leia os termos aplicáveis à utilização da aplicação e do site do TimeCross.",
+        "ogTitle": "Termos de utilização do TimeCross",
+        "ogDescription": "As regras e responsabilidades básicas para usar o TimeCross como ferramenta de planeamento de horários."
       },
       "worldClock": {
         "title": "Relógio mundial — TimeCross",
-        "description": "Crie um relógio mundial pessoal com cidades favoritas, horas locais, marcadores de dia e deslocamentos de fuso horário.",
+        "description": "Crie um relógio mundial pessoal com cidades favoritas, horas locais, marcadores de dia e diferenças de fuso horário.",
         "ogTitle": "Relógio mundial TimeCross",
-        "ogDescription": "Compare a hora local atual nas cidades e fusos horários que importam para você."
+        "ogDescription": "Compare a hora local atual nas cidades e fusos horários que lhe interessam."
       },
       "meetingTimePlanner": {
-        "title": "Planejador de reuniões — TimeCross",
-        "description": "Planeje reuniões entre fusos horários com uma timeline visual para cidades, horários locais, marcadores de dia e diferenças de horário.",
-        "ogTitle": "Planejador de reuniões TimeCross",
-        "ogDescription": "Encontre melhores horários de reunião entre cidades e fusos horários com uma timeline visual."
+        "title": "Planeador de reuniões — TimeCross",
+        "description": "Planeie reuniões entre fusos horários com uma linha do tempo visual de cidades, horas locais, marcadores de dia e diferenças horárias.",
+        "ogTitle": "Planeador de reuniões TimeCross",
+        "ogDescription": "Encontre melhores horários de reunião entre cidades e fusos horários com uma linha do tempo visual."
       },
       "timeZoneConverter": {
         "title": "Conversor de fusos horários — TimeCross",
-        "description": "Converta um horário escolhido entre cidades e fusos horários com datas locais, marcadores de dia e diferenças de horário no TimeCross.",
+        "description": "Converta uma hora escolhida entre cidades e fusos horários, com datas locais, marcadores de dia e diferenças horárias, no TimeCross.",
         "ogTitle": "Conversor de fusos horários TimeCross",
-        "ogDescription": "Escolha uma cidade, data e horário, depois veja o mesmo momento nas suas cidades e fusos horários."
+        "ogDescription": "Escolha uma cidade, uma data e uma hora e veja o mesmo momento nas suas cidades e fusos horários."
       }
     },
     "images": {
-      "heroIphoneCities": "Prévia do TimeCross no iPhone mostrando uma lista personalizada de cidades com horários locais.",
-      "heroAndroidCities": "Prévia do TimeCross no Android mostrando cidades e diferenças de fuso horário.",
-      "heroIphoneTimelines": "Prévia do TimeCross no iPhone mostrando timelines de várias cidades.",
-      "heroAndroidAddCity": "Prévia do TimeCross no Android mostrando busca de cidade e seleção de fuso horário.",
-      "heroIphoneAddTimezone": "Prévia do TimeCross no iPhone mostrando a tela de adicionar fuso horário.",
-      "heroAndroidNotifications": "Prévia do TimeCross no Android mostrando lembretes de notificação.",
-      "screenshotCities": "Captura do TimeCross com cidades favoritas, horários locais e marcadores de dia.",
-      "screenshotCitiesAndroid": "Captura do TimeCross no Android com lista de cidades e diferenças de horário.",
-      "screenshotTimelines": "Captura do TimeCross com timelines alinhadas para cidades em diferentes fusos horários.",
-      "screenshotAddCity": "Captura do TimeCross mostrando busca e controles para adicionar cidade.",
-      "screenshotAddTimezone": "Captura do TimeCross mostrando seleção de fuso horário GMT e UTC.",
-      "screenshotNotifications": "Captura do TimeCross mostrando configuração de notificação para um horário local escolhido."
+      "heroIphoneCities": "Pré-visualização do TimeCross no iPhone com uma lista personalizada de cidades e as horas locais.",
+      "heroAndroidCities": "Pré-visualização do TimeCross no Android com cidades e diferenças de fuso horário.",
+      "heroIphoneTimelines": "Pré-visualização do TimeCross no iPhone com linhas do tempo de várias cidades.",
+      "heroAndroidAddCity": "Pré-visualização do TimeCross no Android com a pesquisa de cidades e a escolha de fuso horário.",
+      "heroIphoneAddTimezone": "Pré-visualização do TimeCross no iPhone com o ecrã de adicionar fuso horário.",
+      "heroAndroidNotifications": "Pré-visualização do TimeCross no Android com lembretes de notificação.",
+      "screenshotCities": "Captura de ecrã do TimeCross com cidades favoritas, horas locais e marcadores de dia.",
+      "screenshotCitiesAndroid": "Captura de ecrã do TimeCross no Android com a lista de cidades e as diferenças horárias.",
+      "screenshotTimelines": "Captura de ecrã do TimeCross com linhas do tempo alinhadas para cidades em fusos horários diferentes.",
+      "screenshotAddCity": "Captura de ecrã do TimeCross com a pesquisa e os controlos para adicionar uma cidade.",
+      "screenshotAddTimezone": "Captura de ecrã do TimeCross com a escolha de fusos horários GMT e UTC.",
+      "screenshotNotifications": "Captura de ecrã do TimeCross com a configuração de uma notificação para uma hora local escolhida."
     }
   },
   "worldClock": {
     "title": "Relógio mundial",
-    "lead": "Compare a hora local atual nas cidades que importam para você.",
-    "description": "TimeCross oferece um relógio mundial pessoal para pessoas, viagens, chamadas e rotinas em diferentes fusos horários. Adicione cidades, renomeie do seu jeito e mantenha os horários importantes por perto.",
+    "lead": "Compare a hora local atual nas cidades que lhe interessam.",
+    "description": "O TimeCross oferece um relógio mundial pessoal para pessoas, viagens, chamadas e rotinas em diferentes fusos horários. Adicione cidades, dê-lhes os nomes que quiser e mantenha as horas importantes por perto.",
     "personalClockTitle": "Um relógio mundial para as suas cidades",
-    "personalClockText": "Mantenha uma lista focada de lugares em vez de procurar numa tabela enorme de fusos horários. TimeCross ajuda a ordenar, renomear e comparar as cidades que realmente importam.",
-    "compareCitiesTitle": "Hoje, amanhã e diferenças de horário num olhar",
-    "compareCitiesText": "Marcadores de dia e deslocamentos relativos ajudam a ver onde já é amanhã, quando alguém provavelmente está acordado e quantas horas separam duas cidades.",
+    "personalClockText": "Mantenha uma lista focada de lugares em vez de procurar numa tabela enorme de fusos horários. O TimeCross ajuda a ordenar, renomear e comparar as cidades que realmente importam.",
+    "compareCitiesTitle": "Hoje, amanhã e diferenças horárias num relance",
+    "compareCitiesText": "Os marcadores de dia e as diferenças relativas ajudam a ver onde já é amanhã, quando alguém provavelmente está acordado e quantas horas separam duas cidades.",
     "nextTitle": "Explore mais ferramentas de tempo",
-    "gridLink": "Planejador",
+    "gridLink": "Planeador",
     "citiesLink": "Cidades"
   },
   "meetingTimePlanner": {
-    "title": "Planejador de reuniões",
+    "title": "Planeador de reuniões",
     "lead": "Encontre horários de reunião que façam sentido entre cidades e fusos horários.",
-    "description": "Use o TimeCross para comparar horários locais antes de marcar uma chamada, passagem de tarefa, transmissão, aula ou conversa em família. Alinhe o mesmo momento entre cidades e encontre janelas melhores mais rápido.",
-    "previewTitle": "Experimente o planejador em timeline",
-    "previewText": "A timeline alinha os horários das cidades para você ver hoje, ontem e amanhã sem fazer contas de fuso horário.",
+    "description": "Use o TimeCross para comparar horas locais antes de marcar uma chamada, uma passagem de turno, uma transmissão, uma aula ou uma conversa em família. Alinhe o mesmo momento entre cidades e encontre mais depressa as melhores janelas.",
+    "previewTitle": "Experimente o planeador em linha do tempo",
+    "previewText": "A linha do tempo alinha as horas das cidades para ver hoje, ontem e amanhã sem fazer contas de fusos horários.",
     "compareTitle": "Compare cidades antes de enviar o convite",
-    "compareText": "Veja em que parte do dia cada cidade está e evite adivinhar se um horário é cedo demais, tarde demais ou já amanhã.",
-    "planTitle": "Planeje em torno de pessoas, não de offsets",
-    "planText": "Renomeie cidades para clientes, amigos, família ou rotinas e mantenha os lugares importantes em uma ordem clara.",
+    "compareText": "Veja em que parte do dia está cada cidade e evite adivinhar se uma hora é cedo demais, tarde demais ou já amanhã.",
+    "planTitle": "Planeie em função das pessoas, não das diferenças horárias",
+    "planText": "Dê às cidades nomes de clientes, amigos, família ou rotinas e mantenha os lugares importantes numa ordem clara.",
     "nextTitle": "Explore mais ferramentas de tempo",
-    "gridLink": "Planejador",
+    "gridLink": "Planeador",
     "worldClockLink": "Relógio mundial"
   },
   "timeZoneConverter": {
     "title": "Conversor de fusos horários para cidades",
-    "lead": "Escolha qualquer cidade, insira um horário e veja a hora local correspondente nas suas cidades e fusos horários salvos.",
-    "description": "Escolha uma cidade, data e horário. O TimeCross mostra o mesmo momento nos lugares que importam para você, com datas locais, diferenças de horário e marcadores de dia.",
-    "toolTitle": "Converter horário entre cidades",
-    "toolText": "Use suas cidades salvas no TimeCross como lista de conversão. Mude a cidade de origem ou o horário e os resultados atualizam para cada cidade abaixo.",
+    "lead": "Escolha qualquer cidade, introduza uma hora e veja a hora local correspondente nas suas cidades e fusos horários guardados.",
+    "description": "Escolha uma cidade, uma data e uma hora. O TimeCross mostra o mesmo momento nos lugares que lhe interessam, com datas locais, diferenças horárias e marcadores de dia.",
+    "toolTitle": "Converter horas entre cidades",
+    "toolText": "Use as cidades guardadas no TimeCross como lista de conversão. Altere a cidade de origem ou a hora e os resultados são atualizados para cada cidade abaixo.",
     "fromLabel": "Cidade de origem",
     "dateLabel": "Data",
     "timeLabel": "Hora",
     "emptyText": "Adicione uma cidade para começar a converter fusos horários.",
-    "convertTitle": "Converta um momento, não só um offset",
-    "convertText": "Fusos horários mudam com horário de verão e datas locais. O conversor parte de uma cidade e horário específicos para manter o resultado ligado a um momento real.",
+    "convertTitle": "Converta um momento, não apenas uma diferença horária",
+    "convertText": "Os fusos horários mudam com a hora de verão e as datas locais. O conversor parte de uma cidade e de uma hora concretas para manter o resultado ligado a um momento real.",
     "contextTitle": "Mantenha o resultado em contexto",
-    "contextText": "Veja se outra cidade ainda está no mesmo dia, já está em amanhã ou ficou em ontem antes de planejar, ligar ou viajar.",
-    "useCasesTitle": "Casos comuns para converter fusos horários",
-    "useCasesLead": "Use o TimeCross para conversões que as pessoas procuram todos os dias: cidade para cidade, UTC para hora local e reuniões entre fusos horários.",
+    "contextText": "Veja se outra cidade ainda está no mesmo dia, já está em amanhã ou ficou em ontem antes de planear, ligar ou viajar.",
+    "useCasesTitle": "Casos comuns de conversão de fusos horários",
+    "useCasesLead": "Use o TimeCross para as conversões que as pessoas procuram todos os dias: de cidade para cidade, de UTC para a hora local e reuniões entre fusos horários.",
     "useCases": {
       "cityToCity": {
-        "title": "Converter horário entre cidades",
-        "text": "Converta a hora de Londres para Nova York, Tóquio, Dubai, Sydney ou as cidades salvas na sua lista do TimeCross."
+        "title": "Converter horas entre cidades",
+        "text": "Converta a hora de Londres para Nova Iorque, Tóquio, Dubai, Sydney ou as cidades guardadas na sua lista do TimeCross."
       },
       "utc": {
         "title": "Comparar UTC com hora local",
-        "text": "Confira a hora UTC em relação à hora real de uma cidade, ou use offsets GMT e UTC fixos quando um horário estiver escrito como UTC+3 ou UTC-5."
+        "text": "Compare a hora UTC com a hora real de uma cidade, ou use diferenças GMT e UTC fixas quando uma hora estiver escrita como UTC+3 ou UTC-5."
       },
       "meeting": {
-        "title": "Planejar reuniões entre fusos horários",
-        "text": "Veja se um horário escolhido cai hoje, amanhã ou ontem em outra cidade antes de enviar um convite."
+        "title": "Planear reuniões entre fusos horários",
+        "text": "Veja se uma hora escolhida calha hoje, amanhã ou ontem noutra cidade antes de enviar um convite."
       }
     },
-    "examplesTitle": "Guia de horário comercial por fuso horário",
-    "examplesLead": "Compare horários comerciais comuns das 09:00 às 18:00 em cidades populares e encontre rapidamente bons horários para pessoas em diferentes fusos horários.",
-    "exampleTitle": "Horário comercial: {city}",
+    "examplesTitle": "Guia de horário laboral por fuso horário",
+    "examplesLead": "Compare o horário laboral habitual, das 09:00 às 18:00, em cidades populares e encontre rapidamente boas horas para pessoas em diferentes fusos horários.",
+    "exampleTitle": "Horário laboral: {city}",
     "exampleGroups": {
       "northAmerica": "América do Norte",
       "europe": "Europa",
       "asia": "Ásia",
-      "middleEastAfrica": "Oriente Médio e África",
+      "middleEastAfrica": "Médio Oriente e África",
       "latinAmerica": "América Latina",
       "oceania": "Oceania"
     },
     "examples": {
       "newYork": {
-        "title": "Conversão da hora de Nova York"
+        "title": "Conversão da hora de Nova Iorque"
       },
       "london": {
         "title": "Conversão da hora de Londres"
@@ -359,24 +363,24 @@
     "faq": {
       "what": {
         "title": "O que é um conversor de fusos horários?",
-        "text": "Um conversor de fusos horários mostra o que o mesmo momento significa em cidades diferentes. Por exemplo, 10:00 em Londres pode virar 05:00 em Nova York e 18:00 em Tóquio, dependendo da data e das regras locais."
+        "text": "Um conversor de fusos horários mostra o que o mesmo momento significa em cidades diferentes. Por exemplo, 10:00 em Londres podem ser 05:00 em Nova Iorque e 18:00 em Tóquio, consoante a data e as regras locais."
       },
       "dst": {
-        "title": "O TimeCross considera horário de verão?",
-        "text": "Sim, quando você escolhe cidades reais. O TimeCross usa fusos horários de cidade, então mudanças de horário de verão seguem as regras locais da cidade selecionada. Offsets UTC/GMT fixos continuam fixos."
+        "title": "O TimeCross tem em conta a hora de verão?",
+        "text": "Sim, quando escolhe cidades reais. O TimeCross usa os fusos horários das cidades, pelo que as mudanças da hora de verão seguem as regras locais da cidade selecionada. As diferenças UTC/GMT fixas mantêm-se fixas."
       },
       "cities": {
-        "title": "Posso converter horário entre cidades em vez de offsets UTC?",
-        "text": "Sim. Escolha uma cidade de origem e um horário, e o TimeCross mostra a hora local correspondente nas suas cidades salvas. Isso costuma ser mais fácil do que comparar offsets como UTC+1 ou UTC-5."
+        "title": "Posso converter horas entre cidades em vez de diferenças UTC?",
+        "text": "Sim. Escolha uma cidade de origem e uma hora, e o TimeCross mostra a hora local correspondente nas suas cidades guardadas. Costuma ser mais fácil do que comparar diferenças como UTC+1 ou UTC-5."
       },
       "offsets": {
-        "title": "Qual é a diferença entre um fuso horário de cidade e um offset UTC fixo?",
-        "text": "Um fuso horário de cidade, como Londres ou Nova York, pode mudar de offset durante o ano por causa do horário de verão. Um offset fixo, como UTC+3, nunca muda."
+        "title": "Qual é a diferença entre o fuso horário de uma cidade e uma diferença UTC fixa?",
+        "text": "O fuso horário de uma cidade, como Londres ou Nova Iorque, pode mudar de diferença ao longo do ano por causa da hora de verão. Uma diferença fixa, como UTC+3, nunca muda."
       }
     },
     "nextTitle": "Explore mais ferramentas de tempo",
     "worldClockLink": "Relógio mundial",
-    "meetingPlannerLink": "Planejador de reuniões",
+    "meetingPlannerLink": "Planeador de reuniões",
     "converterLink": "Conversor horário",
     "whenItsLabel": "Quando são",
     "inLabel": "em",
@@ -390,7 +394,7 @@
       "yesterday": "{time} ontem em {city}"
     },
     "exampleCityNames": {
-      "newYork": "Nova York",
+      "newYork": "Nova Iorque",
       "london": "Londres",
       "paris": "Paris",
       "dubai": "Dubai",
