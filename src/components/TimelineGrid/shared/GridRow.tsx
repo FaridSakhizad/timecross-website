@@ -5,7 +5,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { useI18n } from '../../../i18n';
 import { getIntlLocale } from '../../../i18n/intlLocale';
 import type { TimeFormat } from '../../../settings';
-import type { FavoriteCity } from '../../Cities/fixtures';
+import type { StoredCity } from '../../../settings';
 import { getCityDisplayName } from '../../Cities/useLocalizedCities';
 import TimelineCellLabel from '../../Timelines/TimelineCellLabel';
 import {
@@ -21,7 +21,7 @@ export type GridRowClasses = { row?: string; city?: string; cells: string; space
 type TimelineGridRowProps = {
   baseDate: Date;
   browserTimezone: string;
-  city: FavoriteCity;
+  city: StoredCity;
   isEditMode: boolean;
   classNames: GridRowClasses;
   timelineDates: Date[];

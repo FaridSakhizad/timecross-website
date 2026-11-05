@@ -190,11 +190,7 @@ for (const [name, Component] of [['desktop', Desktop], ['mobile', Mobile]]) {
       id: 'ny',
       city: 'New York',
       timezone: 'America/New_York',
-      utcOffset: '',
-      timeOffset: '',
-      time: '',
-      period: 'day',
-      order: 0,
+      customName: '',
     };
     const hours = [0, 1, 2].map((offset) => ({ rowId: city.id, start: start + offset * 3600000 }));
     const url = buildGridEventUrl('https://timecross.app/en/grid', [city], hours);

@@ -5,19 +5,25 @@ import './style.css';
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 
-import { MARKETING_DEFAULT_SELECTED_CITIES, type AppLanguage, type ColorMode, type TimeFormat } from '../../settings';
+import {
+  MARKETING_DEFAULT_SELECTED_CITIES,
+  type AppLanguage,
+  type ColorMode,
+  type StoredCity,
+  type TimeFormat,
+} from '../../settings';
 import { useI18n } from '../../i18n';
 import { getIntlLocale } from '../../i18n/intlLocale';
 import { getCanonicalLanguagePath } from '../../i18n/languageRouting';
 import {
   createFavoriteCityFromSearchResult,
   saveSelectedCities,
-  getStoredOrderedSelectedCities,
+  getSelectedCities,
   subscribeSelectedCities,
 } from '../Cities/selectedCities';
 import { getCityDisplayName, useLocalizedCities } from '../Cities/useLocalizedCities';
 import AddCityModal from '../Cities/AddCityModal';
-import { favoriteCities, type FavoriteCity } from '../Cities/fixtures';
+import { favoriteCities } from '../Cities/fixtures';
 import type { CitySearchRow } from '../Cities/citySearch';
 import StandaloneMenuModal from '../StandaloneMenuModal';
 import { getBrowserTimezoneCity } from './browserTimezoneCities';
@@ -176,14 +182,14 @@ function hasSameTimezoneProfile(leftTimezone: string, rightTimezone: string) {
   );
 }
 
-function getDefaultSourceCity(cities: FavoriteCity[]) {
+function getDefaultSourceCity(cities: StoredCity[]) {
   const browserTimezone = typeof window === 'undefined' ? null : getBrowserTimezone();
 
   if (!browserTimezone) {
     return cities[0] ?? null;
   }
 
-  const marketingCities = MARKETING_DEFAULT_SELECTED_CITIES as FavoriteCity[];
+  const marketingCities = MARKETING_DEFAULT_SELECTED_CITIES;
   const sourcePools = [cities, marketingCities, favoriteCities];
 
   const selectedBrowserCity = cities.find((city) => city.timezone === browserTimezone);
@@ -229,13 +235,13 @@ export default function TimeZoneConverter({
 }: TimeZoneConverterProps) {
   const { language, t } = useI18n();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [cities, setCities] = useState(() => getStoredOrderedSelectedCities());
+  const [cities, setCities] = useState(() => getSelectedCities());
   const [initialUrlState] = useState(() => readConverterUrlState(
     (syncUrl || hasStandaloneControls) && typeof window !== 'undefined' ? window.location.search : '',
   ));
   const [initialSourceCity] = useState(() => initialUrlState.sourceCity ?? getDefaultSourceCity(cities));
   const localizedCities = useLocalizedCities(cities);
-  const [sourceCity, setSourceCity] = useState<FavoriteCity | null>(initialSourceCity);
+  const [sourceCity, setSourceCity] = useState<StoredCity | null>(initialSourceCity);
   const localizedSourceCities = useLocalizedCities(sourceCity ? [sourceCity] : []);
   const localizedSourceCity = localizedSourceCities[0] ?? sourceCity;
   const [cityModalMode, setCityModalMode] = useState<CityModalMode | null>(null);
@@ -296,7 +302,7 @@ export default function TimeZoneConverter({
    * Updates the city list. If no source city could be chosen yet (for example, the list
    * was empty), picks the default one from the new list and fills in an empty date and time.
    */
-  const applyCities = useCallback((nextCities: FavoriteCity[]) => {
+  const applyCities = useCallback((nextCities: StoredCity[]) => {
     setCities(nextCities);
 
     if (hasInitializedDefaultSourceCityRef.current || hasUserSelectedSourceCityRef.current) {
@@ -318,7 +324,7 @@ export default function TimeZoneConverter({
   }, []);
 
   useEffect(() => subscribeSelectedCities(() => {
-    applyCities(getStoredOrderedSelectedCities());
+    applyCities(getSelectedCities());
   }), [applyCities]);
 
   useEffect(() => {
@@ -389,7 +395,7 @@ export default function TimeZoneConverter({
   }, [convertedDate, localizedCities, localizedSourceCity, t, timeFormat]);
 
   const handleSourceCitySelect = (city: CitySearchRow) => {
-    const nextSourceCity = createFavoriteCityFromSearchResult(city, 0);
+    const nextSourceCity = createFavoriteCityFromSearchResult(city);
 
     hasUserSelectedSourceCityRef.current = true;
     setHasConversionSelection(true);
@@ -411,7 +417,7 @@ export default function TimeZoneConverter({
   const handleAddCity = (city: CitySearchRow) => {
     const nextCities = [
       ...cities,
-      createFavoriteCityFromSearchResult(city, cities.length),
+      createFavoriteCityFromSearchResult(city),
     ];
 
     setCityModalMode(null);
@@ -420,12 +426,7 @@ export default function TimeZoneConverter({
   };
 
   const handleDeleteCity = (cityId: string) => {
-    const nextCities = cities
-      .filter((city) => city.id !== cityId)
-      .map((city, index) => ({
-        ...city,
-        order: index,
-      }));
+    const nextCities = cities.filter((city) => city.id !== cityId);
 
     applyCities(nextCities);
     saveSelectedCities(nextCities);

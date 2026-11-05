@@ -44,3 +44,8 @@ Portuguese names that the app database lacks, from GeoNames
 (git-ignored) as `cities.db` and `alternateNamesV2.txt`, or pass `--db` and `--alternate-names`. GeoNames data is
 CC BY 4.0; the attribution is on the privacy policy page. Commit the generated files; `tests/cityData.test.mjs` checks
 they are consistent.
+
+GeoNames German and Portuguese names are cleaned up automatically (district variants in German- and Portuguese-speaking
+countries are not shown, Brazilian cities keep their base names). Wrong or Brazilian-Portuguese display names are fixed by
+hand in `scripts/city-data/name-overrides.json` (`"name": null` shows the base name); the Portuguese interface uses
+European Portuguese.

@@ -1,18 +1,12 @@
-import type { FavoriteCity } from '../Cities/fixtures';
+import type { StoredCity } from '../../settings';
 
-type BrowserTimezoneCity = Omit<FavoriteCity, 'order'>;
-
-const BROWSER_TIMEZONE_CITIES: Record<string, BrowserTimezoneCity> = {
+const BROWSER_TIMEZONE_CITIES: Record<string, StoredCity> = {
   'America/Anchorage': {
     id: 'browser-anchorage',
     cityId: '5879400',
     customName: '',
     city: 'Anchorage',
     timezone: 'America/Anchorage',
-    utcOffset: '',
-    timeOffset: '',
-    time: '',
-    period: 'day',
   },
   'America/Chicago': {
     id: 'browser-chicago',
@@ -20,10 +14,6 @@ const BROWSER_TIMEZONE_CITIES: Record<string, BrowserTimezoneCity> = {
     customName: '',
     city: 'Chicago',
     timezone: 'America/Chicago',
-    utcOffset: '',
-    timeOffset: '',
-    time: '',
-    period: 'day',
   },
   'America/Denver': {
     id: 'browser-denver',
@@ -31,10 +21,6 @@ const BROWSER_TIMEZONE_CITIES: Record<string, BrowserTimezoneCity> = {
     customName: '',
     city: 'Denver',
     timezone: 'America/Denver',
-    utcOffset: '',
-    timeOffset: '',
-    time: '',
-    period: 'day',
   },
   'America/Edmonton': {
     id: 'browser-edmonton',
@@ -42,10 +28,6 @@ const BROWSER_TIMEZONE_CITIES: Record<string, BrowserTimezoneCity> = {
     customName: '',
     city: 'Edmonton',
     timezone: 'America/Edmonton',
-    utcOffset: '',
-    timeOffset: '',
-    time: '',
-    period: 'day',
   },
   'America/Halifax': {
     id: 'browser-halifax',
@@ -53,10 +35,6 @@ const BROWSER_TIMEZONE_CITIES: Record<string, BrowserTimezoneCity> = {
     customName: '',
     city: 'Halifax',
     timezone: 'America/Halifax',
-    utcOffset: '',
-    timeOffset: '',
-    time: '',
-    period: 'day',
   },
   'America/Los_Angeles': {
     id: 'browser-los-angeles',
@@ -64,10 +42,6 @@ const BROWSER_TIMEZONE_CITIES: Record<string, BrowserTimezoneCity> = {
     customName: '',
     city: 'Los Angeles',
     timezone: 'America/Los_Angeles',
-    utcOffset: '',
-    timeOffset: '',
-    time: '',
-    period: 'day',
   },
   'America/New_York': {
     id: 'browser-new-york',
@@ -75,10 +49,6 @@ const BROWSER_TIMEZONE_CITIES: Record<string, BrowserTimezoneCity> = {
     customName: '',
     city: 'New York',
     timezone: 'America/New_York',
-    utcOffset: '',
-    timeOffset: '',
-    time: '',
-    period: 'day',
   },
   'America/Phoenix': {
     id: 'browser-phoenix',
@@ -86,10 +56,6 @@ const BROWSER_TIMEZONE_CITIES: Record<string, BrowserTimezoneCity> = {
     customName: '',
     city: 'Phoenix',
     timezone: 'America/Phoenix',
-    utcOffset: '',
-    timeOffset: '',
-    time: '',
-    period: 'day',
   },
   'America/St_Johns': {
     id: 'browser-st-johns',
@@ -97,10 +63,6 @@ const BROWSER_TIMEZONE_CITIES: Record<string, BrowserTimezoneCity> = {
     customName: '',
     city: "St. John's",
     timezone: 'America/St_Johns',
-    utcOffset: '',
-    timeOffset: '',
-    time: '',
-    period: 'day',
   },
   'America/Toronto': {
     id: 'browser-toronto',
@@ -108,10 +70,6 @@ const BROWSER_TIMEZONE_CITIES: Record<string, BrowserTimezoneCity> = {
     customName: '',
     city: 'Toronto',
     timezone: 'America/Toronto',
-    utcOffset: '',
-    timeOffset: '',
-    time: '',
-    period: 'day',
   },
   'America/Vancouver': {
     id: 'browser-vancouver',
@@ -119,10 +77,6 @@ const BROWSER_TIMEZONE_CITIES: Record<string, BrowserTimezoneCity> = {
     customName: '',
     city: 'Vancouver',
     timezone: 'America/Vancouver',
-    utcOffset: '',
-    timeOffset: '',
-    time: '',
-    period: 'day',
   },
   'Asia/Dubai': {
     id: 'browser-dubai',
@@ -130,10 +84,6 @@ const BROWSER_TIMEZONE_CITIES: Record<string, BrowserTimezoneCity> = {
     customName: '',
     city: 'Dubai',
     timezone: 'Asia/Dubai',
-    utcOffset: '',
-    timeOffset: '',
-    time: '',
-    period: 'day',
   },
   'Asia/Singapore': {
     id: 'browser-singapore',
@@ -141,10 +91,6 @@ const BROWSER_TIMEZONE_CITIES: Record<string, BrowserTimezoneCity> = {
     customName: '',
     city: 'Singapore',
     timezone: 'Asia/Singapore',
-    utcOffset: '',
-    timeOffset: '',
-    time: '',
-    period: 'day',
   },
   'Asia/Tokyo': {
     id: 'browser-tokyo',
@@ -152,10 +98,6 @@ const BROWSER_TIMEZONE_CITIES: Record<string, BrowserTimezoneCity> = {
     customName: '',
     city: 'Tokyo',
     timezone: 'Asia/Tokyo',
-    utcOffset: '',
-    timeOffset: '',
-    time: '',
-    period: 'day',
   },
   'Australia/Sydney': {
     id: 'browser-sydney',
@@ -163,10 +105,6 @@ const BROWSER_TIMEZONE_CITIES: Record<string, BrowserTimezoneCity> = {
     customName: '',
     city: 'Sydney',
     timezone: 'Australia/Sydney',
-    utcOffset: '',
-    timeOffset: '',
-    time: '',
-    period: 'day',
   },
   'Europe/Berlin': {
     id: 'browser-berlin',
@@ -174,10 +112,6 @@ const BROWSER_TIMEZONE_CITIES: Record<string, BrowserTimezoneCity> = {
     customName: '',
     city: 'Berlin',
     timezone: 'Europe/Berlin',
-    utcOffset: '',
-    timeOffset: '',
-    time: '',
-    period: 'day',
   },
   'Europe/London': {
     id: 'browser-london',
@@ -185,10 +119,6 @@ const BROWSER_TIMEZONE_CITIES: Record<string, BrowserTimezoneCity> = {
     customName: '',
     city: 'London',
     timezone: 'Europe/London',
-    utcOffset: '',
-    timeOffset: '',
-    time: '',
-    period: 'day',
   },
   'Europe/Paris': {
     id: 'browser-paris',
@@ -196,10 +126,6 @@ const BROWSER_TIMEZONE_CITIES: Record<string, BrowserTimezoneCity> = {
     customName: '',
     city: 'Paris',
     timezone: 'Europe/Paris',
-    utcOffset: '',
-    timeOffset: '',
-    time: '',
-    period: 'day',
   },
   'Europe/Kyiv': {
     id: 'browser-kyiv',
@@ -207,22 +133,9 @@ const BROWSER_TIMEZONE_CITIES: Record<string, BrowserTimezoneCity> = {
     customName: '',
     city: 'Kyiv',
     timezone: 'Europe/Kyiv',
-    utcOffset: '',
-    timeOffset: '',
-    time: '',
-    period: 'day',
   },
 };
 
-export function getBrowserTimezoneCity(timezone: string): FavoriteCity | null {
-  const city = BROWSER_TIMEZONE_CITIES[timezone];
-
-  if (!city) {
-    return null;
-  }
-
-  return {
-    ...city,
-    order: -1,
-  };
+export function getBrowserTimezoneCity(timezone: string): StoredCity | null {
+  return BROWSER_TIMEZONE_CITIES[timezone] ?? null;
 }

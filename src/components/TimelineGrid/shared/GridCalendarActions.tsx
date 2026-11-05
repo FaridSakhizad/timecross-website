@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { CalendarDays, CalendarPlus, Check, Download, Share2 } from 'lucide-react';
 import { useI18n } from '../../../i18n';
 import { getCanonicalLanguagePath } from '../../../i18n/languageRouting';
-import type { FavoriteCity } from '../../Cities/fixtures';
+import type { StoredCity } from '../../../settings';
 import type { GridCalendarEvent } from './gridSelection';
 import { buildOutlookCalendarUrl, type SelectedGridHour } from './gridSelection';
 import { buildGridEventUrl } from './eventUrlState';
@@ -31,7 +31,7 @@ function loadCalendarFileModule() {
 }
 
 export default function GridCalendarActions({ event, cities, hours }: {
-  event: GridCalendarEvent | null; cities: FavoriteCity[]; hours: SelectedGridHour[];
+  event: GridCalendarEvent | null; cities: StoredCity[]; hours: SelectedGridHour[];
 }) {
   const { t, language } = useI18n();
   const start = event?.start;

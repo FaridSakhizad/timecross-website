@@ -57,3 +57,24 @@ test('per-language city names match the search data', () => {
     assert.deepEqual(readJson(`city-names/${language}.json`), expected.get(language), language);
   }
 });
+
+test('manual name fixes are the display names', () => {
+  const overrides = JSON.parse(readFileSync(new URL('../scripts/city-data/name-overrides.json', import.meta.url), 'utf8'));
+  const baseNames = new Map(search.cities.map(([id, name]) => [id, name]));
+
+  for (const [language, fixes] of Object.entries(overrides)) {
+    const names = readJson(`city-names/${language}.json`);
+
+    for (const { id, city, name } of fixes) {
+      assert.equal(baseNames.get(id), city, `${language} ${id}`);
+      assert.equal(names[id], name ?? undefined, `${language} ${city}`);
+    }
+  }
+});
+
+test('Brazilian cities keep their base names in Portuguese', () => {
+  const brazilianIds = new Set(search.cities.filter((city) => city[2] === 'BR').map(([id]) => String(id)));
+  const names = readJson('city-names/pt.json');
+
+  assert.deepEqual(Object.keys(names).filter((id) => brazilianIds.has(id)), []);
+});

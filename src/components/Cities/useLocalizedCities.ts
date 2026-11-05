@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import { useI18n } from '../../i18n';
-import type { FavoriteCity } from './fixtures';
+import type { StoredCity } from '../../settings';
 import { getLocalizedCityNamesByIds } from './citySearch';
 
 const MARKETING_CITY_ID_BY_SLUG: Record<string, string> = {
@@ -19,6 +19,11 @@ const MARKETING_CITY_ID_BY_SLUG: Record<string, string> = {
   auckland: '2193733',
 };
 
+/** A city with its name in the interface language (`displayCity`). */
+export type LocalizedCity = StoredCity & {
+  displayCity?: string;
+};
+
 function areLocalizedNameMapsEqual(left: Map<string, string>, right: Map<string, string>) {
   if (left.size !== right.size) {
     return false;
@@ -27,19 +32,19 @@ function areLocalizedNameMapsEqual(left: Map<string, string>, right: Map<string,
   return Array.from(left).every(([cityId, cityName]) => right.get(cityId) === cityName);
 }
 
-export function getCityBaseName(city: FavoriteCity) {
+export function getCityBaseName(city: LocalizedCity) {
   return city.displayCity || city.city;
 }
 
-export function getCityDisplayName(city: FavoriteCity) {
+export function getCityDisplayName(city: LocalizedCity) {
   return city.customName || getCityBaseName(city);
 }
 
-function getCityLookupId(city: FavoriteCity) {
+function getCityLookupId(city: StoredCity) {
   return city.cityId || MARKETING_CITY_ID_BY_SLUG[city.id] || city.id;
 }
 
-export function useLocalizedCities(cities: FavoriteCity[]) {
+export function useLocalizedCities(cities: StoredCity[]): LocalizedCity[] {
   const { language } = useI18n();
   const cityIdsKey = useMemo(
     () => Array.from(new Set(cities.map(getCityLookupId))).sort().join(','),

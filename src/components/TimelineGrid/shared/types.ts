@@ -1,5 +1,5 @@
 import type { ColorMode, TimeFormat } from '../../../settings';
-import type { FavoriteCity } from '../../Cities/fixtures';
+import type { StoredCity } from '../../../settings';
 import type { TimelineCell } from '../../Timelines/types';
 import type { GridCalendarEvent, SelectedGridHour } from './gridSelection';
 
@@ -18,7 +18,7 @@ export type TimelineGridContentProps = {
   onReset?: () => void;
   baseDate: Date;
   browserTimezone: string;
-  cities: FavoriteCity[];
+  cities: StoredCity[];
   colorMode: ColorMode;
   currentUserHourIndex: number;
   isDragging: boolean;

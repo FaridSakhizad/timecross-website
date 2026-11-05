@@ -22,7 +22,7 @@ import AddCityModal from '../../Cities/AddCityModal';
 import {
   createFavoriteCityFromSearchResult,
   saveSelectedCities,
-  getStoredOrderedSelectedCities,
+  getSelectedCities,
   subscribeSelectedCities,
 } from '../../Cities/selectedCities';
 import { useLocalizedCities } from '../../Cities/useLocalizedCities';
@@ -88,7 +88,7 @@ function GridSession({
   const [hasSelection, setHasSelection] = useState(Boolean(initialState.at || initialState.cities));
   const baseDate = useCurrentMinuteDate();
   const browserTimezone = useMemo(() => getBrowserTimezone(), []);
-  const [cities, setCities] = useState(() => sharedEvent?.cities ?? initialState.cities ?? getStoredOrderedSelectedCities());
+  const [cities, setCities] = useState(() => sharedEvent?.cities ?? initialState.cities ?? getSelectedCities());
   const [selectedHours, setSelectedHours] = useState(sharedEvent?.hours ?? []);
   const [isAddCityModalOpen, setIsAddCityModalOpen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -125,7 +125,7 @@ function GridSession({
     }
     const restore = () => {
       const state = readPlannerUrlState(window.location.search);
-      setCities(state.cities ?? getStoredOrderedSelectedCities());
+      setCities(state.cities ?? getSelectedCities());
       setAnchorDate(state.at);
       setSelectedDate(state.at);
       setSelectedHours([]);
@@ -140,7 +140,7 @@ function GridSession({
       return;
     }
     return subscribeSelectedCities(() => {
-      setCities(getStoredOrderedSelectedCities());
+      setCities(getSelectedCities());
     });
   }, [sharedEvent]);
 
@@ -167,7 +167,7 @@ function GridSession({
   const handleAddCity = (city: Parameters<typeof createFavoriteCityFromSearchResult>[0]) => {
     const nextCities = [
       ...cities,
-      createFavoriteCityFromSearchResult(city, cities.length),
+      createFavoriteCityFromSearchResult(city),
     ];
 
     setCities(nextCities);
@@ -206,10 +206,7 @@ function GridSession({
       return;
     }
 
-    const nextCities = arrayMove(cities, oldIndex, newIndex).map((city, index) => ({
-      ...city,
-      order: index,
-    }));
+    const nextCities = arrayMove(cities, oldIndex, newIndex);
 
     setCities(nextCities);
     setHasSelection(true);

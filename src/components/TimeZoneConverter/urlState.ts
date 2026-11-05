@@ -1,10 +1,10 @@
-import type { FavoriteCity } from '../Cities/fixtures';
+import type { StoredCity } from '../../settings';
 
 export function readConverterUrlState(search: string) {
   const params = new URLSearchParams(search);
   const city = params.get('city');
   const timezone = params.get('tz');
-  let sourceCity: FavoriteCity | null = null;
+  let sourceCity: StoredCity | null = null;
 
   if (city && city.length <= 200 && timezone && timezone.length <= 100) {
     try {
@@ -14,12 +14,7 @@ export function readConverterUrlState(search: string) {
         cityId: params.get('cityId')?.slice(0, 100) || undefined,
         city,
         timezone,
-        order: 0,
         customName: '',
-        utcOffset: '',
-        timeOffset: '',
-        time: '',
-        period: 'day',
       };
     } catch {
       // Invalid shared links fall back to the usual local city.
@@ -43,7 +38,7 @@ export function readConverterUrlState(search: string) {
 
 export function writeConverterUrlState(
   url: URL,
-  sourceCity: FavoriteCity,
+  sourceCity: StoredCity,
   date: string,
   time: string,
 ) {

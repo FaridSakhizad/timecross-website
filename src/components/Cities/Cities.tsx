@@ -26,7 +26,6 @@ import {
   type KeyboardEvent,
 } from 'react';
 import { Link } from 'react-router';
-import type { FavoriteCity } from './fixtures';
 import type { ColorMode, TimeFormat } from '../../settings';
 import { useCurrentMinuteDate } from '../../useCurrentMinuteDate';
 import { useMobileWidgetLayout } from '../../useMobileWidgetLayout';
@@ -43,28 +42,34 @@ import {
   getTimeZoneOffsetMinutes,
   getTimeZoneOffsetMinutesFromParts,
   getZonedDateParts,
+  type DayPeriod,
   type ZonedDateParts,
 } from '../../utils/time';
 import AddCityModal from './AddCityModal';
 import StandaloneMenuModal from '../StandaloneMenuModal';
 import {
   createFavoriteCityFromSearchResult,
-  getStoredOrderedSelectedCities,
+  getSelectedCities,
   saveSelectedCities,
   subscribeSelectedCities,
 } from './selectedCities';
 import { useTimeRulerScroll } from './useTimeRulerScroll';
 import RenameCityModal from './RenameCityModal';
-import { getCityBaseName, getCityDisplayName, useLocalizedCities } from './useLocalizedCities';
+import {
+  getCityBaseName,
+  getCityDisplayName,
+  useLocalizedCities,
+  type LocalizedCity,
+} from './useLocalizedCities';
 
 const PIXELS_IN_MINUTE = 1;
 const TIME_RULER_RANGE_MINUTES = 24 * 60;
 const TIME_RULER_TICK_STEP_MINUTES = 15;
 const TIME_RULER_HOUR_STEP_MINUTES = 60;
 
-type CityView = FavoriteCity & {
+type CityView = LocalizedCity & {
   currentTime: string;
-  currentPeriod: FavoriteCity['period'];
+  currentPeriod: DayPeriod;
   dayShift: 'yesterday' | 'tomorrow' | null;
   relativeTimeOffset: string;
 };
@@ -120,7 +125,7 @@ function getDayShiftLabel(cityDateParts: ZonedDateParts, baseBrowserDateParts: Z
 }
 
 function getCityView(
-  city: FavoriteCity,
+  city: LocalizedCity,
   selectedDate: Date,
   baseBrowserDateParts: ZonedDateParts,
   browserOffsetMinutes: number,
@@ -355,7 +360,7 @@ export default function Cities({
   const { language, t } = useI18n();
   const customClassNameList = customClassNames.split(/\s+/).filter(Boolean);
 
-  const [cities, setCities] = useState(getStoredOrderedSelectedCities);
+  const [cities, setCities] = useState(getSelectedCities);
   const baseDate = useCurrentMinuteDate();
   const [isAddCityModalOpen, setIsAddCityModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -368,7 +373,7 @@ export default function Cities({
 
   // Picks up changes made by other widgets on the page and in other open tabs.
   useEffect(() => subscribeSelectedCities(() => {
-    setCities(getStoredOrderedSelectedCities());
+    setCities(getSelectedCities());
   }), []);
 
   const cityIds = useMemo(() => cities.map((city) => city.id), [cities]);
@@ -478,7 +483,7 @@ export default function Cities({
   const handleAddCity = (city: Parameters<typeof createFavoriteCityFromSearchResult>[0]) => {
     const nextCities = [
       ...cities,
-      createFavoriteCityFromSearchResult(city, cities.length),
+      createFavoriteCityFromSearchResult(city),
     ];
 
     setCities(nextCities);

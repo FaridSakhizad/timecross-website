@@ -1,5 +1,10 @@
-import { getSettings, subscribeSettings, updateSettings } from '../../settings';
-import type { FavoriteCity } from './fixtures';
+import {
+  getSettings,
+  subscribeSettings,
+  toStoredCity,
+  updateSettings,
+  type StoredCity,
+} from '../../settings';
 
 export type SelectedCityInput = {
   id: number | string;
@@ -20,29 +25,15 @@ function createSelectedCityInstanceId(cityId: number | string) {
   return `${normalizeCityId(cityId)}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
-function normalizeSelectedCity(city: FavoriteCity, index: number): FavoriteCity {
-  return {
-    ...city,
-    id: normalizeCityId(city.id),
-    order: Number.isFinite(city.order) ? city.order : index,
-    customName: city.customName || '',
-    period: city.period || 'day',
-  };
-}
-
+/** The user's cities in display order. */
 export function getSelectedCities() {
-  return getSettings().selectedCities
-    .filter((city) => city.visible !== false)
-    .map(normalizeSelectedCity);
+  return getSettings().selectedCities;
 }
 
-export function saveSelectedCities(cities: FavoriteCity[]) {
-  const normalizedCities = cities.map(normalizeSelectedCity);
-
+export function saveSelectedCities(cities: StoredCity[]) {
   updateSettings((settings) => ({
     ...settings,
-    cityOrder: normalizedCities.map((city) => city.id),
-    selectedCities: normalizedCities,
+    selectedCities: cities.map(toStoredCity),
   }));
 }
 
@@ -65,43 +56,14 @@ export function subscribeSelectedCities(listener: () => void) {
   });
 }
 
-export function createFavoriteCityFromSearchResult(
-  city: SelectedCityInput,
-  order: number,
-): FavoriteCity {
+export function createFavoriteCityFromSearchResult(city: SelectedCityInput): StoredCity {
   const cityId = normalizeCityId(city.id);
 
   return {
     id: createSelectedCityInstanceId(cityId),
     cityId,
-    order,
     customName: '',
     city: city.name,
     timezone: city.tz,
-    utcOffset: '',
-    timeOffset: '',
-    time: '',
-    period: 'day',
   };
-}
-
-export function getOrderedSelectedCities(cityOrder: string[]) {
-  const selectedCities = getSelectedCities();
-
-  if (cityOrder.length === 0) {
-    return selectedCities;
-  }
-
-  const cityById = new Map(selectedCities.map((city) => [city.id, city]));
-  const orderedCities = cityOrder
-    .map((cityId) => cityById.get(cityId))
-    .filter((city): city is FavoriteCity => Boolean(city));
-  const orderedCityIds = new Set(orderedCities.map((city) => city.id));
-  const newCities = selectedCities.filter((city) => !orderedCityIds.has(city.id));
-
-  return [...orderedCities, ...newCities];
-}
-
-export function getStoredOrderedSelectedCities() {
-  return getOrderedSelectedCities(getSettings().cityOrder);
 }

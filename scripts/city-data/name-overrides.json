@@ -1,0 +1,31 @@
+{
+  "pt": [
+    { "id": 98182, "city": "Baghdad", "name": "Bagdade" },
+    { "id": 112931, "city": "Tehran", "name": "Teerão" },
+    { "id": 2759794, "city": "Amsterdam", "name": "Amesterdão" },
+    { "id": 2886242, "city": "Köln", "name": "Colónia" },
+    { "id": 2485926, "city": "Oran", "name": "Orão" },
+    { "id": 3443013, "city": "Colonia del Sacramento", "name": "Colónia do Sacramento" },
+    { "id": 3441575, "city": "Montevideo", "name": "Montevideu" },
+    { "id": 2392308, "city": "Ouidah", "name": "Ajudá" },
+    { "id": 3347019, "city": "Mossamedes", "name": "Moçâmedes" },
+    { "id": 1801180, "city": "Maoming", "name": null },
+    { "id": 3946083, "city": "Callao", "name": null },
+    { "id": 5392171, "city": "San Jose", "name": null },
+    { "id": 5490263, "city": "Santa Fe", "name": null },
+    { "id": 2239001, "city": "N'zeto", "name": null },
+    { "id": 3345497, "city": "Uacu Cungo", "name": null },
+    { "id": 2411305, "city": "Água Izé", "name": null },
+    { "id": 2370358, "city": "Quinhámel", "name": null },
+    { "id": 2372532, "city": "Gabú", "name": null },
+    { "id": 7116497, "city": "Costa da Caparica", "name": null }
+  ],
+  "de": [
+    { "id": 6930414, "city": "Stuttgart-Ost", "name": null },
+    { "id": 2834629, "city": "Schwedt (Oder)", "name": null },
+    { "id": 2840070, "city": "Scheeßel", "name": null },
+    { "id": 2869244, "city": "Moritzburg", "name": null },
+    { "id": 2911584, "city": "Haldensleben I", "name": null },
+    { "id": 2911395, "city": "Haltern am See", "name": null }
+  ]
+}

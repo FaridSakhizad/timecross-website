@@ -1,4 +1,4 @@
-import type { FavoriteCity } from '../Cities/fixtures';
+import type { StoredCity } from '../../settings';
 
 export function readPlannerUrlState(search: string) {
   const params = new URLSearchParams(search);
@@ -7,11 +7,11 @@ export function readPlannerUrlState(search: string) {
     ? new Date(value)
     : null;
   const at = date && Number.isFinite(date.getTime()) && date.toISOString() === value ? date : null;
-  let cities: FavoriteCity[] | null = null;
+  let cities: StoredCity[] | null = null;
   try {
     const items: unknown = JSON.parse(params.get('cities') ?? 'null');
     if (Array.isArray(items) && items.length <= 100) {
-      cities = items.map((item: unknown, order) => {
+      cities = items.map((item: unknown, index) => {
         if (!Array.isArray(item) || (item.length !== 3 && item.length !== 4)
           || !item.every((part) => typeof part === 'string' && part.length <= 200)) {
           throw new Error('Invalid city');
@@ -22,16 +22,11 @@ export function readPlannerUrlState(search: string) {
         }
         new Intl.DateTimeFormat('en', { timeZone: timezone }).format();
         return {
-          id: `planner-url-${order}`,
+          id: `planner-url-${index}`,
           cityId,
           city,
           timezone,
-          order,
           customName,
-          utcOffset: '',
-          timeOffset: '',
-          time: '',
-          period: 'day' as const,
         };
       });
     }
@@ -41,7 +36,7 @@ export function readPlannerUrlState(search: string) {
   return { at, cities };
 }
 
-export function writePlannerUrlState(params: URLSearchParams, cities: FavoriteCity[], at: Date | null) {
+export function writePlannerUrlState(params: URLSearchParams, cities: StoredCity[], at: Date | null) {
   params.set('cities', JSON.stringify(cities.map((city) => {
     const value = [city.cityId || city.id, city.city, city.timezone];
     if (city.customName) {

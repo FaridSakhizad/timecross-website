@@ -4,20 +4,21 @@ export type TimeFormat = '24h' | '12h';
 export type AppLanguage = (typeof APP_LANGUAGES)[number];
 export type ColorMode = 'day' | 'night';
 
+/**
+ * A city in the user's list. Only source data is stored: the time, the offset and the localized
+ * name are computed from `timezone` and `cityId` when rendered. The list order is the array order.
+ */
 export type StoredCity = {
   id: string;
   cityId?: string;
-  order: number;
   customName: string;
   city: string;
-  displayCity?: string;
   timezone: string;
-  utcOffset: string;
-  timeOffset: string;
-  time: string;
-  period: 'morning' | 'day' | 'evening' | 'night';
+};
+
+/** A city of a built-in list. `visible: false` keeps it in the list without showing it. */
+export type PresetCity = StoredCity & {
   visible?: boolean;
-  isTomorrow?: boolean;
 };
 
 export type AppSettings = {
@@ -25,173 +26,124 @@ export type AppSettings = {
   timeFormat: TimeFormat;
   language: AppLanguage;
   colorMode: ColorMode;
-  cityOrder: string[];
   selectedCities: StoredCity[];
 };
 
 const SETTINGS_STORAGE_KEY = 'timecross:settings';
 const LEGACY_CITIES_ORDER_STORAGE_KEY = 'timecross:cities-order';
 
-export const MARKETING_DEFAULT_SELECTED_CITIES: StoredCity[] = [
+export const MARKETING_DEFAULT_SELECTED_CITIES: PresetCity[] = [
   {
     id: 'new-york',
     cityId: '5128581',
-    order: 0,
     customName: '',
     city: 'New York',
     timezone: 'America/New_York',
-    utcOffset: 'UTC-05:00',
-    timeOffset: 'UTC-5',
-    time: '',
-    period: 'day',
   },
   {
     id: 'london',
     cityId: '2643743',
-    order: 1,
     customName: '',
     city: 'London',
     timezone: 'Europe/London',
-    utcOffset: 'UTC+00:00',
-    timeOffset: 'UTC+0',
-    time: '',
-    period: 'day',
   },
   {
     id: 'paris',
     cityId: '2988507',
-    order: 2,
     customName: '',
     city: 'Paris',
     timezone: 'Europe/Paris',
-    utcOffset: 'UTC+01:00',
-    timeOffset: 'UTC+1',
-    time: '',
-    period: 'day',
   },
   {
     id: 'dubai',
     cityId: '292223',
-    order: 3,
     customName: '',
     city: 'Dubai',
     timezone: 'Asia/Dubai',
-    utcOffset: 'UTC+04:00',
-    timeOffset: 'UTC+4',
-    time: '',
-    period: 'day',
   },
   {
     id: 'singapore',
     cityId: '1880252',
-    order: 4,
     customName: '',
     city: 'Singapore',
     timezone: 'Asia/Singapore',
-    utcOffset: 'UTC+08:00',
-    timeOffset: 'UTC+8',
-    time: '',
-    period: 'day',
   },
   {
     id: 'tokyo',
     cityId: '1850147',
-    order: 5,
     customName: '',
     city: 'Tokyo',
     timezone: 'Asia/Tokyo',
-    utcOffset: 'UTC+09:00',
-    timeOffset: 'UTC+9',
-    time: '',
-    period: 'day',
   },
   {
     id: 'sydney',
     cityId: '2147714',
-    order: 6,
     customName: '',
     city: 'Sydney',
     timezone: 'Australia/Sydney',
-    utcOffset: 'UTC+10:00',
-    timeOffset: 'UTC+10',
-    time: '',
-    period: 'day',
     visible: false,
   },
   {
     id: 'los-angeles',
     cityId: '5368361',
-    order: 7,
     customName: '',
     city: 'Los Angeles',
     timezone: 'America/Los_Angeles',
-    utcOffset: 'UTC-08:00',
-    timeOffset: 'UTC-8',
-    time: '',
-    period: 'day',
   },
   {
     id: 'honolulu',
     cityId: '5856195',
-    order: 8,
     customName: '',
     city: 'Honolulu',
     timezone: 'Pacific/Honolulu',
-    utcOffset: 'UTC-10:00',
-    timeOffset: 'UTC-10',
-    time: '',
-    period: 'day',
     visible: false,
   },
   {
     id: 'rio-de-janeiro',
     cityId: '3451190',
-    order: 9,
     customName: '',
     city: 'Rio de Janeiro',
     timezone: 'America/Sao_Paulo',
-    utcOffset: 'UTC-03:00',
-    timeOffset: 'UTC-3',
-    time: '',
-    period: 'day',
     visible: false,
   },
   {
     id: 'cape-town',
     cityId: '3369157',
-    order: 10,
     customName: '',
     city: 'Cape Town',
     timezone: 'Africa/Johannesburg',
-    utcOffset: 'UTC+02:00',
-    timeOffset: 'UTC+2',
-    time: '',
-    period: 'day',
     visible: false,
   },
   {
     id: 'auckland',
     cityId: '2193733',
-    order: 11,
     customName: '',
     city: 'Auckland',
     timezone: 'Pacific/Auckland',
-    utcOffset: 'UTC+12:00',
-    timeOffset: 'UTC+12',
-    time: '',
-    period: 'day',
     visible: false,
   },
 ];
 
-const DEFAULT_SELECTED_CITIES: StoredCity[] = MARKETING_DEFAULT_SELECTED_CITIES;
+/** Drops everything but the stored fields (older versions also stored computed values). */
+export function toStoredCity(city: StoredCity): StoredCity {
+  return {
+    id: city.id,
+    ...(typeof city.cityId === 'string' && city.cityId ? { cityId: city.cityId } : {}),
+    customName: typeof city.customName === 'string' ? city.customName : '',
+    city: city.city,
+    timezone: city.timezone,
+  };
+}
+
+const DEFAULT_SELECTED_CITIES: StoredCity[] = MARKETING_DEFAULT_SELECTED_CITIES
+  .filter((city) => city.visible !== false)
+  .map(toStoredCity);
 
 const DEFAULT_SETTINGS: AppSettings = {
   version: 1,
   timeFormat: '24h',
   language: 'en',
   colorMode: 'day',
-  cityOrder: [],
   selectedCities: DEFAULT_SELECTED_CITIES,
 };
 
@@ -200,7 +152,6 @@ const SERVER_SETTINGS: AppSettings = getDefaultSettings();
 export function getDefaultSettings(): AppSettings {
   return {
     ...DEFAULT_SETTINGS,
-    cityOrder: [...DEFAULT_SETTINGS.cityOrder],
     selectedCities: DEFAULT_SETTINGS.selectedCities.map((city) => ({ ...city })),
   };
 }
@@ -251,19 +202,53 @@ export function isSupportedLanguage(value: unknown): value is AppLanguage {
   return typeof value === 'string' && (APP_LANGUAGES as readonly string[]).includes(value);
 }
 
-function normalizeSettings(settings: Partial<AppSettings> | null): AppSettings {
+/** Settings as older versions stored them: a separate order list and hidden preset cities. */
+type StoredSettingsData = Partial<AppSettings> & {
+  cityOrder?: unknown;
+};
+
+function orderCities(cities: StoredCity[], cityOrder: string[]) {
+  const cityById = new Map<string, StoredCity>();
+
+  cities.forEach((city) => {
+    if (!cityById.has(city.id)) {
+      cityById.set(city.id, city);
+    }
+  });
+
+  const orderedCities = cityOrder
+    .filter((cityId, index) => cityOrder.indexOf(cityId) === index)
+    .map((cityId) => cityById.get(cityId))
+    .filter((city): city is StoredCity => Boolean(city));
+  const orderedCityIds = new Set(orderedCities.map((city) => city.id));
+  const restCities = Array.from(cityById.values()).filter((city) => !orderedCityIds.has(city.id));
+
+  return [...orderedCities, ...restCities];
+}
+
+function normalizeSelectedCities(settings: StoredSettingsData | null): StoredCity[] {
+  const cities: PresetCity[] = isStoredCityArray(settings?.selectedCities)
+    ? settings.selectedCities
+    : DEFAULT_SELECTED_CITIES;
+  const cityOrder = isStringArray(settings?.cityOrder)
+    ? settings.cityOrder
+    : getLegacyCityOrder();
+
+  return orderCities(
+    cities
+      .filter((city) => city.visible !== false)
+      .map(toStoredCity),
+    cityOrder,
+  );
+}
+
+function normalizeSettings(settings: StoredSettingsData | null): AppSettings {
   return {
-    ...DEFAULT_SETTINGS,
-    ...settings,
+    version: 1,
     timeFormat: settings?.timeFormat === '12h' ? '12h' : '24h',
     language: isSupportedLanguage(settings?.language) ? settings.language : 'en',
     colorMode: settings?.colorMode === 'night' ? 'night' : 'day',
-    cityOrder: isStringArray(settings?.cityOrder)
-      ? settings.cityOrder
-      : getLegacyCityOrder(),
-    selectedCities: isStoredCityArray(settings?.selectedCities)
-      ? settings.selectedCities
-      : DEFAULT_SELECTED_CITIES,
+    selectedCities: normalizeSelectedCities(settings),
   };
 }
 
@@ -362,6 +347,8 @@ export function saveSettings(settings: AppSettings) {
 
   try {
     window.localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+    // The old order list is already merged into selectedCities (see normalizeSelectedCities).
+    window.localStorage.removeItem(LEGACY_CITIES_ORDER_STORAGE_KEY);
   } catch {
     // Storage can be unavailable (private mode, quota). Keep the in-memory value.
   }

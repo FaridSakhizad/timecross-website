@@ -1,4 +1,4 @@
-import type { FavoriteCity } from '../../Cities/fixtures';
+import type { StoredCity } from '../../../settings';
 import { GRID_HOUR_MS, getGridHourRanges, type SelectedGridHour } from './gridSelection.ts';
 import { getAbstractTimezoneOffsetMinutes } from '../../../utils/abstractTimezone.ts';
 import { TIMELINE_EXTRA_DAY_HOURS, TIMELINE_RENDERED_HOURS } from '../../Timelines/constants.ts';
@@ -11,7 +11,7 @@ const MAX_DATE = Date.UTC(2100, 0, 1);
 export type SharedGridEvent = {
   start: number;
   end: number;
-  cities: FavoriteCity[];
+  cities: StoredCity[];
   hours: SelectedGridHour[];
 };
 
@@ -53,7 +53,7 @@ export function readGridEventUrlState(hash: string): SharedGridEvent | null {
     if (!Array.isArray(data.c) || !data.c.length || data.c.length > MAX_CITIES) {
       return null;
     }
-    const cities: FavoriteCity[] = [];
+    const cities: StoredCity[] = [];
     for (const [index, entry] of data.c.entries()) {
       if (!Array.isArray(entry) || entry.length < 2 || entry.length > 4) {
         return null;
@@ -71,11 +71,6 @@ export function readGridEventUrlState(hash: string): SharedGridEvent | null {
         timezone,
         cityId: cityId || undefined,
         customName,
-        order: index,
-        utcOffset: '',
-        timeOffset: '',
-        time: '',
-        period: 'day',
       });
     }
     const hours = cities.flatMap((city) => Array.from({ length: (end - start) / GRID_HOUR_MS }, (_, index) => (
@@ -87,7 +82,7 @@ export function readGridEventUrlState(hash: string): SharedGridEvent | null {
   }
 }
 
-export function buildGridEventUrl(baseUrl: string, cities: FavoriteCity[], hours: SelectedGridHour[]): string | null {
+export function buildGridEventUrl(baseUrl: string, cities: StoredCity[], hours: SelectedGridHour[]): string | null {
   const ranges = getGridHourRanges(hours);
   const first = ranges[0];
   if (!first || ranges.some((range) => range.start !== first.start || range.end !== first.end)) {
