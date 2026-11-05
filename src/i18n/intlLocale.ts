@@ -11,6 +11,7 @@ const INTL_LOCALES: Record<AppLanguage, string> = {
   ru: 'ru-RU',
   es: 'es-ES',
   pt: 'pt-PT',
+  'pt-BR': 'pt-BR',
   de: 'de-DE',
 };
 

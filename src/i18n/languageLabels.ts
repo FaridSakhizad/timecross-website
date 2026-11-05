@@ -7,5 +7,6 @@ export const SHORT_LANGUAGE_NAMES: Record<AppLanguage, string> = {
   ru: 'Ру',
   es: 'Es',
   pt: 'Pt',
+  'pt-BR': 'Pt',
   de: 'De',
 };

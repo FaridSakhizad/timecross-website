@@ -4,9 +4,10 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router';
 
 import { SITE_NAME, BUY_ME_A_COFFEE_URL } from '../../config';
-import { SUPPORTED_LANGUAGES, useI18n } from '../../i18n';
+import { useI18n } from '../../i18n';
 import {
   getCanonicalLanguagePath,
+  getLanguageMenuItems,
   getLocalizedPathname,
 } from '../../i18n/languageRouting';
 import { SHORT_LANGUAGE_NAMES } from '../../i18n/languageLabels';
@@ -136,14 +137,14 @@ export default function Header({
 
             {isLangSelectorVisible && (
               <div className="langSelectMenu">
-                {SUPPORTED_LANGUAGES.filter((languageOption) => languageOption !== language).map((languageOption) => (
+                {getLanguageMenuItems(language).map((menuItem) => (
                   <Link
-                    to={getLocalizedPathname(location.pathname, languageOption)}
+                    to={getLocalizedPathname(location.pathname, menuItem.language)}
                     className="langSelectMenu-button"
-                    key={languageOption}
+                    key={menuItem.language}
                     onClick={() => setIsLangSelectorVisible(false)}
                   >
-                    {t(`languages.${languageOption}`)}
+                    {t(menuItem.labelKey)}
                   </Link>
                 ))}
               </div>

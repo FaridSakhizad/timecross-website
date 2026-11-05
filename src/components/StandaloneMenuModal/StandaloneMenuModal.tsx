@@ -6,10 +6,12 @@ import { createPortal } from 'react-dom';
 import { Link, useLocation } from 'react-router';
 
 import { BUY_ME_A_COFFEE_URL } from '../../config';
-import { SUPPORTED_LANGUAGES, useI18n } from '../../i18n';
+import { useI18n } from '../../i18n';
 import {
   getCanonicalLanguagePath,
+  getLanguageMenuItems,
   getLocalizedPathname,
+  getLanguageLabelKey,
 } from '../../i18n/languageRouting';
 import type { ColorMode, TimeFormat } from '../../settings';
 
@@ -181,22 +183,22 @@ export default function StandaloneMenuModal({
               className="standaloneMenuModal-item standaloneMenuModal-item_langs"
               onClick={() => setIsLangSelectorVisible((isVisible) => !isVisible)}
             >
-              <span className="langSelectButton-shortName">{t(`languages.${language}`)}</span>
+              <span className="langSelectButton-shortName">{t(getLanguageLabelKey(language))}</span>
             </button>
 
             {isLangSelectorVisible && (
               <div className="langSelectMenu standaloneMenuModal-langMenu">
-                {SUPPORTED_LANGUAGES.filter((languageOption) => languageOption !== language).map((languageOption) => (
+                {getLanguageMenuItems(language).map((menuItem) => (
                   <Link
-                    to={getLocalizedPathname(location.pathname, languageOption)}
+                    to={getLocalizedPathname(location.pathname, menuItem.language)}
                     className="langSelectMenu-button"
-                    key={languageOption}
+                    key={menuItem.language}
                     onClick={() => {
                       setIsLangSelectorVisible(false);
                       onClose();
                     }}
                   >
-                    {t(`languages.${languageOption}`)}
+                    {t(menuItem.labelKey)}
                   </Link>
                 ))}
               </div>

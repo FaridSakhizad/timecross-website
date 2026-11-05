@@ -21,8 +21,15 @@ function getAbsoluteUrl(pathname: string) {
   return new URL(pathname, SITE_URL).toString();
 }
 
-function getHreflang(language: AppLanguage) {
-  return language === 'uk' ? 'uk' : language;
+// Brazilian Portuguese is the default one ("pt"); the European version serves Portugal and the
+// Portuguese-speaking countries outside Brazil (as getPortugueseVariant in languageRouting does).
+const HREFLANGS: Partial<Record<AppLanguage, string[]>> = {
+  pt: ['pt-PT', 'pt-AO', 'pt-MZ', 'pt-CV', 'pt-GW', 'pt-ST', 'pt-TL', 'pt-MO'],
+  'pt-BR': ['pt-BR', 'pt'],
+};
+
+function getHreflangs(language: AppLanguage): string[] {
+  return HREFLANGS[language] ?? [language];
 }
 
 function getRobotsContent(pagePath: string) {
@@ -202,10 +209,12 @@ export function getSeoJsonLd(language: AppLanguage, pathname: string) {
 
 export function getAlternateLinks(pathname: string) {
   const pagePath = getCanonicalPagePath(stripLanguageFromPathname(pathname));
-  const links = SUPPORTED_LANGUAGES.map((supportedLanguage) => ({
-    href: getAbsoluteUrl(getCanonicalLanguagePath(supportedLanguage, pagePath)),
-    hreflang: getHreflang(supportedLanguage),
-  }));
+  const links = SUPPORTED_LANGUAGES.flatMap((supportedLanguage) => (
+    getHreflangs(supportedLanguage).map((hreflang) => ({
+      href: getAbsoluteUrl(getCanonicalLanguagePath(supportedLanguage, pagePath)),
+      hreflang,
+    }))
+  ));
 
   links.push({
     href: getAbsoluteUrl(getCanonicalLanguagePath('en', pagePath)),

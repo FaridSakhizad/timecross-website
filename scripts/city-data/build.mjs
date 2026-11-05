@@ -30,25 +30,51 @@ const { values: options } = parseArgs({
   },
 });
 
-// Languages taken from GeoNames because the app database does not have them.
-const GEONAMES_LANGUAGES = new Set(['de', 'pt']);
+// Site languages whose names come from GeoNames (the app database does not have them), and the
+// GeoNames languages each one reads. 'pt' is European Portuguese, 'pt-BR' Brazilian: GeoNames
+// "pt" names serve both, its few "pt-BR" names only the Brazilian one and win there.
+const GEONAMES_SOURCES = {
+  de: ['de'],
+  pt: ['pt'],
+  'pt-BR': ['pt-BR', 'pt'],
+};
+const GEONAMES_SITE_LANGUAGES = new Set(Object.keys(GEONAMES_SOURCES));
+const geoNamesTargets = new Map();
+
+Object.entries(GEONAMES_SOURCES).forEach(([siteLanguage, sources]) => {
+  sources.forEach((source) => {
+    geoNamesTargets.set(source, [...(geoNamesTargets.get(source) ?? []), siteLanguage]);
+  });
+});
 
 // Countries where the base names are already in the language. GeoNames names there are mostly the
 // same name with a district or region added ("Berlin-Moabit", "Torre de Belém"), so such names are
 // not shown. Real translations stay ("Genève" -> "Genf").
+const PORTUGUESE_SPEAKING_COUNTRIES = new Set(['BR', 'PT', 'AO', 'MZ', 'CV', 'GW', 'ST', 'TL', 'MO']);
 const NATIVE_COUNTRIES = {
   de: new Set(['DE', 'AT', 'CH', 'LI', 'LU']),
-  pt: new Set(['BR', 'PT', 'AO', 'MZ', 'CV', 'GW', 'ST', 'TL', 'MO']),
+  pt: PORTUGUESE_SPEAKING_COUNTRIES,
+  'pt-BR': PORTUGUESE_SPEAKING_COUNTRIES,
 };
 
 // Brazilian base names are already Portuguese; GeoNames adds neighbourhoods, abbreviations and
 // typos there ("Barueri" -> "Tamboré"), so Brazilian cities always show the base name in Portuguese.
-const BASE_NAME_ONLY = { pt: new Set(['BR']) };
+const BASE_NAME_ONLY = { pt: new Set(['BR']), 'pt-BR': new Set(['BR']) };
 
-// Display priority inside a city and language: manual overrides, then usual names, then hidden ones.
+// Manual fixes in name-overrides.json, by section. "pt" fixes wrong GeoNames data for both
+// Portuguese variants; "pt-PT" and "pt-BR" hold spellings of one variant.
+const OVERRIDE_SECTIONS = {
+  de: ['de'],
+  pt: ['pt', 'pt-PT'],
+  'pt-BR': ['pt', 'pt-BR'],
+};
+
+// Display priority inside a city and language: manual overrides, names of the exact regional
+// variant, usual names, then hidden ones.
 const PRIORITY_OVERRIDE = 0;
-const PRIORITY_USUAL = 1;
-const PRIORITY_HIDDEN = 2;
+const PRIORITY_REGIONAL = 1;
+const PRIORITY_USUAL = 2;
+const PRIORITY_HIDDEN = 3;
 
 if (!existsSync(options['alternate-names'])) {
   throw new Error(`GeoNames alternate names not found at ${options['alternate-names']}. Pass --alternate-names.`);
@@ -74,38 +100,36 @@ const appAliases = db.prepare('SELECT city_id, locale, name, is_preferred FROM c
 // (so "Dhaka" beats "Dakka"), then alphabetical.
 async function readGeoNamesAliases(path) {
   const result = [];
-  const seen = new Set();
   const lines = createInterface({ input: createReadStream(path, 'utf8'), crlfDelay: Infinity });
 
   for await (const line of lines) {
-    const [, geonameId, language, name, isPreferred, , isColloquial, isHistoric] = line.split('\t');
+    const [, geonameId, sourceLanguage, name, isPreferred, , isColloquial, isHistoric] = line.split('\t');
     const cityId = Number(geonameId);
+    const siteLanguages = geoNamesTargets.get(sourceLanguage);
 
-    if (!GEONAMES_LANGUAGES.has(language) || !baseNames.has(cityId) || !name) {
+    if (!siteLanguages || !baseNames.has(cityId) || !name) {
       continue;
     }
-
-    const key = `${cityId}:${language}:${name}`;
-
-    if (seen.has(key)) {
-      continue;
-    }
-
-    seen.add(key);
 
     const isOutdated = isHistoric === '1' || isColloquial === '1';
     const baseName = baseNames.get(cityId);
     const rank = (isOutdated ? 2 : 0) + (name === baseName ? 0 : 1);
     const country = countries.get(cityId);
-    const isHidden = name !== baseName && (
-      BASE_NAME_ONLY[language]?.has(country)
-      || (NATIVE_COUNTRIES[language].has(country) && (name.includes(baseName) || baseName.includes(name)))
-    );
 
-    // Hidden names stay searchable but are never preferred for display.
-    result.push(isHidden
-      ? [cityId, language, name, 0, rank, PRIORITY_HIDDEN]
-      : [cityId, language, name, isPreferred === '1' ? 1 : 0, rank, PRIORITY_USUAL]);
+    siteLanguages.forEach((language) => {
+      const isHidden = name !== baseName && (
+        BASE_NAME_ONLY[language]?.has(country)
+        || (NATIVE_COUNTRIES[language].has(country) && (name.includes(baseName) || baseName.includes(name)))
+      );
+      const priority = sourceLanguage === language && GEONAMES_SOURCES[language].length > 1
+        ? PRIORITY_REGIONAL
+        : PRIORITY_USUAL;
+
+      // Hidden names stay searchable but are never preferred for display.
+      result.push(isHidden
+        ? [cityId, language, name, 0, rank, PRIORITY_HIDDEN]
+        : [cityId, language, name, isPreferred === '1' ? 1 : 0, rank, priority]);
+    });
   }
 
   return result;
@@ -121,11 +145,19 @@ const baseNameAliases = geoNamesAliases
   .filter(([cityId, locale]) => !visibleNameKeys.has(`${cityId}:${locale}`))
   .map(([cityId, locale]) => [cityId, locale, baseNames.get(cityId), 0, 0, PRIORITY_USUAL]);
 
-// Manual fixes: { "pt": [{ "id": 98182, "city": "Baghdad", "name": "Bagdade" }] }. `city` is the
-// base name, checked so that a wrong id fails the build; `name: null` shows the base name.
+// Manual fixes: { "pt-PT": [{ "id": 98182, "city": "Baghdad", "name": "Bagdade" }] }. `city` is
+// the base name, checked so that a wrong id fails the build; `name: null` shows the base name.
 const overrideFile = JSON.parse(readFileSync(new URL('name-overrides.json', import.meta.url), 'utf8'));
-const overrideAliases = Object.entries(overrideFile).flatMap(([language, overrides]) => (
-  overrides.map(({ id, city, name }) => {
+const knownSections = new Set(Object.values(OVERRIDE_SECTIONS).flat());
+
+Object.keys(overrideFile).forEach((section) => {
+  if (!knownSections.has(section)) {
+    throw new Error(`name-overrides.json: unknown section "${section}".`);
+  }
+});
+
+const overrideAliases = Object.entries(OVERRIDE_SECTIONS).flatMap(([language, sections]) => (
+  sections.flatMap((section) => overrideFile[section] ?? []).map(({ id, city, name }) => {
     if (baseNames.get(id) !== city) {
       throw new Error(`name-overrides.json: city ${id} is "${baseNames.get(id)}", not "${city}".`);
     }
@@ -134,12 +166,12 @@ const overrideAliases = Object.entries(overrideFile).flatMap(([language, overrid
   })
 ));
 
-// [cityId, locale, name, isPreferred], sorted so that the first alias of a city in a language is
-// its display name: overrides first, then preferred names, then by rank, then alphabetical. The
-// browser relies on this order. A name repeated in the same city and language is kept once.
+// Sorted so that the first alias of a city in a language is its display name: overrides first,
+// then regional names, then preferred names, then by rank, then alphabetical. A name repeated in
+// the same city and language is kept once.
 const seenAliases = new Set();
-const aliases = [
-  ...appAliases.filter(([, locale]) => !GEONAMES_LANGUAGES.has(locale)),
+const sortedAliases = [
+  ...appAliases.filter(([, locale]) => !GEONAMES_SITE_LANGUAGES.has(locale)),
   ...geoNamesAliases,
   ...baseNameAliases,
   ...overrideAliases,
@@ -162,7 +194,43 @@ const aliases = [
     seenAliases.add(key);
 
     return true;
-  })
+  });
+
+// Display name of every city and language: the first alias, or the base name without aliases.
+const displayNames = new Map();
+
+sortedAliases.forEach(([cityId, locale, name]) => {
+  const key = `${cityId}:${locale}`;
+
+  if (!displayNames.has(key)) {
+    displayNames.set(key, name);
+  }
+});
+
+const getDisplayName = (cityId, language) => (
+  displayNames.get(`${cityId}:${language}`) ?? baseNames.get(cityId)
+);
+
+// The browser falls back from 'pt-BR' to 'pt' (src/components/Cities/citySearch.ts), so 'pt-BR'
+// keeps only what differs from 'pt': its display name, when that differs, and names 'pt' lacks.
+const portugueseNames = new Set(sortedAliases
+  .filter(([, locale]) => locale === 'pt')
+  .map(([cityId, , name]) => `${cityId}:${name}`));
+const brazilianCityIds = new Set(sortedAliases
+  .filter(([cityId, locale, name]) => (
+    locale === 'pt-BR'
+    && (!portugueseNames.has(`${cityId}:${name}`) || getDisplayName(cityId, 'pt-BR') !== getDisplayName(cityId, 'pt'))
+  ))
+  .map(([cityId]) => cityId));
+
+// [cityId, locale, name, isPreferred]; the browser relies on the order described above.
+const aliases = sortedAliases
+  .filter(([cityId, locale, name]) => (
+    locale !== 'pt-BR'
+    || (brazilianCityIds.has(cityId) && (
+      name === getDisplayName(cityId, 'pt-BR') || !portugueseNames.has(`${cityId}:${name}`)
+    ))
+  ))
   .map(([cityId, locale, name, isPreferred]) => [cityId, locale, name, isPreferred]);
 
 const toJson = (value) => `${JSON.stringify(value)}\n`;
@@ -173,21 +241,15 @@ writeFileSync(new URL('cities-search.json', dataDirectory), toJson({ cities, ali
 // Display names that differ from the base name, per language: { "2867714": "Мюнхен" }.
 const namesByLanguage = new Map(APP_LANGUAGES.map((language) => [language, {}]));
 
-const seenDisplayNames = new Set();
+cities.forEach(([cityId, baseName]) => {
+  namesByLanguage.forEach((names, language) => {
+    const name = getDisplayName(cityId, language);
 
-for (const [cityId, locale, name] of aliases) {
-  const key = `${cityId}:${locale}`;
-
-  if (seenDisplayNames.has(key)) {
-    continue;
-  }
-
-  seenDisplayNames.add(key);
-
-  if (namesByLanguage.has(locale) && name !== baseNames.get(cityId)) {
-    namesByLanguage.get(locale)[cityId] = name;
-  }
-}
+    if (name !== baseName) {
+      names[cityId] = name;
+    }
+  });
+});
 
 mkdirSync(new URL('city-names/', dataDirectory), { recursive: true });
 

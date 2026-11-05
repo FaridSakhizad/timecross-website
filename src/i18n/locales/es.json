@@ -52,6 +52,8 @@
     "ru": "Русский",
     "es": "Español",
     "pt": "Português",
+    "ptPT": "Português (Portugal)",
+    "ptBR": "Português (Brasil)",
     "de": "Deutsch"
   },
   "cities": {

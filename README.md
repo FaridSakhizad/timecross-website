@@ -46,6 +46,16 @@ CC BY 4.0; the attribution is on the privacy policy page. Commit the generated f
 they are consistent.
 
 GeoNames German and Portuguese names are cleaned up automatically (district variants in German- and Portuguese-speaking
-countries are not shown, Brazilian cities keep their base names). Wrong or Brazilian-Portuguese display names are fixed by
-hand in `scripts/city-data/name-overrides.json` (`"name": null` shows the base name); the Portuguese interface uses
-European Portuguese.
+countries are not shown, Brazilian cities keep their base names). Display names are fixed by hand in
+`scripts/city-data/name-overrides.json` (`"name": null` shows the base name): `pt` for wrong data in both Portuguese
+variants, `pt-PT` and `pt-BR` for spellings of one variant, `de` for German.
+
+## Portuguese
+
+There are two Portuguese interfaces: European (`pt`, `/pt/`, `locales/pt.json`) and Brazilian (`pt-BR`, `/pt-br/`,
+`locales/pt-BR.json`). Menus show one "Português"; Brazilian is the default, European opens when the browser has a
+non-Brazilian regional Portuguese locale (`pt-PT`, `pt-AO`...), or no regional Portuguese locale and the time zone of
+Portugal or a Portuguese-speaking country outside Brazil (`getPortugueseVariant` in `src/i18n/languageRouting.ts`). The
+server picks the version from `Accept-Language` the same way, without the time zone. In Portuguese, the menu offers the
+other variant: "Português (Portugal)" or "Português (Brasil)".
+Keep the two locale files in sync when texts change.

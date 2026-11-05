@@ -4,6 +4,7 @@ import './AddCityModal.css';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useI18n } from '../../i18n';
+import { getIntlLocale } from '../../i18n/intlLocale';
 import {
   getAbstractTimezoneRows,
   getNorthAmericanTimezoneRows,
@@ -40,7 +41,7 @@ export default function AddCityModal({
   const inputRef = useRef<HTMLInputElement>(null);
   const countryDisplayNames = useMemo(() => {
     try {
-      return new Intl.DisplayNames([language], { type: 'region' });
+      return new Intl.DisplayNames([getIntlLocale(language)], { type: 'region' });
     } catch {
       return null;
     }

@@ -14,6 +14,7 @@ const DICTIONARY_LOADERS: Record<Exclude<AppLanguage, 'en'>, () => Promise<{ def
   ru: () => import('./locales/ru.json'),
   es: () => import('./locales/es.json'),
   pt: () => import('./locales/pt.json'),
+  'pt-BR': () => import('./locales/pt-BR.json'),
   de: () => import('./locales/de.json'),
 };
 

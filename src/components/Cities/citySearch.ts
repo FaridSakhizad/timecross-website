@@ -249,6 +249,21 @@ function getLocalizedNameKey(cityId: number, locale: string) {
   return `${cityId}:${locale}`;
 }
 
+// The data for 'pt-BR' keeps only what differs from 'pt' (scripts/city-data/build.mjs).
+const ALIAS_FALLBACK_LOCALES: Partial<Record<AppLanguage, string>> = { 'pt-BR': 'pt' };
+
+function isInterfaceLocale(locale: string, language: AppLanguage) {
+  return locale === language || locale === ALIAS_FALLBACK_LOCALES[language];
+}
+
+function getLocalizedName(data: CitySearchData, cityId: number, language: AppLanguage) {
+  const fallbackLocale = ALIAS_FALLBACK_LOCALES[language];
+
+  return data.localizedNames.get(getLocalizedNameKey(cityId, language))
+    ?? (fallbackLocale ? data.localizedNames.get(getLocalizedNameKey(cityId, fallbackLocale)) : undefined)
+    ?? null;
+}
+
 function getCityTupleById(data: CitySearchData, cityId: number) {
   return data.cityById.get(cityId);
 }
@@ -263,7 +278,7 @@ function getCityRow(data: CitySearchData, city: CityTuple, language: AppLanguage
     admin1,
     tz,
     pop,
-    localizedName: data.localizedNames.get(getLocalizedNameKey(id, language)) ?? null,
+    localizedName: getLocalizedName(data, id, language),
   };
 }
 
@@ -564,7 +579,7 @@ function searchCitiesByName(data: CitySearchData, query: string, language: AppLa
       return;
     }
 
-    const rank = alias[1] === language ? 0 : 1;
+    const rank = isInterfaceLocale(alias[1], language) ? 0 : 1;
     const currentRank = matchedCityRanks.get(alias[0]);
 
     if (currentRank === undefined || rank < currentRank) {

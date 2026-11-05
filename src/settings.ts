@@ -1,4 +1,5 @@
-export const APP_LANGUAGES = ['en', 'fr', 'uk', 'ru', 'es', 'pt', 'de'] as const;
+/** 'pt' is European Portuguese, 'pt-BR' Brazilian; menus show them as one language (see languageRouting). */
+export const APP_LANGUAGES = ['en', 'fr', 'uk', 'ru', 'es', 'pt', 'pt-BR', 'de'] as const;
 
 export type TimeFormat = '24h' | '12h';
 export type AppLanguage = (typeof APP_LANGUAGES)[number];
