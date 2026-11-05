@@ -1,7 +1,7 @@
 import './CitiesPage.css';
 
 import ClientOnly from '../components/ClientOnly';
-import Cities from '../components/Cities';
+import { Cities } from '../components/lazyWidgets';
 import Seo from '../components/Seo';
 import type { ColorMode, TimeFormat } from '../settings';
 

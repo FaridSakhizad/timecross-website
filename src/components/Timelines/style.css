@@ -98,42 +98,6 @@
   margin-left: 50px;
 }
 
-.timelinesNav {
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  padding: 0;
-  position: relative;
-  border: 2px solid rgba(var(--accent-color-2), 1);
-  border-radius: 50%;
-  background: rgba(var(--accent-color-2), 0.1);
-  color: rgba(var(--accent-color-2), 1);
-  cursor: pointer;
-  transition: background 0.15s ease;
-
-  &:focus-visible {
-    outline: 1px solid rgba(var(--accent-color-2), 1);
-    outline-offset: 3px;
-  }
-}
-
-.timelinesNav_prev {
-  margin: -7px -5px -3px -5px;
-}
-
-.timelinesNav_next {
-  margin: -7px -5px -3px -5px;
-}
-
-.timelinesNav:hover {
-  background: rgba(var(--accent-color-1), 0.7);
-}
-
-.timelinesNav:active {
-  transform: scale(0.96);
-}
-
 @media (width < 1200px) {
   .section_timelines:has(.timelineGridMobileEmbedded) {
     padding: 0;

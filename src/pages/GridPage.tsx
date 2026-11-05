@@ -1,6 +1,6 @@
 import ClientOnly from '../components/ClientOnly';
+import { TimelineGrid } from '../components/lazyWidgets';
 import Seo from '../components/Seo';
-import TimelineGrid from '../components/TimelineGrid';
 import type { ColorMode, TimeFormat } from '../settings';
 
 type GridPageProps = {

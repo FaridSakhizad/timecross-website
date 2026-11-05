@@ -2,10 +2,10 @@ import './MeetingTimePlannerPage.css';
 
 import AppDownloadCta from '../components/AppDownloadCta';
 import ClientOnly from '../components/ClientOnly';
+import { Timelines } from '../components/lazyWidgets';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
 import Seo from '../components/Seo';
-import Timelines from '../components/Timelines';
 import { useI18n } from '../i18n';
 import { getCanonicalLanguagePath } from '../i18n/languageRouting';
 import type { ColorMode, TimeFormat } from '../settings';

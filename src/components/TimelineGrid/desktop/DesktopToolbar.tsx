@@ -1,4 +1,5 @@
 import '../../compoundWidget.css';
+import '../../widgetHeaderButtons.css';
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { Hand } from 'lucide-react';

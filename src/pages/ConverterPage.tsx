@@ -1,8 +1,8 @@
 import './ConverterPage.css';
 
 import ClientOnly from '../components/ClientOnly';
+import { TimeZoneConverter } from '../components/lazyWidgets';
 import Seo from '../components/Seo';
-import TimeZoneConverter from '../components/TimeZoneConverter';
 import type { ColorMode, TimeFormat } from '../settings';
 
 type ConverterPageProps = {

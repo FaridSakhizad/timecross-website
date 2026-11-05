@@ -27,7 +27,7 @@ export default function PrivacyPolicyPage({
         colorMode={colorMode}
         timeFormat={timeFormat}
         title={t('legal.privacy.title')}
-        updatedAt="November 4, 2026"
+        updatedAt="2026-11-04"
         onColorModeButtonClick={onColorModeButtonClick}
         onTimeFormatButtonClick={onTimeFormatButtonClick}
       >

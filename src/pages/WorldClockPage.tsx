@@ -1,8 +1,8 @@
 import './WorldClockPage.css';
 
-import Cities from '../components/Cities';
 import AppDownloadCta from '../components/AppDownloadCta';
 import ClientOnly from '../components/ClientOnly';
+import { Cities } from '../components/lazyWidgets';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
 import Seo from '../components/Seo';

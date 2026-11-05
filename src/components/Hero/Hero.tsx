@@ -1,7 +1,7 @@
 import './style.css';
 
 import ClientOnly from '../ClientOnly';
-import Cities from '../Cities';
+import { Cities } from '../lazyWidgets';
 
 import heroImg1 from '../../assets/1-cities.jpg';
 import heroImg2 from '../../assets/2-cities.jpg';

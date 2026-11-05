@@ -1,5 +1,6 @@
 import ContactForm from '../components/ContactForm';
 import ClientOnly from '../components/ClientOnly';
+import { Timelines } from '../components/lazyWidgets';
 import FAQ from '../components/FAQ';
 import FeaturesList from '../components/FeaturesList';
 import Footer from '../components/Footer';
@@ -7,7 +8,6 @@ import Header from '../components/Header';
 import Hero from '../components/Hero';
 import ScreenshotSlider from '../components/ScreenshotSlider';
 import Seo from '../components/Seo';
-import Timelines from '../components/Timelines';
 
 import {
   APP_STORE_URL,

@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import Footer from '../Footer';
 import Header from '../Header';
 import { useI18n } from '../../i18n';
+import { getIntlLocale } from '../../i18n/intlLocale';
 import type { ColorMode, TimeFormat } from '../../settings';
 
 type LegalPageProps = {
@@ -10,6 +11,7 @@ type LegalPageProps = {
   colorMode: ColorMode;
   timeFormat: TimeFormat;
   title: string;
+  /** Calendar date in ISO format, e.g. '2026-11-04'. Shown in the page language. */
   updatedAt: string;
   onColorModeButtonClick: () => void;
   onTimeFormatButtonClick: () => void;
@@ -24,7 +26,14 @@ export default function LegalPage({
   onColorModeButtonClick,
   onTimeFormatButtonClick,
 }: LegalPageProps) {
-  const { t } = useI18n();
+  const { language, t } = useI18n();
+  // UTC on both sides so the server and the browser render the same day.
+  const updatedDate = new Intl.DateTimeFormat(getIntlLocale(language), {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(new Date(`${updatedAt}T00:00:00Z`));
 
   return (
     <>
@@ -39,7 +48,9 @@ export default function LegalPage({
         <div className="container">
           <article className="legalPage-content">
             <h1 className="legalPage-title">{title}</h1>
-            <p className="legalPage-updated">{t('common.lastUpdated', { date: updatedAt })}</p>
+            <p className="legalPage-updated">
+              {t('common.lastUpdated', { date: updatedDate })}
+            </p>
             {children}
           </article>
         </div>

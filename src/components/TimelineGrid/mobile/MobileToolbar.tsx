@@ -1,3 +1,4 @@
+import '../../widgetHeaderButtons.css';
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { useI18n } from '../../../i18n';

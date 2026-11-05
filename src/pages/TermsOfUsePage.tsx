@@ -27,7 +27,7 @@ export default function TermsOfUsePage({
         colorMode={colorMode}
         timeFormat={timeFormat}
         title={t('legal.terms.title')}
-        updatedAt="July 16, 2026"
+        updatedAt="2026-07-16"
         onColorModeButtonClick={onColorModeButtonClick}
         onTimeFormatButtonClick={onTimeFormatButtonClick}
       >

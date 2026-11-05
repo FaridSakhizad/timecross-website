@@ -1,3 +1,4 @@
+import '../widgetHeaderButtons.css';
 import './cities.css';
 
 import {
