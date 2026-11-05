@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import { afterEach, beforeEach, test } from 'node:test';
-import { getInitialMobileGridSelection, getVisibleMobileGridSelection } from '../src/components/TimelineGrid/mobile/mobileGridSelectionGeometry.ts';
+
 import { attachMobileGridSelection } from '../src/components/TimelineGrid/mobile/mobileGridSelectionController.ts';
+import { getInitialMobileGridSelection, getVisibleMobileGridSelection } from '../src/components/TimelineGrid/mobile/mobileGridSelectionGeometry.ts';
 
 /** Offset of a resize handle along one axis: -distance, distance or 0. */
 function handleStep(direction, backSide, forwardSide, distance) {

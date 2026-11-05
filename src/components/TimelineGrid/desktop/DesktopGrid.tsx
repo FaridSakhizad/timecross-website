@@ -1,23 +1,25 @@
 import './style.css';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Scan, X } from 'lucide-react';
-import { usePreferences } from '../../../usePreferences';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+
+import { usePreferences } from '../../../hooks/usePreferences';
 import { useI18n } from '../../../i18n';
+import { cx } from '../../../utils/classNames';
+import { getCityDisplayName } from '../../Cities/useLocalizedCities';
 import CustomScrollbar from '../../CustomScrollbar';
-import { TIMELINE_DESKTOP_SCROLLBAR_THUMB_WIDTH } from '../../Timelines/constants';
+import { TIMELINE_DESKTOP_SCROLLBAR_THUMB_WIDTH } from '../shared/constants';
 import TimelineGridActiveHourIndicator from '../shared/GridActiveHourIndicator';
+import GridCalendarActions from '../shared/GridCalendarActions';
+import { buildGridCalendarEvent, gridHourKey } from '../shared/gridSelection';
+import type { TimelineGridShellProps } from '../shared/types';
+
+import DesktopSelectionOverlay from './DesktopSelectionOverlay';
 import DesktopTimeline from './DesktopTimeline';
 import DesktopToolbar from './DesktopToolbar';
 import HourNavButton from './HourNavButton';
-import GridCalendarActions from '../shared/GridCalendarActions';
-import DesktopSelectionOverlay from './DesktopSelectionOverlay';
-import type { TimelineGridShellProps } from '../shared/types';
-import { useDesktopGridActiveHourIndicator, useDesktopGridSnap } from './useDesktopGridScroll';
 import { useDesktopGridPan } from './useDesktopGridPan';
+import { useDesktopGridActiveHourIndicator, useDesktopGridSnap } from './useDesktopGridScroll';
 import { useGridSelection } from './useGridSelection';
-import { buildGridCalendarEvent, gridHourKey } from '../shared/gridSelection';
-import { getCityDisplayName } from '../../Cities/useLocalizedCities';
-import { cx } from '../../../utils/classNames';
 
 const GRID_VERTICAL_SCROLLBAR_TOP = 50;
 const GRID_VERTICAL_SCROLLBAR_BOTTOM = 12;
@@ -133,9 +135,9 @@ export default function DesktopGrid(props: TimelineGridShellProps) {
       {toolbar}
       <div className={cx(
         'widgetContent timelineGrid',
-        canPan && 'timelineGrid_panEnabled',
-        props.isEditMode && 'timelineGrid_editMode',
-        props.isDragging && 'timelineGrid_dragging',
+        canPan && 'isPanEnabled',
+        props.isEditMode && 'isEditing',
+        props.isDragging && 'isDragging',
       )}
       >
         <CustomScrollbar

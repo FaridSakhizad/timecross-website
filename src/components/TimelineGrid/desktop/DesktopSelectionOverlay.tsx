@@ -1,6 +1,7 @@
 import '../shared/selection.css';
-import { createPortal } from 'react-dom';
 import type { RefObject } from 'react';
+import { createPortal } from 'react-dom';
+
 import { useI18n } from '../../../i18n';
 
 type DesktopSelectionOverlayProps = {

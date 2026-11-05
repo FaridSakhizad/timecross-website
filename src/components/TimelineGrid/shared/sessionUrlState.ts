@@ -1,4 +1,4 @@
-import type { StoredCity } from '../../settings';
+import type { StoredCity } from '../../../settings';
 
 export function readPlannerUrlState(search: string) {
   const params = new URLSearchParams(search);

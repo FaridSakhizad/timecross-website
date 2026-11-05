@@ -1,7 +1,21 @@
 import type { AppLanguage } from '../settings';
+
 import en from './locales/en.json';
 
 export type Dictionary = Record<string, unknown>;
+
+/** "a.b.c" paths to the strings of a nested object. */
+type LeafPaths<T> = {
+  [K in keyof T & string]: T[K] extends string
+    ? K
+    : `${K}.${LeafPaths<T[K]>}`;
+}[keyof T & string];
+
+/**
+ * Every translation key, taken from en.json: t('cities.renmeCity') does not compile.
+ * The other languages have exactly the same keys (tests/locales.test.mjs).
+ */
+export type TranslationKey = LeafPaths<typeof en>;
 export type TranslationValues = Record<string, string | number>;
 
 /**
@@ -60,7 +74,7 @@ function getNestedValue(dictionary: Dictionary, key: string) {
 }
 
 function interpolate(value: string, values: TranslationValues = {}) {
-  return value.replace(/\{(\w+)\}/g, (match, key) => (
+  return value.replace(/\{(\w+)\}/g, (match: string, key: string) => (
     values[key] === undefined ? match : String(values[key])
   ));
 }
@@ -69,7 +83,7 @@ function interpolate(value: string, values: TranslationValues = {}) {
  * Translation in a loaded language; falls back to English when the key or the whole
  * dictionary is missing, and to the key itself when English has no such key either.
  */
-export function translate(language: AppLanguage, key: string, values?: TranslationValues) {
+export function translate(language: AppLanguage, key: TranslationKey, values?: TranslationValues) {
   const dictionary = loadedDictionaries.get(language);
   const value = (dictionary && getNestedValue(dictionary, key)) ?? getNestedValue(en, key);
 

@@ -1,9 +1,10 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
+
+import { TIMELINE_RENDERED_HOURS, TIMELINE_TOTAL_HOURS, TIMELINE_EDGE_FADE_HOURS } from '../src/components/TimelineGrid/shared/constants.ts';
 import { buildGridEventUrl, readGridEventUrlState, getSharedGridTimelineDates } from '../src/components/TimelineGrid/shared/eventUrlState.ts';
-import { shareEventLink } from '../src/components/TimelineGrid/shared/shareEventLink.ts';
 import { buildGridCalendarEvent, GRID_HOUR_MS } from '../src/components/TimelineGrid/shared/gridSelection.ts';
-import { TIMELINE_RENDERED_HOURS, TIMELINE_TOTAL_HOURS, TIMELINE_EDGE_FADE_HOURS } from '../src/components/Timelines/constants.ts';
+import { shareEventLink } from '../src/components/TimelineGrid/shared/shareEventLink.ts';
 
 const start = Date.parse('2026-11-01T05:00:00Z');
 const cities = [

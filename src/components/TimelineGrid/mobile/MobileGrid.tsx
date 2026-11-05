@@ -1,18 +1,20 @@
 import './style.css';
 import { useCallback, useMemo, useRef } from 'react';
+
 import { useI18n } from '../../../i18n';
 import { getCityDisplayName } from '../../Cities/useLocalizedCities';
-import { buildGridCalendarEvent, gridHourKey } from '../shared/gridSelection';
 import TimelineGridActiveHourIndicator from '../shared/GridActiveHourIndicator';
-import MobileTimeline from './MobileTimeline';
-import MobileToolbar from './MobileToolbar';
-import MobileSelectionControls from './MobileSelectionControls';
-import MobileSelectionOverlay from './MobileSelectionOverlay';
+import { buildGridCalendarEvent, gridHourKey } from '../shared/gridSelection';
 import type { TimelineGridShellProps } from '../shared/types';
 import { useTimelineGridActiveHourIndicator } from '../shared/useGridActiveHourIndicator';
 import { useTimelineGridSnap } from '../shared/useGridScrollSnap';
-import { useMobileGridSelection } from './useMobileGridSelection';
+
+import MobileSelectionControls from './MobileSelectionControls';
+import MobileSelectionOverlay from './MobileSelectionOverlay';
+import MobileTimeline from './MobileTimeline';
+import MobileToolbar from './MobileToolbar';
 import { useMobileGridHorizontalScrollLock } from './useMobileGridHorizontalScrollLock';
+import { useMobileGridSelection } from './useMobileGridSelection';
 
 const EMPTY_SELECTION: NonNullable<TimelineGridShellProps['initialSelectedHours']> = [];
 

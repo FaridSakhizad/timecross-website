@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { beforeEach, afterEach, test } from 'node:test';
+
 import {
   attachGridSelection,
   GRID_SELECTION_FRAME_HORIZONTAL_PADDING,

@@ -1,13 +1,15 @@
 import '../../widgetHeaderButtons.css';
 import { useState } from 'react';
 import { Link } from 'react-router';
+
 import { useI18n } from '../../../i18n';
 import { getCanonicalLanguagePath } from '../../../i18n/languageRouting';
-import StandaloneMenuModal from '../../StandaloneMenuModal';
-import { type MobileSelectionControlsProps } from './MobileSelectionControls';
-import type { GridToolbarProps } from '../shared/types';
-import { cx } from '../../../utils/classNames';
 import { PAGES } from '../../../routes';
+import { cx } from '../../../utils/classNames';
+import StandaloneMenuModal from '../../StandaloneMenuModal';
+import type { GridToolbarProps } from '../shared/types';
+
+import { type MobileSelectionControlsProps } from './MobileSelectionControls';
 
 type MobileToolbarProps = GridToolbarProps & MobileSelectionControlsProps;
 

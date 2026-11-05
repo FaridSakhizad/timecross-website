@@ -13,8 +13,9 @@ import {
   type SelectedGridHour,
   type SelectionRect,
 } from '../shared/gridSelection.ts';
-import { getInitialDesktopGridSelection } from './initialGridSelection.ts';
 import { createGridSelectionSnapAnimation } from '../shared/gridSelectionSnapAnimation.ts';
+
+import { getInitialDesktopGridSelection } from './initialGridSelection.ts';
 
 const INTERACTIVE_TARGET = 'a, button, input, select, textarea, [contenteditable], [role="button"], [role="slider"], .timelineGrid-userHours';
 

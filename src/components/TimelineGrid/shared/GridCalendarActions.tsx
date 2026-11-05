@@ -1,16 +1,18 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
 import { CalendarDays, CalendarPlus, Check, Download, Share2 } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+
+import { FEATURES } from '../../../config';
 import { useI18n } from '../../../i18n';
 import { getCanonicalLanguagePath } from '../../../i18n/languageRouting';
+import { PAGES } from '../../../routes';
 import type { StoredCity } from '../../../settings';
+import { preload } from '../../../utils/preload';
+
+import type * as CalendarEventFile from './calendarEventFile';
+import { buildGridEventUrl } from './eventUrlState';
 import type { GridCalendarEvent } from './gridSelection';
 import { buildOutlookCalendarUrl, type SelectedGridHour } from './gridSelection';
-import { buildGridEventUrl } from './eventUrlState';
 import { shareEventLink } from './shareEventLink';
-import { PAGES } from '../../../routes';
-import { FEATURES } from '../../../config';
-import { preload } from '../../../utils/preload';
-import type * as CalendarEventFile from './calendarEventFile';
 
 // The .ics generator (ics + yup) is a separate chunk: preloaded once a selection exists,
 // so the download still starts synchronously inside the click.

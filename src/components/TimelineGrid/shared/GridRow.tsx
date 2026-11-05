@@ -1,21 +1,23 @@
-import { memo, useEffect, useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { memo, useEffect, useState } from 'react';
 
 import { useI18n } from '../../../i18n';
 import { getIntlLocale } from '../../../i18n/intlLocale';
 import type { TimeFormat } from '../../../settings';
 import type { StoredCity } from '../../../settings';
-import { getCityDisplayName } from '../../Cities/useLocalizedCities';
-import TimelineCellLabel from '../../Timelines/TimelineCellLabel';
-import {
-  formatTime,
-  getRelativeDayMarker,
-  getTimelineCells,
-} from '../../Timelines/utils';
-import { formatRelativeOffset, getTimeZoneOffsetMinutes } from '../../../utils/time';
-import { gridHourKey } from './gridSelection';
 import { cx } from '../../../utils/classNames';
+import {
+  formatClockTime,
+  formatRelativeOffset,
+  getRelativeDayMarker,
+  getTimeZoneOffsetMinutes,
+} from '../../../utils/time';
+import { getCityDisplayName } from '../../Cities/useLocalizedCities';
+
+import { gridHourKey } from './gridSelection';
+import TimelineCellLabel from './TimelineCellLabel';
+import { getTimelineCells } from './timelineCells';
 
 export type GridRowClasses = {
   row?: string;
@@ -113,9 +115,9 @@ function TimelineGridRow({
       className={cx(
         'timelineGrid-row',
         classNames.row,
-        isEditMode && 'timelineGrid-row_reorder',
-        isEditMode && isPressed && !isDragging && 'timelineGrid-row_pressed',
-        isDragging && 'timelineGrid-row_dragging',
+        isEditMode && 'isReorderable',
+        isEditMode && isPressed && !isDragging && 'isPressed',
+        isDragging && 'isDragging',
       )}
       onPointerDown={(event) => handlePressStart(event.target)}
       onTouchStart={(event) => handlePressStart(event.target)}
@@ -146,7 +148,7 @@ function TimelineGridRow({
             </span>
           )}
 
-          <span className="timelineGrid-cityTime">{formatTime(baseDate, city.timezone, timeFormat)}</span>
+          <span className="timelineGrid-cityTime">{formatClockTime(baseDate, city.timezone, timeFormat)}</span>
 
           {isEditMode && (
             <button

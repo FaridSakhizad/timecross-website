@@ -1,9 +1,10 @@
+import './style.css';
+
 import { useState } from 'react';
 import type { KeyboardEvent, ReactNode } from 'react';
+
 import { SITE_NAME } from '../../config';
 import { useI18n } from '../../i18n';
-
-import './style.css';
 import { cx } from '../../utils/classNames';
 
 interface IAccordionItemData {

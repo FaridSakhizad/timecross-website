@@ -6,6 +6,7 @@ import {
   SITE_URL,
 } from './config';
 import { SUPPORTED_LANGUAGES } from './i18n';
+import { translate } from './i18n/dictionaries';
 import {
   getCanonicalLanguagePath,
   stripLanguageFromPathname,
@@ -17,8 +18,6 @@ import {
   type PageId,
 } from './routes';
 import type { AppLanguage } from './settings';
-
-import { translate } from './i18n/dictionaries';
 
 type SeoJsonLdSchema = { id: string; value: unknown };
 

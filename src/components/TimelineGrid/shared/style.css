@@ -44,7 +44,7 @@
   stroke-width: 5;
   stroke-linecap: round;
   stroke-linejoin: round;
-  filter: drop-shadow(0 2px 8px rgba(0 0 0 / 0.22));
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.22));
   pointer-events: none;
 }
 
@@ -78,7 +78,7 @@
   width: max-content;
   min-width: 100%;
   min-height: 46px;
-  border-bottom: 1px solid rgba(255 255 255 / 0.15);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
   color: #fff;
   user-select: none;
   backdrop-filter: blur(30px);
@@ -98,9 +98,9 @@
   justify-self: center;
   width: var(--timeline-grid-cell-size);
   height: 24px;
-  border: 1px solid rgba(255 255 255 / 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 65536px;
-  color: rgba(255 255 255 / 1);
+  color: rgba(255, 255, 255, 1);
   font-size: 16px;
   line-height: 18px;
 }
@@ -157,7 +157,7 @@
   will-change: transform;
 }
 
-.timelineGrid-row_reorder {
+.timelineGrid-row.isReorderable {
   margin-bottom: 6px;
 
   &:last-of-type {
@@ -165,17 +165,17 @@
   }
 }
 
-.timelineGrid-row_pressed {
+.timelineGrid-row.isPressed {
   .timelineGrid-dragButton {
     --main-color: rgba(var(--accent-color-2), 1);
   }
 
   .timelineGrid-cellsSpacer {
-    background: rgba(255 255 255 / 0.36);
+    background: rgba(255, 255, 255, 0.36);
   }
 }
 
-.timelineGrid-row_dragging {
+.timelineGrid-row.isDragging {
   z-index: 20;
 
   .timelineGrid-dragButton {
@@ -183,7 +183,7 @@
   }
 
   .timelineGrid-cellsSpacer {
-    background: rgba(255 255 255 / 0.5);
+    background: rgba(255, 255, 255, 0.5);
   }
 }
 
@@ -260,15 +260,15 @@
   margin-left: 8px;
   padding: 2px 8px;
   border-radius: 65536px;
-  background: rgba(255 255 255 / 0.1);
-  color: rgba(255 255 255 / 0.72);
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.72);
   font-size: 12px;
   line-height: 1.2;
 }
 
 .timelineGrid-cityTime {
   margin-left: auto;
-  color: rgba(255 255 255 / 1);
+  color: rgba(255, 255, 255, 1);
   font-size: var(--base-font-size);
   line-height: var(--base-line-height);
 }
@@ -309,39 +309,39 @@
   width: var(--timeline-grid-cell-size);
   height: var(--timeline-grid-cell-size);
   border-radius: 10px;
-  background: rgba(255 255 255 / 0.1);
-  color: rgba(255 255 255 / 1);
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 1);
   font-size: 36px;
   line-height: 1;
   font-weight: 300;
 
   &.timelineGrid-cell_morning {
-    background-color: rgb(255 255 255 / 0.1);
+    background-color: rgba(255, 255, 255, 0.1);
     text-shadow: 0 0 5px rgb(var(--color-danger-1), 0.15);
-    color: rgb(255 255 255 / 0.85);
+    color: rgba(255, 255, 255, 0.85);
   }
 
   &.timelineGrid-cell_day {
-    background-color: rgb(255 255 255 / 0.3);
-    text-shadow: 0 0 5px rgba(0 0 0 / 0.35);
+    background-color: rgba(255, 255, 255, 0.3);
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.35);
   }
 
   &.timelineGrid-cell_evening {
-    background-color: rgb(255 255 255 / 0.1);
-    text-shadow: 0 0 5px rgb(79 202 255 / 0.4);
-    color: rgb(255 255 255 / 0.85);
+    background-color: rgba(255, 255, 255, 0.1);
+    text-shadow: 0 0 5px rgba(79, 202, 255, 0.4);
+    color: rgba(255, 255, 255, 0.85);
   }
 
   &.timelineGrid-cell_lateEvening {
-    background-color: rgb(0 0 0 / 0.03);
-    text-shadow: 0 0 5px rgb(79 202 255 / 0.4);
-    color: rgb(255 255 255 / 0.75);
+    background-color: rgba(0, 0, 0, 0.03);
+    text-shadow: 0 0 5px rgba(79, 202, 255, 0.4);
+    color: rgba(255, 255, 255, 0.75);
   }
 
   &.timelineGrid-cell_night {
-    background-color: rgb(0 0 0 / 0.03);
-    text-shadow: 0 0 5px rgb(255 255 255 / 0.3);
-    color: rgb(255 255 255 / 0.70);
+    background-color: rgba(0, 0, 0, 0.03);
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.70);
   }
 }
 
@@ -357,7 +357,7 @@
 .timelineGrid-cellsSpacer {
   display: block;
   min-width: 100%;
-  background-color: rgba(255 255 255 / 0.14);
+  background-color: rgba(255, 255, 255, 0.14);
   height: 64px;
   cursor: grab;
   touch-action: none;
@@ -373,18 +373,18 @@
 @media (hover: hover) {
   .timelineGrid-cellsSpacer {
     &:hover {
-      background-color: rgba(255 255 255 / 0.3);
+      background-color: rgba(255, 255, 255, 0.3);
     }
   }
 
-  .timelineGrid-row_reorder:has(.timelineGrid-dragButton:hover) {
+  .timelineGrid-row.isReorderable:has(.timelineGrid-dragButton:hover) {
     .timelineGrid-cellsSpacer {
-      background-color: rgba(255 255 255 / 0.3);
+      background-color: rgba(255, 255, 255, 0.3);
     }
   }
 }
 
-.timelineGrid-row_dragging .timelineGrid-cellsSpacer {
+.timelineGrid-row.isDragging .timelineGrid-cellsSpacer {
   cursor: grabbing;
 }
 
@@ -403,7 +403,7 @@
   min-height: 38px;
   border-radius: 19px;
   padding: 0 15px 0 10px;
-  border: 2px solid rgba(255 255 255 / 1);
+  border: 2px solid rgba(255, 255, 255, 1);
   display: flex;
   align-items: center;
   gap: 12px;
@@ -462,12 +462,12 @@
   font-size: 16px;
   line-height: 18px;
   position: relative;
-  background: rgb(0 0 0 / 0.3) !important;
+  background: rgba(0, 0, 0, 0.3) !important;
   color: #fff !important;
   font-weight: 500;
 
   &.timelineGrid-cell_current {
-    background: rgb(0 0 0 / 0.3) !important;
+    background: rgba(0, 0, 0, 0.3) !important;
     color: #fff !important;
     font-weight: 500;
 
@@ -528,7 +528,7 @@
 }
 
 .timelineGrid-cell_adjacentDay {
-  background: rgba(255 255 255 / 0.03);
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .timelineGrid-cell_current {

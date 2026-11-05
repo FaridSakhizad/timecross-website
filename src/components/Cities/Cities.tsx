@@ -22,11 +22,15 @@ import {
   useState,
 } from 'react';
 import { Link } from 'react-router';
-import type { TimeFormat } from '../../settings';
-import { useCurrentMinuteDate } from '../../useCurrentMinuteDate';
-import { useMobileWidgetLayout } from '../../useMobileWidgetLayout';
+
+import { useCurrentMinuteDate } from '../../hooks/useCurrentMinuteDate';
+import { useMobileWidgetLayout } from '../../hooks/useMobileWidgetLayout';
+import { usePreferences } from '../../hooks/usePreferences';
 import { useI18n } from '../../i18n';
 import { getCanonicalLanguagePath } from '../../i18n/languageRouting';
+import { PAGES } from '../../routes';
+import type { TimeFormat } from '../../settings';
+import { cx } from '../../utils/classNames';
 import { clamp } from '../../utils/number';
 import {
   formatClockTime,
@@ -35,27 +39,25 @@ import {
   getTimeZoneOffsetMinutes,
   getZonedDateParts,
 } from '../../utils/time';
+import StandaloneMenuModal from '../StandaloneMenuModal';
+
 import AddCityModal from './AddCityModal';
 import type { CitySearchRow } from './cityData';
-import StandaloneMenuModal from '../StandaloneMenuModal';
+import { getCityView } from './cityView';
+import RenameCityModal from './RenameCityModal';
 import {
   createFavoriteCityFromSearchResult,
   getSelectedCities,
   saveSelectedCities,
   subscribeSelectedCities,
 } from './selectedCities';
-import { useTimeRulerScroll } from './useTimeRulerScroll';
-import RenameCityModal from './RenameCityModal';
 import SortableCityItem from './SortableCityItem';
-import { getCityView } from './cityView';
 import {
   getCityBaseName,
   getCityDisplayName,
   useLocalizedCities,
 } from './useLocalizedCities';
-import { cx } from '../../utils/classNames';
-import { PAGES } from '../../routes';
-import { usePreferences } from '../../usePreferences';
+import { useTimeRulerScroll } from './useTimeRulerScroll';
 
 const PIXELS_IN_MINUTE = 1;
 const TIME_RULER_RANGE_MINUTES = 24 * 60;
@@ -247,7 +249,7 @@ export default function Cities({
   };
 
   return (
-    <div className={cx('cities', isEditMode && 'cities_editMode', ...customClassNameList)}>
+    <div className={cx('cities', isEditMode && 'isEditing', ...customClassNameList)}>
       <div className="citiesHeader">
         {showHomeButton && (
           <Link
@@ -354,7 +356,7 @@ export default function Cities({
         </div>
 
         <div
-          className={cx('timeRuler-scale', isTimeRulerDragging && 'timeRuler-scale_dragging')}
+          className={cx('timeRuler-scale', isTimeRulerDragging && 'isDragging')}
           ref={timeRulerScaleRef}
           role="slider"
           aria-label={t('cities.selectedTimeOffset')}

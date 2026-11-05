@@ -1,19 +1,17 @@
-import ContactForm from '../components/ContactForm';
 import ClientOnly from '../components/ClientOnly';
-import { Timelines } from '../components/lazyWidgets';
+import ContactForm from '../components/ContactForm';
 import FAQ from '../components/FAQ';
 import FeaturesList from '../components/FeaturesList';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
 import Hero from '../components/Hero';
+import { TimelineGrid } from '../components/lazyWidgets';
 import ScreenshotSlider from '../components/ScreenshotSlider';
 import Seo from '../components/Seo';
-
 import {
   APP_STORE_URL,
   GOOGLE_PLAY_URL,
 } from '../config';
-
 import { useI18n } from '../i18n';
 
 export default function HomePage() {
@@ -29,7 +27,7 @@ export default function HomePage() {
 
       <section className="section section_timelines">
         <ClientOnly>
-          <Timelines />
+          <TimelineGrid presentation="embedded" />
         </ClientOnly>
       </section>
 

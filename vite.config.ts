@@ -1,6 +1,6 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
 import { cloudflare } from '@cloudflare/vite-plugin';
+import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite';
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -10,10 +10,5 @@ export default defineConfig({
     // not: some widgets style themselves with classes from other widgets' files (the planner uses
     // the header buttons from Cities), and split CSS would change the cascade order.
     cssCodeSplit: false,
-  },
-  server: {
-    watch: {
-      usePolling: true,
-    },
   },
 });

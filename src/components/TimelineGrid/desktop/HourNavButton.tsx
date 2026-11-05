@@ -1,7 +1,8 @@
-import type { RefObject } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import type { RefObject } from 'react';
+
 import { useI18n } from '../../../i18n';
-import { TIMELINE_HOUR_WIDTH } from '../../Timelines/constants';
+import { TIMELINE_HOUR_WIDTH } from '../shared/constants';
 
 type HourNavButtonProps = {
   direction: 'prev' | 'next';

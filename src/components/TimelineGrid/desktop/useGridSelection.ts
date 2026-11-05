@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState, type RefObject } from 'react';
-import { attachGridSelection } from './gridSelectionController';
+
 import type { SelectedGridHour } from '../shared/gridSelection';
+
+import { attachGridSelection } from './gridSelectionController';
 
 export function useGridSelection(viewportRef: RefObject<HTMLDivElement | null>, enabled: boolean, contentKey: string, blocked = false, initialSelection: SelectedGridHour[] = [], onChange?: (hours: SelectedGridHour[]) => void) {
   const overlayRef = useRef<HTMLDivElement>(null);

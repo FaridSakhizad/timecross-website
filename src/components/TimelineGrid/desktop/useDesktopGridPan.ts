@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type RefObject } from 'react';
+
 import { attachDesktopGridPan } from './gridPanController';
 
 export function useDesktopGridPan(

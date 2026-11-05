@@ -1,9 +1,10 @@
 import type { TimeFormat } from '../../../settings';
 import type { StoredCity } from '../../../settings';
-import type { TimelineCell } from '../../Timelines/types';
-import type { GridCalendarEvent, SelectedGridHour } from './gridSelection';
 
-export type TimelineGridProps = {
+import type { GridCalendarEvent, SelectedGridHour } from './gridSelection';
+import type { TimelineCell } from './timelineCells';
+
+export type TimelineGridSessionProps = {
   presentation?: 'zen' | 'embedded';
   syncUrl?: boolean;
 };

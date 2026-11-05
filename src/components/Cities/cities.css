@@ -6,7 +6,7 @@
 
 .citiesHeader {
   height: 80px;
-  border-bottom: 1px solid rgba(255 255 255 / 0.5);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -29,7 +29,7 @@
   height: 73px;
   display: flex;
   color: #fff;
-  border-bottom: 1px solid rgba(255 255 255 / 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
   padding: 0 5px 0 2px;
   align-items: center;
   position: relative;
@@ -42,7 +42,7 @@
   border-radius: 19px;
   padding: 0 16px 0 8px;
   margin: 25px auto 25px auto;
-  border: 2px solid rgba(255 255 255 / 1);
+  border: 2px solid rgba(255, 255, 255, 1);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -99,7 +99,7 @@
   }
 }
 
-.citiesList-item_dragging {
+.citiesList-item.isDragging {
   opacity: 0.72;
   z-index: 2;
 
@@ -155,7 +155,7 @@
   top: 0;
   bottom: 0;
   right: 20px;
-  background-color: rgba(0 0 0 / 0);
+  background-color: rgba(0, 0, 0, 0);
   z-index: 200;
   cursor: grab;
   touch-action: none;
@@ -244,11 +244,11 @@
   font-family: var(--body-font-family-1);
 
   &:focus {
-    background: rgba(255 255 255 / 0.16);
+    background: rgba(255, 255, 255, 0.16);
   }
 
   &::placeholder {
-    color: rgba(255 255 255 / 0.85);
+    color: rgba(255, 255, 255, 0.85);
     opacity: 1;
   }
 }
@@ -397,7 +397,7 @@
   }
 }
 
-.cities_editMode {
+.cities.isEditing {
   .citiesList-item {
     padding-right: 25px;
     padding-left: 20px;
@@ -423,7 +423,7 @@
 
 .timeRuler {
   height: 126px;
-  border-top: 1px solid rgba(255 255 255 / 0.5);
+  border-top: 1px solid rgba(255, 255, 255, 0.5);
   position: relative;
   padding-top: 24px;
 
@@ -454,7 +454,7 @@
   height: 20px;
   border-radius: 50%;
   border: 1px solid transparent;
-  background-color: rgba(255 255 255 / 1);
+  background-color: rgba(255, 255, 255, 1);
   cursor: pointer;
   position: absolute;
   left: 0;
@@ -526,7 +526,7 @@
   }
 }
 
-.timeRuler-scale_dragging {
+.timeRuler-scale.isDragging {
   cursor: grabbing;
 }
 
@@ -544,24 +544,24 @@
   top: 72px;
   translate: -50% 0;
   border-radius: 3px;
-  background: rgba(255 255 255 / 1);
+  background: rgba(255, 255, 255, 1);
 }
 
 .timeRuler-tick_hour {
   width: 5px;
   height: 5px;
   top: 71px;
-  background: rgba(255 255 255 / 1);
+  background: rgba(255, 255, 255, 1);
 }
 
 .timeRuler-tick_current {
   height: 11px;
   top: 68px;
-  background: rgba(255 255 255 / 1);
+  background: rgba(255, 255, 255, 1);
 }
 
 @media (width < 768px) {
-  .cities_editMode {
+  .cities.isEditing {
     .citiesList-item {
       padding-right: 25px;
     }

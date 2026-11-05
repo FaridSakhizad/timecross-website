@@ -2,9 +2,9 @@ import './WorldClockPage.css';
 
 import AppDownloadCta from '../components/AppDownloadCta';
 import ClientOnly from '../components/ClientOnly';
-import { Cities } from '../components/lazyWidgets';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
+import { Cities } from '../components/lazyWidgets';
 import Seo from '../components/Seo';
 import { useI18n } from '../i18n';
 import { getCanonicalLanguagePath } from '../i18n/languageRouting';

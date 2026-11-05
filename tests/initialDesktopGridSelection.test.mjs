@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
+
 import { getInitialDesktopGridSelection } from '../src/components/TimelineGrid/desktop/initialGridSelection.ts';
 
 const cells = Array.from({ length: 8 }, (_, row) => Array.from({ length: 12 }, (_, col) => ({

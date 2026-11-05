@@ -1,8 +1,6 @@
 import 'react-day-picker/style.css';
 import './DatePickerModal.css';
 
-import { useMemo } from 'react';
-import { DayPicker } from 'react-day-picker';
 import { de } from 'date-fns/locale/de';
 import { enUS } from 'date-fns/locale/en-US';
 import { es } from 'date-fns/locale/es';
@@ -11,6 +9,8 @@ import { pt } from 'date-fns/locale/pt';
 import { ptBR } from 'date-fns/locale/pt-BR';
 import { ru } from 'date-fns/locale/ru';
 import { uk } from 'date-fns/locale/uk';
+import { useMemo } from 'react';
+import { DayPicker } from 'react-day-picker';
 
 import type { AppLanguage } from '../../settings';
 import Modal from '../Modal';

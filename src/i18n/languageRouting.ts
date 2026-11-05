@@ -1,7 +1,8 @@
 import { getPageIdByPath } from '../routes.ts';
-import type { TranslationKey } from './dictionaries.ts';
 import { APP_LANGUAGES, type AppLanguage } from '../settings.ts';
 import { getBrowserTimezone } from '../utils/time.ts';
+
+import type { TranslationKey } from './dictionaries.ts';
 
 const LANGUAGE_TO_URL_SEGMENT: Record<AppLanguage, string> = {
   en: 'en',

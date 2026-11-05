@@ -1,13 +1,15 @@
 import js from '@eslint/js';
-import globals from 'globals';
+import stylistic from '@stylistic/eslint-plugin';
+import { defineConfig, globalIgnores } from 'eslint/config';
+import importX from 'eslint-plugin-import-x';
 import reactHooks from 'eslint-plugin-react-hooks';
 import reactRefresh from 'eslint-plugin-react-refresh';
-import stylistic from '@stylistic/eslint-plugin';
+import globals from 'globals';
 import tseslint from 'typescript-eslint';
-import { defineConfig, globalIgnores } from 'eslint/config';
 
 import multilineLogicalExpressions from './eslint-rules/multiline-logical-expressions.js';
 import paddingAroundMultilineDeclarations from './eslint-rules/padding-around-multiline-declarations.js';
+import stylesheetImportsFirst from './eslint-rules/stylesheet-imports-first.js';
 
 /*
  * Code style: rules, not a formatter. Base is the @stylistic "customize" preset, adjusted towards
@@ -97,6 +99,19 @@ const styleRules = {
   '@stylistic/jsx-pascal-case': ['error', { allowAllCaps: true }],
 };
 
+// Stylesheets first: their position decides the cascade order, so they stay out of sorting. Then
+// groups separated by a blank line: Node built-ins and packages, parent folders (../), the same
+// folder (./); alphabetical inside a group. All imports before any other statement.
+const importRules = {
+  'local/stylesheet-imports-first': 'error',
+  'import-x/first': 'error',
+  'import-x/order': ['error', {
+    groups: [['builtin', 'external'], 'internal', 'parent', ['sibling', 'index']],
+    'newlines-between': 'always',
+    alphabetize: { order: 'asc', caseInsensitive: true },
+  }],
+};
+
 // Airbnb practices that are not about formatting.
 const practiceRules = {
   eqeqeq: ['error', 'always', { null: 'ignore' }],
@@ -137,11 +152,14 @@ const typedRules = {
 };
 
 // Planner grid boundaries, see src/components/TimelineGrid/README.md: desktop/ and mobile/ never
-// import each other, shared/ imports neither, and no part of the grid detects the device itself.
-const GRID_DEVICE_DETECTION = {
-  group: ['**/useMobileWidgetLayout', '**/Planner/Planner'],
-  message: 'The grid must not detect the device; Planner picks the desktop or mobile view.',
-};
+// import each other, shared/ imports neither, and no part of them detects the device: only
+// TimelineGrid.tsx picks the view.
+const GRID_DEVICE_DETECTION_MESSAGE = 'The grid views must not detect the device; TimelineGrid.tsx picks the desktop or mobile view.';
+const GRID_DEVICE_DETECTION = [
+  { group: ['**/useMobileWidgetLayout'], message: GRID_DEVICE_DETECTION_MESSAGE },
+  // The view selector: '..', '../index' or '../TimelineGrid' from desktop/, mobile/ or shared/.
+  { regex: '^\\.\\.(/index|/TimelineGrid)?$', message: GRID_DEVICE_DETECTION_MESSAGE },
+];
 
 const gridBoundary = (folder, forbidden) => ({
   files: [`src/components/TimelineGrid/${folder}/**/*.{ts,tsx}`],
@@ -152,7 +170,7 @@ const gridBoundary = (folder, forbidden) => ({
           group: [`../${other}`, `../${other}/*`],
           message: `TimelineGrid/${folder} must not depend on TimelineGrid/${other}.`,
         })),
-        GRID_DEVICE_DETECTION,
+        ...GRID_DEVICE_DETECTION,
       ],
     }],
   },
@@ -181,14 +199,16 @@ export default defineConfig([
     },
     plugins: {
       '@stylistic': stylistic,
+      'import-x': importX,
       local: {
         rules: {
           'multiline-logical-expressions': multilineLogicalExpressions,
           'padding-around-multiline-declarations': paddingAroundMultilineDeclarations,
+          'stylesheet-imports-first': stylesheetImportsFirst,
         },
       },
     },
-    rules: { ...styleRules, ...practiceRules },
+    rules: { ...styleRules, ...importRules, ...practiceRules },
   },
   {
     files: TYPED_FILES,

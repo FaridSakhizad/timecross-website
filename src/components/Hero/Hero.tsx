@@ -1,21 +1,18 @@
 import './style.css';
 
-import ClientOnly from '../ClientOnly';
-import { Cities } from '../lazyWidgets';
-
 import heroImg1 from '../../assets/1-cities.jpg';
 import heroImg2 from '../../assets/2-cities.jpg';
 import heroImg3 from '../../assets/3-timelines.jpg';
 import heroImg4 from '../../assets/4-add-city.jpg';
 import heroImg5 from '../../assets/5-add-timezone.jpg';
 import heroImg6 from '../../assets/6-notifications.jpg';
-
 import {
   APP_STORE_URL,
   GOOGLE_PLAY_URL,
 } from '../../config';
-
 import { useI18n } from '../../i18n';
+import ClientOnly from '../ClientOnly';
+import { Cities } from '../lazyWidgets';
 
 const IPHONE_PREVIEW_IMAGES = [
   { image: heroImg1, altKey: 'seo.images.heroIphoneCities' },

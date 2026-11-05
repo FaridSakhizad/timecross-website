@@ -1,11 +1,12 @@
+import './style.css';
+
 import { useRef, useState, type FormEvent } from 'react';
 
-import { CONTACT_API_PATH, TURNSTILE_ACTION } from '../../config';
+import { CONTACT_API_PATH, CONTACT_FIELD_MAX_LENGTH, TURNSTILE_ACTION } from '../../config';
+import { usePreferences } from '../../hooks/usePreferences';
 import { useI18n } from '../../i18n';
-import { usePreferences } from '../../usePreferences';
-import TurnstileWidget, { type TurnstileWidgetHandle } from './TurnstileWidget';
 
-import './style.css';
+import TurnstileWidget, { type TurnstileWidgetHandle } from './TurnstileWidget';
 
 /**
  * Public Turnstile site key, set with VITE_TURNSTILE_SITE_KEY at build time (.env.production).
@@ -13,6 +14,13 @@ import './style.css';
  */
 const TURNSTILE_SITE_KEY: string = import.meta.env.VITE_TURNSTILE_SITE_KEY
   || (import.meta.env.DEV ? '1x00000000000000000000AA' : '');
+
+/** Value of a text field; empty when the field is missing. */
+function getFormText(formData: FormData, name: string) {
+  const value = formData.get(name);
+
+  return typeof value === 'string' ? value : '';
+}
 
 type ContactFormStatus = 'idle' | 'sending' | 'sent' | 'error';
 
@@ -51,10 +59,10 @@ export default function ContactForm() {
 
     const formData = new FormData(event.currentTarget);
     const form = event.currentTarget;
-    const name = String(formData.get('name') ?? '').trim();
-    const email = String(formData.get('email') ?? '').trim();
-    const message = String(formData.get('message') ?? '').trim();
-    const website = String(formData.get('website') ?? '');
+    const name = getFormText(formData, 'name').trim();
+    const email = getFormText(formData, 'email').trim();
+    const message = getFormText(formData, 'message').trim();
+    const website = getFormText(formData, 'website');
 
     if (!turnstileToken) {
       setContactFormStatus('error');
@@ -126,7 +134,7 @@ export default function ContactForm() {
           className="input contactForm-input"
           name="name"
           placeholder={t('contactForm.name')}
-          maxLength={100}
+          maxLength={CONTACT_FIELD_MAX_LENGTH.name}
           required
         />
       </div>
@@ -136,7 +144,7 @@ export default function ContactForm() {
           className="input contactForm-input"
           name="email"
           placeholder={t('contactForm.email')}
-          maxLength={254}
+          maxLength={CONTACT_FIELD_MAX_LENGTH.email}
           required
         />
       </div>
@@ -145,7 +153,7 @@ export default function ContactForm() {
           className="textarea contactForm-input"
           name="message"
           placeholder={t('contactForm.message')}
-          maxLength={5000}
+          maxLength={CONTACT_FIELD_MAX_LENGTH.message}
           required
         />
       </div>

@@ -1,6 +1,7 @@
 import { useCallback, type RefObject } from 'react';
-import { useTimelineGridSnap } from '../shared/useGridScrollSnap';
+
 import { useTimelineGridActiveHourIndicator } from '../shared/useGridActiveHourIndicator';
+import { useTimelineGridSnap } from '../shared/useGridScrollSnap';
 
 function useElementScrollTarget(viewportRef: RefObject<HTMLDivElement | null>) {
   return useCallback(() => (viewportRef.current

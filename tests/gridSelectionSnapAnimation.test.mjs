@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
+
 import { createGridSelectionSnapAnimation, GRID_SELECTION_SNAP_DURATION } from '../src/components/TimelineGrid/shared/gridSelectionSnapAnimation.ts';
 
 const from = { left: '10px', top: '20px', width: '213.5px', height: '325.5px' };

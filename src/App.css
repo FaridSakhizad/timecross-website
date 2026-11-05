@@ -29,7 +29,30 @@
   margin: 0 0 45px 0;
 }
 
+.section_timelines {
+  padding-top: 70px;
 
+  .timelineGridMobileEmbedded {
+    min-height: 320px;
+    height: 90dvh;
+    max-height: 540px;
+  }
+}
+
+.section_timelines:has(.timelinesEmbedded) {
+  padding-inline: 15px;
+}
+
+@media (width < 1200px) {
+  .section_timelines:has(.timelineGridMobileEmbedded) {
+    padding: 0;
+  }
+
+  .section_timelines:has(.timelinesEmbedded) {
+    padding-block: 15px;
+    padding-inline: 15px;
+  }
+}
 
 .section_realUseCases {
   position: relative;
@@ -97,7 +120,7 @@
   flex-basis: 100%;
   max-width: 560px;
   margin: -28px auto 0;
-  color: rgba(255 255 255 / 1);
+  color: rgba(255, 255, 255, 1);
   font-size: 14px;
   line-height: 1.35;
   font-weight: bold;

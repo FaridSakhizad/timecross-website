@@ -1,4 +1,5 @@
 import { useI18n } from '../../../i18n';
+
 import type { TimelineGridActiveHourDirection } from './useGridActiveHourIndicator';
 
 type TimelineGridActiveHourIndicatorProps = {

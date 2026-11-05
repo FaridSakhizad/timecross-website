@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type RefObject } from 'react';
+
 import type { SelectedGridHour } from '../shared/gridSelection';
+
 import { attachMobileGridSelection } from './mobileGridSelectionController';
 import { getVisibleMobileGridSelection } from './mobileGridSelectionGeometry';
 

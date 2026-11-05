@@ -32,7 +32,7 @@
   margin: 0 auto 28px;
   font-size: 18px;
   line-height: 1.5;
-  color: rgba(255 255 255 / 0.92);
+  color: rgba(255, 255, 255, 0.92);
 }
 
 .worldClockHero-cta {
@@ -56,7 +56,7 @@
   border: 3px solid rgba(var(--accent-color-2), 1);
   border-radius: 40px;
   background-color: rgba(var(--accent-color-1), 0.1);
-  box-shadow: 0 10px 50px 0 rgba(0 0 0 / 0.15);
+  box-shadow: 0 10px 50px 0 rgba(0, 0, 0, 0.15);
   overflow: hidden;
 }
 

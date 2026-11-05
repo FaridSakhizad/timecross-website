@@ -1,8 +1,9 @@
 import { Scan, X } from 'lucide-react';
+
 import { useI18n } from '../../../i18n';
+import { cx } from '../../../utils/classNames';
 import GridCalendarActions from '../shared/GridCalendarActions';
 import type { GridToolbarProps } from '../shared/types';
-import { cx } from '../../../utils/classNames';
 
 export type MobileSelectionControlsProps = Pick<GridToolbarProps, 'calendarEvent' | 'cities' | 'selectedHours' | 'isEditMode'> & {
   selectionEnabled: boolean;

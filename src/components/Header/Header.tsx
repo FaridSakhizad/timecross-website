@@ -4,14 +4,14 @@ import { useState } from 'react';
 import { Link } from 'react-router';
 
 import { SITE_NAME, BUY_ME_A_COFFEE_URL } from '../../config';
+import { usePreferences } from '../../hooks/usePreferences';
 import { useI18n } from '../../i18n';
-import { getCanonicalLanguagePath } from '../../i18n/languageRouting';
 import { SHORT_LANGUAGE_NAMES } from '../../i18n/languageLabels';
+import { getCanonicalLanguagePath } from '../../i18n/languageRouting';
+import { PAGES } from '../../routes';
+import { cx } from '../../utils/classNames';
 import LanguageMenu from '../LanguageMenu';
 import StandaloneMenuModal from '../StandaloneMenuModal';
-import { cx } from '../../utils/classNames';
-import { PAGES } from '../../routes';
-import { usePreferences } from '../../usePreferences';
 
 type HeaderProps = {
   customClassNames?: string;

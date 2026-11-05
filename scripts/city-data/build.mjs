@@ -18,8 +18,9 @@
  */
 import { createReadStream, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { createInterface } from 'node:readline';
-import { parseArgs } from 'node:util';
 import { DatabaseSync } from 'node:sqlite';
+import { parseArgs } from 'node:util';
+
 import { APP_LANGUAGES } from '../../src/settings.ts';
 
 const root = new URL('../../', import.meta.url);

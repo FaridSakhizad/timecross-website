@@ -1,6 +1,7 @@
-import { useCallback, useState, useEffect } from 'react';
+import './style.css';
 
 import useEmblaCarousel from 'embla-carousel-react';
+import { useCallback, useState, useEffect } from 'react';
 
 import slide1 from '../../assets/1-cities.jpg';
 import slide2 from '../../assets/2-cities.jpg';
@@ -9,8 +10,6 @@ import slide4 from '../../assets/4-add-city.jpg';
 import slide5 from '../../assets/5-add-timezone.jpg';
 import slide6 from '../../assets/6-notifications.jpg';
 import { useI18n } from '../../i18n';
-
-import './style.css';
 import { cx } from '../../utils/classNames';
 
 const SLIDES = [

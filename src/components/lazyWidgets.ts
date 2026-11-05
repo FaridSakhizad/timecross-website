@@ -1,4 +1,5 @@
 import { lazy } from 'react';
+
 import { stripLanguageFromPathname } from '../i18n/languageRouting';
 import { PAGES, getPageIdByPath, type PageWidget } from '../routes';
 import { preload } from '../utils/preload';
@@ -9,18 +10,15 @@ import { preload } from '../utils/preload';
  * the page shell and text.
  */
 const loadCities = () => import('./Cities');
-const loadTimelines = () => import('./Timelines');
 const loadTimelineGrid = () => import('./TimelineGrid');
 const loadTimeZoneConverter = () => import('./TimeZoneConverter');
 
 export const Cities = lazy(loadCities);
-export const Timelines = lazy(loadTimelines);
 export const TimelineGrid = lazy(loadTimelineGrid);
 export const TimeZoneConverter = lazy(loadTimeZoneConverter);
 
 const WIDGET_LOADERS: Record<PageWidget, () => Promise<unknown>> = {
   cities: loadCities,
-  timelines: loadTimelines,
   timelineGrid: loadTimelineGrid,
   timeZoneConverter: loadTimeZoneConverter,
 };

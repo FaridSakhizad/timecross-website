@@ -2,9 +2,9 @@ import './MeetingTimePlannerPage.css';
 
 import AppDownloadCta from '../components/AppDownloadCta';
 import ClientOnly from '../components/ClientOnly';
-import { Timelines } from '../components/lazyWidgets';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
+import { TimelineGrid } from '../components/lazyWidgets';
 import Seo from '../components/Seo';
 import { useI18n } from '../i18n';
 import { getCanonicalLanguagePath } from '../i18n/languageRouting';
@@ -27,7 +27,10 @@ export default function MeetingTimePlannerPage() {
         <section className="section meetingTimePlannerWidgetSection">
           <div className="meetingTimePlannerWidgetSection-widget">
             <ClientOnly>
-              <Timelines syncUrl />
+              <TimelineGrid
+                presentation="embedded"
+                syncUrl
+              />
             </ClientOnly>
           </div>
           <div className="container meetingTimePlannerWidgetSection-container">

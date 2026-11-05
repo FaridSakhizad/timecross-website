@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
+
 import { buildGridCalendarEvent, buildOutlookCalendarUrl, getGridHourRanges, getGridSelectionBounds, intersectsSelection, resizeGridSelection, resizeGridSelectionRect } from '../src/components/TimelineGrid/shared/gridSelection.ts';
 
 const hour = 3600000;

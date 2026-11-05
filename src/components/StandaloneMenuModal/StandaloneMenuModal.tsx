@@ -3,13 +3,13 @@ import './style.css';
 import { Link } from 'react-router';
 
 import { BUY_ME_A_COFFEE_URL } from '../../config';
-import LanguageMenu from '../LanguageMenu';
-import Modal from '../Modal';
+import { usePreferences } from '../../hooks/usePreferences';
 import { useI18n } from '../../i18n';
 import { getCanonicalLanguagePath, getLanguageLabelKey } from '../../i18n/languageRouting';
-import { cx } from '../../utils/classNames';
 import { PAGES } from '../../routes';
-import { usePreferences } from '../../usePreferences';
+import { cx } from '../../utils/classNames';
+import LanguageMenu from '../LanguageMenu';
+import Modal from '../Modal';
 
 type StandaloneMenuModalProps = {
   isOpen: boolean;
@@ -78,7 +78,7 @@ export default function StandaloneMenuModal({
 
         <button
           type="button"
-          className={cx('standaloneMenuModal-item standaloneMenuModal-nightMode', colorMode === 'night' && 'isActive')}
+          className={cx('standaloneMenuModal-item standaloneMenuModal-item_nightMode', colorMode === 'night' && 'isActive')}
           onClick={toggleColorMode}
         >
           {t(colorMode === 'night' ? 'common.lightMode' : 'common.darkMode')}

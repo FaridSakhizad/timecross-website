@@ -6,23 +6,11 @@ import {
   type StoredCity,
 } from '../../settings';
 
-export type SelectedCityInput = {
-  id: number | string;
-  name: string;
-  country: string;
-  admin1: string | null;
-  tz: string;
-  pop: number;
-  isAbstractTimezone?: boolean;
-  localizedName?: string | null;
-};
+import type { CitySearchRow } from './cityData';
 
-function normalizeCityId(cityId: number | string) {
-  return String(cityId);
-}
-
-function createSelectedCityInstanceId(cityId: number | string) {
-  return `${normalizeCityId(cityId)}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+/** A unique id of one entry in the list: the same city may be added more than once. */
+function createSelectedCityInstanceId(cityId: string) {
+  return `${cityId}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
 /** The user's cities in display order. */
@@ -56,8 +44,8 @@ export function subscribeSelectedCities(listener: () => void) {
   });
 }
 
-export function createFavoriteCityFromSearchResult(city: SelectedCityInput): StoredCity {
-  const cityId = normalizeCityId(city.id);
+export function createFavoriteCityFromSearchResult(city: Pick<CitySearchRow, 'id' | 'name' | 'tz'>): StoredCity {
+  const cityId = String(city.id);
 
   return {
     id: createSelectedCityInstanceId(cityId),

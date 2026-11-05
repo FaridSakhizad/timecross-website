@@ -1,5 +1,5 @@
 .header {
-  border-top: 10px solid rgba(0 0 0 / 0.1);
+  border-top: 10px solid rgba(0, 0, 0, 0.1);
   padding-block: 15px;
 
   & > .container {
@@ -146,10 +146,6 @@
   background-color: rgba(var(--accent-color-1), 0.3);
   border-radius: 50%;
   margin: 0 4px;
-
-  .headerMenu-separator_1 {}
-
-  .headerMenu-separator_2 {}
 }
 
 
@@ -212,7 +208,7 @@
   text-decoration: none;
 
   &:hover {
-    background-color: rgba(0 0 0 / 0.8);
+    background-color: rgba(0, 0, 0, 0.8);
   }
 }
 

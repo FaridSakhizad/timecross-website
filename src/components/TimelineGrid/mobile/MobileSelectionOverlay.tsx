@@ -1,5 +1,6 @@
 import '../shared/selection.css';
 import type { RefObject } from 'react';
+
 import { useI18n } from '../../../i18n';
 
 type MobileSelectionOverlayProps = {

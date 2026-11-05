@@ -1,18 +1,19 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
-import { resolvePlannerLayout } from '../src/components/Planner/plannerLayout.ts';
+
+import { resolveTimelineGridLayout } from '../src/components/TimelineGrid/layout.ts';
 
 // Import boundaries between desktop/, mobile/ and shared/ are enforced by ESLint
 // (no-restricted-imports in eslint.config.js). Markup structure is covered by plannerRendering.test.mjs.
 
 test('automatic layout follows input capabilities; explicit layout ignores the device', () => {
-  assert.equal(resolvePlannerLayout('auto', false), 'desktop');
-  assert.equal(resolvePlannerLayout('auto', true), 'mobile');
+  assert.equal(resolveTimelineGridLayout('auto', false), 'desktop');
+  assert.equal(resolveTimelineGridLayout('auto', true), 'mobile');
 
   for (const touch of [true, false]) {
-    assert.equal(resolvePlannerLayout('desktop', touch), 'desktop');
-    assert.equal(resolvePlannerLayout('mobile', touch), 'mobile');
+    assert.equal(resolveTimelineGridLayout('desktop', touch), 'desktop');
+    assert.equal(resolveTimelineGridLayout('mobile', touch), 'mobile');
   }
 });
 

@@ -1,4 +1,5 @@
 import type { TimeFormat } from '../settings';
+
 import { formatPartsInTimezone, getAbstractTimezoneOffsetMinutes } from './abstractTimezone.ts';
 
 /** Shared date/time helpers. All timezone math in the app should go through this module. */
@@ -107,6 +108,25 @@ export function getDayShift(timezone: string, baseTimezone: string, date: Date) 
   return Math.sign(
     getDateSerial(getZonedDateParts(timezone, date)) - getDateSerial(getZonedDateParts(baseTimezone, date)),
   );
+}
+
+/** "yesterday" or "tomorrow" in `timezone` relative to `baseTimezone`; null on the same day. */
+export function getRelativeDayMarker(
+  timezone: string,
+  baseTimezone: string,
+  date: Date,
+) {
+  const dayShift = getDayShift(timezone, baseTimezone, date);
+
+  if (dayShift < 0) {
+    return 'yesterday';
+  }
+
+  if (dayShift > 0) {
+    return 'tomorrow';
+  }
+
+  return null;
 }
 
 export function getDayPeriod(hour: number): DayPeriod {

@@ -1,6 +1,10 @@
+/**
+ * Built-in cities covering the world's time zones. getDefaultSourceCity looks here for a city in
+ * the visitor's time zone when neither their list nor the default cities have one.
+ */
 import type { PresetCity, StoredCity } from '../../settings';
 
-const cityFixtures: PresetCity[] = [
+const CATALOG: PresetCity[] = [
   {
     id: 'baker-island',
     customName: '',
@@ -266,7 +270,7 @@ const recommendedOrder: Record<string, number> = {
 const getRecommendedOrder = (city: PresetCity, index: number) => recommendedOrder[city.id] ?? 300 + index;
 
 /** Visible catalog cities in the recommended order. */
-export const favoriteCities: StoredCity[] = cityFixtures
+export const catalogCities: StoredCity[] = CATALOG
   .map((city, index) => ({ city, order: getRecommendedOrder(city, index) }))
   .filter(({ city }) => city.visible !== false)
   .sort((left, right) => left.order - right.order)

@@ -1,6 +1,13 @@
 import type { StoredCity } from '../../settings';
 
-export function readConverterUrlState(search: string) {
+/** The conversion in a shared link; null for what the link leaves out or gets wrong. */
+export type ConverterUrlState = {
+  sourceCity: StoredCity | null;
+  date: string | null;
+  time: string | null;
+};
+
+export function readConverterUrlState(search: string): ConverterUrlState {
   const params = new URLSearchParams(search);
   const city = params.get('city');
   const timezone = params.get('tz');
@@ -37,22 +44,23 @@ export function readConverterUrlState(search: string) {
   };
 }
 
+/** Sets the conversion's parameters in `params`, keeping the others. */
 export function writeConverterUrlState(
-  url: URL,
+  params: URLSearchParams,
   sourceCity: StoredCity,
   date: string,
   time: string,
 ) {
-  url.searchParams.set('city', sourceCity.city);
-  url.searchParams.set('tz', sourceCity.timezone);
+  params.set('city', sourceCity.city);
+  params.set('tz', sourceCity.timezone);
 
   if (sourceCity.cityId) {
-    url.searchParams.set('cityId', sourceCity.cityId);
+    params.set('cityId', sourceCity.cityId);
   } else {
-    url.searchParams.delete('cityId');
+    params.delete('cityId');
   }
 
-  url.searchParams.set('date', date);
-  url.searchParams.set('time', time);
-  return url;
+  params.set('date', date);
+  params.set('time', time);
+  return params;
 }

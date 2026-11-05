@@ -1,6 +1,7 @@
-import TimelineCellLabel from '../../Timelines/TimelineCellLabel';
-import type { TimelineCell } from '../../Timelines/types';
 import { cx } from '../../../utils/classNames';
+
+import TimelineCellLabel from './TimelineCellLabel';
+import type { TimelineCell } from './timelineCells';
 
 type GridUserHoursProps = {
   userCells: TimelineCell[];

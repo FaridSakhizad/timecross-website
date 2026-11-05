@@ -1,76 +1,13 @@
 import assert from 'node:assert/strict';
 import { after, test } from 'node:test';
-import { existsSync, readFileSync, statSync } from 'node:fs';
-import { registerHooks } from 'node:module';
-import { extname } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
 import React from 'react';
-import 'react/jsx-runtime';
-import 'react-dom';
-import '@dnd-kit/core';
-import '@dnd-kit/sortable';
-import '@dnd-kit/utilities';
-import 'lucide-react';
-import 'date-fns';
-import 'ics';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { MemoryRouter } from 'react-router';
-import ts from 'typescript';
+
+import { registerSourceLoader } from './support/sourceLoader.mjs';
 
 // Load the real TSX components without a browser; assets are irrelevant to markup assertions.
-const sourceRoot = fileURLToPath(new URL('../src/', import.meta.url));
-const hooks = registerHooks({
-  resolve(specifier, context, nextResolve) {
-    if (specifier.startsWith('.') && context.parentURL?.startsWith('file:')) {
-      const path = fileURLToPath(new URL(specifier, context.parentURL));
-      const file = [path, `${path}.ts`, `${path}.tsx`, `${path}/index.ts`, `${path}/index.tsx`]
-        .find((candidate) => existsSync(candidate) && statSync(candidate).isFile());
-
-      if (file) {
-        return nextResolve(pathToFileURL(file).href, context);
-      }
-    }
-
-    return nextResolve(specifier, context);
-  },
-  load(url, context, nextLoad) {
-    if (!url.startsWith('file:')) {
-      return nextLoad(url, context);
-    }
-
-    const path = fileURLToPath(url);
-
-    if (!path.startsWith(sourceRoot)) {
-      return nextLoad(url, context);
-    }
-
-    const extension = extname(path);
-
-    if (extension === '.ts' || extension === '.tsx') {
-      const result = ts.transpileModule(readFileSync(path, 'utf8'), {
-        fileName: path,
-        compilerOptions: {
-          module: ts.ModuleKind.ESNext,
-          target: ts.ScriptTarget.ES2022,
-          jsx: ts.JsxEmit.ReactJSX,
-          verbatimModuleSyntax: true,
-        },
-      });
-
-      return { format: 'module', source: result.outputText, shortCircuit: true };
-    }
-
-    if (extension === '.json') {
-      return { format: 'module', source: `export default ${readFileSync(path, 'utf8')};`, shortCircuit: true };
-    }
-
-    if (['.css', '.svg', '.png', '.jpg'].includes(extension)) {
-      return { format: 'module', source: `export default ${JSON.stringify(url)};`, shortCircuit: true };
-    }
-
-    return nextLoad(url, context);
-  },
-});
+const hooks = registerSourceLoader();
 
 after(() => hooks.deregister());
 
@@ -78,8 +15,8 @@ const { I18nProvider } = await import('../src/i18n/I18nProvider.tsx');
 const { default: Desktop } = await import('../src/components/TimelineGrid/desktop/DesktopGrid.tsx');
 const { default: Mobile } = await import('../src/components/TimelineGrid/mobile/MobileGrid.tsx');
 const { default: TimelineGridSession } = await import('../src/components/TimelineGrid/shared/TimelineGridSession.tsx');
-const { default: Planner } = await import('../src/components/Planner/Planner.tsx');
-const { useMobileWidgetLayout } = await import('../src/useMobileWidgetLayout.ts');
+const { default: TimelineGrid } = await import('../src/components/TimelineGrid/TimelineGrid.tsx');
+const { useMobileWidgetLayout } = await import('../src/hooks/useMobileWidgetLayout.ts');
 const { default: GridCalendarActions } = await import('../src/components/TimelineGrid/shared/GridCalendarActions.tsx');
 const { buildGridEventUrl } = await import('../src/components/TimelineGrid/shared/eventUrlState.ts');
 
@@ -100,8 +37,8 @@ function render(Component, presentation, url = '/en/grid', extraProps = {}) {
 }
 
 test('application boundary can force either view without a browser or device detection', () => {
-  assert.ok(render(Planner, 'zen', '/en/grid', { layout: 'mobile' }).includes('timelineGrid-userHours_mobile'));
-  assert.ok(render(Planner, 'zen', '/en/grid', { layout: 'desktop' }).includes('timelineGrid-userHours_desktop'));
+  assert.ok(render(TimelineGrid, 'zen', '/en/grid', { layout: 'mobile' }).includes('timelineGrid-userHours_mobile'));
+  assert.ok(render(TimelineGrid, 'zen', '/en/grid', { layout: 'desktop' }).includes('timelineGrid-userHours_desktop'));
 });
 
 test('widget layout is correct on the first render and on each subsequent page mount', () => {

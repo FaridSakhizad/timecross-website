@@ -1,14 +1,15 @@
 import '../../compoundWidget.css';
 import '../../widgetHeaderButtons.css';
+import { Hand } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router';
-import { Hand } from 'lucide-react';
+
 import { useI18n } from '../../../i18n';
 import { getCanonicalLanguagePath } from '../../../i18n/languageRouting';
+import { PAGES } from '../../../routes';
+import { cx } from '../../../utils/classNames';
 import StandaloneMenuModal from '../../StandaloneMenuModal';
 import type { GridToolbarProps } from '../shared/types';
-import { cx } from '../../../utils/classNames';
-import { PAGES } from '../../../routes';
 
 type DesktopToolbarProps = Omit<GridToolbarProps, 'calendarEvent' | 'selectedHours'> & {
   panEnabled: boolean;

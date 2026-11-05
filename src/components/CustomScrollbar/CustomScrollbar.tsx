@@ -8,6 +8,7 @@ import {
   type ReactNode,
   type WheelEvent,
 } from 'react';
+
 import { cx } from '../../utils/classNames';
 
 const MIN_SCROLLBAR_THUMB_HEIGHT = 28;
@@ -428,7 +429,7 @@ export default function CustomScrollbar({
           onWheel={(event) => handleScrollbarWheel('vertical', event)}
         >
           <span
-            className={cx('customScrollbar-thumb customScrollbar-thumb_vertical', isDraggingScrollbar && 'customScrollbar-thumb_dragging')}
+            className={cx('customScrollbar-thumb customScrollbar-thumb_vertical', isDraggingScrollbar && 'isDragging')}
             style={{
               height: `${scrollbars.vertical.thumbLength}px`,
               transform: `translate3d(0, ${scrollbars.vertical.thumbOffset}px, 0)`,
@@ -448,7 +449,7 @@ export default function CustomScrollbar({
           onWheel={(event) => handleScrollbarWheel('horizontal', event)}
         >
           <span
-            className={cx('customScrollbar-thumb customScrollbar-thumb_horizontal', isDraggingScrollbar && 'customScrollbar-thumb_dragging')}
+            className={cx('customScrollbar-thumb customScrollbar-thumb_horizontal', isDraggingScrollbar && 'isDragging')}
             style={{
               width: `${scrollbars.horizontal.thumbLength}px`,
               transform: `translate3d(${scrollbars.horizontal.thumbOffset}px, 0, 0)`,

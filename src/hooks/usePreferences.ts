@@ -5,7 +5,7 @@ import {
   getSettings,
   subscribeSettings,
   updateSettings,
-} from './settings';
+} from '../settings';
 
 /**
  * Time format, color mode and the planner pan switch, shared by every page.

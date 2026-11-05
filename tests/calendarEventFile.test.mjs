@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
+
 import { createCalendarEventFile, downloadCalendarFile } from '../src/components/TimelineGrid/shared/calendarEventFile.ts';
 import { buildGridCalendarEvent } from '../src/components/TimelineGrid/shared/gridSelection.ts';
 

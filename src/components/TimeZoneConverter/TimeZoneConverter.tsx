@@ -2,11 +2,34 @@ import '../widgetHeaderButtons.css';
 import '../Cities/cities.css';
 import './style.css';
 
-import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useEffectEvent,
+  useMemo,
+  useReducer,
+  useRef,
+  useState,
+} from 'react';
 import { useSearchParams } from 'react-router';
 
-import type { StoredCity } from '../../settings';
+import { usePreferences } from '../../hooks/usePreferences';
 import { useI18n } from '../../i18n';
+import type { StoredCity } from '../../settings';
+import { cx } from '../../utils/classNames';
+import { preload } from '../../utils/preload';
+import {
+  formatClockTime,
+  formatRelativeOffset,
+  getDayPeriod,
+  getDayShift,
+  getTimeZoneOffsetMinutes,
+  getZonedDateParts,
+} from '../../utils/time';
+import AddCityModal from '../Cities/AddCityModal';
+import type { CitySearchRow } from '../Cities/cityData';
 import {
   createFavoriteCityFromSearchResult,
   saveSelectedCities,
@@ -14,32 +37,19 @@ import {
   subscribeSelectedCities,
 } from '../Cities/selectedCities';
 import { getCityDisplayName, useLocalizedCities } from '../Cities/useLocalizedCities';
-import AddCityModal from '../Cities/AddCityModal';
-import type { CitySearchRow } from '../Cities/cityData';
 import StandaloneMenuModal from '../StandaloneMenuModal';
-import {
-  formatDateButtonLabel,
-  getDateInputValue,
-  getTimeInputValue,
-  parseDateInput,
-} from './dateInput';
+
 import ConversionResults from './ConversionResults';
 import ConverterHeader from './ConverterHeader';
-import { getDefaultSourceCity } from './defaultSourceCity';
-
-import { readConverterUrlState, writeConverterUrlState } from './urlState';
-import { formatTime } from '../Timelines/utils';
 import {
-  formatRelativeOffset,
-  getDayPeriod,
-  getDayShift,
-  getTimeZoneOffsetMinutes,
-  getUtcDateForZonedTime,
-  getZonedDateParts,
-} from '../../utils/time';
-import { cx } from '../../utils/classNames';
-import { preload } from '../../utils/preload';
-import { usePreferences } from '../../usePreferences';
+  converterReducer,
+  createConverterState,
+  getConvertedDate,
+  isStateInUrl,
+} from './converterState';
+import { formatDateButtonLabel } from './dateInput';
+import { getDefaultSourceCity } from './defaultSourceCity';
+import { readConverterUrlState, writeConverterUrlState } from './urlState';
 
 // The date picker (react-day-picker + date-fns locales) is loaded only when it is first needed.
 const loadDatePickerModal = () => import('./DatePickerModal');
@@ -79,92 +89,77 @@ export default function TimeZoneConverter({
   const { timeFormat } = usePreferences();
   const { language, t } = useI18n();
   const [searchParams, setSearchParams] = useSearchParams();
+  const search = syncUrl || hasStandaloneControls ? searchParams.toString() : '';
   const [cities, setCities] = useState(() => getSelectedCities());
-  const [initialUrlState] = useState(() => readConverterUrlState(
-    (syncUrl || hasStandaloneControls) && typeof window !== 'undefined' ? window.location.search : '',
+  const [state, dispatch] = useReducer(converterReducer, null, () => (
+    createConverterState(readConverterUrlState(search), getDefaultSourceCity(cities), new Date())
   ));
-  const [initialSourceCity] = useState(() => initialUrlState.sourceCity ?? getDefaultSourceCity(cities));
+  const { sourceCity, date, time, hasCustomDate } = state;
   const localizedCities = useLocalizedCities(cities);
-  const [sourceCity, setSourceCity] = useState<StoredCity | null>(initialSourceCity);
   const localizedSourceCities = useLocalizedCities(sourceCity ? [sourceCity] : []);
   const localizedSourceCity = localizedSourceCities[0] ?? sourceCity;
+  const convertedDate = useMemo(() => getConvertedDate(state), [state]);
   const [cityModalMode, setCityModalMode] = useState<CityModalMode | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [isMenuModalOpen, setIsMenuModalOpen] = useState(false);
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const [isStatementSticky, setIsStatementSticky] = useState(false);
-  const [dateValue, setDateValue] = useState(() => (
-    initialUrlState.date ?? (initialSourceCity ? getDateInputValue(initialSourceCity.timezone, new Date()) : '')
-  ));
-  const [timeValue, setTimeValue] = useState(() => (
-    initialUrlState.time ?? (initialSourceCity ? getTimeInputValue(initialSourceCity.timezone, new Date()) : '')
-  ));
-  const [hasCustomDate, setHasCustomDate] = useState(Boolean(initialUrlState.date));
-  const [hasConversionSelection, setHasConversionSelection] = useState(Boolean(
-    initialUrlState.sourceCity || initialUrlState.date || initialUrlState.time,
-  ));
   const timeInputRef = useRef<HTMLInputElement>(null);
   const statementStickySentinelRef = useRef<HTMLDivElement>(null);
-  const hasInitializedDefaultSourceCityRef = useRef(Boolean(initialSourceCity));
-  const hasUserSelectedSourceCityRef = useRef(false);
 
-  useEffect(() => {
-    if (!syncUrl || !hasConversionSelection || !sourceCity || !parseDateInput(dateValue, timeValue)) {
+  // The conversion's URL parameters, once something is chosen and the values are valid.
+  const stateSearch = syncUrl && state.hasSelection && sourceCity && convertedDate
+    ? writeConverterUrlState(new URLSearchParams(), sourceCity, date, time).toString()
+    : null;
+
+  // Effect events (useEffectEvent) read the current URL and state; only the effect dependencies
+  // decide when they run. So a URL change alone never writes the previous state back.
+  const replaceUrl = useEffectEvent(() => {
+    if (!sourceCity) {
       return;
     }
 
-    const url = writeConverterUrlState(new URL(window.location.href), sourceCity, dateValue, timeValue);
+    const nextSearchParams = writeConverterUrlState(new URLSearchParams(searchParams), sourceCity, date, time);
 
     // Replace rather than adding a history entry for every time adjustment.
-    if (url.href !== window.location.href) {
-      setSearchParams(url.searchParams, { replace: true, preventScrollReset: true });
+    if (nextSearchParams.toString() !== searchParams.toString()) {
+      setSearchParams(nextSearchParams, { replace: true, preventScrollReset: true });
     }
-  }, [dateValue, hasConversionSelection, setSearchParams, sourceCity, syncUrl, timeValue]);
+  });
+
+  const restoreFromUrl = useEffectEvent((urlSearch: string) => {
+    const urlState = readConverterUrlState(urlSearch);
+
+    if (!isStateInUrl(state, urlState)) {
+      dispatch({
+        type: 'urlRestored',
+        urlState,
+        defaultSourceCity: getDefaultSourceCity(cities),
+        now: new Date(),
+      });
+    }
+  });
 
   useEffect(() => {
-    if (!syncUrl) {
-      return;
+    if (stateSearch !== null) {
+      replaceUrl();
     }
+  }, [stateSearch]);
 
-    const restoreUrlState = () => {
-      const state = readConverterUrlState(window.location.search);
+  // A URL the converter did not write (back and forward buttons) is read into the state.
+  useEffect(() => {
+    if (syncUrl) {
+      restoreFromUrl(search);
+    }
+  }, [search, syncUrl]);
 
-      setHasConversionSelection(Boolean(state.sourceCity || state.date || state.time));
-      const city = state.sourceCity ?? getDefaultSourceCity(cities);
-
-      setSourceCity(city);
-      setDateValue(state.date ?? (city ? getDateInputValue(city.timezone, new Date()) : ''));
-      setTimeValue(state.time ?? (city ? getTimeInputValue(city.timezone, new Date()) : ''));
-      setHasCustomDate(Boolean(state.date));
-    };
-
-    window.addEventListener('popstate', restoreUrlState);
-    return () => window.removeEventListener('popstate', restoreUrlState);
-  }, [cities, syncUrl]);
-
-  /**
-   * Updates the city list. If no source city could be chosen yet (for example, the list
-   * was empty), picks the default one from the new list and fills in an empty date and time.
-   */
   const applyCities = useCallback((nextCities: StoredCity[]) => {
     setCities(nextCities);
-
-    if (hasInitializedDefaultSourceCityRef.current || hasUserSelectedSourceCityRef.current) {
-      return;
-    }
-
-    const nextSourceCity = getDefaultSourceCity(nextCities);
-
-    if (!nextSourceCity) {
-      return;
-    }
-
-    const now = new Date();
-
-    hasInitializedDefaultSourceCityRef.current = true;
-    setSourceCity(nextSourceCity);
-    setDateValue((currentValue) => currentValue || getDateInputValue(nextSourceCity.timezone, now));
-    setTimeValue((currentValue) => currentValue || getTimeInputValue(nextSourceCity.timezone, now));
+    dispatch({
+      type: 'citiesChanged',
+      defaultSourceCity: getDefaultSourceCity(nextCities),
+      now: new Date(),
+    });
   }, []);
 
   useEffect(() => subscribeSelectedCities(() => {
@@ -197,20 +192,6 @@ export default function TimeZoneConverter({
     };
   }, []);
 
-  const convertedDate = useMemo(() => {
-    if (!localizedSourceCity) {
-      return null;
-    }
-
-    const dateParts = parseDateInput(dateValue, timeValue);
-
-    if (!dateParts) {
-      return null;
-    }
-
-    return getUtcDateForZonedTime(localizedSourceCity.timezone, dateParts);
-  }, [dateValue, localizedSourceCity, timeValue]);
-
   const results = useMemo(() => {
     if (!convertedDate || !localizedSourceCity) {
       return [];
@@ -234,29 +215,18 @@ export default function TimeZoneConverter({
         ),
         offsetLabel: formatRelativeOffset(offsetMinutes, t('cities.sameOffset')),
         period: getDayPeriod(cityDateParts.hour),
-        timeLabel: formatTime(convertedDate, city.timezone, timeFormat),
+        timeLabel: formatClockTime(convertedDate, city.timezone, timeFormat),
       };
     });
   }, [convertedDate, localizedCities, localizedSourceCity, t, timeFormat]);
 
   const handleSourceCitySelect = (city: CitySearchRow) => {
-    const nextSourceCity = createFavoriteCityFromSearchResult(city);
-
-    hasUserSelectedSourceCityRef.current = true;
-    setHasConversionSelection(true);
-    setSourceCity(nextSourceCity);
+    dispatch({
+      type: 'sourceCitySelected',
+      city: createFavoriteCityFromSearchResult(city),
+      now: new Date(),
+    });
     setCityModalMode(null);
-
-    if (!hasCustomDate) {
-      setDateValue(getDateInputValue(nextSourceCity.timezone, new Date()));
-
-      return;
-    }
-
-    if (convertedDate) {
-      setDateValue(getDateInputValue(nextSourceCity.timezone, convertedDate));
-      setTimeValue(getTimeInputValue(nextSourceCity.timezone, convertedDate));
-    }
   };
 
   const handleAddCity = (city: CitySearchRow) => {
@@ -318,7 +288,7 @@ export default function TimeZoneConverter({
 
   const whenItsLabel = t('timeZoneConverter.whenItsLabel');
   const dateButtonLabel = hasCustomDate
-    ? formatDateButtonLabel(dateValue, language)
+    ? formatDateButtonLabel(date, language)
     : t('timeZoneConverter.todayLabel');
 
   if (localizedCities.length === 0) {
@@ -342,7 +312,7 @@ export default function TimeZoneConverter({
   }
 
   return (
-    <div className={cx('timeZoneConverter', isEditMode && 'timeZoneConverter_editMode')}>
+    <div className={cx('timeZoneConverter', isEditMode && 'isEditing')}>
       {header}
 
       <div
@@ -352,7 +322,7 @@ export default function TimeZoneConverter({
       />
 
       <div
-        className={cx('timeZoneConverter-statement', isStatementSticky && 'timeZoneConverter-statement_sticky')}
+        className={cx('timeZoneConverter-statement', isStatementSticky && 'isSticky')}
         aria-label={t('timeZoneConverter.toolTitle')}
       >
         {whenItsLabel && (
@@ -365,21 +335,21 @@ export default function TimeZoneConverter({
             type="button"
             onClick={handleTimeButtonClick}
           >
-            {timeValue}
+            {time}
             <i className="timeZoneConverter-controlIcon" />
           </button>
           <input
             className="timeZoneConverter-timeNativeInput"
             type="time"
-            value={timeValue}
+            value={time}
             aria-label={t('timeZoneConverter.timeLabel')}
             ref={timeInputRef}
             onChange={(event) => {
-              setHasConversionSelection(true);
-              // A cleared time input falls back to the current time in the source city.
-              setTimeValue(event.target.value || (
-                localizedSourceCity ? getTimeInputValue(localizedSourceCity.timezone, new Date()) : ''
-              ));
+              dispatch({
+                type: 'timeChanged',
+                time: event.target.value,
+                now: new Date(),
+              });
             }}
           />
         </div>
@@ -437,12 +407,13 @@ export default function TimeZoneConverter({
             dateLabel={t('timeZoneConverter.dateLabel')}
             isOpen
             language={language}
-            value={dateValue}
+            value={date}
             onClose={() => setIsDatePickerOpen(false)}
-            onSelectDate={(nextDateValue) => {
-              setHasConversionSelection(true);
-              setHasCustomDate(true);
-              setDateValue(nextDateValue);
+            onSelectDate={(nextDate) => {
+              dispatch({
+                type: 'dateSelected',
+                date: nextDate,
+              });
             }}
           />
         </Suspense>

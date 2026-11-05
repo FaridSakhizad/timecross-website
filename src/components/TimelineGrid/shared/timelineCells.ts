@@ -1,16 +1,16 @@
 import type { CSSProperties } from 'react';
-import type { TimeFormat } from '../../settings';
+
+import type { TimeFormat } from '../../../settings';
 import {
-  formatClockTime,
   formatShortDate,
   formatShortMonth,
   formatShortWeekday,
   getClockLabel,
   getDateSerial,
-  getDayShift,
   getUtcDateForZonedTime,
   getZonedDateParts,
-} from '../../utils/time';
+} from '../../../utils/time';
+
 import {
   TIMELINE_EDGE_FADE_HOURS,
   TIMELINE_EXTRA_DAY_HOURS,
@@ -18,7 +18,27 @@ import {
   TIMELINE_HOUR_MS,
   TIMELINE_RENDERED_HOURS,
 } from './constants';
-import type { TimelineCell } from './types';
+
+export type TimelineCell = {
+  date: Date;
+  /** Hour digits ("9", "21") or, at midnight, the date ("Nov 3"). */
+  label: string;
+  /** AM/PM of an hour cell in 12-hour format, otherwise null. */
+  labelPeriod: 'AM' | 'PM' | null;
+  period: 'night' | 'morning' | 'day' | 'evening' | 'lateEvening';
+  dateCellDetails: {
+    weekdayLabel: string;
+    dateLabel: string;
+  } | null;
+  /** Current time without AM/PM: "09:05" or "9:05". */
+  currentTimeLabel: string;
+  minuteLabel: string;
+  /** AM/PM of the current time in 12-hour format, otherwise null. */
+  periodLabel: 'AM' | 'PM' | null;
+  isAdjacentDay: boolean;
+  isCurrentHour: boolean;
+  isDateLabel: boolean;
+};
 
 function getTimelineCellPeriod(hour: number): TimelineCell['period'] {
   if (hour <= 5) {
@@ -40,34 +60,11 @@ function getTimelineCellPeriod(hour: number): TimelineCell['period'] {
   return 'lateEvening';
 }
 
-/** "09:05" or "9:05 AM" in the given timezone. */
-export function formatTime(date: Date, timezone: string, timeFormat: TimeFormat) {
-  return formatClockTime(date, timezone, timeFormat);
-}
-
 function formatCurrentDateCellParts(date: Date, timezone: string, locale: string) {
   return {
     weekdayLabel: formatShortWeekday(date, timezone, locale),
     dateLabel: `${getZonedDateParts(timezone, date).day} ${formatShortMonth(date, timezone, locale).toLocaleLowerCase(locale)}`,
   };
-}
-
-export function getRelativeDayMarker(
-  timezone: string,
-  baseTimezone: string,
-  date: Date,
-) {
-  const dayShift = getDayShift(timezone, baseTimezone, date);
-
-  if (dayShift < 0) {
-    return 'yesterday';
-  }
-
-  if (dayShift > 0) {
-    return 'tomorrow';
-  }
-
-  return null;
 }
 
 function getHourIndexForDate(date: Date) {

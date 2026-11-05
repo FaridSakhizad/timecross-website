@@ -7,7 +7,14 @@ import {
 } from 'react';
 
 import { updateSettings, type AppLanguage } from '../settings';
-import { isDictionaryLoaded, loadDictionary, translate, type TranslationValues } from './dictionaries';
+
+import {
+  isDictionaryLoaded,
+  loadDictionary,
+  translate,
+  type TranslationKey,
+  type TranslationValues,
+} from './dictionaries';
 import { I18nContext, type I18nContextValue } from './i18nContext';
 import { getInitialLanguage } from './initialLanguage';
 
@@ -51,7 +58,7 @@ export function I18nProvider({ children, initialLanguage }: I18nProviderProps) {
   }, []);
 
   const t = useCallback(
-    (key: string, values?: TranslationValues) => translate(language, key, values),
+    (key: TranslationKey, values?: TranslationValues) => translate(language, key, values),
     [language],
   );
 

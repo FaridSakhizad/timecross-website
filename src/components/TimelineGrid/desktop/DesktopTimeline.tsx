@@ -1,6 +1,6 @@
 import { useI18n } from '../../../i18n';
-import GridUserHours from '../shared/GridUserHours';
 import GridRow, { type GridRowClasses } from '../shared/GridRow';
+import GridUserHours from '../shared/GridUserHours';
 import type { GridTimelineProps } from '../shared/types';
 
 const ROW_CLASSES: GridRowClasses = {

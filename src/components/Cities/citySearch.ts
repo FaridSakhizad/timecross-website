@@ -1,6 +1,7 @@
 /** Search of the "Add city" picker: by name or alias, by GMT offset ("gmt+3") or by offset ("+5:30"). */
 import type { AppLanguage } from '../../settings';
 import { getTimeZoneOffsetMinutes } from '../../utils/time';
+
 import {
   getCityRow,
   getCityTupleById,

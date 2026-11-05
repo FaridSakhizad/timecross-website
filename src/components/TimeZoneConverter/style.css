@@ -11,7 +11,7 @@
   border: 3px solid rgba(var(--accent-color-2), 1);
   border-radius: 40px;
   background-color: rgba(var(--accent-color-1), 0.1);
-  box-shadow: 0 10px 50px 0 rgba(0 0 0 / 0.15);
+  box-shadow: 0 10px 50px 0 rgba(0, 0, 0, 0.15);
   overflow: hidden;
 }
 
@@ -50,7 +50,7 @@
 
 .timeZoneConverter-inLabel,
 .timeZoneConverter-onLabel {
-  color: rgba(255 255 255 / 0.9);
+  color: rgba(255, 255, 255, 0.9);
   font-size: 24px;
   line-height: 1;
   font-weight: 800;
@@ -191,7 +191,7 @@
 }
 
 .timeZoneConverter-empty {
-  color: rgba(255 255 255 / 0.82);
+  color: rgba(255, 255, 255, 0.82);
   font-size: 16px;
   line-height: 1.35;
   font-weight: 700;
@@ -209,7 +209,7 @@
   }
 }
 
-.timeZoneConverter_editMode {
+.timeZoneConverter.isEditing {
   .timeZoneConverter-listItem {
     padding-right: 38px;
   }
@@ -231,14 +231,14 @@
     /*position: sticky;*/
     top: 0;
     left: 0;
-    border-bottom: 1px solid rgba(255 255 255 / 0.3);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
     z-index: 100;
     backdrop-filter: blur(10px);
     margin-bottom: 10px;
   }
 
   .converterPage {
-    .timeZoneConverter-statement_sticky {
+    .timeZoneConverter-statement.isSticky {
       position: fixed;
       padding: 0;
       gap: 1px;

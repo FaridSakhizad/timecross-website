@@ -1,13 +1,14 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
-import { TURNSTILE_ACTION } from '../src/config.ts';
+
 import {
   CONTACT_RATE_LIMIT_PERIOD_SECONDS,
   getClientIp,
   isWithinRateLimit,
   verifyTurnstileToken,
 } from '../server/contactProtection.ts';
+import { TURNSTILE_ACTION } from '../src/config.ts';
 
 const REAL_SECRET = 'real-secret';
 const TEST_SECRET = '1x0000000000000000000000000000000AA';

@@ -2,17 +2,21 @@ import './TimeZoneConverterPage.css';
 
 import AppDownloadCta from '../components/AppDownloadCta';
 import ClientOnly from '../components/ClientOnly';
-import { TimeZoneConverter } from '../components/lazyWidgets';
 import FAQ from '../components/FAQ';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
+import { TimeZoneConverter } from '../components/lazyWidgets';
 import Seo from '../components/Seo';
-import { formatTime, getRelativeDayMarker } from '../components/Timelines/utils';
-import { getUtcDateForZonedTime, getZonedDateParts } from '../utils/time';
+import { usePreferences } from '../hooks/usePreferences';
 import { useI18n, type TranslationKey } from '../i18n';
 import { getCanonicalLanguagePath } from '../i18n/languageRouting';
 import { PAGES } from '../routes';
-import { usePreferences } from '../usePreferences';
+import {
+  formatClockTime,
+  getRelativeDayMarker,
+  getUtcDateForZonedTime,
+  getZonedDateParts,
+} from '../utils/time';
 
 const converterExampleGroups = [
   {
@@ -270,7 +274,7 @@ export default function TimeZoneConverterPage() {
                                   <p className="timeZoneConverterExamples-source">
                                     {t('timeZoneConverter.exampleSource', {
                                       city: exampleCityName,
-                                      time: formatTime(
+                                      time: formatClockTime(
                                         exampleDate,
                                         exampleCity.timezone,
                                         timeFormat,
@@ -298,7 +302,7 @@ export default function TimeZoneConverterPage() {
                                             city: t(
                                               `timeZoneConverter.exampleCityNames.${targetId}`,
                                             ),
-                                            time: formatTime(
+                                            time: formatClockTime(
                                               exampleDate,
                                               targetCity.timezone,
                                               timeFormat,

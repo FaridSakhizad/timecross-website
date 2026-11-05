@@ -1,9 +1,10 @@
 import './style.css';
 import type { ReactNode } from 'react';
-import Footer from '../Footer';
-import Header from '../Header';
+
 import { useI18n } from '../../i18n';
 import { getIntlLocale } from '../../i18n/intlLocale';
+import Footer from '../Footer';
+import Header from '../Header';
 
 type LegalPageProps = {
   children: ReactNode;

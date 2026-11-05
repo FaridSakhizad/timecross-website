@@ -62,7 +62,7 @@
   scroll-snap-type: x mandatory;
 }
 
-.timelineGrid_dragging {
+.timelineGrid.isDragging {
   .timelineGrid-scrollViewport {
     overflow-x: hidden;
     overscroll-behavior-x: none;
@@ -74,7 +74,7 @@
   }
 }
 
-.timelineGrid_panEnabled {
+.timelineGrid.isPanEnabled {
   .timelineGrid-scrollViewport {
     cursor: grab;
   }
@@ -199,7 +199,7 @@
   /* Placeholder */
 }
 
-.timelineGrid:not(.timelineGrid_panEnabled):not(.timelineGrid_editMode) .timelineGrid-cell {
+.timelineGrid:not(.isPanEnabled):not(.isEditing) .timelineGrid-cell {
   cursor: crosshair;
 }
 

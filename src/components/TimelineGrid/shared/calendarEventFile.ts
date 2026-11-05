@@ -1,4 +1,5 @@
 import { createEvent } from 'ics';
+
 import type { GridCalendarEvent } from './gridSelection.ts';
 
 export function createCalendarEventFile(event: Pick<GridCalendarEvent, 'start' | 'end' | 'title' | 'details'>): File {

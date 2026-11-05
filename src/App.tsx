@@ -1,8 +1,16 @@
-import { Navigate, Route, Routes, useLocation, useParams } from 'react-router';
-import { useEffect, useLayoutEffect, type ComponentType, type ReactNode } from 'react';
-
 import './App.css';
 
+import { useEffect, useLayoutEffect, type ComponentType, type ReactNode } from 'react';
+import { Navigate, Route, Routes, useLocation, useParams } from 'react-router';
+
+import { usePreferences } from './hooks/usePreferences';
+import { useI18n } from './i18n';
+import {
+  getBrowserLanguage,
+  getCanonicalLanguagePath,
+  getLanguageFromUrlSegment,
+  stripLanguageFromPathname,
+} from './i18n/languageRouting';
 import CitiesPage from './pages/CitiesPage';
 import ConverterPage from './pages/ConverterPage';
 import GridPage from './pages/GridPage';
@@ -12,16 +20,8 @@ import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import TermsOfUsePage from './pages/TermsOfUsePage';
 import TimeZoneConverterPage from './pages/TimeZoneConverterPage';
 import WorldClockPage from './pages/WorldClockPage';
-import { useI18n } from './i18n';
-import {
-  getBrowserLanguage,
-  getCanonicalLanguagePath,
-  getLanguageFromUrlSegment,
-  stripLanguageFromPathname,
-} from './i18n/languageRouting';
-import { getStoredLanguageSetting } from './settings';
 import { PAGES, PAGE_IDS, type PageId } from './routes';
-import { usePreferences } from './usePreferences';
+import { getStoredLanguageSetting } from './settings';
 
 type LocalizedRouteProps = {
   children: ReactNode;

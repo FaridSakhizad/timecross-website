@@ -1,7 +1,5 @@
 import './style.css';
 
-import { useCallback, useEffect, useMemo, useState, type ComponentType } from 'react';
-import { useLocation, useSearchParams } from 'react-router';
 import {
   DndContext,
   PointerSensor,
@@ -17,7 +15,14 @@ import {
   arrayMove,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { useCurrentMinuteDate } from '../../../useCurrentMinuteDate';
+import { useCallback, useEffect, useMemo, useState, type ComponentType } from 'react';
+import { useLocation, useSearchParams } from 'react-router';
+
+import { useCurrentMinuteDate } from '../../../hooks/useCurrentMinuteDate';
+import { usePreferences } from '../../../hooks/usePreferences';
+import { useI18n } from '../../../i18n';
+import { getIntlLocale } from '../../../i18n/intlLocale';
+import { getBrowserTimezone } from '../../../utils/time';
 import AddCityModal from '../../Cities/AddCityModal';
 import type { CitySearchRow } from '../../Cities/cityData';
 import {
@@ -27,24 +32,21 @@ import {
   subscribeSelectedCities,
 } from '../../Cities/selectedCities';
 import { useLocalizedCities } from '../../Cities/useLocalizedCities';
+
+import { getSharedGridTimelineDates, readGridEventUrlState, type SharedGridEvent } from './eventUrlState';
+import { readPlannerUrlState, writePlannerUrlState } from './sessionUrlState';
 import {
   getTimelineCells,
   getTimelineDates,
-} from '../../Timelines/utils';
-import { getBrowserTimezone } from '../../../utils/time';
-import { useI18n } from '../../../i18n';
-import { getIntlLocale } from '../../../i18n/intlLocale';
-import { getSharedGridTimelineDates, readGridEventUrlState, type SharedGridEvent } from './eventUrlState';
-import { readPlannerUrlState, writePlannerUrlState } from '../../Timelines/plannerUrlState';
-import type { TimelineGridProps, TimelineGridShellProps } from './types';
-import { usePreferences } from '../../../usePreferences';
+} from './timelineCells';
+import type { TimelineGridSessionProps, TimelineGridShellProps } from './types';
 
 const restrictTimelineGridDragToVerticalAxis: Modifier = ({ transform }) => ({
   ...transform,
   x: 0,
 });
 
-type SessionProps = TimelineGridProps & { View: ComponentType<TimelineGridShellProps> };
+type SessionProps = TimelineGridSessionProps & { View: ComponentType<TimelineGridShellProps> };
 
 export default function TimelineGridSession(props: SessionProps) {
   const { pathname, hash } = useLocation();

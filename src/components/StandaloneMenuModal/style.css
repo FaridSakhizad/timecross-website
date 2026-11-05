@@ -23,7 +23,7 @@
   justify-content: flex-start;
   cursor: pointer;
 
-  color: rgb(var(--body-text-color-1));
+  color: inherit;
   text-decoration: none;
   font: normal normal 16px/1 var(--body-font-family-1);
 
@@ -52,8 +52,6 @@
     margin-left: -4px;
   }
 }
-
-.standaloneMenuModal-item_nightMode {}
 
 .standaloneMenuModal-item_langs {
   &:after {

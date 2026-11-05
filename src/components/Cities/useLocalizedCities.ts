@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { useI18n } from '../../i18n';
 import type { StoredCity } from '../../settings';
+
 import { getLocalizedCityNamesByIds } from './cityData';
 
 const MARKETING_CITY_ID_BY_SLUG: Record<string, string> = {

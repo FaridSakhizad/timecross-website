@@ -1,4 +1,5 @@
 import { useEffect, useImperativeHandle, useRef, useState, type Ref } from 'react';
+
 import { cx } from '../../utils/classNames';
 
 type TurnstileRenderOptions = {
@@ -157,7 +158,7 @@ export default function TurnstileWidget({
 
   return (
     <div
-      className={cx('contactForm-turnstile', isInteractive && 'contactForm-turnstile_visible')}
+      className={cx('contactForm-turnstile', isInteractive && 'isVisible')}
       ref={containerRef}
     />
   );

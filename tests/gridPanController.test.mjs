@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { afterEach, beforeEach, test } from 'node:test';
+
 import { attachDesktopGridPan } from '../src/components/TimelineGrid/desktop/gridPanController.ts';
 
 class FakeViewport extends EventTarget {

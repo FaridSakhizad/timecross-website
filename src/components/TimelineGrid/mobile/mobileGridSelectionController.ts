@@ -11,6 +11,7 @@ import {
   type SelectedGridHour,
   type SelectionRect,
 } from '../shared/gridSelection.ts';
+import { createGridSelectionSnapAnimation } from '../shared/gridSelectionSnapAnimation.ts';
 
 import {
   getMobileGridSelectionCells,
@@ -21,8 +22,6 @@ import {
 } from './mobileGridSelectionGeometry.ts';
 
 const MOBILE_EDGE_SCROLL = { edge: 24, maxSpeed: 8, slowdown: 4 };
-
-import { createGridSelectionSnapAnimation } from '../shared/gridSelectionSnapAnimation.ts';
 
 const DIRECTIONS = new Set(['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw']);
 

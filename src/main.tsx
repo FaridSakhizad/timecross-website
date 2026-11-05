@@ -1,7 +1,9 @@
+import './index.css';
+
 import { StrictMode } from 'react';
 import { createRoot, hydrateRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router';
-import './index.css';
+
 import App from './App.tsx';
 import { preloadPageWidgets } from './components/lazyWidgets';
 import { I18nProvider } from './i18n';

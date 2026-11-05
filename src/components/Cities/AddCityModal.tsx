@@ -1,13 +1,15 @@
 import './AddCityModal.css';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import Modal from '../Modal';
+
 import { useI18n } from '../../i18n';
 import { getIntlLocale } from '../../i18n/intlLocale';
+import { cx } from '../../utils/classNames';
+import Modal from '../Modal';
+
 import { loadCitySearchData, type CitySearchRow } from './cityData';
 import { searchCities } from './citySearch';
 import { getAbstractTimezoneRows, getNorthAmericanTimezoneRows } from './timezoneRows';
-import { cx } from '../../utils/classNames';
 
 type AddCityModalProps = {
   isOpen: boolean;

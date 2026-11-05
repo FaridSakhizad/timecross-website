@@ -51,7 +51,7 @@
     overflow: hidden;
 }
 
-.contactForm-turnstile_visible {
+.contactForm-turnstile.isVisible {
     height: auto;
     margin-top: 0;
     overflow: visible;

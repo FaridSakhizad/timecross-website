@@ -25,9 +25,11 @@ Node version: see `.nvmrc`.
 - `src/pages/` — one component per page.
 - `src/seoMetadata.ts` — everything page-specific in `<head>` (`getHeadTags`): the Worker renders it, `Seo` updates it
   on client-side navigation.
-- `src/components/` — widgets and page sections. The planner grid has its own README in `components/TimelineGrid/`.
+- `src/components/` — widgets and page sections, one folder each with an `index.ts` entry. The planner
+  (`components/TimelineGrid/`) has its own README.
+- `src/hooks/` — hooks shared by several components.
 - `src/settings.ts` — user settings in localStorage with a subscribable store; read them in components with
-  `usePreferences()` (time format, color mode, planner pan), not through props.
+  `usePreferences()` from `src/hooks/` (time format, color mode, planner pan), not through props.
 - `src/components/Modal/` — every dialog: portal, scroll lock, Escape, focus trap and focus return.
 - `src/utils/time.ts` — all timezone and date math (offsets, DST, day shifts). Do not re-implement these helpers in components.
 - `src/i18n/` — translations (`locales/*.json`, English is the reference) and language routing.

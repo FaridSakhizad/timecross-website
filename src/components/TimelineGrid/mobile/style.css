@@ -177,7 +177,7 @@ body:has(.zenPageMobileBackdrop) {
   width: 100dvw;
 }
 
-.timelineGrid-row_reorder .timelineGrid-city_mobile {
+.timelineGrid-row.isReorderable .timelineGrid-city_mobile {
   .timelineGrid-cityInner {
     padding-inline: 30px 45px;
   }
@@ -214,7 +214,7 @@ body:has(.timelineGridSelectionFrame_mobile) .timelineGrid-row_mobile {
       margin: auto;
       border-radius: 4px;
       background: #fff;
-      box-shadow: 0 0 0 1px rgb(0 0 0 / 0.15);
+      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.15);
     }
   }
 
