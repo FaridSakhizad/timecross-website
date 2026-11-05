@@ -76,23 +76,7 @@
     top: -20px;
     translate: 0 -5px;
     transition: all 0.2s ease 0.1s;
-
-    &.accordionTooltip_platforms {
-      min-width: 180px;
-    }
-
-    &.accordionTooltip_howNotifications {
-      translate: 0 5px;
-      top: unset;
-      bottom: -20px;
-
-      &:before {
-        top: unset;
-        bottom: 42px;
-      }
-    }
   }
-
 }
 
 @media (hover: hover) {

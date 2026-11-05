@@ -3,12 +3,6 @@
   border-bottom: 0;
 }
 
-.meetingTimePlannerHero-container {
-  display: grid;
-  grid-template-columns: minmax(0, 760px);
-  justify-content: center;
-}
-
 .meetingTimePlannerHero-title {
   color: #fff;
   text-align: center;
@@ -74,10 +68,6 @@
     height: 90dvh;
     max-height: 680px;
   }
-}
-
-.meetingTimePlannerPage .timelinesViewport {
-  min-height: min(calc(100vh - 270px), 532px);
 }
 
 .meetingTimePlannerHero-cta {
@@ -161,10 +151,5 @@
 
   .meetingTimePlannerInfo-container {
     grid-template-columns: 1fr;
-  }
-
-  .meetingTimePlannerPage .timelinesViewport {
-    min-height: 400px;
-    max-height: 65dvh;
   }
 }

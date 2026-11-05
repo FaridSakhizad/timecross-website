@@ -3,12 +3,6 @@
   border-bottom: 0;
 }
 
-.timeZoneConverterHero-container {
-  display: grid;
-  grid-template-columns: minmax(0, 760px);
-  justify-content: center;
-}
-
 .timeZoneConverterHero-title {
   margin: 0;
   font-size: 28px;

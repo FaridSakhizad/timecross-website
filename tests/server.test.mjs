@@ -65,6 +65,14 @@ test('the old /uk/ prefix redirects to /ua/', async () => {
   assert.equal(location(await request('/uk/grid')), `${SITE}/ua/grid`);
 });
 
+test('a redirect to the same page keeps the query, so shared links survive', async () => {
+  const query = '?cities=%5B%5B%22Tokyo%22%2C%22Asia%2FTokyo%22%5D%5D&at=1793898000';
+
+  assert.equal(location(await request(`/meeting-time-planner${query}`)), `${SITE}/en/meeting-time-planner${query}`);
+  assert.equal(location(await request(`/uk/convert${query}`)), `${SITE}/ua/convert${query}`);
+  assert.equal(location(await request(`/no-such-page${query}`)), `${SITE}/en`);
+});
+
 test('an unknown page redirects to the home page in the visitor\'s language', async () => {
   assert.equal(location(await request('/no-such-page', { headers: { 'accept-language': 'fr' } })), `${SITE}/fr`);
 });

@@ -44,6 +44,17 @@ function getPreferredLanguage(request: Request): AppLanguage {
   return getLanguageFromAcceptLanguage(request.headers.get('accept-language'));
 }
 
+/** A redirect to `pathname`; the query is kept when the page stays the same (shared planner links). */
+function redirectTo(url: URL, pathname: string, keepQuery: boolean) {
+  const location = new URL(pathname, url);
+
+  if (keepQuery) {
+    location.search = url.search;
+  }
+
+  return Response.redirect(location, 302);
+}
+
 function getRedirectResponse(request: Request, url: URL) {
   if (!isSpaNavigationRequest(request, url)) {
     return null;
@@ -54,20 +65,19 @@ function getRedirectResponse(request: Request, url: URL) {
   const routeLanguage = getLanguageFromPathname(url.pathname);
   const pagePath = stripLanguageFromPathname(url.pathname);
 
-  if (!firstPathPart && isLocalizedPagePath(url.pathname)) {
-    return Response.redirect(new URL(getCanonicalLanguagePath(getPreferredLanguage(request), pagePath), url), 302);
-  }
-
+  // The old prefix of Ukrainian.
   if (firstPathPart === 'uk') {
-    return Response.redirect(new URL(getCanonicalLanguagePath(routeLanguage ?? 'en', pagePath), url), 302);
+    return redirectTo(url, getCanonicalLanguagePath(routeLanguage ?? 'en', pagePath), true);
   }
 
+  // A page without a language: the same page in the visitor's language.
   if (!routeLanguage && isLocalizedPagePath(url.pathname)) {
-    return Response.redirect(new URL(getCanonicalLanguagePath(getPreferredLanguage(request), pagePath), url), 302);
+    return redirectTo(url, getCanonicalLanguagePath(getPreferredLanguage(request), pagePath), true);
   }
 
-  if (firstPathPart && !routeLanguage && !url.pathname.startsWith('/api/') && !url.pathname.includes('.')) {
-    return Response.redirect(new URL(getCanonicalLanguagePath(getPreferredLanguage(request)), url), 302);
+  // An unknown page: the home page in the visitor's language.
+  if (firstPathPart && !routeLanguage) {
+    return redirectTo(url, getCanonicalLanguagePath(getPreferredLanguage(request)), false);
   }
 
   return null;

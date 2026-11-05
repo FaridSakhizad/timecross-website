@@ -53,13 +53,6 @@
     margin-bottom: 0;
 }
 
-.legalPage-list {
-    margin: 0;
-    padding-left: 22px;
-    font-size: 16px;
-    line-height: 1.55;
-}
-
 .legalPage-link {
     color: var(--body-text-color-1);
 }

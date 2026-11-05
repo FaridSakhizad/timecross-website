@@ -48,14 +48,6 @@
   padding: 0 25px;
 }
 
-.timeZoneConverter-inLabel,
-.timeZoneConverter-onLabel {
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 24px;
-  line-height: 1;
-  font-weight: 800;
-}
-
 .timeZoneConverter-timeNativeInput {
   &::-webkit-calendar-picker-indicator {
     background: none;

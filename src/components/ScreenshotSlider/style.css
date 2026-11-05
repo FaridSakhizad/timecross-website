@@ -44,44 +44,6 @@
   filter: brightness(1.1);
 }
 
-.sliderFrame {
-  width: var(--slide-width);
-  height: 500px;
-  margin: 0 auto;
-  touch-action: pan-y pinch-zoom;
-  user-select: none;
-}
-
-.sliderWrapper {
-  --active-slide-idx: 0;
-  display: flex;
-  --transofrm-x: calc(var(--active-slide-idx) * var(--slide-width) * -1);
-  transform: translate3d(var(--transofrm-x), 0, 0);
-  transition: transform 0.3s ease-in-out;
-  float: left;
-  position: relative;
-
-  &.sliderWrapper_lockSlideAnimation {
-    transition: none;
-  }
-}
-
-.sliderWrapperPre {
-  display: flex;
-  float: left;
-  position: absolute;
-  top: 0;
-  right: 100%;
-}
-
-.sliderWrapperPost {
-  display: flex;
-  float: left;
-  position: absolute;
-  top: 0;
-  left: 100%;
-}
-
 .screenshotsSlider-navButton {
   display: inline-flex;
   align-items: center;

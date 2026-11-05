@@ -64,14 +64,6 @@
   min-width: 0;
 }
 
-.addCityModal-sectionTitle {
-  margin: 12px 0 10px;
-  color: rgba(255, 255, 255, 1);
-  font: normal 700 13px/1.2 var(--body-font-family-1);
-  text-transform: uppercase;
-  text-align: center;
-}
-
 .addCityModal-timezonePickerControls {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

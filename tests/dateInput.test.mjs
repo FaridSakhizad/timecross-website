@@ -64,6 +64,8 @@ test('the date button shows a short date with a capitalized month in the interfa
   assert.equal(formatDateButtonLabel('2026-11-05', 'ru'), '5 Нояб 2026');
   assert.equal(formatDateButtonLabel('2026-05-01', 'de'), '1. Mai 2026');
   assert.equal(formatDateButtonLabel('2026-11-05', 'pt-BR'), '5 de Nov de 2026');
+  // In Portugal a short date is written with numbers (the locale data's own format).
+  assert.equal(formatDateButtonLabel('2026-11-05', 'pt'), '5/11/2026');
 });
 
 test('an invalid date is shown as it is', () => {
