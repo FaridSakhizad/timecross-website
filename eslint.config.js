@@ -6,6 +6,9 @@ import stylistic from '@stylistic/eslint-plugin';
 import tseslint from 'typescript-eslint';
 import { defineConfig, globalIgnores } from 'eslint/config';
 
+import multilineLogicalExpressions from './eslint-rules/multiline-logical-expressions.js';
+import paddingAroundMultilineDeclarations from './eslint-rules/padding-around-multiline-declarations.js';
+
 /*
  * Code style: rules, not a formatter. Base is the @stylistic "customize" preset, adjusted towards
  * Airbnb. Where a rule can either enforce a layout or only consistency, it enforces consistency:
@@ -51,6 +54,33 @@ const styleRules = {
     WhileStatement: 'always',
     DoWhileStatement: 'always',
   }],
+  // Multiline lists (imports, arguments, parameters, type members, objects): one item per line.
+  // Object types with more than two members are always multiline. Experimental in @stylistic 5,
+  // hence the exp- prefix.
+  '@stylistic/exp-list-style': ['error', {
+    overrides: {
+      TSTypeLiteral: { singleLine: { maxItems: 2 } },
+      TSInterfaceBody: { singleLine: { maxItems: 2 } },
+    },
+  }],
+
+  // Blank lines: after imports, after a group of declarations, and around blocks (if, loops,
+  // try, functions). Consecutive declarations may stay together.
+  '@stylistic/padding-line-between-statements': [
+    'error',
+    { blankLine: 'always', prev: 'import', next: '*' },
+    { blankLine: 'any', prev: 'import', next: 'import' },
+    { blankLine: 'always', prev: ['const', 'let'], next: '*' },
+    { blankLine: 'any', prev: ['const', 'let'], next: ['const', 'let'] },
+    { blankLine: 'always', prev: 'block-like', next: '*' },
+    { blankLine: 'always', prev: '*', next: 'block-like' },
+  ],
+  // ...and around multiline type declarations and functions stored in variables.
+  'local/padding-around-multiline-declarations': 'error',
+
+  // A broken &&/||/?? chain: one operand per line; a broken if/while condition starts after "(".
+  'local/multiline-logical-expressions': 'error',
+
   // Operators start the continuation line (&&, ||, +, ?:); assignments never break around "=".
   '@stylistic/operator-linebreak': ['error', 'before', { overrides: { '=': 'none' } }],
 
@@ -87,12 +117,32 @@ const practiceRules = {
   'no-plusplus': 'error',
 };
 
+// Rules that need type information. They cover the app and the Worker; tests and configs are
+// plain JavaScript.
+const TYPED_FILES = ['src/**/*.{ts,tsx}', 'server/**/*.ts'];
+
+const typedRules = {
+  // `||` on strings is deliberate: an empty string falls back too ("" -> default name).
+  '@typescript-eslint/prefer-nullish-coalescing': ['error', {
+    ignorePrimitives: { string: true },
+    ignoreBooleanCoercion: true,
+  }],
+  // React event handlers may be async: each of them handles its own errors.
+  '@typescript-eslint/no-misused-promises': ['error', {
+    checksVoidReturn: { attributes: false },
+  }],
+  '@typescript-eslint/no-unnecessary-condition': 'error',
+  '@typescript-eslint/switch-exhaustiveness-check': 'error',
+  '@typescript-eslint/consistent-type-imports': 'error',
+};
+
 // Planner grid boundaries, see src/components/TimelineGrid/README.md: desktop/ and mobile/ never
 // import each other, shared/ imports neither, and no part of the grid detects the device itself.
 const GRID_DEVICE_DETECTION = {
   group: ['**/useMobileWidgetLayout', '**/Planner/Planner'],
   message: 'The grid must not detect the device; Planner picks the desktop or mobile view.',
 };
+
 const gridBoundary = (folder, forbidden) => ({
   files: [`src/components/TimelineGrid/${folder}/**/*.{ts,tsx}`],
   rules: {
@@ -129,8 +179,27 @@ export default defineConfig([
       parser: tseslint.parser,
       globals: { ...globals.browser, ...globals.node },
     },
-    plugins: { '@stylistic': stylistic },
+    plugins: {
+      '@stylistic': stylistic,
+      local: {
+        rules: {
+          'multiline-logical-expressions': multilineLogicalExpressions,
+          'padding-around-multiline-declarations': paddingAroundMultilineDeclarations,
+        },
+      },
+    },
     rules: { ...styleRules, ...practiceRules },
+  },
+  {
+    files: TYPED_FILES,
+    extends: [tseslint.configs.recommendedTypeChecked],
+    languageOptions: {
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+    rules: typedRules,
   },
   gridBoundary('desktop', ['mobile']),
   gridBoundary('mobile', ['desktop']),

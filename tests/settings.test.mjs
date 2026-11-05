@@ -11,6 +11,7 @@ globalThis.window = Object.assign(new EventTarget(), {
       if (failWrites) {
         throw new Error('QuotaExceededError');
       }
+
       storage.set(key, value);
     },
     removeItem: (key) => {
@@ -132,4 +133,24 @@ test('settings without an order list keep the array order', () => {
   reloadSettings();
 
   assert.deepEqual(selectedIds(), ['z', 'y', 'x']);
+});
+
+test('the old planner pan key is read once and removed on the next save', () => {
+  storage.clear();
+  storage.set('timecross:pan:desktop', 'false');
+  reloadSettings();
+
+  assert.equal(settings.getSettings().isPlannerPanEnabled, false);
+
+  settings.updateSettings((current) => ({ ...current, timeFormat: '12h' }));
+
+  assert.equal(storage.has('timecross:pan:desktop'), false);
+  assert.equal(JSON.parse(storage.get('timecross:settings')).isPlannerPanEnabled, false);
+});
+
+test('the planner pan is on by default', () => {
+  storage.clear();
+  reloadSettings();
+
+  assert.equal(settings.getSettings().isPlannerPanEnabled, true);
 });

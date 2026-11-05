@@ -7,12 +7,14 @@ import type { GridCalendarEvent } from './gridSelection';
 import { buildOutlookCalendarUrl, type SelectedGridHour } from './gridSelection';
 import { buildGridEventUrl } from './eventUrlState';
 import { shareEventLink } from './shareEventLink';
-
-const SHARE_EVENT_VISIBLE = false;
+import { PAGES } from '../../../routes';
+import { FEATURES } from '../../../config';
+import { preload } from '../../../utils/preload';
+import type * as CalendarEventFile from './calendarEventFile';
 
 // The .ics generator (ics + yup) is a separate chunk: preloaded once a selection exists,
 // so the download still starts synchronously inside the click.
-type CalendarFileModule = typeof import('./calendarEventFile');
+type CalendarFileModule = typeof CalendarEventFile;
 let calendarFileModule: CalendarFileModule | null = null;
 let calendarFileModulePromise: Promise<CalendarFileModule> | null = null;
 
@@ -30,9 +32,17 @@ function loadCalendarFileModule() {
   return calendarFileModulePromise;
 }
 
-export default function GridCalendarActions({ event, cities, hours }: {
-  event: GridCalendarEvent | null; cities: StoredCity[]; hours: SelectedGridHour[];
-}) {
+type GridCalendarActionsProps = {
+  event: GridCalendarEvent | null;
+  cities: StoredCity[];
+  hours: SelectedGridHour[];
+};
+
+export default function GridCalendarActions({
+  event,
+  cities,
+  hours,
+}: GridCalendarActionsProps) {
   const { t, language } = useI18n();
   const start = event?.start;
   const end = event?.end;
@@ -46,23 +56,28 @@ export default function GridCalendarActions({ event, cities, hours }: {
   const eventUrl = useMemo(() => (!event || typeof window === 'undefined'
     ? null
     : buildGridEventUrl(
-        `${window.location.origin}${getCanonicalLanguagePath(language, '/grid')}`, cities, hours,
+        `${window.location.origin}${getCanonicalLanguagePath(language, PAGES.grid.path)}`,
+        cities,
+        hours,
       )), [event, language, cities, hours]);
   const visibleFailure = event && failure && failure.eventKey === eventKey ? failure.kind : null;
 
   useEffect(() => {
     if (event) {
-      loadCalendarFileModule().catch(() => {});
+      preload(loadCalendarFileModule);
     }
   }, [event]);
 
   const downloadEvent = async () => {
     setFailure(null);
+
     try {
       if (start === undefined || end === undefined || title === undefined || details === undefined) {
         throw new Error('No event to download');
       }
+
       const module = calendarFileModule ?? await loadCalendarFileModule();
+
       module.downloadCalendarFile(module.createCalendarEventFile({ start, end, title, details }));
     } catch {
       setFailure({ eventKey, kind: 'download' });
@@ -73,7 +88,9 @@ export default function GridCalendarActions({ event, cities, hours }: {
     if (!copiedUrl) {
       return;
     }
+
     const timer = window.setTimeout(() => setCopiedUrl(null), 4000);
+
     return () => window.clearTimeout(timer);
   }, [copiedUrl]);
 
@@ -81,11 +98,14 @@ export default function GridCalendarActions({ event, cities, hours }: {
     if (!eventUrl || sharingRef.current) {
       return;
     }
+
     sharingRef.current = true;
     setSharing(true);
     setFailure(null);
+
     try {
       const result = await shareEventLink(eventUrl, navigator);
+
       if (result === 'copied') {
         setCopiedUrl(eventUrl);
       }
@@ -172,7 +192,7 @@ export default function GridCalendarActions({ event, cities, hours }: {
           aria-hidden="true"
         />
       </button>
-      {SHARE_EVENT_VISIBLE && (
+      {FEATURES.shareEvent && (
         <button
           className="widgetHeaderButton timelineGridCalendarButton"
           type="button"

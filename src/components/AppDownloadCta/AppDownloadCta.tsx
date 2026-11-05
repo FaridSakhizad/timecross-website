@@ -5,6 +5,7 @@ import {
   GOOGLE_PLAY_URL,
 } from '../../config';
 import { useI18n } from '../../i18n';
+import { cx } from '../../utils/classNames';
 
 type AppDownloadCtaProps = {
   className?: string;
@@ -16,7 +17,7 @@ export default function AppDownloadCta({
   const { t } = useI18n();
 
   return (
-    <div className={['appDownloadCta', className].filter(Boolean).join(' ')}>
+    <div className={cx('appDownloadCta', className)}>
       <a
         href={APP_STORE_URL}
         className="downloadLink downloadLink_appStore"

@@ -29,6 +29,7 @@ class FakeViewport extends EventTarget {
 
 function emit(target, type, values = {}) {
   const event = new Event(type, { cancelable: true });
+
   Object.assign(event, {
     pointerType: 'mouse',
     isPrimary: true,
@@ -48,6 +49,7 @@ let viewport;
 let controller;
 let active;
 let originalGlobals;
+
 beforeEach(() => {
   originalGlobals = ['window', 'document', 'Element'].map((key) => [key, Object.getOwnPropertyDescriptor(globalThis, key)]);
   globalThis.window = new EventTarget();
@@ -61,6 +63,7 @@ beforeEach(() => {
 });
 afterEach(() => {
   controller.destroy();
+
   for (const [key, descriptor] of originalGlobals) {
     if (descriptor) {
       Object.defineProperty(globalThis, key, descriptor);
@@ -107,6 +110,7 @@ test('interactive controls, modified clicks, touch and other pointers are ignore
     emit(viewport, 'pointerdown', values);
     assert.equal(active, false);
   }
+
   viewport.interactive = true;
   emit(viewport, 'pointerdown');
   assert.equal(active, false);
@@ -190,6 +194,7 @@ test('middle-button dragging works with left-button Pan disabled and suppresses 
   emit(viewport, 'pointerdown');
   assert.equal(active, false);
   const down = emit(viewport, 'pointerdown', { button: 1, buttons: 4 });
+
   assert.equal(down.defaultPrevented, true);
   assert.equal(active, true);
   emit(window, 'pointermove', { buttons: 4, clientX: 40, clientY: 60 });

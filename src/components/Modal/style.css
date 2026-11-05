@@ -91,3 +91,7 @@
     border-radius: 0;
   }
 }
+
+.appModal-panel:focus {
+  outline: none;
+}

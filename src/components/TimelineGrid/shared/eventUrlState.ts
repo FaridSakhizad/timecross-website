@@ -15,14 +15,44 @@ export type SharedGridEvent = {
   hours: SelectedGridHour[];
 };
 
+/** The "event" hash parameter: version, start and end in Unix seconds, cities. */
+type EventUrlData = {
+  v: 1;
+  s: number;
+  e: number;
+  c: unknown[];
+};
+
+function isUnknownArray(value: unknown): value is unknown[] {
+  return Array.isArray(value);
+}
+
+function isEventUrlData(value: unknown): value is EventUrlData {
+  if (!value || typeof value !== 'object') {
+    return false;
+  }
+
+  const data = value as Partial<Record<keyof EventUrlData, unknown>>;
+
+  return (
+    data.v === 1
+    && Number.isInteger(data.s)
+    && Number.isInteger(data.e)
+    && isUnknownArray(data.c)
+  );
+}
+
 function validTimezone(timezone: string) {
   if (timezone.startsWith('GMT_OFFSET:')) {
     if (!/^GMT_OFFSET:-?\d+$/.test(timezone)) {
       return false;
     }
+
     const minutes = getAbstractTimezoneOffsetMinutes(timezone);
+
     return minutes !== null && Number.isInteger(minutes) && Math.abs(minutes) <= 14 * 60;
   }
+
   try {
     new Intl.DateTimeFormat('en', { timeZone: timezone }).format();
     return true;
@@ -35,36 +65,63 @@ export function readGridEventUrlState(hash: string): SharedGridEvent | null {
   if (hash.length > MAX_HASH_LENGTH) {
     return null;
   }
+
   const raw = new URLSearchParams(hash.replace(/^#/, '')).get('event');
+
   if (!raw) {
     return null;
   }
+
   try {
-    const data = JSON.parse(raw);
-    if (!data || data.v !== 1 || !Number.isInteger(data.s) || !Number.isInteger(data.e)) {
+    const data: unknown = JSON.parse(raw);
+
+    if (!isEventUrlData(data)) {
       return null;
     }
+
     const start = data.s * 1000;
     const end = data.e * 1000;
-    if (start < MIN_DATE || end > MAX_DATE || start % GRID_HOUR_MS !== 0 || end % GRID_HOUR_MS !== 0
-      || end <= start || end - start > TIMELINE_RENDERED_HOURS * GRID_HOUR_MS) {
+
+    if (
+      start < MIN_DATE
+      || end > MAX_DATE
+      || start % GRID_HOUR_MS !== 0
+      || end % GRID_HOUR_MS !== 0
+      || end <= start
+      || end - start > TIMELINE_RENDERED_HOURS * GRID_HOUR_MS
+    ) {
       return null;
     }
-    if (!Array.isArray(data.c) || !data.c.length || data.c.length > MAX_CITIES) {
+
+    if (!data.c.length || data.c.length > MAX_CITIES) {
       return null;
     }
+
     const cities: StoredCity[] = [];
+
     for (const [index, entry] of data.c.entries()) {
-      if (!Array.isArray(entry) || entry.length < 2 || entry.length > 4) {
+      if (!isUnknownArray(entry) || entry.length < 2 || entry.length > 4) {
         return null;
       }
+
       const [city, timezone, cityId = '', customName = ''] = entry;
-      if (typeof city !== 'string' || !city.trim() || city.length > 200
-        || typeof timezone !== 'string' || !timezone || timezone.length > 100 || !validTimezone(timezone)
-        || typeof cityId !== 'string' || cityId.length > 100
-        || typeof customName !== 'string' || customName.length > 200) {
+
+      if (
+        typeof city !== 'string'
+        || !city.trim()
+        || city.length > 200
+        || typeof timezone !== 'string'
+        || !timezone
+        || timezone.length > 100
+        || !validTimezone(timezone)
+        || typeof cityId !== 'string'
+        || cityId.length > 100
+        || typeof customName !== 'string'
+        || customName.length > 200
+      ) {
         return null;
       }
+
       cities.push({
         id: `shared-${index}`,
         city,
@@ -73,9 +130,11 @@ export function readGridEventUrlState(hash: string): SharedGridEvent | null {
         customName,
       });
     }
+
     const hours = cities.flatMap((city) => Array.from({ length: (end - start) / GRID_HOUR_MS }, (_, index) => (
       { rowId: city.id, start: start + index * GRID_HOUR_MS }
     )));
+
     return { start, end, cities, hours };
   } catch {
     return null;
@@ -85,30 +144,38 @@ export function readGridEventUrlState(hash: string): SharedGridEvent | null {
 export function buildGridEventUrl(baseUrl: string, cities: StoredCity[], hours: SelectedGridHour[]): string | null {
   const ranges = getGridHourRanges(hours);
   const first = ranges[0];
+
   if (!first || ranges.some((range) => range.start !== first.start || range.end !== first.end)) {
     return null;
   }
+
   const selectedIds = new Set(ranges.map((range) => range.rowId));
   const selectedCities = cities.filter((city) => selectedIds.has(city.id));
+
   if (selectedCities.length !== selectedIds.size) {
     return null;
   }
+
   const data = {
     v: 1,
     s: first.start / 1000,
     e: first.end / 1000,
     c: selectedCities.map((city) => {
       const entry = [city.city, city.timezone];
+
       if (city.cityId || city.customName) {
         entry.push(city.cityId ?? '');
       }
+
       if (city.customName) {
         entry.push(city.customName);
       }
+
       return entry;
     }),
   };
   const url = new URL(baseUrl);
+
   url.search = '';
   url.hash = new URLSearchParams({ event: JSON.stringify(data) }).toString();
   return readGridEventUrlState(url.hash) ? url.href : null;
@@ -122,5 +189,6 @@ export function getSharedGridTimelineDates(event: Pick<SharedGridEvent, 'start' 
   // Reduce context around long events instead of growing beyond the ordinary grid's capacity.
   const start = event.start - before * GRID_HOUR_MS;
   const count = hours + before + after;
+
   return Array.from({ length: count }, (_, index) => new Date(start + index * GRID_HOUR_MS));
 }

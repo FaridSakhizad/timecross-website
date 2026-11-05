@@ -1,17 +1,13 @@
-import '../Modal/style.css';
 import './AddCityModal.css';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
+import Modal from '../Modal';
 import { useI18n } from '../../i18n';
 import { getIntlLocale } from '../../i18n/intlLocale';
-import {
-  getAbstractTimezoneRows,
-  getNorthAmericanTimezoneRows,
-  loadCitySearchData,
-  searchCities,
-  type CitySearchRow,
-} from './citySearch';
+import { loadCitySearchData, type CitySearchRow } from './cityData';
+import { searchCities } from './citySearch';
+import { getAbstractTimezoneRows, getNorthAmericanTimezoneRows } from './timezoneRows';
+import { cx } from '../../utils/classNames';
 
 type AddCityModalProps = {
   isOpen: boolean;
@@ -76,20 +72,6 @@ export default function AddCityModal({
       return;
     }
 
-    const previousBodyOverflow = document.body.style.overflow;
-
-    document.body.style.overflow = 'hidden';
-
-    return () => {
-      document.body.style.overflow = previousBodyOverflow;
-    };
-  }, [isOpen]);
-
-  useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
-
     loadCitySearchData()
       .then(() => {
         setIsDataUnavailable(false);
@@ -98,32 +80,6 @@ export default function AddCityModal({
         console.error('Failed to load city search data:', error);
         setIsDataUnavailable(true);
       });
-  }, [isOpen]);
-
-  useEffect(() => {
-    if (!isOpen) {
-      return undefined;
-    }
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        handleClose();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [handleClose, isOpen]);
-
-  useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
-
-    window.setTimeout(() => inputRef.current?.focus(), 0);
   }, [isOpen]);
 
   useEffect(() => {
@@ -260,129 +216,102 @@ export default function AddCityModal({
     </div>
   );
 
-  return createPortal(
-    <div
-      className="appModal addCityModal"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="add-city-modal-title"
+  return (
+    <Modal
+      isOpen
+      className="addCityModal"
+      title={t('common.addCity')}
+      initialFocusRef={inputRef}
+      onClose={handleClose}
     >
-      <button
-        className="appModal-backdrop"
-        type="button"
-        aria-label={t('common.close')}
-        onClick={handleClose}
-      />
+      <div className="addCityModal-searchBox">
+        <span className="addCityModal-searchIcon" />
+        <input
+          className="addCityModal-searchInput"
+          type="search"
+          ref={inputRef}
+          value={query}
+          placeholder={t('addCity.searchPlaceholder')}
+          autoCapitalize="none"
+          autoCorrect="off"
+          onChange={(event) => handleQueryChange(event.target.value)}
+        />
+      </div>
 
-      <div className="appModal-panel addCityModal-panel">
-        <div className="appModal-header">
-          <span className="appModal-headerPlaceholder" />
+      <div className="addCityModal-results">
+        <div className="addCityModal-searchResults">
+          {isSearchLoading && (
+            <p className="addCityModal-helperText">{t('common.loading')}</p>
+          )}
 
-          <h3
-            className="appModal-title"
-            id="add-city-modal-title"
-          >
-            {t('common.addCity')}
-          </h3>
+          {isDataUnavailable && (
+            <p className="addCityModal-helperText">{t('addCity.databaseUnavailable')}</p>
+          )}
 
-          <button
-            className="appModal-close"
-            type="button"
-            aria-label={t('common.close')}
-            onClick={handleClose}
-          />
+          {!isSearchLoading && !isDataUnavailable && shouldSearch && cities.length === 0 && (
+            <p className="addCityModal-helperText">{t('common.noResults')}</p>
+          )}
+
+          {!isSearchLoading && cities.length > 0 && cities.map((city) => renderCityButton(city))}
         </div>
 
-        <div className="addCityModal-searchBox">
-          <span className="addCityModal-searchIcon" />
-          <input
-            className="addCityModal-searchInput"
-            type="search"
-            ref={inputRef}
-            value={query}
-            placeholder={t('addCity.searchPlaceholder')}
-            autoCapitalize="none"
-            autoCorrect="off"
-            onChange={(event) => handleQueryChange(event.target.value)}
-          />
-        </div>
-
-        <div className="addCityModal-results">
-          <div className="addCityModal-searchResults">
-            {isSearchLoading && (
-              <p className="addCityModal-helperText">{t('common.loading')}</p>
-            )}
-
-            {isDataUnavailable && (
-              <p className="addCityModal-helperText">{t('addCity.databaseUnavailable')}</p>
-            )}
-
-            {!isSearchLoading && !isDataUnavailable && shouldSearch && cities.length === 0 && (
-              <p className="addCityModal-helperText">{t('common.noResults')}</p>
-            )}
-
-            {!isSearchLoading && cities.length > 0 && cities.map((city) => renderCityButton(city))}
-          </div>
-
-          {!isSearchLoading && !hasActiveQuery && (
-            <section className="addCityModal-fixedTimezones">
-              <div className="addCityModal-timezonePicker">
-                <div className="addCityModal-timezonePickerControls">
-                  <button
-                    className="addCityModal-timezonePickerToggle"
-                    type="button"
-                    aria-expanded={isTimezonePickerOpen}
-                    onClick={handleTimezonePickerToggle}
-                  >
-                    <span>{t('addCity.chooseTimezone')}</span>
-                    <i
-                      className="addCityModal-timezonePickerToggleIcon"
-                      aria-hidden="true"
-                    />
-                  </button>
-
-                  <button
-                    className="addCityModal-timezonePickerToggle"
-                    type="button"
-                    aria-expanded={isAbbreviationPickerOpen}
-                    onClick={handleAbbreviationPickerToggle}
-                  >
-                    <span>{t('addCity.chooseAbbreviation')}</span>
-                    <i
-                      className="addCityModal-timezonePickerToggleIcon"
-                      aria-hidden="true"
-                    />
-                  </button>
-                </div>
-
-                <div
-                  className={`addCityModal-timezonePickerPanel ${isTimezonePickerOpen ? 'isOpen' : ''}`}
-                  aria-hidden={!isTimezonePickerOpen}
+        {!isSearchLoading && !hasActiveQuery && (
+          <section className="addCityModal-fixedTimezones">
+            <div className="addCityModal-timezonePicker">
+              <div className="addCityModal-timezonePickerControls">
+                <button
+                  className="addCityModal-timezonePickerToggle"
+                  type="button"
+                  aria-expanded={isTimezonePickerOpen}
+                  onClick={handleTimezonePickerToggle}
                 >
-                  <div className="addCityModal-timezonePickerPanelInner">
-                    <div className="addCityModal-timezoneGrid">
-                      {abstractTimezoneRows.map((city) => renderCityButton(
-                        city,
-                        isTimezonePickerOpen ? undefined : -1,
-                      ))}
-                    </div>
-                  </div>
-                </div>
+                  <span>{t('addCity.chooseTimezone')}</span>
+                  <i
+                    className="addCityModal-timezonePickerToggleIcon"
+                    aria-hidden="true"
+                  />
+                </button>
 
-                <div
-                  className={`addCityModal-timezonePickerPanel ${isAbbreviationPickerOpen ? 'isOpen' : ''}`}
-                  aria-hidden={!isAbbreviationPickerOpen}
+                <button
+                  className="addCityModal-timezonePickerToggle"
+                  type="button"
+                  aria-expanded={isAbbreviationPickerOpen}
+                  onClick={handleAbbreviationPickerToggle}
                 >
-                  <div className="addCityModal-timezonePickerPanelInner">
-                    {renderTimezoneAbbreviations(isAbbreviationPickerOpen ? undefined : -1)}
+                  <span>{t('addCity.chooseAbbreviation')}</span>
+                  <i
+                    className="addCityModal-timezonePickerToggleIcon"
+                    aria-hidden="true"
+                  />
+                </button>
+              </div>
+
+              <div
+                className={cx('addCityModal-timezonePickerPanel', isTimezonePickerOpen && 'isOpen')}
+                aria-hidden={!isTimezonePickerOpen}
+              >
+                <div className="addCityModal-timezonePickerPanelInner">
+                  <div className="addCityModal-timezoneGrid">
+                    {abstractTimezoneRows.map((city) => renderCityButton(
+                      city,
+                      isTimezonePickerOpen ? undefined : -1,
+                    ))}
                   </div>
                 </div>
               </div>
-            </section>
-          )}
-        </div>
+
+              <div
+                className={cx('addCityModal-timezonePickerPanel', isAbbreviationPickerOpen && 'isOpen')}
+                aria-hidden={!isAbbreviationPickerOpen}
+              >
+                <div className="addCityModal-timezonePickerPanelInner">
+                  {renderTimezoneAbbreviations(isAbbreviationPickerOpen ? undefined : -1)}
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
       </div>
-    </div>,
-    document.body,
+    </Modal>
   );
 }

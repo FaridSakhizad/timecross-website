@@ -1,3 +1,5 @@
+import { getPageIdByPath } from '../routes.ts';
+import type { TranslationKey } from './dictionaries.ts';
 import { APP_LANGUAGES, type AppLanguage } from '../settings.ts';
 import { getBrowserTimezone } from '../utils/time.ts';
 
@@ -44,17 +46,6 @@ const EUROPEAN_PORTUGUESE_TIME_ZONES = new Set([
 /** Languages offered in the language menus: Portuguese is one item, see getLanguageMenuItems. */
 export const MENU_LANGUAGES = APP_LANGUAGES.filter((language) => language !== 'pt-BR');
 
-const LOCALIZED_PAGE_PATHS = [
-  '/cities',
-  '/convert',
-  '/grid',
-  '/meeting-time-planner',
-  '/time-zone-converter',
-  '/world-clock',
-  '/privacy-policy',
-  '/terms-of-use',
-];
-
 function normalizeLanguageCode(value: string) {
   return value.toLowerCase().split('-')[0];
 }
@@ -85,7 +76,7 @@ function getBrowserLanguageTags(): readonly string[] {
     return [];
   }
 
-  return navigator.languages?.length ? navigator.languages : [navigator.language];
+  return navigator.languages.length ? navigator.languages : [navigator.language];
 }
 
 function getBrowserPortugueseVariant() {
@@ -117,7 +108,7 @@ export function getMenuLanguage(language: AppLanguage): AppLanguage {
 }
 
 /** Translation key of a language's own name; the Portuguese variants are named with their country. */
-export function getLanguageLabelKey(language: AppLanguage) {
+export function getLanguageLabelKey(language: AppLanguage): TranslationKey {
   if (language === 'pt') {
     return 'languages.ptPT';
   }
@@ -128,7 +119,7 @@ export function getLanguageLabelKey(language: AppLanguage) {
 export type LanguageMenuItem = {
   language: AppLanguage;
   /** Translation key of the item's label. */
-  labelKey: string;
+  labelKey: TranslationKey;
 };
 
 /**
@@ -197,9 +188,7 @@ export function getLocalizedPathname(pathname: string, language: AppLanguage) {
 }
 
 export function isLocalizedPagePath(pathname: string) {
-  const pagePath = stripLanguageFromPathname(pathname);
-
-  return pagePath === '/' || LOCALIZED_PAGE_PATHS.includes(pagePath);
+  return getPageIdByPath(stripLanguageFromPathname(pathname)) !== null;
 }
 
 /** Picks the best supported language from an Accept-Language header; 'en' by default. */
@@ -211,7 +200,7 @@ export function getLanguageFromAcceptLanguage(acceptLanguage: string | null): Ap
   const languageCandidates = acceptLanguage
     .split(',')
     .map((entry) => {
-      const [languageTag, ...parameters] = entry.trim().split(';');
+      const [languageTag = '', ...parameters] = entry.trim().split(';');
       const qualityParameter = parameters.find((parameter) => parameter.trim().startsWith('q='));
 
       return {
@@ -221,7 +210,11 @@ export function getLanguageFromAcceptLanguage(acceptLanguage: string | null): Ap
       };
     })
     // q=0 means "not acceptable", so such languages are skipped.
-    .filter((entry): entry is { language: AppLanguage; languageTag: string; quality: number } => (
+    .filter((entry): entry is {
+      language: AppLanguage;
+      languageTag: string;
+      quality: number;
+    } => (
       Boolean(entry.language) && Number.isFinite(entry.quality) && entry.quality > 0
     ))
     .sort((left, right) => right.quality - left.quality);

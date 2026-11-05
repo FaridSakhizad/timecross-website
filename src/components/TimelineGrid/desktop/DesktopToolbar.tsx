@@ -3,11 +3,12 @@ import '../../widgetHeaderButtons.css';
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { Hand } from 'lucide-react';
-import { PAN_CONTROLS_VISIBLE } from '../../../usePanPreference';
 import { useI18n } from '../../../i18n';
 import { getCanonicalLanguagePath } from '../../../i18n/languageRouting';
 import StandaloneMenuModal from '../../StandaloneMenuModal';
 import type { GridToolbarProps } from '../shared/types';
+import { cx } from '../../../utils/classNames';
+import { PAGES } from '../../../routes';
 
 type DesktopToolbarProps = Omit<GridToolbarProps, 'calendarEvent' | 'selectedHours'> & {
   panEnabled: boolean;
@@ -15,10 +16,19 @@ type DesktopToolbarProps = Omit<GridToolbarProps, 'calendarEvent' | 'selectedHou
   onPanToggle: () => void;
 };
 
-export default function DesktopToolbar(props: DesktopToolbarProps) {
+export default function DesktopToolbar({
+  isEditMode,
+  onAddCityClick,
+  onEditModeToggle,
+  onPanToggle,
+  onResetClick,
+  panDisabled,
+  panEnabled,
+  presentation,
+}: DesktopToolbarProps) {
   const { language, t } = useI18n();
   const [menuOpen, setMenuOpen] = useState(false);
-  const embedded = props.presentation === 'embedded';
+  const embedded = presentation === 'embedded';
 
   return (
     <>
@@ -39,7 +49,7 @@ export default function DesktopToolbar(props: DesktopToolbarProps) {
               )
             : (
                 <Link
-                  to={getCanonicalLanguagePath(language, '/')}
+                  to={getCanonicalLanguagePath(language)}
                   className="widgetHeaderButton citiesHeaderButton_home"
                   aria-label={t('common.home')}
                 >
@@ -50,11 +60,11 @@ export default function DesktopToolbar(props: DesktopToolbarProps) {
 
         <div className="widgetHeaderMiddle">
           <button
-            className={`widgetHeaderButton citiesHeaderButton_edit ${props.isEditMode ? 'isActive' : ''}`}
+            className={cx('widgetHeaderButton citiesHeaderButton_edit', isEditMode && 'isActive')}
             type="button"
             aria-label="edit"
-            aria-pressed={props.isEditMode}
-            onClick={props.onEditModeToggle}
+            aria-pressed={isEditMode}
+            onClick={onEditModeToggle}
           >
             <i className="citiesHeaderButton-icon citiesHeaderButton-icon_edit" />
           </button>
@@ -62,7 +72,7 @@ export default function DesktopToolbar(props: DesktopToolbarProps) {
             className="widgetHeaderButton citiesHeaderButton_add"
             type="button"
             aria-label={t('common.addCity')}
-            onClick={props.onAddCityClick}
+            onClick={onAddCityClick}
           >
             <i className="citiesHeaderButton-icon citiesHeaderButton-icon_add" />
           </button>
@@ -70,27 +80,25 @@ export default function DesktopToolbar(props: DesktopToolbarProps) {
             className="widgetHeaderButton"
             type="button"
             aria-label={t('common.reset')}
-            onClick={props.onResetClick}
+            onClick={onResetClick}
           >
             <i className="citiesHeaderButton-icon citiesHeaderButton-icon_reset" />
           </button>
-          {PAN_CONTROLS_VISIBLE && (
-            <button
-              className={`widgetHeaderButton ${props.panEnabled ? 'isActive' : ''}`}
-              type="button"
-              title={t('common.panMode')}
-              aria-label={t('common.panMode')}
-              aria-pressed={props.panEnabled}
-              disabled={props.panDisabled}
-              onClick={props.onPanToggle}
-            >
-              <Hand
-                size={16}
-                strokeWidth={2}
-                aria-hidden="true"
-              />
-            </button>
-          )}
+          <button
+            className={cx('widgetHeaderButton', panEnabled && 'isActive')}
+            type="button"
+            title={t('common.panMode')}
+            aria-label={t('common.panMode')}
+            aria-pressed={panEnabled}
+            disabled={panDisabled}
+            onClick={onPanToggle}
+          >
+            <Hand
+              size={16}
+              strokeWidth={2}
+              aria-hidden="true"
+            />
+          </button>
         </div>
 
         <div className="widgetHeaderEnd">
@@ -98,7 +106,7 @@ export default function DesktopToolbar(props: DesktopToolbarProps) {
             ? (
                 <>
                   <Link
-                    to={getCanonicalLanguagePath(language, '/grid')}
+                    to={getCanonicalLanguagePath(language, PAGES.grid.path)}
                     className="widgetHeaderButton"
                     aria-label={t('common.openGrid')}
                   >
@@ -120,12 +128,8 @@ export default function DesktopToolbar(props: DesktopToolbarProps) {
       </div>
       {!embedded && (
         <StandaloneMenuModal
-          colorMode={props.colorMode}
-          timeFormat={props.timeFormat}
           isOpen={menuOpen}
           onClose={() => setMenuOpen(false)}
-          onColorModeButtonClick={props.onColorModeButtonClick}
-          onTimeFormatButtonClick={props.onTimeFormatButtonClick}
         />
       )}
     </>

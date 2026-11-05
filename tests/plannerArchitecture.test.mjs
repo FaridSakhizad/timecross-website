@@ -9,6 +9,7 @@ import { resolvePlannerLayout } from '../src/components/Planner/plannerLayout.ts
 test('automatic layout follows input capabilities; explicit layout ignores the device', () => {
   assert.equal(resolvePlannerLayout('auto', false), 'desktop');
   assert.equal(resolvePlannerLayout('auto', true), 'mobile');
+
   for (const touch of [true, false]) {
     assert.equal(resolvePlannerLayout('desktop', touch), 'desktop');
     assert.equal(resolvePlannerLayout('mobile', touch), 'mobile');
@@ -20,6 +21,7 @@ function getLayoutModifierClasses(path) {
   const css = readFileSync(new URL(`../src/components/TimelineGrid/${path}`, import.meta.url), 'utf8')
     .replace(/\/\*[\s\S]*?\*\//g, '')
     .replace(/url\([^)]*\)/g, '');
+
   return [...new Set(css.match(/\.[\w-]+_(?:desktop|mobile)\b/g) ?? [])];
 }
 

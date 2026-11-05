@@ -90,11 +90,17 @@ function getSnapTargetElementCenter(target: HTMLElement) {
 }
 
 function getSnapStep(targets: HTMLElement[]) {
-  if (targets.length < 2) {
-    return targets[0]?.offsetWidth || 1;
+  const [first, second] = targets;
+
+  if (!first) {
+    return 1;
   }
 
-  return Math.max(1, Math.abs(targets[1].offsetLeft - targets[0].offsetLeft));
+  if (!second) {
+    return first.offsetWidth || 1;
+  }
+
+  return Math.max(1, Math.abs(second.offsetLeft - first.offsetLeft));
 }
 
 function getEdgeTargetIndex(
@@ -104,6 +110,11 @@ function getEdgeTargetIndex(
   direction: Exclude<TimelineGridActiveHourDirection, null>,
 ) {
   const activeTarget = targets[activeTargetIndex];
+
+  if (!activeTarget) {
+    return activeTargetIndex;
+  }
+
   const step = getSnapStep(targets);
   const edgeDistance = Math.max(
     0,
@@ -132,6 +143,11 @@ function scrollTimelineGridActiveHourToEdge(
     ? window.innerWidth
     : scrollTarget.element.clientWidth;
   const target = targets[getEdgeTargetIndex(targets, activeTargetIndex, viewportWidth, direction)];
+
+  if (!target) {
+    return;
+  }
+
   const targetScrollLeft = scrollTarget.type === 'page'
     ? getSnapTargetDocumentCenter(target) - window.innerWidth / 2
     : getSnapTargetElementCenter(target) - scrollTarget.element.clientWidth / 2;

@@ -1,22 +1,31 @@
 import TimelineCellLabel from '../../Timelines/TimelineCellLabel';
 import type { TimelineCell } from '../../Timelines/types';
+import { cx } from '../../../utils/classNames';
 
-export default function GridUserHours({ userCells, className }: { userCells: TimelineCell[]; className: string }) {
+type GridUserHoursProps = {
+  userCells: TimelineCell[];
+  className: string;
+};
+
+export default function GridUserHours({
+  userCells,
+  className,
+}: GridUserHoursProps) {
   return (
-    <div className={`timelineGrid-userHours ${className}`}>
+    <div className={cx('timelineGrid-userHours', className)}>
       {userCells.map((cell, index) => {
         const shouldShowCurrentMinutes = cell.isCurrentHour && !cell.isDateLabel;
         const shouldShowCurrentDateTime = cell.isCurrentHour && cell.isDateLabel;
 
         return (
           <span
-            className={[
+            className={cx(
               'timelineGrid-hour',
-              cell.isCurrentHour ? 'timelineGrid-hour_current' : '',
-              cell.isDateLabel ? 'timelineGrid-hour_date' : '',
-              shouldShowCurrentMinutes ? 'timelineGrid-hour_withTime' : '',
-              shouldShowCurrentDateTime ? 'timelineGrid-hour_withDateTime' : '',
-            ].filter(Boolean).join(' ')}
+              cell.isCurrentHour && 'timelineGrid-hour_current',
+              cell.isDateLabel && 'timelineGrid-hour_date',
+              shouldShowCurrentMinutes && 'timelineGrid-hour_withTime',
+              shouldShowCurrentDateTime && 'timelineGrid-hour_withDateTime',
+            )}
             key={`user-${cell.date.toISOString()}-${index}`}
           >
             {shouldShowCurrentDateTime && (

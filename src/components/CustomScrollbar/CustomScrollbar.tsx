@@ -8,6 +8,7 @@ import {
   type ReactNode,
   type WheelEvent,
 } from 'react';
+import { cx } from '../../utils/classNames';
 
 const MIN_SCROLLBAR_THUMB_HEIGHT = 28;
 const MIN_SCROLLBAR_THUMB_WIDTH = 28;
@@ -188,6 +189,7 @@ export default function CustomScrollbar({
     }
 
     const { clientHeight, clientWidth, scrollHeight, scrollLeft, scrollTop, scrollWidth } = content;
+
     content.style.setProperty('--custom-scrollbar-client-width', `${clientWidth}px`);
     const verticalVisible = showVerticalScrollbar && scrollHeight > clientHeight;
     const horizontalVisible = showHorizontalScrollbar && scrollWidth > clientWidth;
@@ -410,9 +412,9 @@ export default function CustomScrollbar({
   }, [endScrollbarDrag, isDraggingScrollbar]);
 
   return (
-    <div className={`customScrollbar ${className}`}>
+    <div className={cx('customScrollbar', className)}>
       <div
-        className={`customScrollbar-content ${contentClassName}`}
+        className={cx('customScrollbar-content', contentClassName)}
         ref={setContentRef}
         onScroll={updateScrollbar}
       >
@@ -426,9 +428,7 @@ export default function CustomScrollbar({
           onWheel={(event) => handleScrollbarWheel('vertical', event)}
         >
           <span
-            className={`customScrollbar-thumb customScrollbar-thumb_vertical ${
-              isDraggingScrollbar ? 'customScrollbar-thumb_dragging' : ''
-            }`}
+            className={cx('customScrollbar-thumb customScrollbar-thumb_vertical', isDraggingScrollbar && 'customScrollbar-thumb_dragging')}
             style={{
               height: `${scrollbars.vertical.thumbLength}px`,
               transform: `translate3d(0, ${scrollbars.vertical.thumbOffset}px, 0)`,
@@ -448,9 +448,7 @@ export default function CustomScrollbar({
           onWheel={(event) => handleScrollbarWheel('horizontal', event)}
         >
           <span
-            className={`customScrollbar-thumb customScrollbar-thumb_horizontal ${
-              isDraggingScrollbar ? 'customScrollbar-thumb_dragging' : ''
-            }`}
+            className={cx('customScrollbar-thumb customScrollbar-thumb_horizontal', isDraggingScrollbar && 'customScrollbar-thumb_dragging')}
             style={{
               width: `${scrollbars.horizontal.thumbLength}px`,
               transform: `translate3d(${scrollbars.horizontal.thumbOffset}px, 0, 0)`,

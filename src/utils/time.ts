@@ -67,7 +67,14 @@ export function getTimeZoneOffsetMinutes(timezone: string, date: Date) {
 /** Converts a wall-clock time in the given timezone to the matching UTC moment. */
 export function getUtcDateForZonedTime(
   timezone: string,
-  dateParts: { year: number; month: number; day: number; hour: number; minute?: number; second?: number },
+  dateParts: {
+    year: number;
+    month: number;
+    day: number;
+    hour: number;
+    minute?: number;
+    second?: number;
+  },
 ) {
   const abstractOffsetMinutes = getAbstractTimezoneOffsetMinutes(timezone);
   const utcTime = Date.UTC(

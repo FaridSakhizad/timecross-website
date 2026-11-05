@@ -105,6 +105,7 @@ export function useTimeRulerScroll({
       scrollSyncTimeoutRef.current = null;
 
       const pendingOffset = pendingOffsetRef.current;
+
       pendingOffsetRef.current = null;
 
       if (pendingOffset !== null) {

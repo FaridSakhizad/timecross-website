@@ -3,10 +3,17 @@ import { createPortal } from 'react-dom';
 import type { RefObject } from 'react';
 import { useI18n } from '../../../i18n';
 
-export default function DesktopSelectionOverlay({ overlayRef, frameRef }: {
-  overlayRef: RefObject<HTMLDivElement | null>; frameRef: RefObject<HTMLDivElement | null>;
-}) {
+type DesktopSelectionOverlayProps = {
+  overlayRef: RefObject<HTMLDivElement | null>;
+  frameRef: RefObject<HTMLDivElement | null>;
+};
+
+export default function DesktopSelectionOverlay({
+  overlayRef,
+  frameRef,
+}: DesktopSelectionOverlayProps) {
   const { t } = useI18n();
+
   return (
     <>
       {typeof document !== 'undefined' && createPortal(

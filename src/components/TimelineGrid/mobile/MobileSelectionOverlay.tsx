@@ -2,13 +2,21 @@ import '../shared/selection.css';
 import type { RefObject } from 'react';
 import { useI18n } from '../../../i18n';
 
-export default function MobileSelectionOverlay({ enabled, frameRef }: {
-  enabled: boolean; frameRef: RefObject<HTMLDivElement | null>;
-}) {
+type MobileSelectionOverlayProps = {
+  enabled: boolean;
+  frameRef: RefObject<HTMLDivElement | null>;
+};
+
+export default function MobileSelectionOverlay({
+  enabled,
+  frameRef,
+}: MobileSelectionOverlayProps) {
   const { t } = useI18n();
+
   if (!enabled) {
     return null;
   }
+
   return (
     <div
       ref={frameRef}

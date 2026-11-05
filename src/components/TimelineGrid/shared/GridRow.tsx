@@ -15,8 +15,14 @@ import {
 } from '../../Timelines/utils';
 import { formatRelativeOffset, getTimeZoneOffsetMinutes } from '../../../utils/time';
 import { gridHourKey } from './gridSelection';
+import { cx } from '../../../utils/classNames';
 
-export type GridRowClasses = { row?: string; city?: string; cells: string; spacer: string };
+export type GridRowClasses = {
+  row?: string;
+  city?: string;
+  cells: string;
+  spacer: string;
+};
 
 type TimelineGridRowProps = {
   baseDate: Date;
@@ -73,6 +79,7 @@ function TimelineGridRow({
     transform: CSS.Transform.toString(verticalTransform),
     transition,
   };
+
   const handlePressStart = (target: EventTarget | null) => {
     if (!isEditMode || !isTimelineGridDragPressTarget(target)) {
       return;
@@ -103,19 +110,19 @@ function TimelineGridRow({
 
   return (
     <div
-      className={[
+      className={cx(
         'timelineGrid-row',
         classNames.row,
-        isEditMode ? 'timelineGrid-row_reorder' : '',
-        isEditMode && isPressed && !isDragging ? 'timelineGrid-row_pressed' : '',
-        isDragging ? 'timelineGrid-row_dragging' : '',
-      ].filter(Boolean).join(' ')}
+        isEditMode && 'timelineGrid-row_reorder',
+        isEditMode && isPressed && !isDragging && 'timelineGrid-row_pressed',
+        isDragging && 'timelineGrid-row_dragging',
+      )}
       onPointerDown={(event) => handlePressStart(event.target)}
       onTouchStart={(event) => handlePressStart(event.target)}
       ref={setNodeRef}
       style={style}
     >
-      <div className={['timelineGrid-city', classNames.city].filter(Boolean).join(' ')}>
+      <div className={cx('timelineGrid-city', classNames.city)}>
         <div className="timelineGrid-cityInner">
           {isEditMode && (
             <button
@@ -153,21 +160,21 @@ function TimelineGridRow({
       </div>
 
       {shouldRenderCells && (
-        <div className={`timelineGrid-cells ${classNames.cells}`}>
+        <div className={cx('timelineGrid-cells', classNames.cells)}>
           {cells.map((cell, index) => {
             const shouldShowFullCurrentTime = cell.isCurrentHour && Boolean(cell.dateCellDetails);
 
             return (
               <span
-                className={[
+                className={cx(
                   'timelineGrid-cell',
                   `timelineGrid-cell_${cell.period}`,
-                  cell.isAdjacentDay ? 'timelineGrid-cell_adjacentDay' : '',
-                  cell.isCurrentHour ? 'timelineGrid-cell_current' : '',
-                  cell.isDateLabel ? 'timelineGrid-cell_date' : '',
-                  shouldShowFullCurrentTime ? 'timelineGrid-cell_fullTime' : '',
-                  selectedHourKeys?.has(gridHourKey({ rowId: city.id, start: cell.date.getTime() })) ? 'isSelected' : '',
-                ].filter(Boolean).join(' ')}
+                  cell.isAdjacentDay && 'timelineGrid-cell_adjacentDay',
+                  cell.isCurrentHour && 'timelineGrid-cell_current',
+                  cell.isDateLabel && 'timelineGrid-cell_date',
+                  shouldShowFullCurrentTime && 'timelineGrid-cell_fullTime',
+                  selectedHourKeys?.has(gridHourKey({ rowId: city.id, start: cell.date.getTime() })) && 'isSelected',
+                )}
                 key={`${city.id}-${cell.date.toISOString()}-${index}`}
                 data-grid-selection-row={city.id}
                 data-grid-hour-start={cell.date.getTime()}
@@ -214,7 +221,7 @@ function TimelineGridRow({
 
       {!shouldRenderCells && (
         <div
-          className={`timelineGrid-cellsSpacer ${classNames.spacer}`}
+          className={cx('timelineGrid-cellsSpacer', classNames.spacer)}
           aria-label={t('cities.moveCity', { city: displayName })}
           style={{
             width: `calc(${timelineDates.length} * var(--timeline-grid-hour-width))`,

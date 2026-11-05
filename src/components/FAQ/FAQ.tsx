@@ -4,6 +4,7 @@ import { SITE_NAME } from '../../config';
 import { useI18n } from '../../i18n';
 
 import './style.css';
+import { cx } from '../../utils/classNames';
 
 interface IAccordionItemData {
   isOpen: boolean;
@@ -122,7 +123,7 @@ export default function FAQ({ items }: FAQProps) {
       {DATA.map((accordionItem, idx) => (
         <div
           key={accordionItem.id}
-          className={`accordion-item ${accordionData[idx]?.isOpen ? 'isOpen' : ''}`}
+          className={cx('accordion-item', accordionData[idx]?.isOpen && 'isOpen')}
         >
           <div
             className="accordion-header"

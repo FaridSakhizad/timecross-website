@@ -25,21 +25,27 @@ const hooks = registerHooks({
       const path = fileURLToPath(new URL(specifier, context.parentURL));
       const file = [path, `${path}.ts`, `${path}.tsx`, `${path}/index.ts`, `${path}/index.tsx`]
         .find((candidate) => existsSync(candidate) && statSync(candidate).isFile());
+
       if (file) {
         return nextResolve(pathToFileURL(file).href, context);
       }
     }
+
     return nextResolve(specifier, context);
   },
   load(url, context, nextLoad) {
     if (!url.startsWith('file:')) {
       return nextLoad(url, context);
     }
+
     const path = fileURLToPath(url);
+
     if (!path.startsWith(sourceRoot)) {
       return nextLoad(url, context);
     }
+
     const extension = extname(path);
+
     if (extension === '.ts' || extension === '.tsx') {
       const result = ts.transpileModule(readFileSync(path, 'utf8'), {
         fileName: path,
@@ -50,17 +56,22 @@ const hooks = registerHooks({
           verbatimModuleSyntax: true,
         },
       });
+
       return { format: 'module', source: result.outputText, shortCircuit: true };
     }
+
     if (extension === '.json') {
       return { format: 'module', source: `export default ${readFileSync(path, 'utf8')};`, shortCircuit: true };
     }
+
     if (['.css', '.svg', '.png', '.jpg'].includes(extension)) {
       return { format: 'module', source: `export default ${JSON.stringify(url)};`, shortCircuit: true };
     }
+
     return nextLoad(url, context);
   },
 });
+
 after(() => hooks.deregister());
 
 const { I18nProvider } = await import('../src/i18n/I18nProvider.tsx');
@@ -84,6 +95,7 @@ function render(Component, presentation, url = '/en/grid', extraProps = {}) {
   const content = Component === Desktop || Component === Mobile
     ? React.createElement(TimelineGridSession, { ...componentProps, View: Component })
     : React.createElement(Component, componentProps);
+
   return renderToStaticMarkup(React.createElement(MemoryRouter, { initialEntries: [url] }, React.createElement(I18nProvider, { initialLanguage: 'en' }, content)));
 }
 
@@ -94,9 +106,11 @@ test('application boundary can force either view without a browser or device det
 
 test('widget layout is correct on the first render and on each subsequent page mount', () => {
   const originalWindow = Object.getOwnPropertyDescriptor(globalThis, 'window');
+
   function LayoutProbe() {
     return React.createElement('span', null, useMobileWidgetLayout() ? 'mobile' : 'desktop');
   }
+
   try {
     for (const mobile of [true, true, false, false]) {
       globalThis.window = {
@@ -107,6 +121,7 @@ test('widget layout is correct on the first render and on each subsequent page m
       };
       assert.equal(renderToStaticMarkup(React.createElement(LayoutProbe)), `<span>${mobile ? 'mobile' : 'desktop'}</span>`);
     }
+
     delete globalThis.window;
     assert.equal(renderToStaticMarkup(React.createElement(LayoutProbe)), '<span>desktop</span>');
   } finally {
@@ -120,6 +135,7 @@ test('widget layout is correct on the first render and on each subsequent page m
 
 test('calendar actions hide Share while retaining Google, Outlook and ICS', () => {
   const html = render(GridCalendarActions, 'zen', '/en/grid', { event: null, cities: [], hours: [] });
+
   assert.ok(!html.includes('aria-label="Share event"'));
   assert.equal((html.match(/timelineGridCalendarButton/g) ?? []).length, 3);
   assert.equal((html.match(/ disabled=""/g) ?? []).length, 3);
@@ -131,6 +147,7 @@ test('mobile selection controls live only in the footer in both presentations', 
   for (const presentation of ['zen', 'embedded']) {
     const html = render(Mobile, presentation);
     const footer = html.indexOf('class="zenPageMobile-footer"');
+
     assert.ok(footer > 0);
     assert.ok(html.indexOf('aria-label="Select hours"') > footer);
     assert.equal((html.match(/aria-label="Select hours"/g) ?? []).length, 1);
@@ -144,26 +161,32 @@ for (const [name, Component] of [['desktop', Desktop], ['mobile', Mobile]]) {
     test(`${name}/${presentation} renders independently with shared cells and the existing header structure`, () => {
       const html = render(Component, presentation);
       const header = name === 'desktop' ? 'widgetHeader' : 'zenPageMobile-header';
+
       for (const section of ['Start', 'Middle', 'End']) {
         assert.ok(html.includes(`${header}${section}`));
       }
+
       assert.equal(html.includes('widgetHeader-backdrop'), name === 'desktop');
       assert.equal(html.includes('widgetHeaderControlPlaceholder'), presentation === 'embedded');
       assert.equal(html.includes('aria-label="Pan"'), name === 'desktop');
       assert.ok(html.includes('aria-label="Select hours"'));
+
       if (name === 'desktop') {
         // The toolbar is rendered in every presentation, before the grid and never inside it.
         const toolbarIndex = html.indexOf('class="widgetHeader"');
         const gridIndex = html.indexOf('class="widgetContent timelineGrid');
+
         assert.ok(toolbarIndex >= 0 && gridIndex > toolbarIndex);
         assert.equal((html.match(/class="widgetHeader"/g) ?? []).length, 1);
         const footerIndex = html.indexOf('class="widgetFooter"');
         const actionsIndex = html.indexOf('timelineGridCalendarButton');
+
         assert.ok(footerIndex > 0 && actionsIndex > footerIndex);
         assert.equal((html.match(/timelineGridCalendarButton" type="button" disabled=""/g) ?? []).length, 3);
         assert.ok(html.indexOf('aria-label="Select hours"') > footerIndex);
         assert.ok(!html.includes('timelineGridClearSelectionButton" hidden'));
       }
+
       assert.ok(html.includes(`timelineGrid-userHours_${name}`));
       assert.ok(html.includes('class="timelineGrid-row'));
       assert.equal(html.includes('timelineGrid-row_mobile'), name === 'mobile');
@@ -174,6 +197,7 @@ for (const [name, Component] of [['desktop', Desktop], ['mobile', Mobile]]) {
       assert.ok(html.includes('data-grid-hour-start='));
       assert.equal((html.match(/class="timelineGrid-hour(?: |")/g) ?? []).length, 92);
       assert.ok(!html.includes(`timelineGrid-row_${name === 'desktop' ? 'mobile' : 'desktop'}`));
+
       if (presentation === 'zen') {
         assert.ok(html.includes('aria-label="Home"'));
         assert.ok(html.includes('aria-label="Menu"'));
@@ -194,8 +218,10 @@ for (const [name, Component] of [['desktop', Desktop], ['mobile', Mobile]]) {
     };
     const hours = [0, 1, 2].map((offset) => ({ rowId: city.id, start: start + offset * 3600000 }));
     const url = buildGridEventUrl('https://timecross.app/en/grid', [city], hours);
+
     assert.ok(url);
     const html = render(Component, 'zen', url.replace('https://timecross.app', ''));
+
     assert.equal((html.match(/ isSelected/g) ?? []).length, 3);
     assert.ok(html.includes('20261026T120000Z%2F20261026T150000Z'));
     assert.ok(html.includes('aria-label="Create event in Outlook"'));
@@ -206,9 +232,12 @@ for (const [name, Component] of [['desktop', Desktop], ['mobile', Mobile]]) {
     const contentStart = html.indexOf('class="timelineGrid-content"');
     const frameStart = html.indexOf(`class="timelineGridSelectionFrame timelineGridSelectionFrame_${name}"`);
     const hoursStart = html.indexOf(`class="timelineGrid-userHours timelineGrid-userHours_${name}"`);
+
     assert.ok(contentStart >= 0 && hoursStart > contentStart && frameStart > hoursStart);
+
     if (name === 'mobile') {
       const footer = html.indexOf('class="zenPageMobile-footer"');
+
       assert.ok(footer > 0);
       assert.ok(html.indexOf('timelineGridCalendarButton') > footer);
       assert.ok(html.indexOf('aria-label="Clear selection"') > footer);
@@ -216,6 +245,7 @@ for (const [name, Component] of [['desktop', Desktop], ['mobile', Mobile]]) {
       assert.ok(html.includes('lucide-x'));
       assert.equal((html.match(/aria-label="Create event in Outlook"/g) ?? []).length, 1);
     }
+
     if (name === 'desktop') {
       assert.ok(html.indexOf('timelineGridCalendarButton') > html.indexOf('class="widgetFooter"'));
       assert.equal((html.match(/timelineGridCalendarButton" type="button" disabled=""/g) ?? []).length, 0);
@@ -225,10 +255,12 @@ for (const [name, Component] of [['desktop', Desktop], ['mobile', Mobile]]) {
 
 test('translations other than English load on demand and fall back to English until then', async () => {
   const { isDictionaryLoaded, loadDictionary, translate } = await import('../src/i18n/dictionaries.ts');
+
   assert.equal(isDictionaryLoaded('en'), true);
   assert.equal(isDictionaryLoaded('de'), false);
   assert.equal(translate('de', 'contactForm.send'), 'Send');
   const [first, second] = await Promise.all([loadDictionary('de'), loadDictionary('de')]);
+
   assert.equal(first, second);
   assert.equal(translate('de', 'contactForm.send'), 'Senden');
   assert.equal(translate('de', 'no.such.key'), 'no.such.key');

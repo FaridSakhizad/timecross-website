@@ -1,7 +1,7 @@
 import './style.css';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Scan, X } from 'lucide-react';
-import { usePanPreference } from '../../../usePanPreference';
+import { usePreferences } from '../../../usePreferences';
 import { useI18n } from '../../../i18n';
 import CustomScrollbar from '../../CustomScrollbar';
 import { TIMELINE_DESKTOP_SCROLLBAR_THUMB_WIDTH } from '../../Timelines/constants';
@@ -17,6 +17,7 @@ import { useDesktopGridPan } from './useDesktopGridPan';
 import { useGridSelection } from './useGridSelection';
 import { buildGridCalendarEvent, gridHourKey } from '../shared/gridSelection';
 import { getCityDisplayName } from '../../Cities/useLocalizedCities';
+import { cx } from '../../../utils/classNames';
 
 const GRID_VERTICAL_SCROLLBAR_TOP = 50;
 const GRID_VERTICAL_SCROLLBAR_BOTTOM = 12;
@@ -25,21 +26,29 @@ const GRID_HORIZONTAL_SCROLLBAR_RIGHT = 12;
 
 export default function DesktopGrid(props: TimelineGridShellProps) {
   const timelineGridViewportRef = useRef<HTMLDivElement>(null);
-  const [panEnabled, setPanEnabled] = usePanPreference('desktop');
+  const {
+    isPlannerPanEnabled: panEnabled,
+    setPlannerPanEnabled: setPanEnabled,
+  } = usePreferences();
   const [isScrollbarDragging, setIsScrollbarDragging] = useState(false);
   const scrollbarInteractionRef = useRef(false);
   const { t } = useI18n();
   const canPan = panEnabled && !props.isEditMode && !props.isDragging;
   const { selectedHours, isSelecting, interactionRef: selectionInteractionRef, overlayRef, frameRef, clearSelection, createSelection } = useGridSelection(
-    timelineGridViewportRef, !panEnabled && !props.isEditMode && !props.isDragging, JSON.stringify([props.timelineDates[0]?.getTime(), props.cities.map((city) => city.id)]), props.isEditMode || props.isDragging, props.initialSelectedHours, props.onSelectionChange,
+    timelineGridViewportRef,
+    !panEnabled && !props.isEditMode && !props.isDragging,
+    JSON.stringify([props.timelineDates[0]?.getTime(), props.cities.map((city) => city.id)]),
+    props.isEditMode || props.isDragging,
+    props.initialSelectedHours,
+    props.onSelectionChange,
   );
   const selectedHourKeys = useMemo(() => new Set(selectedHours.map(gridHourKey)), [selectedHours]);
-  const calendarEvent = buildGridCalendarEvent(selectedHours,
-    props.cities.map((city) => ({ id: city.id, name: getCityDisplayName(city), timezone: city.timezone })),
-    props.browserTimezone,
-    t('common.calendarEventTitle'));
+  const calendarEvent = buildGridCalendarEvent(selectedHours, props.cities.map((city) => ({ id: city.id, name: getCityDisplayName(city), timezone: city.timezone })), props.browserTimezone, t('common.calendarEventTitle'));
   const { isPanning, interactionRef, cancelPan } = useDesktopGridPan(
-    timelineGridViewportRef, canPan, undefined, props.isEditMode || props.isDragging,
+    timelineGridViewportRef,
+    canPan,
+    undefined,
+    props.isEditMode || props.isDragging,
   );
   const shouldSuspendSnap = useCallback(
     () => interactionRef.current || scrollbarInteractionRef.current || selectionInteractionRef.current,
@@ -67,12 +76,14 @@ export default function DesktopGrid(props: TimelineGridShellProps) {
     if (!panEnabled) {
       return;
     }
+
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         cancelPan();
         setPanEnabled(false);
       }
     };
+
     window.addEventListener('keydown', handleEscape);
     return () => window.removeEventListener('keydown', handleEscape);
   }, [cancelPan, panEnabled, setPanEnabled]);
@@ -120,12 +131,12 @@ export default function DesktopGrid(props: TimelineGridShellProps) {
   return (
     <div className={props.presentation === 'embedded' ? 'widget timelinesEmbedded' : 'widget timelinesZen'}>
       {toolbar}
-      <div className={[
+      <div className={cx(
         'widgetContent timelineGrid',
-        canPan ? 'timelineGrid_panEnabled' : '',
-        props.isEditMode ? 'timelineGrid_editMode' : '',
-        props.isDragging ? 'timelineGrid_dragging' : '',
-      ].filter(Boolean).join(' ')}
+        canPan && 'timelineGrid_panEnabled',
+        props.isEditMode && 'timelineGrid_editMode',
+        props.isDragging && 'timelineGrid_dragging',
+      )}
       >
         <CustomScrollbar
           className="timelineGrid-scroll"
@@ -198,7 +209,9 @@ export default function DesktopGrid(props: TimelineGridShellProps) {
                 clearSelection();
                 return;
               }
+
               cancelPan();
+
               if (createSelection()) {
                 setPanEnabled(false);
               }

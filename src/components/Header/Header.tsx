@@ -1,69 +1,36 @@
 import './style.css';
 
-import { useEffect, useRef, useState } from 'react';
-import { Link, useLocation } from 'react-router';
+import { useState } from 'react';
+import { Link } from 'react-router';
 
 import { SITE_NAME, BUY_ME_A_COFFEE_URL } from '../../config';
 import { useI18n } from '../../i18n';
-import {
-  getCanonicalLanguagePath,
-  getLanguageMenuItems,
-  getLocalizedPathname,
-} from '../../i18n/languageRouting';
+import { getCanonicalLanguagePath } from '../../i18n/languageRouting';
 import { SHORT_LANGUAGE_NAMES } from '../../i18n/languageLabels';
-import type { ColorMode, TimeFormat } from '../../settings';
+import LanguageMenu from '../LanguageMenu';
 import StandaloneMenuModal from '../StandaloneMenuModal';
+import { cx } from '../../utils/classNames';
+import { PAGES } from '../../routes';
+import { usePreferences } from '../../usePreferences';
 
 type HeaderProps = {
   customClassNames?: string;
-  colorMode: ColorMode;
-  timeFormat: TimeFormat;
-  onColorModeButtonClick: () => void;
-  onTimeFormatButtonClick: () => void;
 };
 
 export default function Header({
   customClassNames,
-  colorMode,
-  timeFormat,
-  onColorModeButtonClick,
-  onTimeFormatButtonClick,
 }: HeaderProps) {
-  const [isLangSelectorVisible, setIsLangSelectorVisible] = useState(false);
+  const {
+    colorMode,
+    timeFormat,
+    toggleColorMode,
+    toggleTimeFormat,
+  } = usePreferences();
   const [isMenuModalOpen, setIsMenuModalOpen] = useState(false);
-  const langSelectorRef = useRef<HTMLDivElement>(null);
   const { language, t } = useI18n();
-  const location = useLocation();
-
-  useEffect(() => {
-    if (!isLangSelectorVisible) {
-      return undefined;
-    }
-
-    const handleDocumentPointerDown = (event: PointerEvent) => {
-      const target = event.target;
-
-      if (
-        target instanceof Node
-        && !langSelectorRef.current?.contains(target)
-      ) {
-        setIsLangSelectorVisible(false);
-      }
-    };
-
-    document.addEventListener('pointerdown', handleDocumentPointerDown);
-
-    return () => {
-      document.removeEventListener('pointerdown', handleDocumentPointerDown);
-    };
-  }, [isLangSelectorVisible]);
-
-  const handleLangSelectorClick = () => {
-    setIsLangSelectorVisible((isVisible) => !isVisible);
-  };
 
   return (
-    <header className={['header', customClassNames].filter(Boolean).join(' ')}>
+    <header className={cx('header', customClassNames)}>
       <div className="container">
         <Link
           to={getCanonicalLanguagePath(language)}
@@ -86,21 +53,21 @@ export default function Header({
           <i className="headerMenu-separator headerMenu-separator_1" />
 
           <Link
-            to={getCanonicalLanguagePath(language, '/cities')}
+            to={getCanonicalLanguagePath(language, PAGES.cities.path)}
             className="headerMenu-item headerMenu-item_link"
           >
             {t('common.citiesLabel')}
           </Link>
 
           <Link
-            to={getCanonicalLanguagePath(language, '/grid')}
+            to={getCanonicalLanguagePath(language, PAGES.grid.path)}
             className="headerMenu-item headerMenu-item_link"
           >
             {t('common.gridLabel')}
           </Link>
 
           <Link
-            to={getCanonicalLanguagePath(language, '/convert')}
+            to={getCanonicalLanguagePath(language, PAGES.convert.path)}
             className="headerMenu-item headerMenu-item_link"
           >
             {t('common.timeZoneConverterLabel')}
@@ -111,45 +78,22 @@ export default function Header({
           <button
             type="button"
             className="headerMenu-item headerMenu-item_ampm"
-            onClick={onTimeFormatButtonClick}
+            onClick={toggleTimeFormat}
           >
             {timeFormat === '24h' ? 'AM/PM' : '24H'}
           </button>
 
           <button
             type="button"
-            className={`headerMenu-item headerMenu-item_nightMode ${colorMode === 'night' ? 'isActive' : ''}`}
+            className={cx('headerMenu-item headerMenu-item_nightMode', colorMode === 'night' && 'isActive')}
             aria-label={t(colorMode === 'night' ? 'common.lightMode' : 'common.darkMode')}
-            onClick={onColorModeButtonClick}
+            onClick={toggleColorMode}
           />
 
-          <div
-            className="langSelectButtonBox"
-            ref={langSelectorRef}
-          >
-            <button
-              type="button"
-              className="headerMenu-item langSelectButton"
-              onClick={handleLangSelectorClick}
-            >
-              <span className="langSelectButton-shortName">{SHORT_LANGUAGE_NAMES[language]}</span>
-            </button>
-
-            {isLangSelectorVisible && (
-              <div className="langSelectMenu">
-                {getLanguageMenuItems(language).map((menuItem) => (
-                  <Link
-                    to={getLocalizedPathname(location.pathname, menuItem.language)}
-                    className="langSelectMenu-button"
-                    key={menuItem.language}
-                    onClick={() => setIsLangSelectorVisible(false)}
-                  >
-                    {t(menuItem.labelKey)}
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
+          <LanguageMenu
+            buttonClassName="headerMenu-item langSelectButton"
+            buttonLabel={SHORT_LANGUAGE_NAMES[language]}
+          />
 
           <button
             type="button"
@@ -157,20 +101,13 @@ export default function Header({
             aria-label={t('common.menu')}
             aria-haspopup="dialog"
             aria-expanded={isMenuModalOpen}
-            onClick={() => {
-              setIsLangSelectorVisible(false);
-              setIsMenuModalOpen(true);
-            }}
+            onClick={() => setIsMenuModalOpen(true)}
           />
         </div>
       </div>
       <StandaloneMenuModal
-        colorMode={colorMode}
-        timeFormat={timeFormat}
         isOpen={isMenuModalOpen}
         onClose={() => setIsMenuModalOpen(false)}
-        onColorModeButtonClick={onColorModeButtonClick}
-        onTimeFormatButtonClick={onTimeFormatButtonClick}
       />
     </header>
   );

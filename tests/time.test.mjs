@@ -42,8 +42,7 @@ test('day shift compares calendar dates at the same moment', () => {
 });
 
 test('day periods have stable boundaries', () => {
-  assert.deepEqual([4, 5, 10, 11, 17, 18, 21, 22].map(getDayPeriod),
-    ['night', 'morning', 'morning', 'day', 'day', 'evening', 'evening', 'night']);
+  assert.deepEqual([4, 5, 10, 11, 17, 18, 21, 22].map(getDayPeriod), ['night', 'morning', 'morning', 'day', 'day', 'evening', 'evening', 'night']);
 });
 
 test('offset labels', () => {
@@ -57,6 +56,7 @@ test('offset labels', () => {
 
 test('clock labels do not depend on a locale', async () => {
   const { formatClockTime, getClockLabel } = await import('../src/utils/time.ts');
+
   assert.deepEqual(getClockLabel(9, 5, '24h'), { time: '09:05', period: null });
   assert.deepEqual(getClockLabel(0, 0, '12h'), { time: '12:00', period: 'AM' });
   assert.deepEqual(getClockLabel(12, 30, '12h'), { time: '12:30', period: 'PM' });
@@ -69,6 +69,7 @@ test('clock labels do not depend on a locale', async () => {
 test('date labels follow the interface language', async () => {
   const { formatShortDate, formatShortMonth, formatShortWeekday } = await import('../src/utils/time.ts');
   const moment = new Date('2026-11-03T12:00:00Z');
+
   assert.equal(formatShortDate(moment, 'UTC', 'en-US'), 'Nov 3');
   assert.equal(formatShortDate(moment, 'UTC', 'ru-RU'), '3 нояб');
   assert.equal(formatShortDate(moment, 'UTC', 'de-DE'), '3 Nov');

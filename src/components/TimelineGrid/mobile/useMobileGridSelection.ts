@@ -4,8 +4,10 @@ import { attachMobileGridSelection } from './mobileGridSelectionController';
 import { getVisibleMobileGridSelection } from './mobileGridSelectionGeometry';
 
 export function useMobileGridSelection(
-  hours: SelectedGridHour[], onChange: ((hours: SelectedGridHour[]) => void) | undefined,
-  blocked: boolean, contentKey: string,
+  hours: SelectedGridHour[],
+  onChange: ((hours: SelectedGridHour[]) => void) | undefined,
+  blocked: boolean,
+  contentKey: string,
   viewportRef?: RefObject<HTMLDivElement | null>,
   contentRef?: RefObject<HTMLDivElement | null>,
 ) {
@@ -25,15 +27,19 @@ export function useMobileGridSelection(
     if (blocked) {
       return;
     }
+
     if (enabled) {
       clear();
       return;
     }
+
     const viewport = viewportRef?.current ?? undefined;
     const selection = getVisibleMobileGridSelection(viewport, contentRef?.current ?? undefined);
+
     if (!selection.length) {
       return;
     }
+
     onChange?.(selection);
     setMode(true);
   }, [blocked, clear, enabled, onChange, viewportRef, contentRef]);
@@ -49,15 +55,20 @@ export function useMobileGridSelection(
       onChange?.([]);
       return;
     }
+
     const frame = frameRef.current;
+
     if (!enabled || !frame) {
       return;
     }
+
     const controller = attachMobileGridSelection(frame, hoursRef.current, (next) => onChange?.(next), (active) => {
       interactionRef.current = active;
       setIsResizing(active);
     }, viewportRef?.current ?? undefined);
+
     controllerRef.current = controller;
+
     return () => {
       controller.destroy();
       controllerRef.current = null;
@@ -68,11 +79,13 @@ export function useMobileGridSelection(
     if (!enabled) {
       return;
     }
+
     const escape = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && !event.defaultPrevented) {
         clear();
       }
     };
+
     window.addEventListener('keydown', escape);
     return () => window.removeEventListener('keydown', escape);
   }, [clear, enabled]);

@@ -10,6 +10,7 @@ export type PlannerProps = TimelineGridProps & { layout?: PlannerLayout };
 export default function Planner({ layout = 'auto', ...props }: PlannerProps) {
   const touchLayout = useMobileWidgetLayout();
   const View = resolvePlannerLayout(layout, touchLayout) === 'mobile' ? MobileGrid : DesktopGrid;
+
   return (
     <TimelineGridSession
       {...props}

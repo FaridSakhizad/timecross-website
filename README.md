@@ -1,7 +1,8 @@
 # TimeCross Website
 
 Marketing site and web widgets for TimeCross (world clock, time zone converter, meeting planner).
-React 19 + Vite, server-side rendered by a Cloudflare Worker (`server/index.ts`).
+React 19 + Vite, server-side rendered by a Cloudflare Worker (`server/index.ts` routes requests to
+`server/pages.ts` for pages and `server/contact.ts` for the contact form).
 
 ## Commands
 
@@ -18,9 +19,16 @@ Node version: see `.nvmrc`.
 
 ## Structure
 
-- `src/pages/` — one component per route; routes are listed in `PAGE_ROUTES` in `src/App.tsx`.
+- `src/routes.ts` — the list of pages: path, SEO texts, indexing, canonical page, widgets. Routing, redirects, `<head>`
+  tags, widget preloading and the sitemap test all read it. To add a page, add it there and map its component in
+  `PAGE_COMPONENTS` in `src/App.tsx` (and to `public/sitemap.xml` if it is indexed).
+- `src/pages/` — one component per page.
+- `src/seoMetadata.ts` — everything page-specific in `<head>` (`getHeadTags`): the Worker renders it, `Seo` updates it
+  on client-side navigation.
 - `src/components/` — widgets and page sections. The planner grid has its own README in `components/TimelineGrid/`.
-- `src/settings.ts` — user settings in localStorage with a subscribable store; read them in components with `usePreferences()`.
+- `src/settings.ts` — user settings in localStorage with a subscribable store; read them in components with
+  `usePreferences()` (time format, color mode, planner pan), not through props.
+- `src/components/Modal/` — every dialog: portal, scroll lock, Escape, focus trap and focus return.
 - `src/utils/time.ts` — all timezone and date math (offsets, DST, day shifts). Do not re-implement these helpers in components.
 - `src/i18n/` — translations (`locales/*.json`, English is the reference) and language routing.
 - `server/` — Worker: SSR, SEO tags, language redirects and the `/api/contact` endpoint.

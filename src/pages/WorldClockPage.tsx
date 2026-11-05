@@ -8,33 +8,16 @@ import Header from '../components/Header';
 import Seo from '../components/Seo';
 import { useI18n } from '../i18n';
 import { getCanonicalLanguagePath } from '../i18n/languageRouting';
-import type { ColorMode, TimeFormat } from '../settings';
+import { PAGES } from '../routes';
 
-type WorldClockPageProps = {
-  colorMode: ColorMode;
-  timeFormat: TimeFormat;
-  onColorModeButtonClick: () => void;
-  onTimeFormatButtonClick: () => void;
-};
-
-export default function WorldClockPage({
-  colorMode,
-  timeFormat,
-  onColorModeButtonClick,
-  onTimeFormatButtonClick,
-}: WorldClockPageProps) {
+export default function WorldClockPage() {
   const { language, t } = useI18n();
 
   return (
     <>
-      <Seo page="worldClock" />
+      <Seo />
 
-      <Header
-        colorMode={colorMode}
-        timeFormat={timeFormat}
-        onColorModeButtonClick={onColorModeButtonClick}
-        onTimeFormatButtonClick={onTimeFormatButtonClick}
-      />
+      <Header />
 
       <main className="worldClockPage">
         <section className="section worldClockHero">
@@ -43,13 +26,7 @@ export default function WorldClockPage({
 
         <section className="section worldClockWidgetSection">
           <ClientOnly>
-            <Cities
-              colorMode={colorMode}
-              customClassNames="worldClockCities"
-              timeFormat={timeFormat}
-              onColorModeButtonClick={onColorModeButtonClick}
-              onTimeFormatButtonClick={onTimeFormatButtonClick}
-            />
+            <Cities customClassNames="worldClockCities" />
           </ClientOnly>
         </section>
 
@@ -79,13 +56,13 @@ export default function WorldClockPage({
             <div className="worldClockLinks-list">
               <a
                 className="worldClockLinks-link"
-                href={getCanonicalLanguagePath(language, '/meeting-time-planner')}
+                href={getCanonicalLanguagePath(language, PAGES.meetingTimePlanner.path)}
               >
                 {t('timeZoneConverter.meetingPlannerLink')}
               </a>
               <a
                 className="worldClockLinks-link"
-                href={getCanonicalLanguagePath(language, '/time-zone-converter')}
+                href={getCanonicalLanguagePath(language, PAGES.timeZoneConverter.path)}
               >
                 {t('timeZoneConverter.converterLink')}
               </a>

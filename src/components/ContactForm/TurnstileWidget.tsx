@@ -1,4 +1,5 @@
 import { useEffect, useImperativeHandle, useRef, useState, type Ref } from 'react';
+import { cx } from '../../utils/classNames';
 
 type TurnstileRenderOptions = {
   sitekey: string;
@@ -42,11 +43,13 @@ function loadTurnstile() {
     script.src = TURNSTILE_SCRIPT_SRC;
     script.async = true;
     script.onload = () => (window.turnstile ? resolve(window.turnstile) : reject(new Error('Turnstile did not initialize')));
+
     script.onerror = () => {
       turnstileScriptPromise = null;
       script.remove();
       reject(new Error('Turnstile script failed to load'));
     };
+
     document.head.append(script);
   });
 
@@ -154,7 +157,7 @@ export default function TurnstileWidget({
 
   return (
     <div
-      className={`contactForm-turnstile ${isInteractive ? 'contactForm-turnstile_visible' : ''}`}
+      className={cx('contactForm-turnstile', isInteractive && 'contactForm-turnstile_visible')}
       ref={containerRef}
     />
   );

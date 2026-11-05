@@ -21,6 +21,7 @@ export default function MobileGrid(props: TimelineGridShellProps) {
   const viewportRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const embedded = props.presentation === 'embedded';
+
   useMobileGridHorizontalScrollLock(!embedded && props.isEditMode);
   const getScrollTarget = useCallback(() => {
     if (!embedded) {
@@ -31,14 +32,16 @@ export default function MobileGrid(props: TimelineGridShellProps) {
   }, [embedded]);
   const selectedHours = props.initialSelectedHours ?? EMPTY_SELECTION;
   const { enabled, toggle, clear, frameRef, interactionRef, isResizing } = useMobileGridSelection(
-    selectedHours, props.onSelectionChange, props.isEditMode || props.isDragging, JSON.stringify([props.timelineDates[0]?.getTime(), props.cities.map((city) => city.id)]), embedded ? viewportRef : undefined, contentRef,
+    selectedHours,
+    props.onSelectionChange,
+    props.isEditMode || props.isDragging,
+    JSON.stringify([props.timelineDates[0]?.getTime(), props.cities.map((city) => city.id)]),
+    embedded ? viewportRef : undefined,
+    contentRef,
   );
   const shouldSuspendSnap = useCallback(() => interactionRef.current, [interactionRef]);
   const selectedHourKeys = useMemo(() => new Set(selectedHours.map(gridHourKey)), [selectedHours]);
-  const event = buildGridCalendarEvent(selectedHours,
-    props.cities.map((city) => ({ id: city.id, name: getCityDisplayName(city), timezone: city.timezone })),
-    props.browserTimezone,
-    t('common.calendarEventTitle'));
+  const event = buildGridCalendarEvent(selectedHours, props.cities.map((city) => ({ id: city.id, name: getCityDisplayName(city), timezone: city.timezone })), props.browserTimezone, t('common.calendarEventTitle'));
   const resetGridScroll = useTimelineGridSnap(
     getScrollTarget,
     props.currentUserHourIndex,

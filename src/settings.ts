@@ -27,11 +27,15 @@ export type AppSettings = {
   timeFormat: TimeFormat;
   language: AppLanguage;
   colorMode: ColorMode;
+  /** Dragging the planner grid with the mouse scrolls it (desktop). */
+  isPlannerPanEnabled: boolean;
   selectedCities: StoredCity[];
 };
 
 const SETTINGS_STORAGE_KEY = 'timecross:settings';
 const LEGACY_CITIES_ORDER_STORAGE_KEY = 'timecross:cities-order';
+const LEGACY_DESKTOP_PAN_STORAGE_KEY = 'timecross:pan:desktop';
+const LEGACY_PLANNER_PAN_STORAGE_KEYS = [LEGACY_DESKTOP_PAN_STORAGE_KEY, 'timecross:pan:mobile'];
 
 export const MARKETING_DEFAULT_SELECTED_CITIES: PresetCity[] = [
   {
@@ -145,6 +149,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   timeFormat: '24h',
   language: 'en',
   colorMode: 'day',
+  isPlannerPanEnabled: true,
   selectedCities: DEFAULT_SELECTED_CITIES,
 };
 
@@ -191,7 +196,7 @@ function getLegacyCityOrder() {
       return [];
     }
 
-    const parsedOrder = JSON.parse(storedOrder);
+    const parsedOrder: unknown = JSON.parse(storedOrder);
 
     return isStringArray(parsedOrder) ? parsedOrder : [];
   } catch {
@@ -199,14 +204,34 @@ function getLegacyCityOrder() {
   }
 }
 
+/** The planner pan setting from before it moved into the settings ("false" switched it off). */
+function getLegacyPlannerPanSetting() {
+  if (typeof window === 'undefined') {
+    return true;
+  }
+
+  try {
+    return window.localStorage.getItem(LEGACY_DESKTOP_PAN_STORAGE_KEY) !== 'false';
+  } catch {
+    return true;
+  }
+}
+
 export function isSupportedLanguage(value: unknown): value is AppLanguage {
   return typeof value === 'string' && (APP_LANGUAGES as readonly string[]).includes(value);
 }
 
-/** Settings as older versions stored them: a separate order list and hidden preset cities. */
-type StoredSettingsData = Partial<AppSettings> & {
-  cityOrder?: unknown;
-};
+/**
+ * Settings as read from storage, where any field may be missing or malformed. Older versions also
+ * stored a separate order list and hidden preset cities.
+ */
+type StoredSettingsData = Partial<Record<keyof AppSettings | 'cityOrder', unknown>>;
+
+function parseStoredSettings(value: string): StoredSettingsData | null {
+  const data: unknown = JSON.parse(value);
+
+  return data && typeof data === 'object' ? data : null;
+}
 
 function orderCities(cities: StoredCity[], cityOrder: string[]) {
   const cityById = new Map<string, StoredCity>();
@@ -249,6 +274,9 @@ function normalizeSettings(settings: StoredSettingsData | null): AppSettings {
     timeFormat: settings?.timeFormat === '12h' ? '12h' : '24h',
     language: isSupportedLanguage(settings?.language) ? settings.language : 'en',
     colorMode: settings?.colorMode === 'night' ? 'night' : 'day',
+    isPlannerPanEnabled: typeof settings?.isPlannerPanEnabled === 'boolean'
+      ? settings.isPlannerPanEnabled
+      : getLegacyPlannerPanSetting(),
     selectedCities: normalizeSelectedCities(settings),
   };
 }
@@ -267,7 +295,7 @@ function readStoredSettings(): AppSettings {
   try {
     const storedSettings = window.localStorage.getItem(SETTINGS_STORAGE_KEY);
 
-    return normalizeSettings(storedSettings ? JSON.parse(storedSettings) : null);
+    return normalizeSettings(storedSettings ? parseStoredSettings(storedSettings) : null);
   } catch {
     return normalizeSettings(null);
   }
@@ -348,8 +376,9 @@ export function saveSettings(settings: AppSettings) {
 
   try {
     window.localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
-    // The old order list is already merged into selectedCities (see normalizeSelectedCities).
+    // Older separate keys are already merged into the settings (see normalizeSettings).
     window.localStorage.removeItem(LEGACY_CITIES_ORDER_STORAGE_KEY);
+    LEGACY_PLANNER_PAN_STORAGE_KEYS.forEach((key) => window.localStorage.removeItem(key));
   } catch {
     // Storage can be unavailable (private mode, quota). Keep the in-memory value.
   }

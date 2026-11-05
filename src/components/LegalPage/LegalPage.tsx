@@ -4,27 +4,18 @@ import Footer from '../Footer';
 import Header from '../Header';
 import { useI18n } from '../../i18n';
 import { getIntlLocale } from '../../i18n/intlLocale';
-import type { ColorMode, TimeFormat } from '../../settings';
 
 type LegalPageProps = {
   children: ReactNode;
-  colorMode: ColorMode;
-  timeFormat: TimeFormat;
   title: string;
   /** Calendar date in ISO format, e.g. '2026-11-04'. Shown in the page language. */
   updatedAt: string;
-  onColorModeButtonClick: () => void;
-  onTimeFormatButtonClick: () => void;
 };
 
 export default function LegalPage({
   children,
-  colorMode,
-  timeFormat,
   title,
   updatedAt,
-  onColorModeButtonClick,
-  onTimeFormatButtonClick,
 }: LegalPageProps) {
   const { language, t } = useI18n();
   // UTC on both sides so the server and the browser render the same day.
@@ -37,12 +28,7 @@ export default function LegalPage({
 
   return (
     <>
-      <Header
-        colorMode={colorMode}
-        timeFormat={timeFormat}
-        onColorModeButtonClick={onColorModeButtonClick}
-        onTimeFormatButtonClick={onTimeFormatButtonClick}
-      />
+      <Header />
 
       <main className="legalPage">
         <div className="container">

@@ -9,16 +9,10 @@ import Header from '../components/Header';
 import Seo from '../components/Seo';
 import { formatTime, getRelativeDayMarker } from '../components/Timelines/utils';
 import { getUtcDateForZonedTime, getZonedDateParts } from '../utils/time';
-import { useI18n } from '../i18n';
+import { useI18n, type TranslationKey } from '../i18n';
 import { getCanonicalLanguagePath } from '../i18n/languageRouting';
-import type { ColorMode, TimeFormat } from '../settings';
-
-type TimeZoneConverterPageProps = {
-  colorMode: ColorMode;
-  timeFormat: TimeFormat;
-  onColorModeButtonClick: () => void;
-  onTimeFormatButtonClick: () => void;
-};
+import { PAGES } from '../routes';
+import { usePreferences } from '../usePreferences';
 
 const converterExampleGroups = [
   {
@@ -140,25 +134,16 @@ function getConverterExampleDate(timezone: string, baseDate: Date, hour: number)
   });
 }
 
-export default function TimeZoneConverterPage({
-  colorMode,
-  timeFormat,
-  onColorModeButtonClick,
-  onTimeFormatButtonClick,
-}: TimeZoneConverterPageProps) {
+export default function TimeZoneConverterPage() {
   const { language, t } = useI18n();
+  const { timeFormat } = usePreferences();
   const converterExamplesBaseDate = new Date();
 
   return (
     <>
-      <Seo page="timeZoneConverter" />
+      <Seo />
 
-      <Header
-        colorMode={colorMode}
-        timeFormat={timeFormat}
-        onColorModeButtonClick={onColorModeButtonClick}
-        onTimeFormatButtonClick={onTimeFormatButtonClick}
-      />
+      <Header />
 
       <main className="timeZoneConverterPage">
         <section className="section timeZoneConverterHero">
@@ -169,10 +154,7 @@ export default function TimeZoneConverterPage({
           <div className="container timeZoneConverterToolSection-container">
             <div className="timeZoneConverterToolSection-widget">
               <ClientOnly>
-                <TimeZoneConverter
-                  timeFormat={timeFormat}
-                  syncUrl
-                />
+                <TimeZoneConverter syncUrl />
               </ClientOnly>
             </div>
             <p className="timeZoneConverterHero-lead">{t('timeZoneConverter.lead')}</p>
@@ -303,7 +285,7 @@ export default function TimeZoneConverterPage({
                                         exampleCity.timezone,
                                         exampleDate,
                                       );
-                                      const resultKey = dayMarker
+                                      const resultKey: TranslationKey = dayMarker
                                         ? `timeZoneConverter.exampleResult.${dayMarker}`
                                         : 'timeZoneConverter.exampleResult.same';
 
@@ -383,13 +365,13 @@ export default function TimeZoneConverterPage({
             <div className="timeZoneConverterLinks-list">
               <a
                 className="timeZoneConverterLinks-link"
-                href={getCanonicalLanguagePath(language, '/world-clock')}
+                href={getCanonicalLanguagePath(language, PAGES.worldClock.path)}
               >
                 {t('timeZoneConverter.worldClockLink')}
               </a>
               <a
                 className="timeZoneConverterLinks-link"
-                href={getCanonicalLanguagePath(language, '/meeting-time-planner')}
+                href={getCanonicalLanguagePath(language, PAGES.meetingTimePlanner.path)}
               >
                 {t('timeZoneConverter.meetingPlannerLink')}
               </a>

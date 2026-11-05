@@ -14,10 +14,12 @@ const cities = [
 test('free resize moves only the requested edges with fractional precision for all eight handles', () => {
   const initial = { left: 100, right: 300, top: 200, bottom: 500 };
   const limits = { left: 0, right: 1000, top: 0, bottom: 1000 };
+
   for (const direction of ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw']) {
     const x = direction.includes('w') ? 86.5 : 313.5;
     const y = direction.includes('n') ? 186.5 : 513.5;
     const rect = resizeGridSelectionRect(initial, limits, direction, x, y);
+
     assert.deepEqual(rect, {
       left: direction.includes('w') ? 86.5 : initial.left,
       right: direction.includes('e') ? 313.5 : initial.right,
@@ -25,12 +27,14 @@ test('free resize moves only the requested edges with fractional precision for a
       bottom: direction.includes('s') ? 513.5 : initial.bottom,
     }, direction);
   }
+
   assert.deepEqual(initial, { left: 100, right: 300, top: 200, bottom: 500 });
 });
 
 test('free resize stays inside the grid and never inverts or collapses the rectangle', () => {
   const initial = { left: 100, right: 300, top: 200, bottom: 500 };
   const limits = { left: 0, right: 1000, top: 0, bottom: 1000 };
+
   assert.deepEqual(resizeGridSelectionRect(initial, limits, 'nw', -500, -500), { ...initial, left: 0, top: 0 });
   assert.deepEqual(resizeGridSelectionRect(initial, limits, 'se', 1500, 1500), { ...initial, right: 1000, bottom: 1000 });
   assert.deepEqual(resizeGridSelectionRect(initial, limits, 'nw', 1500, 1500), { ...initial, left: 299, top: 499 });
@@ -40,6 +44,7 @@ test('free resize stays inside the grid and never inverts or collapses the recta
 test('Outlook receives the same instants and unmodified multilingual event text as Google Calendar', () => {
   const event = buildGridCalendarEvent([...selected('ny'), ...selected('lon')], cities, 'America/Edmonton', 'Встреча & friends + team?');
   const url = new URL(buildOutlookCalendarUrl(event));
+
   assert.equal(url.origin, 'https://outlook.live.com');
   assert.equal(url.pathname, '/calendar/0/deeplink/compose');
   assert.equal(url.searchParams.get('allday'), 'false');
@@ -55,6 +60,7 @@ test('Outlook UTC dates preserve midnight and DST crossings without shifting wal
   for (const instant of ['2026-11-01T05:00:00Z', '2026-03-08T06:00:00Z', '2027-01-01T04:00:00Z']) {
     const event = buildGridCalendarEvent(selected('ny', 2, Date.parse(instant)), cities, 'Asia/Kathmandu', 'Meeting');
     const url = new URL(buildOutlookCalendarUrl(event));
+
     assert.equal(Date.parse(url.searchParams.get('startdt')), event.start);
     assert.equal(Date.parse(url.searchParams.get('enddt')), event.end);
     assert.equal(url.searchParams.get('body'), event.details);
@@ -63,12 +69,14 @@ test('Outlook UTC dates preserve midnight and DST crossings without shifting wal
 
 test('rectangle intersection includes partially covered blocks but not touching edges', () => {
   const rect = { left: 10, top: 10, right: 20, bottom: 20 };
+
   assert.equal(intersectsSelection(rect, { left: 19, top: 19, right: 30, bottom: 30 }), true);
   assert.equal(intersectsSelection(rect, { left: 20, top: 10, right: 30, bottom: 20 }), false);
 });
 
 test('contiguous cells merge while gaps and distinct rows remain separate', () => {
   const ranges = getGridHourRanges([...selected('ny'), ...selected('ny'), ...selected('ny', 1, start + 5 * hour), ...selected('lon', 1)]);
+
   assert.deepEqual(ranges, [
     { rowId: 'ny', start, end: start + 3 * hour },
     { rowId: 'ny', start: start + 5 * hour, end: start + 6 * hour },
@@ -79,6 +87,7 @@ test('contiguous cells merge while gaps and distinct rows remain separate', () =
 test('Google Calendar receives absolute UTC dates and the browser timezone, not source wall time', () => {
   const event = buildGridCalendarEvent([...selected('ny'), ...selected('lon'), ...selected('tok')], cities, 'America/Edmonton', 'Meeting & <friends>');
   const url = new URL(event.url);
+
   assert.equal(url.origin, 'https://calendar.google.com');
   assert.equal(url.searchParams.get('dates'), '20261023T160000Z/20261023T190000Z');
   assert.equal(url.searchParams.get('stz'), 'America/Edmonton');
@@ -94,6 +103,7 @@ test('single hour duration, month/year crossings and separate ranges are explici
     ...selected('ny', 1, Date.parse('2027-01-01T04:00:00Z')),
     ...selected('ny', 1, Date.parse('2027-01-01T07:00:00Z')),
   ], cities, 'Asia/Kathmandu', 'Meeting');
+
   assert.equal(event.end - event.start, 4 * hour);
   assert.match(event.details, /23:00 -> 00:00 \(2026-12-31 -> 2027-01-01/);
   assert.equal(event.details.split('\n').length, 2);
@@ -101,10 +111,12 @@ test('single hour duration, month/year crossings and separate ranges are explici
 
 test('DST spring gap and fall repeated hour are calculated from instants without ambiguity', () => {
   const fall = buildGridCalendarEvent(selected('ny', 1, Date.parse('2026-11-01T05:00:00Z')), cities, 'America/Edmonton', 'Meeting');
+
   assert.equal(fall.end - fall.start, hour);
   assert.match(fall.details, /01:00 -> 01:00/);
   assert.match(fall.details, /UTC-04:00 -> UTC-05:00/);
   const spring = buildGridCalendarEvent(selected('ny', 1, Date.parse('2026-03-08T06:00:00Z')), cities, 'America/Edmonton', 'Meeting');
+
   assert.equal(spring.end - spring.start, hour);
   assert.match(spring.details, /01:00 -> 03:00/);
 });
@@ -114,6 +126,7 @@ test('fractional and abstract timezone offsets are supported in descriptions', (
     { id: 'np', name: 'Kathmandu', timezone: 'Asia/Kathmandu' },
     { id: 'fixed', name: 'GMT+5:30', timezone: 'GMT_OFFSET:330' },
   ], 'UTC', 'Meeting');
+
   assert.match(event.details, /Kathmandu 21:45 -> 22:45/);
   assert.match(event.details, /GMT\+5:30 21:30 -> 22:30/);
 });
@@ -147,17 +160,22 @@ test('side handles expand and shrink by whole hours or whole cities', () => {
 test('all eight handles keep their opposite edges fixed and never cross to zero cells', () => {
   for (const direction of ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw']) {
     const result = resizeGridSelection(geometry, initial, direction, direction.includes('w') ? 9999 : -9999, direction.includes('n') ? 9999 : -9999);
+
     assert.ok(result.length >= 1);
     const bounds = getGridSelectionBounds(geometry, result);
+
     if (!direction.includes('w')) {
       assert.equal(bounds.left, 74);
     }
+
     if (!direction.includes('e')) {
       assert.equal(bounds.right, 212);
     }
+
     if (!direction.includes('n')) {
       assert.equal(bounds.top, 111);
     }
+
     if (!direction.includes('s')) {
       assert.equal(bounds.bottom, 333);
     }
@@ -167,6 +185,7 @@ test('all eight handles keep their opposite edges fixed and never cross to zero 
 test('corner resize fills the bounding rectangle of a disjoint selection deterministically', () => {
   const disjoint = [geometry[0].hour, geometry.at(-1).hour];
   const result = resizeGridSelection(geometry, disjoint, 'se', 212, 333);
+
   assert.equal(result.length, 9);
   assert.equal(resizeGridSelection(geometry, [], 'e', 10, 10).length, 0);
 });

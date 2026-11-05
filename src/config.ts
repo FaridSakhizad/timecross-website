@@ -5,14 +5,24 @@ export const SUPPORT_EMAIL = 'support@timecross.app';
 export const CONTACT_FORM_TO_EMAIL = SUPPORT_EMAIL;
 export const CONTACT_FORM_FROM_EMAIL = 'contact-form@timecross.net';
 export const CONTACT_API_PATH = '/api/contact';
-/** Must match TURNSTILE_ACTION in server/contactProtection.ts. */
+/** Turnstile `action`: the widget in ContactForm sends it, the Worker checks it. */
 export const TURNSTILE_ACTION = 'contact';
-export const PRIVACY_POLICY_PATH = '/privacy-policy';
-export const TERMS_OF_USE_PATH = '/terms-of-use';
+/** Contact form field lengths: `maxLength` in the form, checked again by the Worker. */
+export const CONTACT_FIELD_MAX_LENGTH: Record<'name' | 'email' | 'message', number> = {
+  name: 100,
+  // The longest address SMTP allows.
+  email: 254,
+  message: 5000,
+};
 export const BUY_ME_A_COFFEE_URL = 'https://buy.stripe.com/fZu4gsf6z0M6bROfrrasg00';
 export const APP_STORE_URL = 'https://apps.apple.com/ca/app/timecross-world-clock/id6770122132';
 export const GOOGLE_PLAY_URL = 'https://play.google.com/store/apps/details?id=com.faridsakhizad.timecross';
 export const ANDROID_APK_URL = 'https://pub-38082d37764b4709b5dd898662301c5e.r2.dev/TimeCross_v1.0.1.apk';
 export const COPYRIGHT_HOLDER = 'Farid Sakhizad';
 export const COPYRIGHT_YEAR = 2026;
-export const ENABLE_FRACTIONAL_TIMELINE_OFFSETS = false;
+
+/** Features that are built but switched off. */
+export const FEATURES: Record<'shareEvent', boolean> = {
+  /** "Share event" in the planner: a link that opens the selected meeting in someone else's planner. */
+  shareEvent: false,
+};

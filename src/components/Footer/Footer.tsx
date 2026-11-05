@@ -2,12 +2,11 @@ import './style.css';
 import {
   COPYRIGHT_HOLDER,
   COPYRIGHT_YEAR,
-  PRIVACY_POLICY_PATH,
-  TERMS_OF_USE_PATH,
   SUPPORT_EMAIL,
 } from '../../config';
 import { useI18n } from '../../i18n';
 import { getCanonicalLanguagePath } from '../../i18n/languageRouting';
+import { PAGES } from '../../routes';
 
 export default function Footer() {
   const { language, t } = useI18n();
@@ -20,7 +19,7 @@ export default function Footer() {
         <ul className="footerMenu">
           <li className="footerMenu-item">
             <a
-              href={getCanonicalLanguagePath(language, '/world-clock')}
+              href={getCanonicalLanguagePath(language, PAGES.worldClock.path)}
               className="footerMenu-link"
             >
               {t('common.worldClockLabel')}
@@ -28,7 +27,7 @@ export default function Footer() {
           </li>
           <li className="footerMenu-item">
             <a
-              href={getCanonicalLanguagePath(language, '/meeting-time-planner')}
+              href={getCanonicalLanguagePath(language, PAGES.meetingTimePlanner.path)}
               className="footerMenu-link"
             >
               {t('common.meetingPlannerLabel')}
@@ -36,7 +35,7 @@ export default function Footer() {
           </li>
           <li className="footerMenu-item">
             <a
-              href={getCanonicalLanguagePath(language, '/time-zone-converter')}
+              href={getCanonicalLanguagePath(language, PAGES.timeZoneConverter.path)}
               className="footerMenu-link"
             >
               {t('common.timeZoneConverterLabel')}
@@ -44,7 +43,7 @@ export default function Footer() {
           </li>
           <li className="footerMenu-item">
             <a
-              href={getCanonicalLanguagePath(language, TERMS_OF_USE_PATH)}
+              href={getCanonicalLanguagePath(language, PAGES.terms.path)}
               className="footerMenu-link"
             >
               {t('common.termsOfUse')}
@@ -52,7 +51,7 @@ export default function Footer() {
           </li>
           <li className="footerMenu-item">
             <a
-              href={getCanonicalLanguagePath(language, PRIVACY_POLICY_PATH)}
+              href={getCanonicalLanguagePath(language, PAGES.privacy.path)}
               className="footerMenu-link"
             >
               {t('common.privacyPolicy')}

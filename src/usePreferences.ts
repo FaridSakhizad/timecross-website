@@ -1,4 +1,4 @@
-import { useCallback, useSyncExternalStore } from 'react';
+import { useCallback, useSyncExternalStore, type SetStateAction } from 'react';
 
 import {
   getServerSettings,
@@ -8,7 +8,7 @@ import {
 } from './settings';
 
 /**
- * Time format and color mode shared by every page.
+ * Time format, color mode and the planner pan switch, shared by every page.
  * Reads from the settings store, so all widgets and open tabs stay in sync.
  */
 export function usePreferences() {
@@ -28,10 +28,19 @@ export function usePreferences() {
     }));
   }, []);
 
+  const setPlannerPanEnabled = useCallback((value: SetStateAction<boolean>) => {
+    updateSettings((currentSettings) => ({
+      ...currentSettings,
+      isPlannerPanEnabled: typeof value === 'function' ? value(currentSettings.isPlannerPanEnabled) : value,
+    }));
+  }, []);
+
   return {
     timeFormat: settings.timeFormat,
     colorMode: settings.colorMode,
+    isPlannerPanEnabled: settings.isPlannerPanEnabled,
     toggleTimeFormat,
     toggleColorMode,
+    setPlannerPanEnabled,
   };
 }

@@ -26,7 +26,8 @@ export function readConverterUrlState(search: string) {
   const parsedDate = /^\d{4}-\d{2}-\d{2}$/.test(date)
     ? new Date(`${date}T12:00:00Z`)
     : null;
-  const validDate = parsedDate && Number.isFinite(parsedDate.getTime())
+  const validDate = parsedDate
+    && Number.isFinite(parsedDate.getTime())
     && parsedDate.toISOString().slice(0, 10) === date;
 
   return {
@@ -44,11 +45,13 @@ export function writeConverterUrlState(
 ) {
   url.searchParams.set('city', sourceCity.city);
   url.searchParams.set('tz', sourceCity.timezone);
+
   if (sourceCity.cityId) {
     url.searchParams.set('cityId', sourceCity.cityId);
   } else {
     url.searchParams.delete('cityId');
   }
+
   url.searchParams.set('date', date);
   url.searchParams.set('time', time);
   return url;

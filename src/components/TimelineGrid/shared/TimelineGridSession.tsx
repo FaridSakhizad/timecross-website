@@ -19,6 +19,7 @@ import {
 } from '@dnd-kit/sortable';
 import { useCurrentMinuteDate } from '../../../useCurrentMinuteDate';
 import AddCityModal from '../../Cities/AddCityModal';
+import type { CitySearchRow } from '../../Cities/cityData';
 import {
   createFavoriteCityFromSearchResult,
   saveSelectedCities,
@@ -36,6 +37,7 @@ import { getIntlLocale } from '../../../i18n/intlLocale';
 import { getSharedGridTimelineDates, readGridEventUrlState, type SharedGridEvent } from './eventUrlState';
 import { readPlannerUrlState, writePlannerUrlState } from '../../Timelines/plannerUrlState';
 import type { TimelineGridProps, TimelineGridShellProps } from './types';
+import { usePreferences } from '../../../usePreferences';
 
 const restrictTimelineGridDragToVerticalAxis: Modifier = ({ transform }) => ({
   ...transform,
@@ -47,6 +49,7 @@ type SessionProps = TimelineGridProps & { View: ComponentType<TimelineGridShellP
 export default function TimelineGridSession(props: SessionProps) {
   const { pathname, hash } = useLocation();
   const sharedEvent = useMemo(() => readGridEventUrlState(hash), [hash]);
+
   return (
     <GridSession
       key={`${pathname}${hash}`}
@@ -71,15 +74,12 @@ function getInitialFocusHourIndex(timelineDates: Date[], sharedEvent: SharedGrid
 }
 
 function GridSession({
-  colorMode,
-  timeFormat,
-  onColorModeButtonClick,
-  onTimeFormatButtonClick,
   sharedEvent,
   presentation = 'zen',
   syncUrl = false,
   View,
 }: SessionProps & { sharedEvent: SharedGridEvent | null }) {
+  const { timeFormat } = usePreferences();
   const [, setSearchParams] = useSearchParams();
   const { language } = useI18n();
   const [initialState] = useState(() => readPlannerUrlState(syncUrl ? window.location.search : ''));
@@ -113,7 +113,9 @@ function GridSession({
     if (!syncUrl || !hasSelection || sharedEvent) {
       return;
     }
+
     const params = writePlannerUrlState(new URLSearchParams(window.location.search), cities, selectedDate);
+
     if (params.toString() !== new URLSearchParams(window.location.search).toString()) {
       setSearchParams(params, { replace: true, preventScrollReset: true });
     }
@@ -123,14 +125,17 @@ function GridSession({
     if (!syncUrl || sharedEvent) {
       return;
     }
+
     const restore = () => {
       const state = readPlannerUrlState(window.location.search);
+
       setCities(state.cities ?? getSelectedCities());
       setAnchorDate(state.at);
       setSelectedDate(state.at);
       setSelectedHours([]);
       setHasSelection(Boolean(state.at || state.cities));
     };
+
     window.addEventListener('popstate', restore);
     return () => window.removeEventListener('popstate', restore);
   }, [sharedEvent, syncUrl]);
@@ -139,6 +144,7 @@ function GridSession({
     if (sharedEvent) {
       return;
     }
+
     return subscribeSelectedCities(() => {
       setCities(getSelectedCities());
     });
@@ -157,14 +163,16 @@ function GridSession({
 
   const handleHourChange = useCallback((index: number) => {
     const date = timelineDates[index];
+
     if (!date) {
       return;
     }
+
     setSelectedDate(date);
     setHasSelection(true);
   }, [timelineDates]);
 
-  const handleAddCity = (city: Parameters<typeof createFavoriteCityFromSearchResult>[0]) => {
+  const handleAddCity = (city: CitySearchRow) => {
     const nextCities = [
       ...cities,
       createFavoriteCityFromSearchResult(city),
@@ -172,9 +180,11 @@ function GridSession({
 
     setCities(nextCities);
     setHasSelection(true);
+
     if (!sharedEvent) {
       saveSelectedCities(nextCities);
     }
+
     setIsAddCityModalOpen(false);
   };
 
@@ -187,6 +197,7 @@ function GridSession({
 
     setCities(nextCities);
     setHasSelection(true);
+
     if (!sharedEvent) {
       saveSelectedCities(nextCities);
     }
@@ -210,6 +221,7 @@ function GridSession({
 
     setCities(nextCities);
     setHasSelection(true);
+
     if (!sharedEvent) {
       saveSelectedCities(nextCities);
     }
@@ -232,7 +244,6 @@ function GridSession({
     baseDate,
     browserTimezone,
     cities: localizedCities,
-    colorMode,
     currentUserHourIndex,
     isDragging,
     isEditMode,
@@ -243,10 +254,8 @@ function GridSession({
     onSelectionChange: setSelectedHours,
     initialFocusHourIndex: getInitialFocusHourIndex(timelineDates, sharedEvent, anchorDate),
     onAddCityClick: () => setIsAddCityModalOpen(true),
-    onColorModeButtonClick,
     onDeleteCity: handleDeleteCity,
     onEditModeToggle: () => setIsEditMode((currentMode) => !currentMode),
-    onTimeFormatButtonClick,
   };
 
   return (

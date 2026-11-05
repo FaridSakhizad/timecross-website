@@ -19,28 +19,43 @@ export function attachDesktopGridPan(
   let session: PanSession | null = null;
   let suppressClick = false;
   let suppressAuxClick = false;
+
   const cancel = () => {
     const previous = session;
+
     if (!previous) {
       return;
     }
+
     session = null;
     onInteractionChange(false);
+
     if (viewport.hasPointerCapture(previous.pointerId)) {
       viewport.releasePointerCapture(previous.pointerId);
     }
   };
+
   const start = (event: PointerEvent) => {
     suppressClick = false;
     const isMiddleButton = event.button === 1;
+
     suppressAuxClick = false;
-    if (event.pointerType !== 'mouse' || !event.isPrimary
+
+    if (
+      event.pointerType !== 'mouse'
+      || !event.isPrimary
       || !(isMiddleButton || (event.button === 0 && leftButtonEnabled))
-      || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey
-      || session || !(event.target instanceof Element)
-      || event.target.closest(INTERACTIVE_TARGET)) {
+      || event.ctrlKey
+      || event.metaKey
+      || event.altKey
+      || event.shiftKey
+      || session
+      || !(event.target instanceof Element)
+      || event.target.closest(INTERACTIVE_TARGET)
+    ) {
       return;
     }
+
     // Stop any smooth snap before measuring the drag's starting position.
     viewport.scrollTo({ left: viewport.scrollLeft, top: viewport.scrollTop, behavior: 'instant' });
     session = {
@@ -57,62 +72,78 @@ export function attachDesktopGridPan(
     onInteractionChange(true);
     event.preventDefault();
   };
+
   const move = (event: PointerEvent) => {
     if (!session || session.pointerId !== event.pointerId) {
       return;
     }
+
     if (!(event.buttons & session.buttonsMask)) {
       cancel();
       return;
     }
+
     const dx = event.clientX - session.x;
     const dy = event.clientY - session.y;
+
     if (!session.moved && Math.hypot(dx, dy) < PAN_THRESHOLD) {
       return;
     }
+
     session.moved = true;
     suppressClick = session.buttonsMask === 1;
     event.preventDefault();
     viewport.scrollLeft = session.scrollLeft - dx;
     viewport.scrollTop = session.scrollTop - dy;
   };
+
   const finish = (event: PointerEvent) => {
     if (event.type === 'pointerup' && session && (event.buttons & session.buttonsMask)) {
       return;
     }
+
     if (session?.pointerId === event.pointerId) {
       cancel();
     }
   };
+
   const handleAuxClick = (event: MouseEvent) => {
     if (event.button !== 1 || !suppressAuxClick) {
       return;
     }
+
     suppressAuxClick = false;
     event.preventDefault();
     event.stopImmediatePropagation();
   };
+
   const handleClick = (event: MouseEvent) => {
     if (event.detail === 0 || !suppressClick) {
       return;
     }
+
     suppressClick = false;
+
     if (event.target instanceof Element && event.target.closest(INTERACTIVE_TARGET)) {
       return;
     }
+
     event.preventDefault();
     event.stopImmediatePropagation();
   };
+
   const preventNativeDrag = (event: DragEvent) => {
     if (session) {
       event.preventDefault();
     }
   };
+
   const handleVisibility = () => {
     if (document.visibilityState === 'hidden') {
       cancel();
     }
   };
+
   viewport.addEventListener('pointerdown', start);
   viewport.addEventListener('lostpointercapture', finish);
   viewport.addEventListener('click', handleClick, true);

@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict';
 import { beforeEach, afterEach, test } from 'node:test';
 import {
-  attachGridSelection, GRID_SELECTION_FRAME_HORIZONTAL_PADDING,
-  GRID_SELECTION_FRAME_TOP_PADDING, GRID_SELECTION_FRAME_BOTTOM_PADDING,
+  attachGridSelection,
+  GRID_SELECTION_FRAME_HORIZONTAL_PADDING,
+  GRID_SELECTION_FRAME_TOP_PADDING,
+  GRID_SELECTION_FRAME_BOTTOM_PADDING,
 } from '../src/components/TimelineGrid/desktop/gridSelectionController.ts';
 
 class FakeElement extends EventTarget {
@@ -33,10 +35,12 @@ class Viewport extends FakeElement {
     this.scrollTop = top;
   }
 }
+
 function emit(target, type, values = {}) {
   const event = new Event(type, { cancelable: true });
   const pointerId = values.pointerId ?? 1;
   const releasePosition = type === 'pointerup' ? pointerPositions.get(pointerId) : undefined;
+
   Object.assign(event, {
     button: 0,
     buttons: type === 'pointerup' ? 0 : 1,
@@ -49,42 +53,55 @@ function emit(target, type, values = {}) {
     ...releasePosition,
     ...values,
   });
+
   if (type === 'pointerdown' || type === 'pointermove') {
     pointerPositions.set(pointerId, { clientX: event.clientX, clientY: event.clientY });
   }
+
   target.dispatchEvent(event);
   return event;
 }
+
 let viewport, cells, overlay, controller, committed, active, frames, original, nextFrame, pointerPositions;
+
 function flushFrame() {
   const pending = [...frames.values()];
+
   frames.clear();
   pending.forEach((callback) => callback());
 }
+
 function selectSingleHour() {
   emit(viewport, 'pointerdown');
   emit(window, 'pointermove', { clientX: 100, clientY: 70 });
   emit(window, 'pointerup');
 }
+
 beforeEach(() => {
   original = ['window', 'document', 'Element', 'requestAnimationFrame', 'cancelAnimationFrame']
     .map((key) => [key, Object.getOwnPropertyDescriptor(globalThis, key)]);
-  globalThis.window = new EventTarget();
+  globalThis.window = Object.assign(new EventTarget(), {
+    matchMedia: () => ({ matches: false }),
+  });
   globalThis.document = Object.assign(new EventTarget(), { visibilityState: 'visible' });
   globalThis.Element = FakeElement;
   frames = new Map();
   nextFrame = 0;
   pointerPositions = new Map();
+
   globalThis.requestAnimationFrame = (callback) => {
     nextFrame += 1;
     const id = nextFrame;
+
     frames.set(id, callback);
     return id;
   };
+
   globalThis.cancelAnimationFrame = (id) => frames.delete(id);
   viewport = new Viewport();
   cells = ['ny', 'lon'].flatMap((rowId, row) => [0, 1, 2].map((index) => {
     const cell = new FakeElement();
+
     cell.dataset = { gridSelectionRow: rowId, gridHourStart: String(index * 3600000) };
     cell.getBoundingClientRect = () => ({
       left: 190 + index * 74 - viewport.scrollLeft,
@@ -103,6 +120,7 @@ beforeEach(() => {
 });
 afterEach(() => {
   controller.destroy();
+
   for (const [key, descriptor] of original) {
     if (descriptor) {
       Object.defineProperty(globalThis, key, descriptor);
@@ -166,7 +184,9 @@ test('modified clicks cannot create, add or remove isolated cells', () => {
     emit(window, 'pointerup');
     assert.equal(committed.length, 0);
   }
+
   selectSingleHour();
+
   for (const modifier of [{ ctrlKey: true }, { metaKey: true }, { shiftKey: true }]) {
     emit(viewport, 'pointerdown', { clientX: 100, clientY: 80, ...modifier });
     emit(window, 'pointerup');
@@ -186,6 +206,7 @@ test('Ctrl/Cmd/Shift-drag always replaces the previous range instead of adding g
 
 test('blur, cancel, lost capture, resize and hidden tab restore the committed selection', () => {
   selectSingleHour();
+
   for (const cancel of [
     () => emit(window, 'blur'),
     () => emit(window, 'pointercancel'),
@@ -227,6 +248,7 @@ test('middle/right buttons, touch, interactive controls and unrelated pointers a
     assert.equal(emit(viewport, 'pointerdown', values).defaultPrevented, false);
     assert.equal(active, false);
   }
+
   viewport.interactive = true;
   emit(viewport, 'pointerdown');
   assert.equal(active, false);
@@ -253,6 +275,7 @@ function attachWithFrame(marqueeEnabled = true, direction = 'e') {
   controller.destroy();
   const layer = new FakeElement();
   const box = layer;
+
   layer.style = {};
   layer.hidden = true;
   layer.closest = () => ({ dataset: { gridResize: direction } });
@@ -263,10 +286,12 @@ function attachWithFrame(marqueeEnabled = true, direction = 'e') {
   }, (value) => { active = value; }, { selectionFrame: layer, marqueeEnabled });
   return { layer, box };
 }
+
 const frameWidth = (width) => `${width + GRID_SELECTION_FRAME_HORIZONTAL_PADDING * 2}px`;
 
 test('persistent frame has content coordinates and scroll never schedules frame updates', () => {
   const { layer, box } = attachWithFrame();
+
   assert.equal(layer.hidden, false);
   assert.equal(box.style.left, `${190 - GRID_SELECTION_FRAME_HORIZONTAL_PADDING}px`);
   assert.equal(box.style.top, `${60 - GRID_SELECTION_FRAME_TOP_PADDING}px`);
@@ -286,6 +311,7 @@ test('persistent frame has content coordinates and scroll never schedules frame 
 
 test('embedded desktop frame follows page scrolling and removes its page listener on destroy', () => {
   const { layer, box } = attachWithFrame();
+
   viewport.getBoundingClientRect = () => ({ left: 0, top: 100, right: 400, bottom: 400 });
   emit(window, 'scroll');
   flushFrame();
@@ -299,6 +325,7 @@ test('embedded desktop frame follows page scrolling and removes its page listene
 
 test('clicks and sub-threshold mouse jitter keep the existing frame visible and unchanged', () => {
   const { layer, box } = attachWithFrame();
+
   for (const modifier of [{}, { ctrlKey: true }, { metaKey: true }, { shiftKey: true }]) {
     emit(viewport, 'pointerdown', { clientX: 100, clientY: 80, ...modifier });
     assert.equal(layer.hidden, false);
@@ -314,6 +341,7 @@ test('clicks and sub-threshold mouse jitter keep the existing frame visible and 
 test('outside clicks clear the range and its frame without selecting the clicked cell', () => {
   for (const marqueeEnabled of [true, false]) {
     const { layer } = attachWithFrame(marqueeEnabled);
+
     emit(viewport, 'pointerdown', { clientX: 245, clientY: 165 });
     emit(window, 'pointerup');
     assert.equal(committed.length, 0);
@@ -324,6 +352,7 @@ test('outside clicks clear the range and its frame without selecting the clicked
 
 test('inside-frame clicks preserve the range in Pan mode, and panning outside does not dismiss it', () => {
   const { layer } = attachWithFrame(false);
+
   emit(viewport, 'pointerdown', { clientX: 100, clientY: 80 });
   emit(window, 'pointerup');
   assert.equal(committed.length, 1);
@@ -337,6 +366,7 @@ test('inside-frame clicks preserve the range in Pan mode, and panning outside do
 test('inside/outside hit testing uses calibrated visual frame edges, not only selected cells', () => {
   const { layer } = attachWithFrame();
   const left = 90 - GRID_SELECTION_FRAME_HORIZONTAL_PADDING;
+
   emit(viewport, 'pointerdown', { clientX: left + 1, clientY: 80 });
   emit(window, 'pointerup');
   assert.equal(committed.length, 1);
@@ -348,6 +378,7 @@ test('inside/outside hit testing uses calibrated visual frame edges, not only se
 
 test('a click on a resize handle never clears the range', () => {
   const { layer } = attachWithFrame();
+
   emit(layer, 'pointerdown', { clientX: 159, clientY: 90 });
   emit(window, 'pointerup');
   assert.equal(committed.length, 1);
@@ -364,6 +395,7 @@ test('released capture without a drag does not turn a click into a single-cell s
 
 test('handle resize previews cells and commits on release even when marquee mode is disabled', () => {
   const { layer, box } = attachWithFrame(false);
+
   emit(viewport, 'pointerdown');
   assert.equal(active, false);
   emit(layer, 'pointerdown', { clientX: 154, clientY: 90 });
@@ -382,6 +414,7 @@ test('handle resize previews cells and commits on release even when marquee mode
 test('frame padding and the handle grab point do not change logical hour resizing', () => {
   for (const clientX of [148, 154, 159]) {
     const { layer } = attachWithFrame();
+
     emit(layer, 'pointerdown', { clientX, clientY: 90 });
     emit(window, 'pointerup', { clientX: clientX + 74, clientY: 90 });
     assert.deepEqual(committed, [{ rowId: 'ny', start: 0 }, { rowId: 'ny', start: 3600000 }]);
@@ -390,6 +423,7 @@ test('frame padding and the handle grab point do not change logical hour resizin
 
 test('desktop frame follows sub-hour movement freely and snaps only on release', () => {
   const { layer, box } = attachWithFrame(false);
+
   emit(layer, 'pointerdown', { clientX: 154, clientY: 90 });
   emit(window, 'pointermove', { clientX: 167.5, clientY: 90 });
   flushFrame();
@@ -410,6 +444,7 @@ test('desktop frame follows sub-hour movement freely and snaps only on release',
 test('desktop snap animation starts on release and stops immediately on the next resize', () => {
   const { layer, box } = attachWithFrame(false);
   const animations = [];
+
   box.animate = (keyframes) => {
     const animation = {
       keyframes,
@@ -418,9 +453,11 @@ test('desktop snap animation starts on release and stops immediately on the next
         this.cancelled = true;
       },
     };
+
     animations.push(animation);
     return animation;
   };
+
   emit(layer, 'pointerdown', { clientX: 154, clientY: 90 });
   emit(window, 'pointermove', { clientX: 167.5, clientY: 90 });
   flushFrame();
@@ -436,6 +473,7 @@ test('desktop snap animation starts on release and stops immediately on the next
 test('vertical frame padding does not change whole-city resizing', () => {
   for (const clientY of [120, 124, 129]) {
     const { layer } = attachWithFrame(true, 's');
+
     emit(layer, 'pointerdown', { clientX: 120, clientY });
     emit(window, 'pointerup', { clientX: 120, clientY: clientY + 100 });
     assert.deepEqual(committed, [{ rowId: 'ny', start: 0 }, { rowId: 'lon', start: 0 }]);
@@ -444,6 +482,7 @@ test('vertical frame padding does not change whole-city resizing', () => {
 
 test('Escape and capture loss roll back resizing without clearing the prior selection', () => {
   const { layer, box } = attachWithFrame();
+
   for (const cancel of [() => emit(window, 'keydown', { key: 'Escape' }), () => viewport.releasePointerCapture(1)]) {
     emit(layer, 'pointerdown', { clientX: 154, clientY: 90 });
     emit(window, 'pointermove', { clientX: 300, clientY: 90 });
@@ -458,6 +497,7 @@ test('Escape and capture loss roll back resizing without clearing the prior sele
 
 test('focused handles can resize one block at a time using the keyboard', () => {
   const { layer, box } = attachWithFrame();
+
   assert.equal(emit(layer, 'keydown', { key: 'ArrowRight' }).defaultPrevented, true);
   assert.equal(committed.length, 2);
   assert.equal(box.style.width, frameWidth(138));
@@ -471,6 +511,7 @@ test('focused handles can resize one block at a time using the keyboard', () => 
 
 test('fast release uses the release coordinates rather than the last rendered pointermove', () => {
   const { layer } = attachWithFrame();
+
   emit(viewport, 'pointerdown');
   emit(window, 'pointermove', { clientX: 170, clientY: 100 });
   flushFrame();
@@ -481,6 +522,7 @@ test('fast release uses the release coordinates rather than the last rendered po
 
 test('a drag with no intermediate move still selects the entire release rectangle', () => {
   const { layer } = attachWithFrame();
+
   emit(viewport, 'pointerdown');
   emit(window, 'pointerup', { clientX: 245, clientY: 220 });
   assert.equal(committed.length, 6);
@@ -489,6 +531,7 @@ test('a drag with no intermediate move still selects the entire release rectangl
 
 test('button-up movement before pointerup commits a fast drag even before its queued frame', () => {
   const { layer } = attachWithFrame();
+
   emit(viewport, 'pointerdown');
   emit(window, 'pointermove', { clientX: 245, clientY: 220 });
   emit(window, 'pointermove', { buttons: 0, clientX: 245, clientY: 220 });
@@ -507,6 +550,7 @@ test('native dragstart cannot cancel a selection gesture', () => {
 
 test('already visible selection is retained when a released-button move precedes pointerup', () => {
   const { layer } = attachWithFrame();
+
   emit(viewport, 'pointerdown');
   emit(window, 'pointermove', { clientX: 245, clientY: 220 });
   flushFrame();
@@ -520,6 +564,7 @@ test('already visible selection is retained when a released-button move precedes
 
 test('a fast handle resize also commits from the final release position', () => {
   const { layer, box } = attachWithFrame();
+
   emit(layer, 'pointerdown', { clientX: 154, clientY: 90 });
   emit(window, 'pointerup', { clientX: 300, clientY: 90 });
   assert.equal(committed.length, 3);
@@ -529,6 +574,7 @@ test('a fast handle resize also commits from the final release position', () => 
 
 test('Chrome capture loss with released buttons commits pending selection without pointerup', () => {
   const { layer } = attachWithFrame();
+
   emit(viewport, 'pointerdown');
   emit(window, 'pointermove', { clientX: 245, clientY: 220 });
   // Chrome can report zero/default coordinates on capture loss: retain the last actual position.
@@ -545,6 +591,7 @@ test('Chrome capture loss with released buttons commits pending selection withou
 
 test('Chrome capture loss after painting preserves the preview and resize frame', () => {
   const { layer, box } = attachWithFrame();
+
   emit(layer, 'pointerdown', { clientX: 154, clientY: 90 });
   emit(window, 'pointermove', { clientX: 300, clientY: 90 });
   flushFrame();
@@ -557,6 +604,7 @@ test('Chrome capture loss after painting preserves the preview and resize frame'
 
 test('explicit pointercancel with released buttons still rolls back instead of committing', () => {
   const { layer } = attachWithFrame();
+
   emit(viewport, 'pointerdown');
   emit(window, 'pointermove', { clientX: 245, clientY: 220 });
   flushFrame();

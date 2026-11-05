@@ -18,16 +18,19 @@ function element() {
           this.oncancel?.();
         },
       };
+
       calls.push({ keyframes, options, animation });
       return animation;
     },
   };
+
   return { frame, calls };
 }
 
 test('snap animates from free geometry to the committed rectangle without scaling handles', () => {
   const { frame, calls } = element();
   const snap = createGridSelectionSnapAnimation(frame);
+
   snap.snap(() => Object.assign(frame.style, to));
   assert.deepEqual(frame.style, to);
   assert.equal(calls.length, 1);
@@ -41,6 +44,7 @@ test('snap animates from free geometry to the committed rectangle without scalin
 test('repeated snaps cancel the previous animation; an already aligned frame does not animate', () => {
   const { frame, calls } = element();
   const snap = createGridSelectionSnapAnimation(frame);
+
   snap.snap(() => Object.assign(frame.style, to));
   snap.snap(() => {
     frame.style.width = '298px';
@@ -57,10 +61,13 @@ test('repeated snaps cancel the previous animation; an already aligned frame doe
 test('hidden frames and browsers without animation support still receive the final rectangle', () => {
   for (const hidden of [true, false]) {
     const frame = { hidden, style: { ...from } };
+
     createGridSelectionSnapAnimation(frame).snap(() => Object.assign(frame.style, to));
     assert.deepEqual(frame.style, to);
   }
+
   let updated = false;
+
   createGridSelectionSnapAnimation().snap(() => {
     updated = true;
   });
@@ -69,6 +76,7 @@ test('hidden frames and browsers without animation support still receive the fin
 
 test('reduced-motion preference commits immediately without an animation', () => {
   const original = Object.getOwnPropertyDescriptor(globalThis, 'window');
+
   try {
     globalThis.window = {
       matchMedia(query) {
@@ -77,6 +85,7 @@ test('reduced-motion preference commits immediately without an animation', () =>
       },
     };
     const { frame, calls } = element();
+
     createGridSelectionSnapAnimation(frame).snap(() => Object.assign(frame.style, to));
     assert.deepEqual(frame.style, to);
     assert.equal(calls.length, 0);

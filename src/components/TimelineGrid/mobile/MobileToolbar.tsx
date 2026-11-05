@@ -6,13 +6,21 @@ import { getCanonicalLanguagePath } from '../../../i18n/languageRouting';
 import StandaloneMenuModal from '../../StandaloneMenuModal';
 import { type MobileSelectionControlsProps } from './MobileSelectionControls';
 import type { GridToolbarProps } from '../shared/types';
+import { cx } from '../../../utils/classNames';
+import { PAGES } from '../../../routes';
 
 type MobileToolbarProps = GridToolbarProps & MobileSelectionControlsProps;
 
-export default function MobileToolbar(props: MobileToolbarProps) {
+export default function MobileToolbar({
+  isEditMode,
+  onAddCityClick,
+  onEditModeToggle,
+  onResetClick,
+  presentation,
+}: MobileToolbarProps) {
   const { language, t } = useI18n();
   const [menuOpen, setMenuOpen] = useState(false);
-  const embedded = props.presentation === 'embedded';
+  const embedded = presentation === 'embedded';
 
   return (
     <>
@@ -24,7 +32,7 @@ export default function MobileToolbar(props: MobileToolbarProps) {
               )
             : (
                 <Link
-                  to={getCanonicalLanguagePath(language, '/')}
+                  to={getCanonicalLanguagePath(language)}
                   className="widgetHeaderButton citiesHeaderButton_home"
                   aria-label={t('common.home')}
                 >
@@ -35,11 +43,11 @@ export default function MobileToolbar(props: MobileToolbarProps) {
 
         <div className="zenPageMobile-headerMiddle">
           <button
-            className={`widgetHeaderButton ${props.isEditMode ? 'isActive' : ''}`}
+            className={cx('widgetHeaderButton', isEditMode && 'isActive')}
             type="button"
             aria-label="edit"
-            aria-pressed={props.isEditMode}
-            onClick={props.onEditModeToggle}
+            aria-pressed={isEditMode}
+            onClick={onEditModeToggle}
           >
             <i className="citiesHeaderButton-icon citiesHeaderButton-icon_edit" />
           </button>
@@ -47,7 +55,7 @@ export default function MobileToolbar(props: MobileToolbarProps) {
             className="widgetHeaderButton"
             type="button"
             aria-label={t('common.addCity')}
-            onClick={props.onAddCityClick}
+            onClick={onAddCityClick}
           >
             <i className="citiesHeaderButton-icon citiesHeaderButton-icon_add" />
           </button>
@@ -55,7 +63,7 @@ export default function MobileToolbar(props: MobileToolbarProps) {
             className="widgetHeaderButton"
             type="button"
             aria-label={t('common.reset')}
-            onClick={props.onResetClick}
+            onClick={onResetClick}
           >
             <i className="citiesHeaderButton-icon citiesHeaderButton-icon_reset" />
           </button>
@@ -64,7 +72,7 @@ export default function MobileToolbar(props: MobileToolbarProps) {
           {embedded
             ? (
                 <Link
-                  to={getCanonicalLanguagePath(language, '/grid')}
+                  to={getCanonicalLanguagePath(language, PAGES.grid.path)}
                   className="widgetHeaderButton"
                   aria-label={t('common.openGrid')}
                 >
@@ -85,12 +93,8 @@ export default function MobileToolbar(props: MobileToolbarProps) {
       </div>
       {!embedded && (
         <StandaloneMenuModal
-          colorMode={props.colorMode}
-          timeFormat={props.timeFormat}
           isOpen={menuOpen}
           onClose={() => setMenuOpen(false)}
-          onColorModeButtonClick={props.onColorModeButtonClick}
-          onTimeFormatButtonClick={props.onTimeFormatButtonClick}
         />
       )}
     </>

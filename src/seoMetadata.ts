@@ -10,12 +10,25 @@ import {
   getCanonicalLanguagePath,
   stripLanguageFromPathname,
 } from './i18n/languageRouting';
+import {
+  PAGES,
+  getCanonicalPagePath,
+  getPageIdByPath,
+  type PageId,
+} from './routes';
 import type { AppLanguage } from './settings';
 
 import { translate } from './i18n/dictionaries';
 
-type SeoPage = 'home' | 'cities' | 'grid' | 'worldClock' | 'meetingTimePlanner' | 'timeZoneConverter' | 'privacy' | 'terms';
 type SeoJsonLdSchema = { id: string; value: unknown };
+
+/** A tag managed in <head>: the server renders it, the client replaces it on navigation. */
+export type HeadTag = {
+  name: 'meta' | 'link' | 'script';
+  attributes: Record<string, string>;
+  /** Text content (JSON-LD scripts). */
+  content?: string;
+};
 
 function getAbsoluteUrl(pathname: string) {
   return new URL(pathname, SITE_URL).toString();
@@ -32,65 +45,28 @@ function getHreflangs(language: AppLanguage): string[] {
   return HREFLANGS[language] ?? [language];
 }
 
-function getRobotsContent(pagePath: string) {
-  return pagePath === '/cities' || pagePath === '/grid' || pagePath === '/convert'
-    ? 'noindex, follow'
-    : 'index, follow';
-}
-
-function getCanonicalPagePath(pagePath: string) {
-  return pagePath === '/convert' ? '/time-zone-converter' : pagePath;
-}
-
-export function getSeoPageFromPathname(pathname: string): SeoPage {
-  const pagePath = stripLanguageFromPathname(pathname);
-  const firstPathPart = pagePath.split('/').filter(Boolean)[0];
-
-  switch (firstPathPart) {
-    case 'cities':
-      return 'cities';
-    case 'convert':
-      return 'timeZoneConverter';
-    case 'grid':
-      return 'grid';
-    case 'world-clock':
-      return 'worldClock';
-    case 'meeting-time-planner':
-      return 'meetingTimePlanner';
-    case 'time-zone-converter':
-      return 'timeZoneConverter';
-    case 'privacy-policy':
-      return 'privacy';
-    case 'terms-of-use':
-      return 'terms';
-    default:
-      return 'home';
-  }
+/** The page at a URL; unknown paths get the home page's metadata. */
+function getPageId(pathname: string): PageId {
+  return getPageIdByPath(stripLanguageFromPathname(pathname)) ?? 'home';
 }
 
 export function getSeoMetadata(language: AppLanguage, pathname: string) {
-  const page = getSeoPageFromPathname(pathname);
-  const pagePath = stripLanguageFromPathname(pathname);
-  const canonicalPath = getCanonicalLanguagePath(language, getCanonicalPagePath(pagePath));
-  const canonicalUrl = getAbsoluteUrl(canonicalPath);
-  const imageUrl = getAbsoluteUrl(SEO_IMAGE_PATH);
-  const title = translate(language, `seo.pages.${page}.title`);
-  const description = translate(language, `seo.pages.${page}.description`);
-  const ogTitle = translate(language, `seo.pages.${page}.ogTitle`);
-  const ogDescription = translate(language, `seo.pages.${page}.ogDescription`);
+  const pageId = getPageId(pathname);
+  const { seoKey, isIndexed } = PAGES[pageId];
+  const canonicalUrl = getAbsoluteUrl(getCanonicalLanguagePath(language, getCanonicalPagePath(pageId)));
 
   return {
     canonicalUrl,
-    description,
-    imageUrl,
+    description: translate(language, `seo.pages.${seoKey}.description`),
+    imageUrl: getAbsoluteUrl(SEO_IMAGE_PATH),
     language,
-    ogDescription,
-    ogTitle,
-    page,
-    pagePath,
-    robots: getRobotsContent(pagePath),
+    ogDescription: translate(language, `seo.pages.${seoKey}.ogDescription`),
+    ogTitle: translate(language, `seo.pages.${seoKey}.ogTitle`),
+    pageId,
+    robots: isIndexed ? 'index, follow' : 'noindex, follow',
+    seoKey,
     siteName: SITE_NAME,
-    title,
+    title: translate(language, `seo.pages.${seoKey}.title`),
   };
 }
 
@@ -132,7 +108,7 @@ export function getSeoJsonLd(language: AppLanguage, pathname: string) {
     },
   ];
 
-  if (metadata.page === 'home') {
+  if (metadata.seoKey === 'home') {
     schemas.push({
       id: 'faq',
       value: {
@@ -184,8 +160,8 @@ export function getSeoJsonLd(language: AppLanguage, pathname: string) {
     });
   }
 
-  if (metadata.page === 'timeZoneConverter') {
-    const faqIds = ['what', 'dst', 'cities', 'offsets'];
+  if (metadata.seoKey === 'timeZoneConverter') {
+    const faqIds = ['what', 'dst', 'cities', 'offsets'] as const;
 
     schemas.push({
       id: 'faq',
@@ -208,18 +184,71 @@ export function getSeoJsonLd(language: AppLanguage, pathname: string) {
 }
 
 export function getAlternateLinks(pathname: string) {
-  const pagePath = getCanonicalPagePath(stripLanguageFromPathname(pathname));
+  const canonicalPagePath = getCanonicalPagePath(getPageId(pathname));
   const links = SUPPORTED_LANGUAGES.flatMap((supportedLanguage) => (
     getHreflangs(supportedLanguage).map((hreflang) => ({
-      href: getAbsoluteUrl(getCanonicalLanguagePath(supportedLanguage, pagePath)),
+      href: getAbsoluteUrl(getCanonicalLanguagePath(supportedLanguage, canonicalPagePath)),
       hreflang,
     }))
   ));
 
   links.push({
-    href: getAbsoluteUrl(getCanonicalLanguagePath('en', pagePath)),
+    href: getAbsoluteUrl(getCanonicalLanguagePath('en', canonicalPagePath)),
     hreflang: 'x-default',
   });
 
   return links;
+}
+
+/** Everything in <head> that depends on the page and the language, except <title> and <html lang>. */
+export function getHeadTags(language: AppLanguage, pathname: string): HeadTag[] {
+  const metadata = getSeoMetadata(language, pathname);
+
+  const meta = (key: 'name' | 'property', value: string, content: string): HeadTag => ({
+    name: 'meta',
+    attributes: {
+      [key]: value,
+      content,
+    },
+  });
+
+  return [
+    meta('name', 'description', metadata.description),
+    meta('name', 'robots', metadata.robots),
+    {
+      name: 'link',
+      attributes: {
+        rel: 'canonical',
+        href: metadata.canonicalUrl,
+      },
+    },
+    meta('property', 'og:site_name', metadata.siteName),
+    meta('property', 'og:type', 'website'),
+    meta('property', 'og:url', metadata.canonicalUrl),
+    meta('property', 'og:title', metadata.ogTitle),
+    meta('property', 'og:description', metadata.ogDescription),
+    meta('property', 'og:image', metadata.imageUrl),
+    meta('property', 'og:image:width', '1200'),
+    meta('property', 'og:image:height', '630'),
+    meta('name', 'twitter:card', 'summary_large_image'),
+    meta('name', 'twitter:title', metadata.ogTitle),
+    meta('name', 'twitter:description', metadata.ogDescription),
+    meta('name', 'twitter:image', metadata.imageUrl),
+    ...getAlternateLinks(pathname).map((link): HeadTag => ({
+      name: 'link',
+      attributes: {
+        rel: 'alternate',
+        hreflang: link.hreflang,
+        href: link.href,
+      },
+    })),
+    ...getSeoJsonLd(language, pathname).map((schema): HeadTag => ({
+      name: 'script',
+      attributes: {
+        type: 'application/ld+json',
+        'data-seo-id': schema.id,
+      },
+      content: JSON.stringify(schema.value),
+    })),
+  ];
 }

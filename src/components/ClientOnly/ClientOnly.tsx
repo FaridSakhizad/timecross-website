@@ -6,6 +6,7 @@ type ClientOnlyProps = {
 };
 
 const subscribe = () => () => {};
+
 const getClientSnapshot = () => true;
 const getServerSnapshot = () => false;
 

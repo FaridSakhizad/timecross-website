@@ -1,4 +1,4 @@
-import type { ColorMode, TimeFormat } from '../../../settings';
+import type { TimeFormat } from '../../../settings';
 import type { StoredCity } from '../../../settings';
 import type { TimelineCell } from '../../Timelines/types';
 import type { GridCalendarEvent, SelectedGridHour } from './gridSelection';
@@ -6,10 +6,6 @@ import type { GridCalendarEvent, SelectedGridHour } from './gridSelection';
 export type TimelineGridProps = {
   presentation?: 'zen' | 'embedded';
   syncUrl?: boolean;
-  colorMode: ColorMode;
-  timeFormat: TimeFormat;
-  onColorModeButtonClick: () => void;
-  onTimeFormatButtonClick: () => void;
 };
 
 export type TimelineGridContentProps = {
@@ -19,7 +15,6 @@ export type TimelineGridContentProps = {
   baseDate: Date;
   browserTimezone: string;
   cities: StoredCity[];
-  colorMode: ColorMode;
   currentUserHourIndex: number;
   isDragging: boolean;
   isEditMode: boolean;
@@ -31,22 +26,18 @@ export type TimelineGridContentProps = {
   onSelectionChange?: (hours: SelectedGridHour[]) => void;
   initialFocusHourIndex?: number;
   onAddCityClick: () => void;
-  onColorModeButtonClick: () => void;
   onDeleteCity: (cityId: string) => void;
   onEditModeToggle: () => void;
-  onTimeFormatButtonClick: () => void;
   onResetClick: () => void;
 };
 
 export type TimelineGridShellProps = Omit<TimelineGridContentProps, 'onResetClick'>;
 
-export type GridTimelineProps = Pick<TimelineGridContentProps,
-  'baseDate' | 'browserTimezone' | 'cities' | 'isEditMode' | 'timelineDates' | 'timeFormat'
+export type GridTimelineProps = Pick<TimelineGridContentProps, 'baseDate' | 'browserTimezone' | 'cities' | 'isEditMode' | 'timelineDates' | 'timeFormat'
   | 'userCells' | 'selectedHourKeys' | 'onAddCityClick' | 'onDeleteCity'>;
 
-export type GridToolbarProps = Pick<TimelineGridContentProps,
-  'presentation' | 'colorMode' | 'timeFormat' | 'isEditMode' | 'onAddCityClick'
-  | 'onEditModeToggle' | 'onResetClick' | 'onColorModeButtonClick' | 'onTimeFormatButtonClick' | 'cities'> & {
+export type GridToolbarProps = Pick<TimelineGridContentProps, 'presentation' | 'isEditMode' | 'onAddCityClick'
+  | 'onEditModeToggle' | 'onResetClick' | 'cities'> & {
     calendarEvent: GridCalendarEvent | null;
     selectedHours: SelectedGridHour[];
   };

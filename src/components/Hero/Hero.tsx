@@ -16,24 +16,19 @@ import {
 } from '../../config';
 
 import { useI18n } from '../../i18n';
-import type { TimeFormat } from '../../settings';
-
-type HeroProps = {
-  timeFormat: TimeFormat;
-};
 
 const IPHONE_PREVIEW_IMAGES = [
   { image: heroImg1, altKey: 'seo.images.heroIphoneCities' },
   { image: heroImg3, altKey: 'seo.images.heroIphoneTimelines' },
   { image: heroImg5, altKey: 'seo.images.heroIphoneAddTimezone' },
-];
+] as const;
 const ANDROID_PREVIEW_IMAGES = [
   { image: heroImg2, altKey: 'seo.images.heroAndroidCities' },
   { image: heroImg4, altKey: 'seo.images.heroAndroidAddCity' },
   { image: heroImg6, altKey: 'seo.images.heroAndroidNotifications' },
-];
+] as const;
 
-export default function Hero({ timeFormat }: HeroProps) {
+export default function Hero() {
   const { t } = useI18n();
 
   return (
@@ -41,10 +36,7 @@ export default function Hero({ timeFormat }: HeroProps) {
       <div className="container container_hero">
         <div className="citiesBox">
           <ClientOnly>
-            <Cities
-              showHomeButton={false}
-              timeFormat={timeFormat}
-            />
+            <Cities showHomeButton={false} />
           </ClientOnly>
         </div>
 

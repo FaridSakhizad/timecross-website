@@ -3,18 +3,10 @@ import '../Cities/cities.css';
 import './style.css';
 
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useSearchParams } from 'react-router';
+import { useSearchParams } from 'react-router';
 
-import {
-  MARKETING_DEFAULT_SELECTED_CITIES,
-  type AppLanguage,
-  type ColorMode,
-  type StoredCity,
-  type TimeFormat,
-} from '../../settings';
+import type { StoredCity } from '../../settings';
 import { useI18n } from '../../i18n';
-import { getIntlLocale } from '../../i18n/intlLocale';
-import { getCanonicalLanguagePath } from '../../i18n/languageRouting';
 import {
   createFavoriteCityFromSearchResult,
   saveSelectedCities,
@@ -23,133 +15,42 @@ import {
 } from '../Cities/selectedCities';
 import { getCityDisplayName, useLocalizedCities } from '../Cities/useLocalizedCities';
 import AddCityModal from '../Cities/AddCityModal';
-import { favoriteCities } from '../Cities/fixtures';
-import type { CitySearchRow } from '../Cities/citySearch';
+import type { CitySearchRow } from '../Cities/cityData';
 import StandaloneMenuModal from '../StandaloneMenuModal';
-import { getBrowserTimezoneCity } from './browserTimezoneCities';
-// The date picker (react-day-picker + date-fns locales) is loaded only when it is first needed.
-const loadDatePickerModal = () => import('./DatePickerModal');
-const DatePickerModal = lazy(loadDatePickerModal);
+import {
+  formatDateButtonLabel,
+  getDateInputValue,
+  getTimeInputValue,
+  parseDateInput,
+} from './dateInput';
+import ConversionResults from './ConversionResults';
+import ConverterHeader from './ConverterHeader';
+import { getDefaultSourceCity } from './defaultSourceCity';
+
 import { readConverterUrlState, writeConverterUrlState } from './urlState';
 import { formatTime } from '../Timelines/utils';
 import {
-  formatOffsetLabel,
   formatRelativeOffset,
-  getBrowserTimezone,
   getDayPeriod,
   getDayShift,
   getTimeZoneOffsetMinutes,
   getUtcDateForZonedTime,
   getZonedDateParts,
 } from '../../utils/time';
+import { cx } from '../../utils/classNames';
+import { preload } from '../../utils/preload';
+import { usePreferences } from '../../usePreferences';
+
+// The date picker (react-day-picker + date-fns locales) is loaded only when it is first needed.
+const loadDatePickerModal = () => import('./DatePickerModal');
+const DatePickerModal = lazy(loadDatePickerModal);
 
 type TimeZoneConverterProps = {
-  colorMode?: ColorMode;
   hasStandaloneControls?: boolean;
-  onColorModeButtonClick?: () => void;
-  onTimeFormatButtonClick?: () => void;
-  timeFormat: TimeFormat;
   syncUrl?: boolean;
 };
 
 type CityModalMode = 'source' | 'add';
-
-type DateInputParts = {
-  year: number;
-  month: number;
-  day: number;
-  hour: number;
-  minute: number;
-};
-
-function getDateInputValue(timezone: string, date: Date) {
-  const dateParts = getZonedDateParts(timezone, date);
-
-  return [
-    dateParts.year,
-    String(dateParts.month).padStart(2, '0'),
-    String(dateParts.day).padStart(2, '0'),
-  ].join('-');
-}
-
-function getTimeInputValue(timezone: string, date: Date) {
-  const dateParts = getZonedDateParts(timezone, date);
-
-  return `${String(dateParts.hour).padStart(2, '0')}:${String(dateParts.minute).padStart(2, '0')}`;
-}
-
-function parseDateInput(dateValue: string, timeValue: string): DateInputParts | null {
-  const dateMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateValue);
-  const timeMatch = /^(\d{2}):(\d{2})$/.exec(timeValue);
-
-  if (!dateMatch || !timeMatch) {
-    return null;
-  }
-
-  const parts = {
-    year: Number(dateMatch[1]),
-    month: Number(dateMatch[2]),
-    day: Number(dateMatch[3]),
-    hour: Number(timeMatch[1]),
-    minute: Number(timeMatch[2]),
-  };
-
-  // Round-trip through Date.UTC rejects impossible dates such as 2026-02-31.
-  const calendarDate = new Date(Date.UTC(parts.year, parts.month - 1, parts.day));
-
-  if (
-    calendarDate.getUTCFullYear() !== parts.year
-    || calendarDate.getUTCMonth() !== parts.month - 1
-    || calendarDate.getUTCDate() !== parts.day
-    || parts.hour < 0
-    || parts.hour > 23
-    || parts.minute < 0
-    || parts.minute > 59
-  ) {
-    return null;
-  }
-
-  return parts;
-}
-
-function capitalizeMonthPart(part: Intl.DateTimeFormatPart, locale: string) {
-  if (part.type !== 'month' || !part.value) {
-    return part.value;
-  }
-
-  const month = part.value.replace(/\.$/, '');
-
-  return `${month[0].toLocaleUpperCase(locale)}${month.slice(1)}`;
-}
-
-function formatDateButtonLabel(dateValue: string, language: AppLanguage) {
-  const dateParts = parseDateInput(dateValue, '00:00');
-
-  if (!dateParts) {
-    return dateValue;
-  }
-
-  const locale = getIntlLocale(language);
-  const formatter = new Intl.DateTimeFormat(locale, {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  });
-  const parts = formatter.formatToParts(new Date(dateParts.year, dateParts.month - 1, dateParts.day, 12));
-  const datePartIndexes = parts
-    .map((part, index) => (
-      part.type === 'day' || part.type === 'month' || part.type === 'year' ? index : -1
-    ))
-    .filter((index) => index >= 0);
-  const firstDatePartIndex = datePartIndexes[0] ?? 0;
-  const lastDatePartIndex = datePartIndexes.at(-1) ?? parts.length - 1;
-
-  return parts
-    .slice(firstDatePartIndex, lastDatePartIndex + 1)
-    .map((part) => capitalizeMonthPart(part, locale))
-    .join('')
-    .trim();
-}
 
 function getRelativeDayLabel(
   targetTimezone: string,
@@ -171,68 +72,11 @@ function getRelativeDayLabel(
   return null;
 }
 
-function hasSameTimezoneProfile(leftTimezone: string, rightTimezone: string) {
-  const year = new Date().getUTCFullYear();
-  const winterDate = new Date(Date.UTC(year, 0, 15, 12));
-  const summerDate = new Date(Date.UTC(year, 6, 15, 12));
-
-  return (
-    getTimeZoneOffsetMinutes(leftTimezone, winterDate) === getTimeZoneOffsetMinutes(rightTimezone, winterDate)
-    && getTimeZoneOffsetMinutes(leftTimezone, summerDate) === getTimeZoneOffsetMinutes(rightTimezone, summerDate)
-  );
-}
-
-function getDefaultSourceCity(cities: StoredCity[]) {
-  const browserTimezone = typeof window === 'undefined' ? null : getBrowserTimezone();
-
-  if (!browserTimezone) {
-    return cities[0] ?? null;
-  }
-
-  const marketingCities = MARKETING_DEFAULT_SELECTED_CITIES;
-  const sourcePools = [cities, marketingCities, favoriteCities];
-
-  const selectedBrowserCity = cities.find((city) => city.timezone === browserTimezone);
-
-  if (selectedBrowserCity) {
-    return selectedBrowserCity;
-  }
-
-  const browserTimezoneCity = getBrowserTimezoneCity(browserTimezone);
-
-  if (browserTimezoneCity) {
-    return browserTimezoneCity;
-  }
-
-  for (const sourcePool of [marketingCities, favoriteCities]) {
-    const city = sourcePool.find((sourceCity) => sourceCity.timezone === browserTimezone);
-
-    if (city) {
-      return city;
-    }
-  }
-
-  for (const sourcePool of sourcePools) {
-    const city = sourcePool.find((sourceCity) => (
-      hasSameTimezoneProfile(sourceCity.timezone, browserTimezone)
-    ));
-
-    if (city) {
-      return city;
-    }
-  }
-
-  return cities[0] ?? null;
-}
-
 export default function TimeZoneConverter({
-  colorMode = 'day',
   hasStandaloneControls = false,
-  onColorModeButtonClick,
-  onTimeFormatButtonClick,
-  timeFormat,
   syncUrl = false,
 }: TimeZoneConverterProps) {
+  const { timeFormat } = usePreferences();
   const { language, t } = useI18n();
   const [searchParams, setSearchParams] = useSearchParams();
   const [cities, setCities] = useState(() => getSelectedCities());
@@ -263,11 +107,6 @@ export default function TimeZoneConverter({
   const statementStickySentinelRef = useRef<HTMLDivElement>(null);
   const hasInitializedDefaultSourceCityRef = useRef(Boolean(initialSourceCity));
   const hasUserSelectedSourceCityRef = useRef(false);
-  const hasStandaloneMenu = Boolean(
-    hasStandaloneControls
-    && onColorModeButtonClick
-    && onTimeFormatButtonClick,
-  );
 
   useEffect(() => {
     if (!syncUrl || !hasConversionSelection || !sourceCity || !parseDateInput(dateValue, timeValue)) {
@@ -275,6 +114,7 @@ export default function TimeZoneConverter({
     }
 
     const url = writeConverterUrlState(new URL(window.location.href), sourceCity, dateValue, timeValue);
+
     // Replace rather than adding a history entry for every time adjustment.
     if (url.href !== window.location.href) {
       setSearchParams(url.searchParams, { replace: true, preventScrollReset: true });
@@ -285,15 +125,19 @@ export default function TimeZoneConverter({
     if (!syncUrl) {
       return;
     }
+
     const restoreUrlState = () => {
       const state = readConverterUrlState(window.location.search);
+
       setHasConversionSelection(Boolean(state.sourceCity || state.date || state.time));
       const city = state.sourceCity ?? getDefaultSourceCity(cities);
+
       setSourceCity(city);
       setDateValue(state.date ?? (city ? getDateInputValue(city.timezone, new Date()) : ''));
       setTimeValue(state.time ?? (city ? getTimeInputValue(city.timezone, new Date()) : ''));
       setHasCustomDate(Boolean(state.date));
     };
+
     window.addEventListener('popstate', restoreUrlState);
     return () => window.removeEventListener('popstate', restoreUrlState);
   }, [cities, syncUrl]);
@@ -336,7 +180,9 @@ export default function TimeZoneConverter({
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        setIsStatementSticky(!entry.isIntersecting);
+        if (entry) {
+          setIsStatementSticky(!entry.isIntersecting);
+        }
       },
       {
         rootMargin: '-1px 0px 0px 0px',
@@ -389,7 +235,6 @@ export default function TimeZoneConverter({
         offsetLabel: formatRelativeOffset(offsetMinutes, t('cities.sameOffset')),
         period: getDayPeriod(cityDateParts.hour),
         timeLabel: formatTime(convertedDate, city.timezone, timeFormat),
-        timezoneLabel: formatOffsetLabel(cityOffsetMinutes),
       };
     });
   }, [convertedDate, localizedCities, localizedSourceCity, t, timeFormat]);
@@ -460,62 +305,17 @@ export default function TimeZoneConverter({
   };
 
   const header = (
-    <div className="citiesHeader timeZoneConverter-header">
-      {(hasStandaloneControls || syncUrl) && (
-        <Link
-          to={getCanonicalLanguagePath(language, '/')}
-          className="citiesHeaderButton citiesHeaderButton_home"
-          aria-label={t('common.home')}
-          title={t('common.home')}
-        >
-          <i className="citiesHeaderButton-icon citiesHeaderButton-icon_home" />
-        </Link>
-      )}
-
-      <button
-        className={`citiesHeaderButton citiesHeaderButton_edit ${isEditMode ? 'isActive' : ''}`}
-        type="button"
-        aria-label={t('common.edit')}
-        aria-pressed={isEditMode}
-        onClick={() => setIsEditMode((currentMode) => !currentMode)}
-      >
-        <i className="citiesHeaderButton-icon citiesHeaderButton-icon_edit" />
-      </button>
-      <button
-        className="citiesHeaderButton"
-        type="button"
-        aria-label={t('common.addCity')}
-        onClick={() => setCityModalMode('add')}
-      >
-        <i className="citiesHeaderButton-icon citiesHeaderButton-icon_add" />
-      </button>
-
-      {syncUrl && !hasStandaloneControls && (
-        <Link
-          to={{
-            pathname: getCanonicalLanguagePath(language, '/convert'),
-            search: searchParams.toString(),
-          }}
-          className="citiesHeaderButton citiesHeaderButton_converter"
-          aria-label="Fullscreen"
-          title="Fullscreen"
-        >
-          <i className="citiesHeaderButton-icon citiesHeaderButton-icon_open" />
-        </Link>
-      )}
-
-      {hasStandaloneMenu && (
-        <button
-          className="citiesHeaderButton citiesHeaderButton_menu"
-          type="button"
-          aria-label={t('common.menu')}
-          onClick={() => setIsMenuModalOpen(true)}
-        >
-          <i className="citiesHeaderButton-icon citiesHeaderButton-icon_menu" />
-        </button>
-      )}
-    </div>
+    <ConverterHeader
+      hasStandaloneControls={hasStandaloneControls}
+      isEditMode={isEditMode}
+      search={searchParams.toString()}
+      syncUrl={syncUrl}
+      onAddCity={() => setCityModalMode('add')}
+      onEditModeToggle={() => setIsEditMode((currentMode) => !currentMode)}
+      onMenuOpen={() => setIsMenuModalOpen(true)}
+    />
   );
+
   const whenItsLabel = t('timeZoneConverter.whenItsLabel');
   const dateButtonLabel = hasCustomDate
     ? formatDateButtonLabel(dateValue, language)
@@ -531,14 +331,10 @@ export default function TimeZoneConverter({
           onClose={() => setCityModalMode(null)}
           onSave={handleCityModalSave}
         />
-        {hasStandaloneMenu && onColorModeButtonClick && onTimeFormatButtonClick && (
+        {hasStandaloneControls && (
           <StandaloneMenuModal
-            colorMode={colorMode}
             isOpen={isMenuModalOpen}
-            timeFormat={timeFormat}
             onClose={() => setIsMenuModalOpen(false)}
-            onColorModeButtonClick={onColorModeButtonClick}
-            onTimeFormatButtonClick={onTimeFormatButtonClick}
           />
         )}
       </div>
@@ -546,7 +342,7 @@ export default function TimeZoneConverter({
   }
 
   return (
-    <div className={`timeZoneConverter ${isEditMode ? 'timeZoneConverter_editMode' : ''}`}>
+    <div className={cx('timeZoneConverter', isEditMode && 'timeZoneConverter_editMode')}>
       {header}
 
       <div
@@ -556,7 +352,7 @@ export default function TimeZoneConverter({
       />
 
       <div
-        className={`timeZoneConverter-statement ${isStatementSticky ? 'timeZoneConverter-statement_sticky' : ''}`}
+        className={cx('timeZoneConverter-statement', isStatementSticky && 'timeZoneConverter-statement_sticky')}
         aria-label={t('timeZoneConverter.toolTitle')}
       >
         {whenItsLabel && (
@@ -612,8 +408,8 @@ export default function TimeZoneConverter({
             type="button"
             aria-haspopup="dialog"
             aria-expanded={isDatePickerOpen}
-            onPointerEnter={loadDatePickerModal}
-            onFocus={loadDatePickerModal}
+            onPointerEnter={() => preload(loadDatePickerModal)}
+            onFocus={() => preload(loadDatePickerModal)}
             onClick={() => setIsDatePickerOpen(true)}
           >
             {dateButtonLabel}
@@ -624,46 +420,11 @@ export default function TimeZoneConverter({
 
       <span className="timeZoneConverter-resultsLead">{t('timeZoneConverter.itsLabel')}</span>
 
-      <div className="citiesListBox scrollControl timeZoneConverter-listBox">
-        <div className="citiesList timeZoneConverter-list">
-          {results.map(({ city, dayLabel, offsetLabel, period, timeLabel }) => (
-            <article
-              className="citiesList-item timeZoneConverter-listItem"
-              key={city.id}
-            >
-              <i className={`citiesList-periodIcon citiesList-periodIcon_${period} timeZoneConverter-resultIcon`} />
-              <span className="timeZoneConverter-resultText timeZoneConverter-resultTime">{timeLabel}</span>
-              <span className="timeZoneConverter-resultText timeZoneConverter-resultIn">{t('timeZoneConverter.inLabel')}</span>
-              <span className="timeZoneConverter-resultText timeZoneConverter-resultCity">{getCityDisplayName(city)}</span>
-              {dayLabel && (
-                <span className="citiesList-dayBadge">{dayLabel}</span>
-              )}
-
-              <span className="timeZoneConverter-resultMeta">
-                <span className="timeZoneConverter-offsetLabel">
-                  {offsetLabel}
-                </span>
-              </span>
-
-              <button
-                className="citiesList-deleteButton"
-                type="button"
-                aria-label={t('cities.deleteCity', { city: getCityDisplayName(city) })}
-                onClick={() => handleDeleteCity(city.id)}
-              />
-            </article>
-          ))}
-
-          <button
-            className="citiesList-addButton"
-            type="button"
-            onClick={() => setCityModalMode('add')}
-          >
-            <i className="citiesList-addButtonIcon" />
-            <span className="citiesList-addButtonText">{t('common.addCity')}</span>
-          </button>
-        </div>
-      </div>
+      <ConversionResults
+        results={results}
+        onAddCity={() => setCityModalMode('add')}
+        onDeleteCity={handleDeleteCity}
+      />
 
       <AddCityModal
         isOpen={cityModalMode !== null}
@@ -673,7 +434,6 @@ export default function TimeZoneConverter({
       {isDatePickerOpen && (
         <Suspense fallback={null}>
           <DatePickerModal
-            closeLabel={t('common.close')}
             dateLabel={t('timeZoneConverter.dateLabel')}
             isOpen
             language={language}
@@ -687,14 +447,10 @@ export default function TimeZoneConverter({
           />
         </Suspense>
       )}
-      {hasStandaloneMenu && onColorModeButtonClick && onTimeFormatButtonClick && (
+      {hasStandaloneControls && (
         <StandaloneMenuModal
-          colorMode={colorMode}
           isOpen={isMenuModalOpen}
-          timeFormat={timeFormat}
           onClose={() => setIsMenuModalOpen(false)}
-          onColorModeButtonClick={onColorModeButtonClick}
-          onTimeFormatButtonClick={onTimeFormatButtonClick}
         />
       )}
     </div>

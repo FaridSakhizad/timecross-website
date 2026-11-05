@@ -19,9 +19,11 @@ const compareAliases = (left, right) => (
 
 test('search data has the compact tuple format', () => {
   assert.ok(search.cities.length > 60000);
+
   for (const city of search.cities) {
     assert.equal(city.length, 6);
   }
+
   for (const alias of search.aliases) {
     assert.equal(alias.length, 4);
   }

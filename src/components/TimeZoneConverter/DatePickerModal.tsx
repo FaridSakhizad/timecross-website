@@ -1,8 +1,7 @@
-import '../Modal/style.css';
 import 'react-day-picker/style.css';
 import './DatePickerModal.css';
 
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { DayPicker } from 'react-day-picker';
 import { de } from 'date-fns/locale/de';
 import { enUS } from 'date-fns/locale/en-US';
@@ -14,9 +13,9 @@ import { ru } from 'date-fns/locale/ru';
 import { uk } from 'date-fns/locale/uk';
 
 import type { AppLanguage } from '../../settings';
+import Modal from '../Modal';
 
 type DatePickerModalProps = {
-  closeLabel: string;
   dateLabel: string;
   isOpen: boolean;
   language: AppLanguage;
@@ -68,7 +67,6 @@ function formatDatePickerValue(date: Date) {
 }
 
 export default function DatePickerModal({
-  closeLabel,
   dateLabel,
   isOpen,
   language,
@@ -79,82 +77,33 @@ export default function DatePickerModal({
   const selectedDate = useMemo(() => parseDatePickerValue(value), [value]);
   const calendarMonth = selectedDate ?? new Date();
 
-  useEffect(() => {
-    if (!isOpen) {
-      return undefined;
-    }
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        onClose();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [isOpen, onClose]);
-
-  if (!isOpen) {
-    return null;
-  }
-
   return (
-    <div
-      className="appModal timeZoneDatePickerModal"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="time-zone-date-picker-modal-title"
+    <Modal
+      isOpen={isOpen}
+      className="timeZoneDatePickerModal"
+      title={dateLabel}
+      onClose={onClose}
     >
-      <button
-        className="appModal-backdrop"
-        type="button"
-        aria-label={closeLabel}
-        onClick={onClose}
-      />
+      <div className="timeZoneDatePickerModal-body">
+        <DayPicker
+          animate
+          captionLayout="dropdown"
+          className="timeZoneDatePicker"
+          locale={DATE_PICKER_LOCALES[language]}
+          mode="single"
+          defaultMonth={calendarMonth}
+          navLayout="after"
+          selected={selectedDate}
+          onSelect={(date) => {
+            if (!date) {
+              return;
+            }
 
-      <div className="appModal-panel timeZoneDatePickerModal-panel">
-        <div className="appModal-header">
-          <span className="appModal-headerPlaceholder" />
-
-          <h3
-            className="appModal-title"
-            id="time-zone-date-picker-modal-title"
-          >
-            {dateLabel}
-          </h3>
-
-          <button
-            className="appModal-close"
-            type="button"
-            aria-label={closeLabel}
-            onClick={onClose}
-          />
-        </div>
-
-        <div className="timeZoneDatePickerModal-body">
-          <DayPicker
-            animate
-            captionLayout="dropdown"
-            className="timeZoneDatePicker"
-            locale={DATE_PICKER_LOCALES[language]}
-            mode="single"
-            defaultMonth={calendarMonth}
-            navLayout="after"
-            selected={selectedDate}
-            onSelect={(date) => {
-              if (!date) {
-                return;
-              }
-
-              onSelectDate(formatDatePickerValue(date));
-              onClose();
-            }}
-          />
-        </div>
+            onSelectDate(formatDatePickerValue(date));
+            onClose();
+          }}
+        />
       </div>
-    </div>
+    </Modal>
   );
 }

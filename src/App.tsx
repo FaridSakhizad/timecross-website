@@ -19,11 +19,8 @@ import {
   getLanguageFromUrlSegment,
   stripLanguageFromPathname,
 } from './i18n/languageRouting';
-import {
-  getStoredLanguageSetting,
-  type ColorMode,
-  type TimeFormat,
-} from './settings';
+import { getStoredLanguageSetting } from './settings';
+import { PAGES, PAGE_IDS, type PageId } from './routes';
 import { usePreferences } from './usePreferences';
 
 type LocalizedRouteProps = {
@@ -31,31 +28,6 @@ type LocalizedRouteProps = {
 };
 
 const useIsomorphicLayoutEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect;
-
-function getRouteName(pathname: string) {
-  const pagePath = stripLanguageFromPathname(pathname);
-  const firstPathPart = pagePath.split('/').filter(Boolean)[0];
-
-  switch (firstPathPart) {
-    case undefined:
-      return 'index';
-    case 'cities':
-    case 'convert':
-    case 'grid':
-    case 'meeting-time-planner':
-    case 'time-zone-converter':
-    case 'world-clock':
-      return firstPathPart;
-    case 'privacy-policy':
-      return 'privacy';
-    case 'terms-of-use':
-      return 'terms';
-    case 'api':
-      return 'api';
-    default:
-      return 'index';
-  }
-}
 
 function LocalizedRoute({ children }: LocalizedRouteProps) {
   const { lang } = useParams();
@@ -102,54 +74,34 @@ function LocalizedRoute({ children }: LocalizedRouteProps) {
   return children;
 }
 
-type PageProps = {
-  colorMode: ColorMode;
-  timeFormat: TimeFormat;
-  onColorModeButtonClick: () => void;
-  onTimeFormatButtonClick: () => void;
+// The pages themselves are listed in routes.ts; this maps each one to its component.
+const PAGE_COMPONENTS: Record<PageId, ComponentType> = {
+  home: HomePage,
+  cities: CitiesPage,
+  grid: GridPage,
+  convert: ConverterPage,
+  worldClock: WorldClockPage,
+  meetingTimePlanner: MeetingTimePlannerPage,
+  timeZoneConverter: TimeZoneConverterPage,
+  privacy: PrivacyPolicyPage,
+  terms: TermsOfUsePage,
 };
 
-const PAGE_ROUTES: { path: string; Page: ComponentType<PageProps> }[] = [
-  { path: '', Page: HomePage },
-  { path: 'privacy-policy', Page: PrivacyPolicyPage },
-  { path: 'terms-of-use', Page: TermsOfUsePage },
-  { path: 'cities', Page: CitiesPage },
-  { path: 'grid', Page: GridPage },
-  { path: 'convert', Page: ConverterPage },
-  { path: 'world-clock', Page: WorldClockPage },
-  { path: 'meeting-time-planner', Page: MeetingTimePlannerPage },
-  { path: 'time-zone-converter', Page: TimeZoneConverterPage },
-];
-
 function App() {
-  const { timeFormat, colorMode, toggleTimeFormat, toggleColorMode } = usePreferences();
-  const location = useLocation();
+  const { colorMode } = usePreferences();
 
   useEffect(() => {
     document.documentElement.dataset.colorMode = colorMode;
   }, [colorMode]);
 
-  useEffect(() => {
-    document.documentElement.dataset.route = getRouteName(location.pathname);
-  }, [location.pathname]);
-
-  if (location.pathname.startsWith('/api/')) {
-    return null;
-  }
-
-  const pageProps: PageProps = {
-    colorMode,
-    timeFormat,
-    onColorModeButtonClick: toggleColorMode,
-    onTimeFormatButtonClick: toggleTimeFormat,
-  };
-
   return (
     <Routes>
-      {PAGE_ROUTES.flatMap(({ path, Page }) => {
+      {PAGE_IDS.flatMap((pageId) => {
+        const Page = PAGE_COMPONENTS[pageId];
+        const path = PAGES[pageId].path.slice(1);
         const element = (
           <LocalizedRoute>
-            <Page {...pageProps} />
+            <Page />
           </LocalizedRoute>
         );
 

@@ -5,7 +5,8 @@ import { buildGridCalendarEvent } from '../src/components/TimelineGrid/shared/gr
 
 const start = Date.parse('2026-11-01T05:00:00Z');
 const event = buildGridCalendarEvent([
-  { rowId: 'ny', start }, { rowId: 'lon', start },
+  { rowId: 'ny', start },
+  { rowId: 'lon', start },
 ], [
   { id: 'ny', name: 'New York', timezone: 'America/New_York' },
   { id: 'lon', name: 'London', timezone: 'Europe/London' },
@@ -14,6 +15,7 @@ const event = buildGridCalendarEvent([
 test('ICS exports the same UTC interval and description as Google Calendar, including DST', async () => {
   const file = createCalendarEventFile(event);
   const text = (await file.text()).replace(/\r\n[ \t]/g, '');
+
   assert.equal(file.name, 'timecross-20261101T050000Z.ics');
   assert.equal(file.type, 'text/calendar');
   assert.match(text, /BEGIN:VCALENDAR\r\n/);
@@ -23,6 +25,7 @@ test('ICS exports the same UTC interval and description as Google Calendar, incl
   assert.match(text, /UID:.+\r\n/);
   assert.match(text, /DTSTAMP:\d{8}T\d{6}Z\r\n/);
   const unescape = (value) => value.replace(/\\([nN,;\\])/g, (_, char) => (/n/i.test(char) ? '\n' : char));
+
   assert.equal(unescape(text.match(/^DESCRIPTION:(.*)$/m)[1]), event.details);
   assert.equal(unescape(text.match(/^SUMMARY:(.*)$/m)[1]), event.title);
   assert.match(event.details, /UTC-04:00 -> UTC-05:00/);
@@ -38,6 +41,7 @@ test('download uses a temporary anchor and releases its object URL after browser
     },
     remove() { calls.push('remove'); },
   };
+
   t.mock.method(URL, 'createObjectURL', (value) => {
     assert.equal(value, file);
     return 'blob:event';
@@ -48,7 +52,9 @@ test('download uses a temporary anchor and releases its object URL after browser
     calls.push(callback);
   });
   const previous = globalThis.document;
+
   globalThis.document = { createElement: () => link, body: { append: () => calls.push('append') } };
+
   try {
     downloadCalendarFile(file);
     assert.equal(link.download, file.name);

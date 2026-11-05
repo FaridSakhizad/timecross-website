@@ -2,34 +2,17 @@ import LegalPage from '../components/LegalPage';
 import Seo from '../components/Seo';
 import { SITE_NAME, SUPPORT_EMAIL } from '../config';
 import { useI18n } from '../i18n';
-import type { ColorMode, TimeFormat } from '../settings';
 
-type TermsOfUsePageProps = {
-  colorMode: ColorMode;
-  timeFormat: TimeFormat;
-  onColorModeButtonClick: () => void;
-  onTimeFormatButtonClick: () => void;
-};
-
-export default function TermsOfUsePage({
-  colorMode,
-  timeFormat,
-  onColorModeButtonClick,
-  onTimeFormatButtonClick,
-}: TermsOfUsePageProps) {
+export default function TermsOfUsePage() {
   const { t } = useI18n();
 
   return (
     <>
-      <Seo page="terms" />
+      <Seo />
 
       <LegalPage
-        colorMode={colorMode}
-        timeFormat={timeFormat}
         title={t('legal.terms.title')}
         updatedAt="2026-07-16"
-        onColorModeButtonClick={onColorModeButtonClick}
-        onTimeFormatButtonClick={onTimeFormatButtonClick}
       >
         <section className="legalPage-section">
           <h2 className="legalPage-sectionTitle">{t('legal.terms.acceptanceTitle')}</h2>

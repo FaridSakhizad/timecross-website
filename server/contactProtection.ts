@@ -1,17 +1,16 @@
 /**
  * Abuse protection for the contact form: per-IP rate limiting and Cloudflare Turnstile.
- * No imports on purpose, so the logic can be unit-tested with plain Node.
+ * Imports only plain constants, so the logic can be unit-tested with plain Node.
  */
+import { TURNSTILE_ACTION } from '../src/config.ts';
 
 /** Matches the `ratelimits` binding in wrangler.jsonc. */
 export type RateLimitBinding = {
   limit: (options: { key: string }) => Promise<{ success: boolean }>;
 };
 
+/** The `period` of CONTACT_RATE_LIMITER in wrangler.jsonc (a test keeps them equal). */
 export const CONTACT_RATE_LIMIT_PERIOD_SECONDS = 60;
-
-/** Must match the `action` the widget is rendered with in ContactForm. */
-export const TURNSTILE_ACTION = 'contact';
 
 const TURNSTILE_SITEVERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
 const TURNSTILE_TIMEOUT_MS = 5000;

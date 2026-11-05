@@ -233,13 +233,16 @@ export function useTimelineGridSnap(
       clearSnapTimeout();
       snapTimeoutId = window.setTimeout(() => {
         snapTimeoutId = undefined;
+
         if (shouldSuspend?.()) {
           return;
         }
+
         const snapTarget = snapTimelineGridToNearestHour(scrollTarget);
 
         if (snapTarget) {
           centeredTargetIndexRef.current = getTimelineGridSnapTargetIndex(snapTarget, scrollTarget);
+
           if (reportedTargetIndexRef.current !== centeredTargetIndexRef.current) {
             reportedTargetIndexRef.current = centeredTargetIndexRef.current;
             onHourChange?.(centeredTargetIndexRef.current);
@@ -252,6 +255,7 @@ export function useTimelineGridSnap(
       if (shouldSuspend?.()) {
         return;
       }
+
       const scrollLeft = getTimelineGridScrollLeft(scrollTarget);
       const scrollLeftDelta = Math.abs(scrollLeft - lastScrollLeft);
 
@@ -274,6 +278,7 @@ export function useTimelineGridSnap(
       if (shouldSuspend?.()) {
         return;
       }
+
       const scrollLeft = getTimelineGridScrollLeft(scrollTarget);
       const scrollLeftDelta = Math.abs(scrollLeft - lastScrollLeft);
 
@@ -290,6 +295,7 @@ export function useTimelineGridSnap(
       if (shouldSuspend?.()) {
         return;
       }
+
       const viewportWidth = getTimelineGridViewportWidth(scrollTarget);
 
       if (Math.abs(viewportWidth - lastViewportWidth) <= TIMELINE_GRID_SNAP_EPSILON) {

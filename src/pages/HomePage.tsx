@@ -15,45 +15,21 @@ import {
 } from '../config';
 
 import { useI18n } from '../i18n';
-import type { ColorMode, TimeFormat } from '../settings';
 
-type HomePageProps = {
-  colorMode: ColorMode;
-  timeFormat: TimeFormat;
-  onColorModeButtonClick: () => void;
-  onTimeFormatButtonClick: () => void;
-};
-
-export default function HomePage({
-  colorMode,
-  timeFormat,
-  onColorModeButtonClick,
-  onTimeFormatButtonClick,
-}: HomePageProps) {
+export default function HomePage() {
   const { t } = useI18n();
 
   return (
     <>
-      <Seo page="home" />
+      <Seo />
 
-      <Header
-        customClassNames="header_home"
-        colorMode={colorMode}
-        timeFormat={timeFormat}
-        onColorModeButtonClick={onColorModeButtonClick}
-        onTimeFormatButtonClick={onTimeFormatButtonClick}
-      />
+      <Header customClassNames="header_home" />
 
-      <Hero timeFormat={timeFormat} />
+      <Hero />
 
       <section className="section section_timelines">
         <ClientOnly>
-          <Timelines
-            colorMode={colorMode}
-            timeFormat={timeFormat}
-            onColorModeButtonClick={onColorModeButtonClick}
-            onTimeFormatButtonClick={onTimeFormatButtonClick}
-          />
+          <Timelines />
         </ClientOnly>
       </section>
 

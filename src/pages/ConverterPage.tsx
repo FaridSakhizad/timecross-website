@@ -3,33 +3,16 @@ import './ConverterPage.css';
 import ClientOnly from '../components/ClientOnly';
 import { TimeZoneConverter } from '../components/lazyWidgets';
 import Seo from '../components/Seo';
-import type { ColorMode, TimeFormat } from '../settings';
 
-type ConverterPageProps = {
-  colorMode: ColorMode;
-  timeFormat: TimeFormat;
-  onColorModeButtonClick: () => void;
-  onTimeFormatButtonClick: () => void;
-};
-
-export default function ConverterPage({
-  colorMode,
-  timeFormat,
-  onColorModeButtonClick,
-  onTimeFormatButtonClick,
-}: ConverterPageProps) {
+export default function ConverterPage() {
   return (
     <main className="converterPage">
-      <Seo page="timeZoneConverter" />
+      <Seo />
 
       <ClientOnly>
         <TimeZoneConverter
-          colorMode={colorMode}
           hasStandaloneControls
           syncUrl
-          timeFormat={timeFormat}
-          onColorModeButtonClick={onColorModeButtonClick}
-          onTimeFormatButtonClick={onTimeFormatButtonClick}
         />
       </ClientOnly>
     </main>

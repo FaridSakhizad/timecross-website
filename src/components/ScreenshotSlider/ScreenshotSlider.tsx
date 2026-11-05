@@ -11,6 +11,7 @@ import slide6 from '../../assets/6-notifications.jpg';
 import { useI18n } from '../../i18n';
 
 import './style.css';
+import { cx } from '../../utils/classNames';
 
 const SLIDES = [
   {
@@ -43,7 +44,7 @@ const SLIDES = [
     img: slide6,
     altKey: 'seo.images.screenshotNotifications',
   },
-];
+] as const;
 
 export default function ScreenshotSlider() {
   const { t } = useI18n();
@@ -54,6 +55,7 @@ export default function ScreenshotSlider() {
   const scrollPrev = () => {
     emblaApi?.scrollPrev();
   };
+
   const scrollNext = () => {
     emblaApi?.scrollNext();
   };
@@ -142,7 +144,7 @@ export default function ScreenshotSlider() {
         {SLIDES.map((_, idx) => (
           <button
             key={idx}
-            className={`screenshotsSlider-dot ${activeSlideIdx === idx ? 'active' : ''}`}
+            className={cx('screenshotsSlider-dot', activeSlideIdx === idx && 'active')}
             onClick={() => handleSliderDotButtonClick(idx)}
           />
         ))}

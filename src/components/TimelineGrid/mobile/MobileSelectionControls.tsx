@@ -2,6 +2,7 @@ import { Scan, X } from 'lucide-react';
 import { useI18n } from '../../../i18n';
 import GridCalendarActions from '../shared/GridCalendarActions';
 import type { GridToolbarProps } from '../shared/types';
+import { cx } from '../../../utils/classNames';
 
 export type MobileSelectionControlsProps = Pick<GridToolbarProps, 'calendarEvent' | 'cities' | 'selectedHours' | 'isEditMode'> & {
   selectionEnabled: boolean;
@@ -9,20 +10,29 @@ export type MobileSelectionControlsProps = Pick<GridToolbarProps, 'calendarEvent
   onSelectionToggle: () => void;
 };
 
-export default function MobileSelectionControls(props: MobileSelectionControlsProps) {
+export default function MobileSelectionControls({
+  calendarEvent,
+  cities,
+  isEditMode,
+  onSelectionToggle,
+  selectedHours,
+  selectionDisabled,
+  selectionEnabled,
+}: MobileSelectionControlsProps) {
   const { t } = useI18n();
+
   return (
     <>
       <button
-        className={`widgetHeaderButton ${props.selectionEnabled ? 'isActive' : ''}`}
+        className={cx('widgetHeaderButton', selectionEnabled && 'isActive')}
         type="button"
-        title={t(props.selectionEnabled ? 'common.clearSelection' : 'common.selectHours')}
-        aria-label={t(props.selectionEnabled ? 'common.clearSelection' : 'common.selectHours')}
-        aria-pressed={props.selectionEnabled}
-        disabled={props.selectionDisabled}
-        onClick={props.onSelectionToggle}
+        title={t(selectionEnabled ? 'common.clearSelection' : 'common.selectHours')}
+        aria-label={t(selectionEnabled ? 'common.clearSelection' : 'common.selectHours')}
+        aria-pressed={selectionEnabled}
+        disabled={selectionDisabled}
+        onClick={onSelectionToggle}
       >
-        {props.selectionEnabled
+        {selectionEnabled
           ? (
               <X
                 size={18}
@@ -37,9 +47,9 @@ export default function MobileSelectionControls(props: MobileSelectionControlsPr
             )}
       </button>
       <GridCalendarActions
-        event={props.isEditMode || !props.selectionEnabled ? null : props.calendarEvent}
-        cities={props.cities}
-        hours={props.selectedHours}
+        event={isEditMode || !selectionEnabled ? null : calendarEvent}
+        cities={cities}
+        hours={selectedHours}
       />
     </>
   );

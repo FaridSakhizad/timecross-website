@@ -20,9 +20,11 @@ const valid = { v: 1, s: start / 1000, e: start / 1000 + 3600, c: [['New York', 
 test('shared URL restores selected rows, identity, names and UTC range without a city database', () => {
   const link = buildGridEventUrl(`${baseUrl}?tracking=1#old`, cities, hours);
   const url = new URL(link);
+
   assert.equal(url.pathname, '/ru/grid');
   assert.equal(url.search, '');
   const result = readGridEventUrlState(url.hash);
+
   assert.equal(result.start, start);
   assert.equal(result.end, start + 3 * GRID_HOUR_MS);
   assert.equal(result.cities.length, 3);
@@ -39,14 +41,19 @@ test('shared URL restores selected rows, identity, names and UTC range without a
 test('recipient timezone, reloads and later dates do not change the shared event instant', () => {
   const link = buildGridEventUrl(baseUrl, cities, hours);
   const restored = readGridEventUrlState(new URL(link).hash);
+
   for (const timezone of ['America/Edmonton', 'Asia/Kathmandu', 'Pacific/Auckland']) {
     const event = buildGridCalendarEvent(restored.hours, restored.cities.map((city) => ({
-      id: city.id, name: city.customName || city.city, timezone: city.timezone,
+      id: city.id,
+      name: city.customName || city.city,
+      timezone: city.timezone,
     })), timezone, 'Meeting');
+
     assert.equal(event.start, start);
     assert.equal(event.end, start + 3 * GRID_HOUR_MS);
     assert.match(event.details, /UTC-04:00 -> UTC-05:00/);
     const dates = getSharedGridTimelineDates(restored).map(Number);
+
     assert.ok(restored.hours.every((hour) => dates.includes(hour.start)));
     assert.equal(dates[24], start);
     assert.deepEqual(readGridEventUrlState(new URL(link).hash), restored);
@@ -57,6 +64,7 @@ test('fixed offsets, duplicate instances, long midnight ranges and Unicode survi
   const rows = [cities[3], { ...cities[3], id: 'duplicate', customName: 'Вторая строка 🌍' }];
   const selection = rows.flatMap((city) => Array.from({ length: TIMELINE_RENDERED_HOURS }, (_, i) => ({ rowId: city.id, start: start + i * GRID_HOUR_MS })));
   const restored = readGridEventUrlState(new URL(buildGridEventUrl(baseUrl, rows, selection)).hash);
+
   assert.equal(restored.hours.length, TIMELINE_RENDERED_HOURS * rows.length);
   assert.equal(restored.cities[1].customName, 'Вторая строка 🌍');
   assert.equal(restored.cities[0].timezone, 'GMT_OFFSET:330');
@@ -65,18 +73,24 @@ test('fixed offsets, duplicate instances, long midnight ranges and Unicode survi
 
 test('every supported duration fits the ordinary grid and remains shareable without truncation', () => {
   assert.equal(TIMELINE_RENDERED_HOURS, TIMELINE_TOTAL_HOURS + TIMELINE_EDGE_FADE_HOURS * 2);
+
   for (let count = 1; count <= TIMELINE_RENDERED_HOURS; count += 1) {
     const state = readGridEventUrlState(hashFor({ ...valid, e: valid.s + count * 3600 }));
+
     assert.ok(state);
     const dates = getSharedGridTimelineDates(state);
+
     assert.ok(dates.length <= TIMELINE_RENDERED_HOURS);
     assert.ok(dates[0].getTime() <= state.start);
     assert.ok(dates.at(-1).getTime() + GRID_HOUR_MS >= state.end);
     const values = new Set(dates.map(Number));
+
     assert.ok(state.hours.every((hour) => values.has(hour.start)));
     const link = buildGridEventUrl(baseUrl, state.cities, state.hours);
+
     assert.ok(link);
     const restored = readGridEventUrlState(new URL(link).hash);
+
     assert.equal(restored.start, state.start);
     assert.equal(restored.end, state.end);
   }
@@ -86,20 +100,25 @@ test('context contracts around large events and keeps short-event padding unchan
   for (const [hours, before, after] of [[3, 24, 24], [72, 10, 10], [91, 0, 1], [92, 0, 0]]) {
     const end = start + hours * GRID_HOUR_MS;
     const dates = getSharedGridTimelineDates({ start, end });
+
     assert.equal((start - dates[0].getTime()) / GRID_HOUR_MS, before);
     assert.equal((dates.at(-1).getTime() + GRID_HOUR_MS - end) / GRID_HOUR_MS, after);
     const focusIndex = dates.findIndex((date) => date.getTime() === start) + Math.floor(hours / 2);
+
     assert.equal(dates[focusIndex].getTime(), start + Math.floor(hours / 2) * GRID_HOUR_MS);
   }
 });
 
 test('repeated opening, selecting the entire timeline and sharing cannot grow the grid', () => {
   let state = readGridEventUrlState(hashFor({ ...valid, e: valid.s + 72 * 3600 }));
+
   for (let iteration = 0; iteration < 8; iteration += 1) {
     const dates = getSharedGridTimelineDates(state);
+
     assert.equal(dates.length, TIMELINE_RENDERED_HOURS);
     const selection = dates.map((date) => ({ rowId: state.cities[0].id, start: date.getTime() }));
     const link = buildGridEventUrl(baseUrl, state.cities, selection);
+
     assert.ok(link);
     state = readGridEventUrlState(new URL(link).hash);
     assert.equal(state.end - state.start, TIMELINE_RENDERED_HOURS * GRID_HOUR_MS);
@@ -109,6 +128,7 @@ test('repeated opening, selecting the entire timeline and sharing cannot grow th
 test('one hour beyond actual grid capacity is rejected on both encoding and decoding', () => {
   assert.equal(readGridEventUrlState(hashFor({ ...valid, e: valid.s + (TIMELINE_RENDERED_HOURS + 1) * 3600 })), null);
   const oversized = Array.from({ length: TIMELINE_RENDERED_HOURS + 1 }, (_, i) => ({ rowId: 'ny', start: start + i * GRID_HOUR_MS }));
+
   assert.equal(buildGridEventUrl(baseUrl, cities, oversized), null);
 });
 
@@ -116,6 +136,7 @@ test('invalid or excessively large payloads fail closed without partial events',
   for (const hash of ['', '#event={', '#event=null', '#event=%FF', `#event=${'x'.repeat(100001)}`]) {
     assert.equal(readGridEventUrlState(hash), null);
   }
+
   for (const data of [
     { ...valid, v: 2 },
     { ...valid, s: '123' },
@@ -126,14 +147,7 @@ test('invalid or excessively large payloads fail closed without partial events',
     { ...valid, e: 1e15 },
     { ...valid, c: [] },
     { ...valid, c: Array(101).fill(['City', 'UTC']) },
-    ...[['', 'UTC'],
-      ['City', 'bad/zone'],
-      ['City', 'GMT_OFFSET:9999'],
-      ['City', 'GMT_OFFSET:3.5'],
-      [null, 'UTC'],
-      ['City', 'UTC', 123],
-      ['City', 'UTC', '', { unsafe: true }],
-      ['x'.repeat(201), 'UTC']].map((entry) => ({ ...valid, c: [entry] })),
+    ...[['', 'UTC'], ['City', 'bad/zone'], ['City', 'GMT_OFFSET:9999'], ['City', 'GMT_OFFSET:3.5'], [null, 'UTC'], ['City', 'UTC', 123], ['City', 'UTC', '', { unsafe: true }], ['x'.repeat(201), 'UTC']].map((entry) => ({ ...valid, c: [entry] })),
   ]) {
     assert.equal(readGridEventUrlState(hashFor(data)), null);
   }
@@ -158,6 +172,7 @@ test('native sharing receives only a URL and is invoked synchronously before any
       return Promise.resolve();
     },
   });
+
   assert.equal(called, true);
   assert.equal(await pending, 'shared');
 });
@@ -170,6 +185,7 @@ test('unsupported, denied or broken sharing falls back to copying the same URL',
     { share: async () => {}, canShare: () => { throw new Error('Unavailable'); } },
   ]) {
     let copied = null;
+
     assert.equal(await shareEventLink(baseUrl, {
       ...browser,
       clipboard: {
@@ -187,6 +203,7 @@ test('cancelling the share sheet is silent and does not modify the clipboard', a
     share: async () => { throw new DOMException('Cancelled', 'AbortError'); },
     clipboard: { writeText: async () => assert.fail('Unexpected clipboard write') },
   });
+
   assert.equal(result, 'cancelled');
 });
 

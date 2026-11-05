@@ -8,14 +8,14 @@ function useElementScrollTarget(viewportRef: RefObject<HTMLDivElement | null>) {
     : null), [viewportRef]);
 }
 
-export function useDesktopGridSnap(viewportRef: RefObject<HTMLDivElement | null>,
-  currentHourIndex: number, disabled: boolean, shouldSuspend: () => boolean,
-  initialFocusHourIndex?: number, onHourChange?: (index: number) => void) {
+export function useDesktopGridSnap(viewportRef: RefObject<HTMLDivElement | null>, currentHourIndex: number, disabled: boolean, shouldSuspend: () => boolean, initialFocusHourIndex?: number, onHourChange?: (index: number) => void) {
   const getScrollTarget = useElementScrollTarget(viewportRef);
+
   return useTimelineGridSnap(getScrollTarget, currentHourIndex, disabled, shouldSuspend, initialFocusHourIndex, onHourChange);
 }
 
 export function useDesktopGridActiveHourIndicator(viewportRef: RefObject<HTMLDivElement | null>, disabled: boolean) {
   const getScrollTarget = useElementScrollTarget(viewportRef);
+
   return useTimelineGridActiveHourIndicator(getScrollTarget, disabled);
 }

@@ -8,33 +8,45 @@ const ROW_CLASSES: GridRowClasses = {
   spacer: 'timelineGrid-cellsSpacer_desktop',
 };
 
-export default function DesktopTimeline(props: GridTimelineProps) {
+export default function DesktopTimeline({
+  baseDate,
+  browserTimezone,
+  cities,
+  isEditMode,
+  onAddCityClick,
+  onDeleteCity,
+  selectedHourKeys,
+  timeFormat,
+  timelineDates,
+  userCells,
+}: GridTimelineProps) {
   const { t } = useI18n();
+
   return (
     <>
       <GridUserHours
-        userCells={props.userCells}
+        userCells={userCells}
         className="timelineGrid-userHours_desktop"
       />
-      {props.cities.map((city) => (
+      {cities.map((city) => (
         <GridRow
           key={city.id}
           city={city}
           classNames={ROW_CLASSES}
-          baseDate={props.baseDate}
-          browserTimezone={props.browserTimezone}
-          isEditMode={props.isEditMode}
-          timelineDates={props.timelineDates}
-          timeFormat={props.timeFormat}
-          selectedHourKeys={props.selectedHourKeys}
-          onDelete={props.onDeleteCity}
+          baseDate={baseDate}
+          browserTimezone={browserTimezone}
+          isEditMode={isEditMode}
+          timelineDates={timelineDates}
+          timeFormat={timeFormat}
+          selectedHourKeys={selectedHourKeys}
+          onDelete={onDeleteCity}
         />
       ))}
       <div className="timelineGrid-addTimezoneButtonBox">
         <button
           className="timelineGrid-addTimezoneButton"
           type="button"
-          onClick={props.onAddCityClick}
+          onClick={onAddCityClick}
         >
           <i className="timelineGrid-addTimezoneButtonIcon" />
           <span className="timelineGrid-addTimezoneButtonText">{t('common.addCity')}</span>
