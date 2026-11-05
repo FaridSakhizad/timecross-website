@@ -132,6 +132,7 @@ function TimelineGridRow({
             <span className="timelineGrid-cityOffset">{offset}</span>
           </span>
 
+          {/* eslint-disable-next-line */}
           {(false && relativeDayMarker) && (
             <span className={`timelineGrid-dayMarker timelineGrid-dayMarker_${relativeDayMarker}`}>
               {relativeDayMarker === 'tomorrow' ? t('cities.tomorrow') : t('cities.yesterday')}
