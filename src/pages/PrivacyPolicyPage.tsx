@@ -12,7 +12,7 @@ export default function PrivacyPolicyPage() {
 
       <LegalPage
         title={t('legal.privacy.title')}
-        updatedAt="2026-11-04"
+        updatedAt="2026-11-06"
       >
         <section className="legalPage-section">
           <h2 className="legalPage-sectionTitle">{t('legal.privacy.overviewTitle')}</h2>
@@ -30,6 +30,12 @@ export default function PrivacyPolicyPage() {
           <h2 className="legalPage-sectionTitle">{t('legal.privacy.localDataTitle')}</h2>
           <p className="legalPage-para">{t('legal.privacy.localDataText1', { siteName: SITE_NAME })}</p>
           <p className="legalPage-para">{t('legal.privacy.localDataText2')}</p>
+        </section>
+
+        <section className="legalPage-section">
+          <h2 className="legalPage-sectionTitle">{t('legal.privacy.analyticsTitle')}</h2>
+          <p className="legalPage-para">{t('legal.privacy.analyticsText1')}</p>
+          <p className="legalPage-para">{t('legal.privacy.analyticsText2')}</p>
         </section>
 
         <section className="legalPage-section">
