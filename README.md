@@ -59,7 +59,8 @@ Releases are git tags with the version from `package.json`: `git tag v0.9.0 && g
 - `src/routes.ts` — the list of pages: path, SEO texts, indexing, canonical page, widgets. Routing, redirects, `<head>`
   tags, widget preloading and the sitemap test all read it. To add a page, add it there and map its component in
   `PAGE_COMPONENTS` in `src/App.tsx` (and to `public/sitemap.xml` if it is indexed).
-- `src/pages/` — one component per page.
+- `src/pages/` — one component per page. A URL that is not a page renders `NotFoundPage` with status 404
+  (no redirect); a missing file is a plain 404 (`not_found_handling: "none"` in `wrangler.jsonc`).
 - `src/seoMetadata.ts` — everything page-specific in `<head>` (`getHeadTags`): the Worker renders it, `Seo` updates it
   on client-side navigation.
 - `src/components/` — widgets and page sections, one folder each with an `index.ts` entry. The planner

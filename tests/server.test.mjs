@@ -70,11 +70,43 @@ test('a redirect to the same page keeps the query, so shared links survive', asy
 
   assert.equal(location(await request(`/meeting-time-planner${query}`)), `${SITE}/en/meeting-time-planner${query}`);
   assert.equal(location(await request(`/uk/convert${query}`)), `${SITE}/ua/convert${query}`);
-  assert.equal(location(await request(`/no-such-page${query}`)), `${SITE}/en`);
 });
 
-test('an unknown page redirects to the home page in the visitor\'s language', async () => {
-  assert.equal(location(await request('/no-such-page', { headers: { 'accept-language': 'fr' } })), `${SITE}/fr`);
+test('a URL that is not a page gets the 404 page with status 404, without a redirect', async () => {
+  const cases = [
+    ['/en/no-such-page', {}, 'en', 'Page not found'],
+    ['/de/cities/extra', {}, 'de', 'Seite nicht gefunden'],
+    ['/xx/cities', {}, 'en', 'Page not found'],
+    ['/no-such-page', { 'accept-language': 'fr' }, 'fr', 'Page introuvable'],
+  ];
+
+  for (const [path, headers, language, heading] of cases) {
+    const response = await request(path, { headers });
+    const html = await response.text();
+
+    assert.equal(response.status, 404, path);
+    assert.equal(location(response), null, path);
+    assert.match(html, new RegExp(`<html[^>]*lang="${language}"`), path);
+    assert.match(html, /<meta name="robots" content="noindex, follow" data-managed-seo="true" \/>/, path);
+    assert.doesNotMatch(html, /rel="canonical"/, path);
+    assert.match(html, new RegExp(`<h1 class="notFoundPage-title">${heading}</h1>`), path);
+  }
+});
+
+test('the 404 page links to the home page and the tools in its language', async () => {
+  const html = await (await request('/ru/no-such-page')).text();
+
+  for (const href of ['/ru', '/ru/world-clock', '/ru/meeting-time-planner', '/ru/time-zone-converter']) {
+    assert.match(html, new RegExp(`class="button notFoundPage-link" href="${href}"`), href);
+  }
+});
+
+test('files that do not exist are left to the static assets (a plain 404 there)', async () => {
+  for (const path of ['/.env', '/wp-login.php', '/assets/missing.js']) {
+    const response = await request(path);
+
+    assert.equal(await response.text(), 'asset', path);
+  }
 });
 
 test('a localized page is rendered on the server with its language and head tags', async () => {

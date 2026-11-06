@@ -281,6 +281,10 @@
       "screenshotAddCity": "TimeCross screenshot showing city search and add city controls.",
       "screenshotAddTimezone": "TimeCross screenshot showing GMT and UTC timezone selection.",
       "screenshotNotifications": "TimeCross screenshot showing notification setup for a selected city time."
+    },
+    "notFound": {
+      "title": "Page not found — TimeCross",
+      "description": "There is no such page on TimeCross."
     }
   },
   "meetingTimePlanner": {
@@ -433,5 +437,9 @@
       "suva": "Suva",
       "perth": "Perth"
     }
+  },
+  "notFound": {
+    "title": "Page not found",
+    "text": "The page you are looking for doesn't exist or has moved. Check the address or open one of these pages:"
   }
 }

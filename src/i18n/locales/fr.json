@@ -269,6 +269,10 @@
       "screenshotAddCity": "Capture TimeCross montrant la recherche et l’ajout d’une ville.",
       "screenshotAddTimezone": "Capture TimeCross montrant le choix d’un fuseau horaire GMT ou UTC.",
       "screenshotNotifications": "Capture TimeCross montrant la configuration d’une notification pour une heure locale choisie."
+    },
+    "notFound": {
+      "title": "Page introuvable — TimeCross",
+      "description": "Cette page n'existe pas sur TimeCross."
     }
   },
   "worldClock": {
@@ -433,5 +437,9 @@
       "suva": "Suva",
       "perth": "Perth"
     }
+  },
+  "notFound": {
+    "title": "Page introuvable",
+    "text": "La page que vous cherchez n'existe pas ou a été déplacée. Vérifiez l'adresse ou ouvrez l'une de ces pages :"
   }
 }

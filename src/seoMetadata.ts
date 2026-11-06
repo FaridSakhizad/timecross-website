@@ -44,13 +44,19 @@ function getHreflangs(language: AppLanguage): string[] {
   return HREFLANGS[language] ?? [language];
 }
 
-/** The page at a URL; unknown paths get the home page's metadata. */
-function getPageId(pathname: string): PageId {
-  return getPageIdByPath(stripLanguageFromPathname(pathname)) ?? 'home';
+/** The page at a URL, or null for a page that does not exist (the 404 page). */
+function getPageId(pathname: string): PageId | null {
+  return getPageIdByPath(stripLanguageFromPathname(pathname));
 }
 
-export function getSeoMetadata(language: AppLanguage, pathname: string) {
+/** <title> of any URL, the 404 page included. */
+export function getPageTitle(language: AppLanguage, pathname: string) {
   const pageId = getPageId(pathname);
+
+  return translate(language, pageId ? `seo.pages.${PAGES[pageId].seoKey}.title` : 'seo.notFound.title');
+}
+
+export function getSeoMetadata(language: AppLanguage, pageId: PageId) {
   const { seoKey, isIndexed } = PAGES[pageId];
   const canonicalUrl = getAbsoluteUrl(getCanonicalLanguagePath(language, getCanonicalPagePath(pageId)));
 
@@ -69,8 +75,8 @@ export function getSeoMetadata(language: AppLanguage, pathname: string) {
   };
 }
 
-export function getSeoJsonLd(language: AppLanguage, pathname: string) {
-  const metadata = getSeoMetadata(language, pathname);
+export function getSeoJsonLd(language: AppLanguage, pageId: PageId) {
+  const metadata = getSeoMetadata(language, pageId);
   const schemas: SeoJsonLdSchema[] = [
     {
       id: 'website',
@@ -182,8 +188,8 @@ export function getSeoJsonLd(language: AppLanguage, pathname: string) {
   return schemas;
 }
 
-export function getAlternateLinks(pathname: string) {
-  const canonicalPagePath = getCanonicalPagePath(getPageId(pathname));
+export function getAlternateLinks(pageId: PageId) {
+  const canonicalPagePath = getCanonicalPagePath(pageId);
   const links = SUPPORTED_LANGUAGES.flatMap((supportedLanguage) => (
     getHreflangs(supportedLanguage).map((hreflang) => ({
       href: getAbsoluteUrl(getCanonicalLanguagePath(supportedLanguage, canonicalPagePath)),
@@ -199,17 +205,31 @@ export function getAlternateLinks(pathname: string) {
   return links;
 }
 
-/** Everything in <head> that depends on the page and the language, except <title> and <html lang>. */
-export function getHeadTags(language: AppLanguage, pathname: string): HeadTag[] {
-  const metadata = getSeoMetadata(language, pathname);
-
-  const meta = (key: 'name' | 'property', value: string, content: string): HeadTag => ({
+function meta(key: 'name' | 'property', value: string, content: string): HeadTag {
+  return {
     name: 'meta',
     attributes: {
       [key]: value,
       content,
     },
-  });
+  };
+}
+
+/**
+ * Everything in <head> that depends on the page and the language, except <title> and <html lang>.
+ * The 404 page gets only a description and "noindex": it has no canonical URL or translations.
+ */
+export function getHeadTags(language: AppLanguage, pathname: string): HeadTag[] {
+  const pageId = getPageId(pathname);
+
+  if (!pageId) {
+    return [
+      meta('name', 'description', translate(language, 'seo.notFound.description')),
+      meta('name', 'robots', 'noindex, follow'),
+    ];
+  }
+
+  const metadata = getSeoMetadata(language, pageId);
 
   return [
     meta('name', 'description', metadata.description),
@@ -233,7 +253,7 @@ export function getHeadTags(language: AppLanguage, pathname: string): HeadTag[] 
     meta('name', 'twitter:title', metadata.ogTitle),
     meta('name', 'twitter:description', metadata.ogDescription),
     meta('name', 'twitter:image', metadata.imageUrl),
-    ...getAlternateLinks(pathname).map((link): HeadTag => ({
+    ...getAlternateLinks(pageId).map((link): HeadTag => ({
       name: 'link',
       attributes: {
         rel: 'alternate',
@@ -241,7 +261,7 @@ export function getHeadTags(language: AppLanguage, pathname: string): HeadTag[] 
         href: link.href,
       },
     })),
-    ...getSeoJsonLd(language, pathname).map((schema): HeadTag => ({
+    ...getSeoJsonLd(language, pageId).map((schema): HeadTag => ({
       name: 'script',
       attributes: {
         type: 'application/ld+json',

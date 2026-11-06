@@ -269,6 +269,10 @@
       "screenshotAddCity": "TimeCross Screenshot mit Städtesuche und Steuerelementen zum Hinzufügen einer Stadt.",
       "screenshotAddTimezone": "TimeCross Screenshot mit GMT- und UTC-Zeitzonenauswahl.",
       "screenshotNotifications": "TimeCross Screenshot mit Benachrichtigungseinstellung für eine ausgewählte Ortszeit."
+    },
+    "notFound": {
+      "title": "Seite nicht gefunden — TimeCross",
+      "description": "Diese Seite gibt es auf TimeCross nicht."
     }
   },
   "worldClock": {
@@ -433,5 +437,9 @@
       "suva": "Suva",
       "perth": "Perth"
     }
+  },
+  "notFound": {
+    "title": "Seite nicht gefunden",
+    "text": "Die gesuchte Seite gibt es nicht oder sie wurde verschoben. Prüfe die Adresse oder öffne eine dieser Seiten:"
   }
 }

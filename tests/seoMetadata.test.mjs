@@ -7,7 +7,7 @@ const hooks = registerSourceLoader();
 
 after(() => hooks.deregister());
 
-const { getHeadTags, getSeoMetadata } = await import('../src/seoMetadata.ts');
+const { getHeadTags, getPageTitle, getSeoMetadata } = await import('../src/seoMetadata.ts');
 const { loadDictionary } = await import('../src/i18n/dictionaries.ts');
 const { getCanonicalLanguagePath } = await import('../src/i18n/languageRouting.ts');
 const { PAGES, PAGE_IDS } = await import('../src/routes.ts');
@@ -28,7 +28,7 @@ for (const language of APP_LANGUAGES) {
     const pathname = getCanonicalLanguagePath(language, page.path);
 
     test(`${pathname}: canonical URL, robots and translated texts`, () => {
-      const metadata = getSeoMetadata(language, pathname);
+      const metadata = getSeoMetadata(language, pageId);
       const tags = getHeadTags(language, pathname);
       const canonicalPath = page.canonicalPage ? PAGES[page.canonicalPage].path : page.path;
 
@@ -89,6 +89,16 @@ test('structured data is valid JSON; the converter page also has its FAQ', () =>
   assert.notEqual(faq.content, faqEn.content);
 });
 
-test('an unknown path gets the home page metadata', () => {
-  assert.equal(getSeoMetadata('en', '/en/no-such-page').title, getSeoMetadata('en', '/en').title);
+test('a URL that is not a page gets the 404 title, a description and "noindex" only', () => {
+  for (const pathname of ['/en/no-such-page', '/no-such-page', '/en/cities/extra', '/xx/cities']) {
+    assert.deepEqual(getHeadTags('en', pathname).map((tag) => tag.attributes.name), ['description', 'robots'], pathname);
+    assert.equal(getPageTitle('en', pathname), 'Page not found — TimeCross');
+  }
+
+  assert.equal(getHeadTags('en', '/en/no-such-page')[1]?.attributes.content, 'noindex, follow');
+  assert.equal(getPageTitle('ru', '/ru/no-such-page'), 'Страница не найдена — TimeCross');
+});
+
+test('the title of a page comes from its SEO texts', () => {
+  assert.equal(getPageTitle('ru', '/ru/world-clock'), getSeoMetadata('ru', 'worldClock').title);
 });

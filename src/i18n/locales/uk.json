@@ -269,6 +269,10 @@
       "screenshotAddCity": "Скриншот TimeCross з пошуком і додаванням міста.",
       "screenshotAddTimezone": "Скриншот TimeCross з вибором часового поясу GMT і UTC.",
       "screenshotNotifications": "Скриншот TimeCross з налаштуванням сповіщення для вибраного часу в місті."
+    },
+    "notFound": {
+      "title": "Сторінку не знайдено — TimeCross",
+      "description": "Такої сторінки на TimeCross немає."
     }
   },
   "worldClock": {
@@ -433,5 +437,9 @@
       "suva": "Сува",
       "perth": "Перт"
     }
+  },
+  "notFound": {
+    "title": "Сторінку не знайдено",
+    "text": "Такої сторінки немає або її перенесено. Перевірте адресу або відкрийте одну з цих сторінок:"
   }
 }

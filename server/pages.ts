@@ -1,5 +1,6 @@
 /**
- * Page requests: language redirects, then the server-rendered page (or the static asset).
+ * Page requests: language redirects, then the server-rendered page (status 404 for a URL that is
+ * not a page) or the static asset.
  */
 import { loadDictionary } from '../src/i18n/dictionaries';
 import {
@@ -11,7 +12,7 @@ import {
 } from '../src/i18n/languageRouting';
 import {
   getHeadTags,
-  getSeoMetadata,
+  getPageTitle,
   type HeadTag,
 } from '../src/seoMetadata';
 import type { AppLanguage } from '../src/settings';
@@ -20,16 +21,17 @@ import { render } from './entry-server';
 
 const IS_DEV = import.meta.env.DEV;
 
-function isSpaNavigationRequest(request: Request, url: URL) {
-  if (request.method !== 'GET' && request.method !== 'HEAD') {
+/**
+ * A request for a page: GET or HEAD of a path without a file extension, whatever the Accept
+ * header says (link previews and some crawlers ask for any type). Files have an extension.
+ * In development only browser navigations: Vite serves its own modules at paths like /@vite/client.
+ */
+function isPageRequest(request: Request, url: URL) {
+  if ((request.method !== 'GET' && request.method !== 'HEAD') || url.pathname.includes('.')) {
     return false;
   }
 
-  if (url.pathname.includes('.')) {
-    return false;
-  }
-
-  return request.headers.get('accept')?.includes('text/html') ?? false;
+  return !IS_DEV || (request.headers.get('accept')?.includes('text/html') ?? false);
 }
 
 function escapeHtml(value: string) {
@@ -44,40 +46,32 @@ function getPreferredLanguage(request: Request): AppLanguage {
   return getLanguageFromAcceptLanguage(request.headers.get('accept-language'));
 }
 
-/** A redirect to `pathname`; the query is kept when the page stays the same (shared planner links). */
-function redirectTo(url: URL, pathname: string, keepQuery: boolean) {
+/** A redirect to the same page at `pathname`; the query is kept (shared planner and converter links). */
+function redirectTo(url: URL, pathname: string) {
   const location = new URL(pathname, url);
 
-  if (keepQuery) {
-    location.search = url.search;
-  }
+  location.search = url.search;
 
   return Response.redirect(location, 302);
 }
 
 function getRedirectResponse(request: Request, url: URL) {
-  if (!isSpaNavigationRequest(request, url)) {
+  if (!isPageRequest(request, url)) {
     return null;
   }
 
-  const pathnameParts = url.pathname.split('/').filter(Boolean);
-  const firstPathPart = pathnameParts[0];
+  const [firstPathPart] = url.pathname.split('/').filter(Boolean);
   const routeLanguage = getLanguageFromPathname(url.pathname);
   const pagePath = stripLanguageFromPathname(url.pathname);
 
   // The old prefix of Ukrainian.
   if (firstPathPart === 'uk') {
-    return redirectTo(url, getCanonicalLanguagePath(routeLanguage ?? 'en', pagePath), true);
+    return redirectTo(url, getCanonicalLanguagePath(routeLanguage ?? 'en', pagePath));
   }
 
   // A page without a language: the same page in the visitor's language.
   if (!routeLanguage && isLocalizedPagePath(url.pathname)) {
-    return redirectTo(url, getCanonicalLanguagePath(getPreferredLanguage(request), pagePath), true);
-  }
-
-  // An unknown page: the home page in the visitor's language.
-  if (firstPathPart && !routeLanguage) {
-    return redirectTo(url, getCanonicalLanguagePath(getPreferredLanguage(request)), false);
+    return redirectTo(url, getCanonicalLanguagePath(getPreferredLanguage(request), pagePath));
   }
 
   return null;
@@ -97,7 +91,7 @@ function renderHeadTag({ name, attributes, content }: HeadTag) {
 }
 
 function injectSsrHtml(template: string, appHtml: string, language: AppLanguage, pathname: string) {
-  const { title } = getSeoMetadata(language, pathname);
+  const title = getPageTitle(language, pathname);
   const managedHead = getHeadTags(language, pathname)
     .map(renderHeadTag)
     .join('\n    ');
@@ -142,7 +136,8 @@ async function serveSsrPage(request: Request, env: Env, url: URL) {
 
   return new Response(request.method === 'HEAD' ? null : html, {
     headers,
-    status: templateResponse.status,
+    // A URL that is not a page renders the 404 page (see App.tsx) with a real 404 status.
+    status: isLocalizedPagePath(url.pathname) ? 200 : 404,
   });
 }
 
@@ -153,11 +148,12 @@ export async function handlePageRequest(request: Request, env: Env, url: URL) {
     return redirectResponse;
   }
 
-  if (IS_DEV && isSpaNavigationRequest(request, url)) {
-    return env.ASSETS.fetch(request);
+  // In development Vite serves index.html and renders the app in the browser.
+  if (IS_DEV && isPageRequest(request, url)) {
+    return env.ASSETS.fetch(new Request(new URL('/', url)));
   }
 
-  if (isSpaNavigationRequest(request, url)) {
+  if (isPageRequest(request, url)) {
     return serveSsrPage(request, env, url);
   }
 

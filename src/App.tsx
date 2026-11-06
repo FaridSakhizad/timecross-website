@@ -16,6 +16,7 @@ import ConverterPage from './pages/ConverterPage';
 import GridPage from './pages/GridPage';
 import HomePage from './pages/HomePage';
 import MeetingTimePlannerPage from './pages/MeetingTimePlannerPage';
+import NotFoundPage from './pages/NotFoundPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import TermsOfUsePage from './pages/TermsOfUsePage';
 import TimeZoneConverterPage from './pages/TimeZoneConverterPage';
@@ -44,13 +45,9 @@ function LocalizedRoute({ children }: LocalizedRouteProps) {
     }
   }, [effectiveRouteLanguage, language, setLanguage]);
 
+  // "/no-such-page" matches the home page's "/:lang" route.
   if (lang && !routeLanguage) {
-    return (
-      <Navigate
-        replace
-        to={getCanonicalLanguagePath(fallbackLanguage)}
-      />
-    );
+    return <NotFoundPage />;
   }
 
   if (!lang) {
@@ -135,12 +132,7 @@ function App() {
       />
       <Route
         path="*"
-        element={(
-          <Navigate
-            replace
-            to="/"
-          />
-        )}
+        element={<NotFoundPage />}
       />
     </Routes>
   );

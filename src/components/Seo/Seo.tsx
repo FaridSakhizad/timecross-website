@@ -4,7 +4,7 @@ import { useLocation } from 'react-router';
 import { useI18n } from '../../i18n';
 import {
   getHeadTags,
-  getSeoMetadata,
+  getPageTitle,
   type HeadTag,
 } from '../../seoMetadata';
 
@@ -35,7 +35,7 @@ export default function Seo() {
 
   useEffect(() => {
     document.documentElement.lang = language;
-    document.title = getSeoMetadata(language, location.pathname).title;
+    document.title = getPageTitle(language, location.pathname);
 
     document.head.querySelectorAll(MANAGED_TAG_SELECTOR).forEach((element) => element.remove());
     document.head.append(...getHeadTags(language, location.pathname).map(createHeadElement));
