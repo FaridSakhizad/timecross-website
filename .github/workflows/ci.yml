@@ -1,0 +1,41 @@
+# Every push to master and stage and every pull request: Worker types, type-check, lint, tests
+# and the production build, on a clean install from package-lock.json.
+name: CI
+
+on:
+  push:
+    branches: [master, stage]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A newer push to the same branch cancels the run that is still going.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    # Required by .github/rulesets/protect-master.json under this name.
+    name: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Worker types, type-check, lint, tests
+        run: npm run check
+
+      - name: Build
+        run: npm run build

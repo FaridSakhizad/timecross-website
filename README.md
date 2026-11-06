@@ -1,5 +1,7 @@
 # TimeCross Website
 
+[![CI](https://github.com/FaridSakhizad/timecross-website/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/FaridSakhizad/timecross-website/actions/workflows/ci.yml)
+
 Marketing site and web widgets for TimeCross (world clock, time zone converter, meeting planner).
 React 19 + Vite, server-side rendered by a Cloudflare Worker (`server/index.ts` routes requests to
 `server/pages.ts` for pages and `server/contact.ts` for the contact form).
@@ -16,6 +18,17 @@ React 19 + Vite, server-side rendered by a Cloudflare Worker (`server/index.ts` 
 | `npm run check` | Worker types up to date, type-check, lint and test — run before every commit |
 
 Node version: see `.nvmrc`.
+
+## Checks and deploy
+
+- **CI** (`.github/workflows/ci.yml`, GitHub Actions): every push to `master` and `stage` and every pull
+  request runs `npm ci`, `npm run check` and `npm run build` on a clean install.
+- **Deploy**: Cloudflare Workers Builds deploys `master` (production) and `stage` on push. Its build
+  command is `npm run check && npm run build`, so a commit with failing checks is not deployed.
+- **Branch protection** (`.github/rulesets/protect-master.json`): a GitHub ruleset for `master` — changes
+  only through pull requests with a green `check`, no force pushes or deletion. It is kept disabled
+  while the site is in 0.x. To turn it on: Settings → Rules → Rulesets → New ruleset → Import a ruleset,
+  choose the file, set Enforcement status to Active.
 
 ## Structure
 
