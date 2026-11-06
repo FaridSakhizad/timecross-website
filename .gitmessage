@@ -1,0 +1,15 @@
+
+
+# type(scope): summary in the imperative, lowercase, no period
+#
+# Types: feat, fix, refactor, perf, test, style, docs, build, ci, chore, revert
+# Scopes: cities, planner, converter, home, legal, ui, i18n, seo, settings,
+#         server, contact, data, deps, lint (optional)
+#
+# Examples:
+#   feat(converter): restore the link on back and forward
+#   fix(server): keep the query string in language redirects
+#   ci: run checks and build on GitHub Actions
+#
+# Body (after a blank line): why the change was made, what to know.
+# Breaking change: "feat(seo)!: …" or a "BREAKING CHANGE: …" line.
