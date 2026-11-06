@@ -121,10 +121,11 @@ test('a localized page is rendered on the server with its language and head tags
   assert.match(html, /<div id="root">\s*<[^/]/);
 });
 
-test('tool pages are rendered with "noindex"', async () => {
+test('a full-screen tool page points to its main page with the canonical', async () => {
   const html = await (await request('/ru/grid')).text();
 
-  assert.match(html, /<meta name="robots" content="noindex, follow" data-managed-seo="true" \/>/);
+  assert.match(html, /<meta name="robots" content="index, follow" data-managed-seo="true" \/>/);
+  assert.match(html, /<link rel="canonical" href="https:\/\/timecross\.app\/ru\/meeting-time-planner" data-managed-seo="true" \/>/);
 });
 
 test('rendered pages do not reuse the validators of index.html', async () => {

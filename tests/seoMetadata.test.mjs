@@ -33,7 +33,8 @@ for (const language of APP_LANGUAGES) {
       const canonicalPath = page.canonicalPage ? PAGES[page.canonicalPage].path : page.path;
 
       assert.equal(metadata.canonicalUrl, absolute(language, canonicalPath));
-      assert.equal(metadata.robots, page.isIndexed ? 'index, follow' : 'noindex, follow');
+      // A full-screen tool page stays indexable and points to its main page with the canonical.
+      assert.equal(metadata.robots, page.isIndexed || page.canonicalPage ? 'index, follow' : 'noindex, follow');
       assert.deepEqual(findTags(tags, 'link', 'rel', 'canonical').map((tag) => tag.attributes.href), [metadata.canonicalUrl]);
 
       for (const text of [metadata.title, metadata.description]) {
@@ -97,6 +98,34 @@ test('a URL that is not a page gets the 404 title, a description and "noindex" o
 
   assert.equal(getHeadTags('en', '/en/no-such-page')[1]?.attributes.content, 'noindex, follow');
   assert.equal(getPageTitle('ru', '/ru/no-such-page'), 'Страница не найдена — TimeCross');
+});
+
+test('every full-screen tool page has a canonical main page, so none of the pages is "noindex"', () => {
+  for (const pageId of PAGE_IDS) {
+    const page = PAGES[pageId];
+
+    assert.ok(page.isIndexed || page.canonicalPage, pageId);
+  }
+});
+
+test('the tool pages describe the web tool as a free WebApplication', () => {
+  const toolPages = [
+    ['/en/world-clock', 'worldClock'],
+    ['/en/meeting-time-planner', 'meetingTimePlanner'],
+    ['/en/time-zone-converter', 'timeZoneConverter'],
+    ['/en/convert', 'timeZoneConverter'],
+  ];
+
+  for (const [pathname, pageId] of toolPages) {
+    const tag = getHeadTags('en', pathname).find((headTag) => headTag.attributes['data-seo-id'] === 'web-application');
+    const value = JSON.parse(tag?.content ?? '{}');
+
+    assert.equal(value['@type'], 'WebApplication', pathname);
+    assert.equal(value.isAccessibleForFree, true, pathname);
+    assert.equal(value.url, getSeoMetadata('en', pageId).canonicalUrl, pathname);
+  }
+
+  assert.ok(!getHeadTags('en', '/en').some((tag) => tag.attributes['data-seo-id'] === 'web-application'));
 });
 
 test('the title of a page comes from its SEO texts', () => {

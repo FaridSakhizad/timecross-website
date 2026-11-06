@@ -11,7 +11,10 @@ type PageDefinition = {
   path: string;
   /** Key of the page's texts in the translations: seo.pages.{seoKey}.title and so on. */
   seoKey: string;
-  /** False for tool pages that only repeat another page: "noindex" and not in the sitemap. */
+  /**
+   * False for the full-screen tool pages that repeat another page: they are not in the sitemap
+   * and point search engines to that page with `canonicalPage` (without one they get "noindex").
+   */
   isIndexed: boolean;
   /** Page whose URL is the canonical one, when it is another page. */
   canonicalPage?: string;
@@ -30,12 +33,14 @@ export const PAGES = {
     path: '/cities',
     seoKey: 'cities',
     isIndexed: false,
+    canonicalPage: 'worldClock',
     widgets: ['cities'],
   },
   grid: {
     path: '/grid',
     seoKey: 'grid',
     isIndexed: false,
+    canonicalPage: 'meetingTimePlanner',
     widgets: ['timelineGrid'],
   },
   convert: {

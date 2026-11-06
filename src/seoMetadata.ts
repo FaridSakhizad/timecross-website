@@ -40,6 +40,8 @@ const HREFLANGS: Partial<Record<AppLanguage, string[]>> = {
   'pt-BR': ['pt-BR', 'pt'],
 };
 
+const WEB_TOOL_SEO_KEYS = new Set<string>(['worldClock', 'meetingTimePlanner', 'timeZoneConverter']);
+
 function getHreflangs(language: AppLanguage): string[] {
   return HREFLANGS[language] ?? [language];
 }
@@ -57,7 +59,9 @@ export function getPageTitle(language: AppLanguage, pathname: string) {
 }
 
 export function getSeoMetadata(language: AppLanguage, pageId: PageId) {
-  const { seoKey, isIndexed } = PAGES[pageId];
+  const page = PAGES[pageId];
+  const { seoKey, isIndexed } = page;
+  const hasCanonicalElsewhere = 'canonicalPage' in page;
   const canonicalUrl = getAbsoluteUrl(getCanonicalLanguagePath(language, getCanonicalPagePath(pageId)));
 
   return {
@@ -68,7 +72,8 @@ export function getSeoMetadata(language: AppLanguage, pageId: PageId) {
     ogDescription: translate(language, `seo.pages.${seoKey}.ogDescription`),
     ogTitle: translate(language, `seo.pages.${seoKey}.ogTitle`),
     pageId,
-    robots: isIndexed ? 'index, follow' : 'noindex, follow',
+    // A page with a canonical elsewhere stays indexable, so search engines follow the canonical.
+    robots: isIndexed || hasCanonicalElsewhere ? 'index, follow' : 'noindex, follow',
     seoKey,
     siteName: SITE_NAME,
     title: translate(language, `seo.pages.${seoKey}.title`),
@@ -161,6 +166,30 @@ export function getSeoJsonLd(language: AppLanguage, pageId: PageId) {
             },
           },
         ],
+      },
+    });
+  }
+
+  // The free web tools themselves, apart from the mobile app described above.
+  if (WEB_TOOL_SEO_KEYS.has(metadata.seoKey)) {
+    schemas.push({
+      id: 'web-application',
+      value: {
+        '@context': 'https://schema.org',
+        '@type': 'WebApplication',
+        name: metadata.ogTitle,
+        url: metadata.canonicalUrl,
+        description: metadata.description,
+        inLanguage: language,
+        applicationCategory: 'UtilitiesApplication',
+        operatingSystem: 'Any',
+        browserRequirements: 'Requires JavaScript',
+        isAccessibleForFree: true,
+        offers: {
+          '@type': 'Offer',
+          price: '0',
+          priceCurrency: 'USD',
+        },
       },
     });
   }
