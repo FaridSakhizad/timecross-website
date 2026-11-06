@@ -53,21 +53,21 @@ export default function Header({
           <i className="headerMenu-separator headerMenu-separator_1" />
 
           <Link
-            to={getCanonicalLanguagePath(language, PAGES.cities.path)}
+            to={getCanonicalLanguagePath(language, PAGES.worldClock.path)}
             className="headerMenu-item headerMenu-item_link"
           >
-            {t('common.citiesLabel')}
+            {t('common.worldClockLabel')}
           </Link>
 
           <Link
-            to={getCanonicalLanguagePath(language, PAGES.grid.path)}
+            to={getCanonicalLanguagePath(language, PAGES.meetingTimePlanner.path)}
             className="headerMenu-item headerMenu-item_link"
           >
-            {t('common.gridLabel')}
+            {t('common.meetingPlannerLabel')}
           </Link>
 
           <Link
-            to={getCanonicalLanguagePath(language, PAGES.convert.path)}
+            to={getCanonicalLanguagePath(language, PAGES.timeZoneConverter.path)}
             className="headerMenu-item headerMenu-item_link"
           >
             {t('common.timeZoneConverterLabel')}

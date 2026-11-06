@@ -20,8 +20,6 @@
     "menu": "Menu",
     "darkMode": "Mode sombre",
     "lightMode": "Mode clair",
-    "citiesLabel": "Villes",
-    "gridLabel": "Planificateur",
     "addCity": "Ajouter un fuseau horaire",
     "openGrid": "Ouvrir le planificateur",
     "openCities": "Ouvrir les villes",
@@ -253,8 +251,8 @@
         "ogDescription": "Trouvez de meilleurs horaires de réunion entre villes et fuseaux horaires avec une timeline visuelle."
       },
       "timeZoneConverter": {
-        "title": "Convertisseur de fuseaux horaires — TimeCross",
-        "description": "Convertissez une heure choisie entre villes et fuseaux horaires avec dates locales, marqueurs de jour et écarts horaires dans TimeCross.",
+        "title": "Convertisseur de fuseaux horaires entre villes — TimeCross",
+        "description": "Convertisseur de fuseaux horaires gratuit : choisissez une ville, une date et une heure et voyez le même moment dans toutes les villes utiles. Heure d'été et changement de date inclus.",
         "ogTitle": "Convertisseur de fuseaux horaires TimeCross",
         "ogDescription": "Choisissez une ville, une date et une heure, puis voyez le même moment dans vos villes et fuseaux horaires."
       }

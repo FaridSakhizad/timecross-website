@@ -45,23 +45,23 @@ export default function StandaloneMenuModal({
         </a>
 
         <Link
-          to={getCanonicalLanguagePath(language, PAGES.cities.path)}
+          to={getCanonicalLanguagePath(language, PAGES.worldClock.path)}
           className="standaloneMenuModal-item"
           onClick={onClose}
         >
-          {t('common.citiesLabel')}
+          {t('common.worldClockLabel')}
         </Link>
 
         <Link
-          to={getCanonicalLanguagePath(language, PAGES.grid.path)}
+          to={getCanonicalLanguagePath(language, PAGES.meetingTimePlanner.path)}
           className="standaloneMenuModal-item"
           onClick={onClose}
         >
-          {t('common.gridLabel')}
+          {t('common.meetingPlannerLabel')}
         </Link>
 
         <Link
-          to={getCanonicalLanguagePath(language, PAGES.convert.path)}
+          to={getCanonicalLanguagePath(language, PAGES.timeZoneConverter.path)}
           className="standaloneMenuModal-item"
           onClick={onClose}
         >

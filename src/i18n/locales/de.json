@@ -20,8 +20,6 @@
     "menu": "Menü",
     "darkMode": "Dunkler Modus",
     "lightMode": "Heller Modus",
-    "citiesLabel": "Städte",
-    "gridLabel": "Planer",
     "addCity": "Zeitzone hinzufügen",
     "openGrid": "Planer öffnen",
     "openCities": "Städte öffnen",
@@ -253,8 +251,8 @@
         "ogDescription": "Finde bessere Meeting-Zeiten zwischen Städten und Zeitzonen mit einem visuellen Timeline-Planer."
       },
       "timeZoneConverter": {
-        "title": "Zeitzonen-Konverter — TimeCross",
-        "description": "Konvertiere eine gewählte Zeit zwischen Städten und Zeitzonen mit lokalen Daten, Tagesmarkern und Zeitunterschieden in TimeCross.",
+        "title": "Zeitzonen-Konverter: Uhrzeit zwischen Städten umrechnen — TimeCross",
+        "description": "Kostenloser Zeitzonen-Konverter: Wähle Stadt, Datum und Uhrzeit und sieh denselben Moment in allen Städten, die du brauchst. Mit Sommerzeit und Datumswechsel.",
         "ogTitle": "TimeCross Zeitzonen-Konverter",
         "ogDescription": "Wähle Stadt, Datum und Uhrzeit und sieh denselben Moment in deinen Städten und Zeitzonen."
       }
