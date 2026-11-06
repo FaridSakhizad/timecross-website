@@ -30,6 +30,30 @@ Node version: see `.nvmrc`.
   while the site is in 0.x. To turn it on: Settings → Rules → Rulesets → New ruleset → Import a ruleset,
   choose the file, set Enforcement status to Active.
 
+## Commits
+
+Messages follow [Conventional Commits](https://www.conventionalcommits.org/): `type(scope): summary` —
+imperative, lowercase, no period. One commit is one change: if the summary needs an "and", it is two commits.
+
+```
+feat(converter): restore the link on back and forward
+fix(server): keep the query string in language redirects
+refactor(planner): share the nearest-row search between desktop and mobile
+ci: run checks and build on GitHub Actions
+```
+
+- **Types**: `feat` (new for users), `fix`, `refactor` (no behaviour change), `perf`, `test`, `style`
+  (CSS and formatting), `docs`, `build` (build and dependencies), `ci`, `chore`, `revert`.
+- **Scopes** (optional, the list is in `commitlint.config.js`): `cities`, `planner`, `converter`, `home`,
+  `legal`, `ui`, `i18n`, `seo`, `settings`, `server`, `contact`, `data`, `deps`, `lint`.
+- **Body** (after a blank line): why, and what a reader should know. A breaking change gets `!`
+  (`feat(seo)!: …`) or a `BREAKING CHANGE:` line.
+
+Checked by commitlint: locally by the `commit-msg` hook (installed by `npm install` through husky) and in CI.
+`git config commit.template .gitmessage` puts a reminder into the commit editor.
+
+Releases are git tags with the version from `package.json`: `git tag v0.9.0 && git push --tags`.
+
 ## Structure
 
 - `src/routes.ts` — the list of pages: path, SEO texts, indexing, canonical page, widgets. Routing, redirects, `<head>`
