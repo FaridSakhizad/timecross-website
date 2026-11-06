@@ -1,5 +1,5 @@
-# Every push to master and stage and every pull request: Worker types, type-check, lint, tests
-# and the production build, on a clean install from package-lock.json.
+# Every push to master and stage and every pull request: commit messages, Worker types,
+# type-check, lint, tests and the production build, on a clean install from package-lock.json.
 name: CI
 
 on:
@@ -25,6 +25,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          # The whole history, so commitlint can read the pushed commits.
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
@@ -33,6 +36,15 @@ jobs:
 
       - name: Install
         run: npm ci
+
+      # The commits of the pull request, or the commits of the push (not on a new branch).
+      - name: Commit messages (pull request)
+        if: github.event_name == 'pull_request'
+        run: npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
+
+      - name: Commit messages (push)
+        if: github.event_name == 'push' && github.event.before != '0000000000000000000000000000000000000000'
+        run: npx commitlint --from ${{ github.event.before }} --to ${{ github.sha }} --verbose
 
       - name: Worker types, type-check, lint, tests
         run: npm run check
