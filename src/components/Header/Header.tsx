@@ -1,7 +1,7 @@
 import './style.css';
 
 import { useState } from 'react';
-import { Link } from 'react-router';
+import { Link, NavLink } from 'react-router';
 
 import { SITE_NAME, BUY_ME_A_COFFEE_URL } from '../../config';
 import { usePreferences } from '../../hooks/usePreferences';
@@ -42,67 +42,67 @@ export default function Header({
         </Link>
 
         <div className="headerMenu">
-          <a
-            href={BUY_ME_A_COFFEE_URL}
-            className="headerMenu-item headerMenu-item_thanks"
-            target="_blank"
-          >
-            {t('common.sayThanks')}
-          </a>
+          <div className="headerMenu-misc">
+            <a
+              href={BUY_ME_A_COFFEE_URL}
+              className="headerMenu-item headerMenu-item_thanks"
+              target="_blank"
+            >
+              {t('common.sayThanks')}
+            </a>
 
-          <i className="headerMenu-separator headerMenu-separator_1" />
+            <button
+              type="button"
+              className="headerMenu-item headerMenu-item_ampm"
+              onClick={toggleTimeFormat}
+            >
+              {timeFormat === '24h' ? 'AM/PM' : '24H'}
+            </button>
 
-          <Link
-            to={getCanonicalLanguagePath(language, PAGES.worldClock.path)}
-            className="headerMenu-item headerMenu-item_link"
-          >
-            {t('common.worldClockLabel')}
-          </Link>
+            <button
+              type="button"
+              className={cx('headerMenu-item headerMenu-item_nightMode', colorMode === 'night' && 'isActive')}
+              aria-label={t(colorMode === 'night' ? 'common.lightMode' : 'common.darkMode')}
+              onClick={toggleColorMode}
+            />
 
-          <Link
-            to={getCanonicalLanguagePath(language, PAGES.meetingTimePlanner.path)}
-            className="headerMenu-item headerMenu-item_link"
-          >
-            {t('common.meetingPlannerLabel')}
-          </Link>
+            <LanguageMenu
+              buttonClassName="headerMenu-item langSelectButton"
+              buttonLabel={SHORT_LANGUAGE_NAMES[language]}
+            />
 
-          <Link
-            to={getCanonicalLanguagePath(language, PAGES.timeZoneConverter.path)}
-            className="headerMenu-item headerMenu-item_link"
-          >
-            {t('common.timeZoneConverterLabel')}
-          </Link>
+            <button
+              type="button"
+              className="headerMenu-item headerMenu-item_menu"
+              aria-label={t('common.menu')}
+              aria-haspopup="dialog"
+              aria-expanded={isMenuModalOpen}
+              onClick={() => setIsMenuModalOpen(true)}
+            />
+          </div>
 
-          <i className="headerMenu-separator headerMenu-separator_2" />
+          <div className="headerMenu-main">
+            <NavLink
+              to={getCanonicalLanguagePath(language, PAGES.worldClock.path)}
+              className={({ isActive }) => `headerMenu-item headerMenu-item_link ${isActive ? 'isActive' : ''}`}
+            >
+              {t('common.worldClockLabel')}
+            </NavLink>
 
-          <button
-            type="button"
-            className="headerMenu-item headerMenu-item_ampm"
-            onClick={toggleTimeFormat}
-          >
-            {timeFormat === '24h' ? 'AM/PM' : '24H'}
-          </button>
+            <NavLink
+              to={getCanonicalLanguagePath(language, PAGES.meetingTimePlanner.path)}
+              className={({ isActive }) => `headerMenu-item headerMenu-item_link ${isActive ? 'isActive' : ''}`}
+            >
+              {t('common.meetingPlannerLabel')}
+            </NavLink>
 
-          <button
-            type="button"
-            className={cx('headerMenu-item headerMenu-item_nightMode', colorMode === 'night' && 'isActive')}
-            aria-label={t(colorMode === 'night' ? 'common.lightMode' : 'common.darkMode')}
-            onClick={toggleColorMode}
-          />
-
-          <LanguageMenu
-            buttonClassName="headerMenu-item langSelectButton"
-            buttonLabel={SHORT_LANGUAGE_NAMES[language]}
-          />
-
-          <button
-            type="button"
-            className="headerMenu-item headerMenu-item_menu"
-            aria-label={t('common.menu')}
-            aria-haspopup="dialog"
-            aria-expanded={isMenuModalOpen}
-            onClick={() => setIsMenuModalOpen(true)}
-          />
+            <NavLink
+              to={getCanonicalLanguagePath(language, PAGES.timeZoneConverter.path)}
+              className={({ isActive }) => `headerMenu-item headerMenu-item_link ${isActive ? 'isActive' : ''}`}
+            >
+              {t('common.timeZoneConverterLabel')}
+            </NavLink>
+          </div>
         </div>
       </div>
       <StandaloneMenuModal
