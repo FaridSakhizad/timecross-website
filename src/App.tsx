@@ -3,6 +3,7 @@ import './App.css';
 import { useEffect, useLayoutEffect, type ComponentType, type ReactNode } from 'react';
 import { Navigate, Route, Routes, useLocation, useParams } from 'react-router';
 
+import ScrollReset from './components/ScrollReset';
 import { usePreferences } from './hooks/usePreferences';
 import { useI18n } from './i18n';
 import {
@@ -96,49 +97,52 @@ function App() {
   }, [colorMode]);
 
   return (
-    <Routes>
-      {PAGE_IDS.flatMap((pageId) => {
-        const Page = PAGE_COMPONENTS[pageId];
-        const path = PAGES[pageId].path.slice(1);
-        const element = (
-          <LocalizedRoute>
-            <Page />
-          </LocalizedRoute>
-        );
+    <>
+      <ScrollReset />
+      <Routes>
+        {PAGE_IDS.flatMap((pageId) => {
+          const Page = PAGE_COMPONENTS[pageId];
+          const path = PAGES[pageId].path.slice(1);
+          const element = (
+            <LocalizedRoute>
+              <Page />
+            </LocalizedRoute>
+          );
 
-        // Every page is available both without a language prefix (redirects) and with one.
-        return [
-          path
-            ? (
-                <Route
-                  key={path}
-                  path={path}
-                  element={element}
-                />
-              )
-            : (
-                <Route
-                  key="index"
-                  index
-                  element={element}
-                />
-              ),
-          <Route
-            key={`lang:${path}`}
-            path={path ? `:lang/${path}` : ':lang'}
-            element={element}
-          />,
-        ];
-      })}
-      <Route
-        path="api/*"
-        element={null}
-      />
-      <Route
-        path="*"
-        element={<NotFoundPage />}
-      />
-    </Routes>
+          // Every page is available both without a language prefix (redirects) and with one.
+          return [
+            path
+              ? (
+                  <Route
+                    key={path}
+                    path={path}
+                    element={element}
+                  />
+                )
+              : (
+                  <Route
+                    key="index"
+                    index
+                    element={element}
+                  />
+                ),
+            <Route
+              key={`lang:${path}`}
+              path={path ? `:lang/${path}` : ':lang'}
+              element={element}
+            />,
+          ];
+        })}
+        <Route
+          path="api/*"
+          element={null}
+        />
+        <Route
+          path="*"
+          element={<NotFoundPage />}
+        />
+      </Routes>
+    </>
   );
 }
 
