@@ -1,26 +1,20 @@
 /**
  * The "business hours" examples on the converter page: what 9:00, 12:00… in one city is in
  * others. Every city and hour is listed here and switched on or off with `enabled`, so the block
- * grows or shrinks by editing this config, not the page.
+ * grows or shrinks by editing this config, not the page. The cities' time zones are in cities.ts.
  */
-import type { TranslationKey } from '../i18n';
+import { CITIES, type CityId } from '../cities';
+import type { TranslationKeysUnder } from '../i18n/dictionaries';
 import { getUtcDateForZonedTime, getZonedDateParts } from '../utils/time';
 
-/** The ids of the translations under `Prefix`: "timeZoneConverter.exampleCityNames.berlin" → "berlin". */
-type KeysUnder<Prefix extends string, Key = TranslationKey> = Key extends `${Prefix}.${infer Id}` ? Id : never;
-
-/** A city with a name in `timeZoneConverter.exampleCityNames`. */
-export type ExampleCityId = KeysUnder<'timeZoneConverter.exampleCityNames'>;
-
 /** A region with a heading in `timeZoneConverter.exampleGroups`. */
-export type ExampleRegionId = KeysUnder<'timeZoneConverter.exampleGroups'>;
+export type ExampleRegionId = TranslationKeysUnder<'timeZoneConverter.exampleGroups'>;
 
 type ExampleCityConfig = {
-  id: ExampleCityId;
-  timezone: string;
+  id: CityId;
   enabled: boolean;
   /** The cities the hours are converted to, most relevant first. They may be switched off. */
-  targets: readonly ExampleCityId[];
+  targets: readonly CityId[];
 };
 
 export type ExamplesConfig = {
@@ -48,74 +42,74 @@ export const CONVERTER_EXAMPLES: ExamplesConfig = {
     {
       id: 'northAmerica',
       cities: [
-        { id: 'newYork', timezone: 'America/New_York', enabled: true, targets: ['losAngeles', 'london', 'paris', 'dubai', 'tokyo'] },
-        { id: 'losAngeles', timezone: 'America/Los_Angeles', enabled: false, targets: ['newYork', 'chicago', 'london', 'singapore', 'sydney'] },
-        { id: 'chicago', timezone: 'America/Chicago', enabled: false, targets: ['newYork', 'denver', 'losAngeles', 'london', 'tokyo'] },
-        { id: 'denver', timezone: 'America/Denver', enabled: false, targets: ['chicago', 'losAngeles', 'newYork', 'paris', 'dubai'] },
-        { id: 'toronto', timezone: 'America/Toronto', enabled: false, targets: ['vancouver', 'newYork', 'london', 'dubai', 'tokyo'] },
-        { id: 'vancouver', timezone: 'America/Vancouver', enabled: false, targets: ['toronto', 'losAngeles', 'tokyo', 'sydney', 'london'] },
+        { id: 'newYork', enabled: true, targets: ['losAngeles', 'london', 'paris', 'dubai', 'tokyo'] },
+        { id: 'losAngeles', enabled: false, targets: ['newYork', 'chicago', 'london', 'singapore', 'sydney'] },
+        { id: 'chicago', enabled: false, targets: ['newYork', 'denver', 'losAngeles', 'london', 'tokyo'] },
+        { id: 'denver', enabled: false, targets: ['chicago', 'losAngeles', 'newYork', 'paris', 'dubai'] },
+        { id: 'toronto', enabled: false, targets: ['vancouver', 'newYork', 'london', 'dubai', 'tokyo'] },
+        { id: 'vancouver', enabled: false, targets: ['toronto', 'losAngeles', 'tokyo', 'sydney', 'london'] },
       ],
     },
     {
       id: 'europe',
       cities: [
-        { id: 'london', timezone: 'Europe/London', enabled: true, targets: ['newYork', 'paris', 'dubai', 'tokyo', 'sydney'] },
-        { id: 'paris', timezone: 'Europe/Paris', enabled: false, targets: ['london', 'newYork', 'dubai', 'singapore', 'losAngeles'] },
-        { id: 'berlin', timezone: 'Europe/Berlin', enabled: true, targets: ['london', 'paris', 'newYork', 'singapore', 'tokyo'] },
-        { id: 'madrid', timezone: 'Europe/Madrid', enabled: false, targets: ['london', 'paris', 'buenosAires', 'newYork', 'tokyo'] },
-        { id: 'amsterdam', timezone: 'Europe/Amsterdam', enabled: false, targets: ['london', 'newYork', 'dubai', 'sydney', 'singapore'] },
-        { id: 'zurich', timezone: 'Europe/Zurich', enabled: false, targets: ['london', 'paris', 'singapore', 'losAngeles', 'tokyo'] },
+        { id: 'london', enabled: true, targets: ['newYork', 'paris', 'dubai', 'tokyo', 'sydney'] },
+        { id: 'paris', enabled: false, targets: ['london', 'newYork', 'dubai', 'singapore', 'losAngeles'] },
+        { id: 'berlin', enabled: true, targets: ['london', 'paris', 'newYork', 'singapore', 'tokyo'] },
+        { id: 'madrid', enabled: false, targets: ['london', 'paris', 'buenosAires', 'newYork', 'tokyo'] },
+        { id: 'amsterdam', enabled: false, targets: ['london', 'newYork', 'dubai', 'sydney', 'singapore'] },
+        { id: 'zurich', enabled: false, targets: ['london', 'paris', 'singapore', 'losAngeles', 'tokyo'] },
       ],
     },
     {
       id: 'asia',
       cities: [
-        { id: 'tokyo', timezone: 'Asia/Tokyo', enabled: true, targets: ['singapore', 'seoul', 'london', 'losAngeles', 'newYork'] },
-        { id: 'singapore', timezone: 'Asia/Singapore', enabled: true, targets: ['tokyo', 'hongKong', 'dubai', 'london', 'newYork'] },
-        { id: 'hongKong', timezone: 'Asia/Hong_Kong', enabled: false, targets: ['singapore', 'tokyo', 'london', 'sydney', 'vancouver'] },
-        { id: 'seoul', timezone: 'Asia/Seoul', enabled: false, targets: ['tokyo', 'singapore', 'paris', 'newYork', 'losAngeles'] },
-        { id: 'mumbai', timezone: 'Asia/Kolkata', enabled: false, targets: ['dubai', 'singapore', 'london', 'berlin', 'newYork'] },
-        { id: 'bangkok', timezone: 'Asia/Bangkok', enabled: false, targets: ['singapore', 'hongKong', 'dubai', 'berlin', 'sydney'] },
+        { id: 'tokyo', enabled: true, targets: ['singapore', 'seoul', 'london', 'losAngeles', 'newYork'] },
+        { id: 'singapore', enabled: true, targets: ['tokyo', 'hongKong', 'dubai', 'london', 'newYork'] },
+        { id: 'hongKong', enabled: false, targets: ['singapore', 'tokyo', 'london', 'sydney', 'vancouver'] },
+        { id: 'seoul', enabled: false, targets: ['tokyo', 'singapore', 'paris', 'newYork', 'losAngeles'] },
+        { id: 'mumbai', enabled: false, targets: ['dubai', 'singapore', 'london', 'berlin', 'newYork'] },
+        { id: 'bangkok', enabled: false, targets: ['singapore', 'hongKong', 'dubai', 'berlin', 'sydney'] },
       ],
     },
     {
       id: 'middleEastAfrica',
       cities: [
-        { id: 'dubai', timezone: 'Asia/Dubai', enabled: true, targets: ['london', 'mumbai', 'singapore', 'losAngeles', 'sydney'] },
-        { id: 'istanbul', timezone: 'Europe/Istanbul', enabled: false, targets: ['london', 'berlin', 'dubai', 'newYork', 'tokyo'] },
-        { id: 'cairo', timezone: 'Africa/Cairo', enabled: false, targets: ['paris', 'istanbul', 'riyadh', 'toronto', 'mumbai'] },
-        { id: 'johannesburg', timezone: 'Africa/Johannesburg', enabled: false, targets: ['london', 'dubai', 'sydney', 'singapore', 'newYork'] },
-        { id: 'riyadh', timezone: 'Asia/Riyadh', enabled: false, targets: ['dubai', 'doha', 'mumbai', 'london', 'newYork'] },
-        { id: 'doha', timezone: 'Asia/Qatar', enabled: false, targets: ['dubai', 'riyadh', 'london', 'singapore', 'toronto'] },
+        { id: 'dubai', enabled: true, targets: ['london', 'mumbai', 'singapore', 'losAngeles', 'sydney'] },
+        { id: 'istanbul', enabled: false, targets: ['london', 'berlin', 'dubai', 'newYork', 'tokyo'] },
+        { id: 'cairo', enabled: false, targets: ['paris', 'istanbul', 'riyadh', 'toronto', 'mumbai'] },
+        { id: 'johannesburg', enabled: false, targets: ['london', 'dubai', 'sydney', 'singapore', 'newYork'] },
+        { id: 'riyadh', enabled: false, targets: ['dubai', 'doha', 'mumbai', 'london', 'newYork'] },
+        { id: 'doha', enabled: false, targets: ['dubai', 'riyadh', 'london', 'singapore', 'toronto'] },
       ],
     },
     {
       id: 'latinAmerica',
       cities: [
-        { id: 'mexicoCity', timezone: 'America/Mexico_City', enabled: false, targets: ['newYork', 'losAngeles', 'chicago', 'madrid', 'tokyo'] },
-        { id: 'saoPaulo', timezone: 'America/Sao_Paulo', enabled: true, targets: ['london', 'newYork', 'paris', 'mexicoCity', 'tokyo'] },
-        { id: 'buenosAires', timezone: 'America/Argentina/Buenos_Aires', enabled: false, targets: ['madrid', 'saoPaulo', 'newYork', 'paris', 'london'] },
-        { id: 'santiago', timezone: 'America/Santiago', enabled: false, targets: ['newYork', 'lima', 'bogota', 'london', 'sydney'] },
-        { id: 'bogota', timezone: 'America/Bogota', enabled: false, targets: ['mexicoCity', 'newYork', 'lima', 'madrid', 'losAngeles'] },
-        { id: 'lima', timezone: 'America/Lima', enabled: false, targets: ['bogota', 'santiago', 'mexicoCity', 'losAngeles', 'madrid'] },
+        { id: 'mexicoCity', enabled: false, targets: ['newYork', 'losAngeles', 'chicago', 'madrid', 'tokyo'] },
+        { id: 'saoPaulo', enabled: true, targets: ['london', 'newYork', 'paris', 'mexicoCity', 'tokyo'] },
+        { id: 'buenosAires', enabled: false, targets: ['madrid', 'saoPaulo', 'newYork', 'paris', 'london'] },
+        { id: 'santiago', enabled: false, targets: ['newYork', 'lima', 'bogota', 'london', 'sydney'] },
+        { id: 'bogota', enabled: false, targets: ['mexicoCity', 'newYork', 'lima', 'madrid', 'losAngeles'] },
+        { id: 'lima', enabled: false, targets: ['bogota', 'santiago', 'mexicoCity', 'losAngeles', 'madrid'] },
       ],
     },
     {
       id: 'oceania',
       cities: [
-        { id: 'sydney', timezone: 'Australia/Sydney', enabled: true, targets: ['auckland', 'melbourne', 'singapore', 'london', 'losAngeles'] },
-        { id: 'melbourne', timezone: 'Australia/Melbourne', enabled: false, targets: ['sydney', 'perth', 'tokyo', 'dubai', 'london'] },
-        { id: 'auckland', timezone: 'Pacific/Auckland', enabled: false, targets: ['sydney', 'honolulu', 'tokyo', 'london', 'losAngeles'] },
-        { id: 'honolulu', timezone: 'Pacific/Honolulu', enabled: false, targets: ['losAngeles', 'tokyo', 'auckland', 'vancouver', 'sydney'] },
-        { id: 'suva', timezone: 'Pacific/Fiji', enabled: false, targets: ['sydney', 'auckland', 'honolulu', 'losAngeles', 'singapore'] },
-        { id: 'perth', timezone: 'Australia/Perth', enabled: false, targets: ['singapore', 'melbourne', 'sydney', 'dubai', 'london'] },
+        { id: 'sydney', enabled: true, targets: ['auckland', 'melbourne', 'singapore', 'london', 'losAngeles'] },
+        { id: 'melbourne', enabled: false, targets: ['sydney', 'perth', 'tokyo', 'dubai', 'london'] },
+        { id: 'auckland', enabled: false, targets: ['sydney', 'honolulu', 'tokyo', 'london', 'losAngeles'] },
+        { id: 'honolulu', enabled: false, targets: ['losAngeles', 'tokyo', 'auckland', 'vancouver', 'sydney'] },
+        { id: 'suva', enabled: false, targets: ['sydney', 'auckland', 'honolulu', 'losAngeles', 'singapore'] },
+        { id: 'perth', enabled: false, targets: ['singapore', 'melbourne', 'sydney', 'dubai', 'london'] },
       ],
     },
   ],
 };
 
 export type ExampleCity = {
-  id: ExampleCityId;
+  id: CityId;
   timezone: string;
 };
 
@@ -130,24 +124,15 @@ export type ExampleRegion = {
  */
 export function getEnabledExamples(config: ExamplesConfig = CONVERTER_EXAMPLES) {
   const hours = config.hours.filter((hour) => hour.enabled).map(({ hour }) => hour);
-  const timezones = new Map(
-    config.regions.flatMap((region) => region.cities).map((city) => [city.id, city.timezone]),
-  );
+  const toExampleCity = (id: CityId): ExampleCity => ({ id, timezone: CITIES[id].timezone });
   const regions: ExampleRegion[] = config.regions
     .map((region) => ({
       id: region.id,
       cities: region.cities
         .filter((city) => city.enabled)
         .map((city) => ({
-          id: city.id,
-          timezone: city.timezone,
-          targets: city.targets
-            .flatMap((id) => {
-              const timezone = timezones.get(id);
-
-              return timezone ? [{ id, timezone }] : [];
-            })
-            .slice(0, config.targetsPerCity),
+          ...toExampleCity(city.id),
+          targets: city.targets.slice(0, config.targetsPerCity).map(toExampleCity),
         })),
     }))
     .filter((region) => region.cities.length > 0);

@@ -41,8 +41,8 @@ test('a region without an enabled city is left out; switched-off cities are stil
     targetsPerCity: 2,
     hours: [{ hour: 9, enabled: true }],
     regions: [
-      { id: 'europe', cities: [{ id: 'paris', timezone: 'Europe/Paris', enabled: true, targets: ['tokyo', 'lima', 'london'] }] },
-      { id: 'asia', cities: [{ id: 'tokyo', timezone: 'Asia/Tokyo', enabled: false, targets: [] }] },
+      { id: 'europe', cities: [{ id: 'paris', enabled: true, targets: ['tokyo', 'lima', 'london'] }] },
+      { id: 'asia', cities: [{ id: 'tokyo', enabled: false, targets: [] }] },
     ],
   };
 
@@ -50,7 +50,11 @@ test('a region without an enabled city is left out; switched-off cities are stil
     hours: [9],
     regions: [{
       id: 'europe',
-      cities: [{ id: 'paris', timezone: 'Europe/Paris', targets: [{ id: 'tokyo', timezone: 'Asia/Tokyo' }] }],
+      cities: [{
+        id: 'paris',
+        timezone: 'Europe/Paris',
+        targets: [{ id: 'tokyo', timezone: 'Asia/Tokyo' }, { id: 'lima', timezone: 'America/Lima' }],
+      }],
     }],
   });
   assert.deepEqual(getEnabledExamples({ ...config, hours: [{ hour: 9, enabled: false }] }).regions, []);

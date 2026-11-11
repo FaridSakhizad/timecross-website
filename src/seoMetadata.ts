@@ -6,7 +6,7 @@ import {
   SITE_URL,
 } from './config';
 import { SUPPORTED_LANGUAGES } from './i18n';
-import { translate } from './i18n/dictionaries';
+import { translate, type TranslationKey, type TranslationValues } from './i18n/dictionaries';
 import {
   getCanonicalLanguagePath,
   stripLanguageFromPathname,
@@ -15,9 +15,17 @@ import {
   PAGES,
   getCanonicalPagePath,
   getPageIdByPath,
-  type PageId,
+  getTimeDifferenceSlug,
+  type Page,
 } from './routes';
 import type { AppLanguage } from './settings';
+import { getCityPair, type CityPair } from './timeDifference';
+import {
+  getDifferenceSentence,
+  getPairCityNames,
+  getTimeDifferenceFaq,
+  type PairTextContext,
+} from './timeDifferenceTexts';
 
 type SeoJsonLdSchema = { id: string; value: unknown };
 
@@ -40,48 +48,113 @@ const HREFLANGS: Partial<Record<AppLanguage, string[]>> = {
   'pt-BR': ['pt-BR', 'pt'],
 };
 
-const WEB_TOOL_SEO_KEYS = new Set<string>(['worldClock', 'meetingTimePlanner', 'timeZoneConverter']);
+const WEB_TOOL_SEO_KEYS = new Set<string>(['worldClock', 'meetingTimePlanner', 'timeZoneConverter', 'hourClock']);
+
+/** The questions of a page's FAQ block, repeated in its FAQPage schema. */
+const FAQ_SCHEMA_KEYS: Partial<Record<string, { title: TranslationKey; text: TranslationKey }[]>> = {
+  timeZoneConverter: (['what', 'dst', 'cities', 'offsets'] as const).map((id) => ({
+    title: `timeZoneConverter.faq.${id}.title`,
+    text: `timeZoneConverter.faq.${id}.text`,
+  })),
+  hourClock: (['midnight', 'noon', 'convert', 'military'] as const).map((id) => ({
+    title: `hourClock.faq.${id}.title`,
+    text: `hourClock.faq.${id}.text`,
+  })),
+};
 
 function getHreflangs(language: AppLanguage): string[] {
   return HREFLANGS[language] ?? [language];
 }
 
-/** The page at a URL, or null for a page that does not exist (the 404 page). */
-function getPageId(pathname: string): PageId | null {
-  return getPageIdByPath(stripLanguageFromPathname(pathname));
+/** The city pair of a time difference page, or null for another path. */
+function getPagePair(pagePath: string) {
+  const slug = getTimeDifferenceSlug(pagePath);
+
+  return slug === null ? null : getCityPair(slug);
+}
+
+function getPairTextContext(language: AppLanguage, pair: CityPair): PairTextContext {
+  return {
+    t: (key, values) => translate(language, key, values),
+    language,
+    pair,
+    now: new Date(),
+  };
+}
+
+/** What the SEO texts of a page fill in: the cities and the current difference of a pair. */
+function getSeoTextValues(language: AppLanguage, pagePath: string): TranslationValues | undefined {
+  const pair = getPagePair(pagePath);
+
+  if (!pair) {
+    return undefined;
+  }
+
+  const context = getPairTextContext(language, pair);
+
+  return {
+    ...getPairCityNames(context.t, pair),
+    difference: getDifferenceSentence(context),
+  };
 }
 
 /** <title> of any URL, the 404 page included. */
 export function getPageTitle(language: AppLanguage, pathname: string) {
-  const pageId = getPageId(pathname);
+  const pagePath = stripLanguageFromPathname(pathname);
+  const pageId = getPageIdByPath(pagePath);
 
-  return translate(language, pageId ? `seo.pages.${PAGES[pageId].seoKey}.title` : 'seo.notFound.title');
+  return pageId
+    ? translate(language, `seo.pages.${PAGES[pageId].seoKey}.title`, getSeoTextValues(language, pagePath))
+    : translate(language, 'seo.notFound.title');
 }
 
-export function getSeoMetadata(language: AppLanguage, pageId: PageId) {
-  const page = PAGES[pageId];
+/** The SEO texts and URLs of a page, by its path without the language: '/world-clock'. */
+export function getSeoMetadata(language: AppLanguage, pagePath: string) {
+  const pageId = getPageIdByPath(pagePath);
+
+  if (!pageId) {
+    throw new Error(`No page at ${pagePath}`);
+  }
+
+  const page: Page = PAGES[pageId];
   const { seoKey, isIndexed } = page;
   const hasCanonicalElsewhere = 'canonicalPage' in page;
-  const canonicalUrl = getAbsoluteUrl(getCanonicalLanguagePath(language, getCanonicalPagePath(pageId)));
+  const canonicalUrl = getAbsoluteUrl(getCanonicalLanguagePath(language, getCanonicalPagePath(pagePath)));
+  const values = getSeoTextValues(language, pagePath);
 
   return {
     canonicalUrl,
-    description: translate(language, `seo.pages.${seoKey}.description`),
+    description: translate(language, `seo.pages.${seoKey}.description`, values),
     imageUrl: getAbsoluteUrl(SEO_IMAGE_PATH),
     language,
-    ogDescription: translate(language, `seo.pages.${seoKey}.ogDescription`),
-    ogTitle: translate(language, `seo.pages.${seoKey}.ogTitle`),
+    ogDescription: translate(language, `seo.pages.${seoKey}.ogDescription`, values),
+    ogTitle: translate(language, `seo.pages.${seoKey}.ogTitle`, values),
     pageId,
+    pagePath,
     // A page with a canonical elsewhere stays indexable, so search engines follow the canonical.
     robots: isIndexed || hasCanonicalElsewhere ? 'index, follow' : 'noindex, follow',
     seoKey,
     siteName: SITE_NAME,
-    title: translate(language, `seo.pages.${seoKey}.title`),
+    title: translate(language, `seo.pages.${seoKey}.title`, values),
   };
 }
 
-export function getSeoJsonLd(language: AppLanguage, pageId: PageId) {
-  const metadata = getSeoMetadata(language, pageId);
+/** The questions and answers of a page's FAQ block, or null for a page without one. */
+function getFaqItems(language: AppLanguage, pagePath: string, seoKey: string) {
+  const pair = getPagePair(pagePath);
+
+  if (pair) {
+    return getTimeDifferenceFaq(getPairTextContext(language, pair));
+  }
+
+  return FAQ_SCHEMA_KEYS[seoKey]?.map(({ title, text }) => ({
+    title: translate(language, title),
+    text: translate(language, text),
+  })) ?? null;
+}
+
+export function getSeoJsonLd(language: AppLanguage, pagePath: string) {
+  const metadata = getSeoMetadata(language, pagePath);
   const schemas: SeoJsonLdSchema[] = [
     {
       id: 'website',
@@ -194,20 +267,20 @@ export function getSeoJsonLd(language: AppLanguage, pageId: PageId) {
     });
   }
 
-  if (metadata.seoKey === 'timeZoneConverter') {
-    const faqIds = ['what', 'dst', 'cities', 'offsets'] as const;
+  const faqItems = getFaqItems(language, pagePath, metadata.seoKey);
 
+  if (faqItems) {
     schemas.push({
       id: 'faq',
       value: {
         '@context': 'https://schema.org',
         '@type': 'FAQPage',
-        mainEntity: faqIds.map((faqId) => ({
+        mainEntity: faqItems.map(({ title, text }) => ({
           '@type': 'Question',
-          name: translate(language, `timeZoneConverter.faq.${faqId}.title`),
+          name: title,
           acceptedAnswer: {
             '@type': 'Answer',
-            text: translate(language, `timeZoneConverter.faq.${faqId}.text`),
+            text,
           },
         })),
       },
@@ -217,8 +290,8 @@ export function getSeoJsonLd(language: AppLanguage, pageId: PageId) {
   return schemas;
 }
 
-export function getAlternateLinks(pageId: PageId) {
-  const canonicalPagePath = getCanonicalPagePath(pageId);
+export function getAlternateLinks(pagePath: string) {
+  const canonicalPagePath = getCanonicalPagePath(pagePath);
   const links = SUPPORTED_LANGUAGES.flatMap((supportedLanguage) => (
     getHreflangs(supportedLanguage).map((hreflang) => ({
       href: getAbsoluteUrl(getCanonicalLanguagePath(supportedLanguage, canonicalPagePath)),
@@ -249,16 +322,16 @@ function meta(key: 'name' | 'property', value: string, content: string): HeadTag
  * The 404 page gets only a description and "noindex": it has no canonical URL or translations.
  */
 export function getHeadTags(language: AppLanguage, pathname: string): HeadTag[] {
-  const pageId = getPageId(pathname);
+  const pagePath = stripLanguageFromPathname(pathname);
 
-  if (!pageId) {
+  if (!getPageIdByPath(pagePath)) {
     return [
       meta('name', 'description', translate(language, 'seo.notFound.description')),
       meta('name', 'robots', 'noindex, follow'),
     ];
   }
 
-  const metadata = getSeoMetadata(language, pageId);
+  const metadata = getSeoMetadata(language, pagePath);
 
   return [
     meta('name', 'description', metadata.description),
@@ -282,7 +355,7 @@ export function getHeadTags(language: AppLanguage, pathname: string): HeadTag[] 
     meta('name', 'twitter:title', metadata.ogTitle),
     meta('name', 'twitter:description', metadata.ogDescription),
     meta('name', 'twitter:image', metadata.imageUrl),
-    ...getAlternateLinks(pageId).map((link): HeadTag => ({
+    ...getAlternateLinks(pagePath).map((link): HeadTag => ({
       name: 'link',
       attributes: {
         rel: 'alternate',
@@ -290,7 +363,7 @@ export function getHeadTags(language: AppLanguage, pathname: string): HeadTag[] 
         href: link.href,
       },
     })),
-    ...getSeoJsonLd(language, pageId).map((schema): HeadTag => ({
+    ...getSeoJsonLd(language, pagePath).map((schema): HeadTag => ({
       name: 'script',
       attributes: {
         type: 'application/ld+json',

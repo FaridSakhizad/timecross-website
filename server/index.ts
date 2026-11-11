@@ -2,6 +2,7 @@ import { CONTACT_API_PATH } from '../src/config';
 
 import { handleContactRequest } from './contact';
 import { handlePageRequest } from './pages';
+import { handleSitemapRequest } from './sitemap';
 
 // Env (bindings and secrets) is generated from wrangler.jsonc: npm run cf-typegen.
 type WorkerHandler = {
@@ -14,6 +15,10 @@ export default {
 
     if (url.pathname === CONTACT_API_PATH) {
       return handleContactRequest(request, env);
+    }
+
+    if (url.pathname === '/sitemap.xml') {
+      return handleSitemapRequest();
     }
 
     if (url.pathname.startsWith('/api/')) {

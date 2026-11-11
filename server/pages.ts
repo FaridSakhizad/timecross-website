@@ -10,6 +10,7 @@ import {
   isLocalizedPagePath,
   stripLanguageFromPathname,
 } from '../src/i18n/languageRouting';
+import { getMovedPagePath } from '../src/routes';
 import {
   getHeadTags,
   getPageTitle,
@@ -46,13 +47,16 @@ function getPreferredLanguage(request: Request): AppLanguage {
   return getLanguageFromAcceptLanguage(request.headers.get('accept-language'));
 }
 
-/** A redirect to the same page at `pathname`; the query is kept (shared planner and converter links). */
-function redirectTo(url: URL, pathname: string) {
+/**
+ * A redirect to the same page at `pathname`; the query is kept (shared planner and converter links).
+ * Temporary by default: most redirects depend on the visitor's language.
+ */
+function redirectTo(url: URL, pathname: string, status: 301 | 302 = 302) {
   const location = new URL(pathname, url);
 
   location.search = url.search;
 
-  return Response.redirect(location, 302);
+  return Response.redirect(location, status);
 }
 
 function getRedirectResponse(request: Request, url: URL) {
@@ -67,6 +71,15 @@ function getRedirectResponse(request: Request, url: URL) {
   // The old prefix of Ukrainian.
   if (firstPathPart === 'uk') {
     return redirectTo(url, getCanonicalLanguagePath(routeLanguage ?? 'en', pagePath));
+  }
+
+  // A page that moved for good: a reversed city pair.
+  const movedPagePath = getMovedPagePath(pagePath);
+
+  if (movedPagePath) {
+    return routeLanguage
+      ? redirectTo(url, getCanonicalLanguagePath(routeLanguage, movedPagePath), 301)
+      : redirectTo(url, getCanonicalLanguagePath(getPreferredLanguage(request), movedPagePath));
   }
 
   // A page without a language: the same page in the visitor's language.

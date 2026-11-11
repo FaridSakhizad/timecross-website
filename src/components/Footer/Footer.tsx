@@ -43,6 +43,14 @@ export default function Footer() {
           </li>
           <li className="footerMenu-item">
             <a
+              href={getCanonicalLanguagePath(language, PAGES.hourClock.path)}
+              className="footerMenu-link"
+            >
+              {t('common.hourClockLabel')}
+            </a>
+          </li>
+          <li className="footerMenu-item">
+            <a
               href={getCanonicalLanguagePath(language, PAGES.terms.path)}
               className="footerMenu-link"
             >

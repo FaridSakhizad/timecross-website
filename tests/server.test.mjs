@@ -78,6 +78,7 @@ test('a URL that is not a page gets the 404 page with status 404, without a redi
     ['/de/cities/extra', {}, 'de', 'Seite nicht gefunden'],
     ['/xx/cities', {}, 'en', 'Page not found'],
     ['/no-such-page', { 'accept-language': 'fr' }, 'fr', 'Page introuvable'],
+    ['/es/time-difference/madrid-mars', {}, 'es', 'Página no encontrada'],
   ];
 
   for (const [path, headers, language, heading] of cases) {
@@ -119,6 +120,34 @@ test('a localized page is rendered on the server with its language and head tags
   assert.match(html, /<link rel="canonical" href="https:\/\/timecross\.app\/ru\/world-clock" data-managed-seo="true" \/>/);
   assert.match(html, /<meta name="robots" content="index, follow" data-managed-seo="true" \/>/);
   assert.match(html, /<div id="root">\s*<[^/]/);
+});
+
+test('a time difference page is rendered for its pair; the reversed pair redirects to it for good', async () => {
+  const response = await request('/es/time-difference/madrid-mexico-city');
+  const html = await response.text();
+
+  assert.equal(response.status, 200);
+  assert.match(html, /<title>Diferencia horaria entre Madrid y Ciudad de México — TimeCross<\/title>/);
+  assert.match(html, /<link rel="canonical" href="https:\/\/timecross\.app\/es\/time-difference\/madrid-mexico-city" data-managed-seo="true" \/>/);
+  assert.match(html, /<h1 class="timeDifferenceHero-title">Diferencia horaria entre Madrid y Ciudad de México<\/h1>/);
+  assert.match(html, /Madrid va (7|8) horas por delante de Ciudad de México\./);
+
+  const reversed = await request('/es/time-difference/mexico-city-madrid?x=1');
+
+  assert.equal(reversed.status, 301);
+  assert.equal(location(reversed), `${SITE}/es/time-difference/madrid-mexico-city?x=1`);
+  assert.equal(location(await request('/time-difference/mexico-city-madrid', { headers: { 'accept-language': 'de' } })), `${SITE}/de/time-difference/madrid-mexico-city`);
+});
+
+test('the sitemap is made from the page list', async () => {
+  const response = await request('/sitemap.xml');
+  const xml = await response.text();
+
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get('content-type'), /^application\/xml/);
+  assert.match(xml, /<loc>https:\/\/timecross\.app\/pt-br\/time-difference\/lisbon-sao-paulo<\/loc>/);
+  assert.match(xml, /<loc>https:\/\/timecross\.app\/ua\/24-hour-clock<\/loc>/);
+  assert.doesNotMatch(xml, /\/convert<|:pair/);
 });
 
 test('a full-screen tool page points to its main page with the canonical', async () => {

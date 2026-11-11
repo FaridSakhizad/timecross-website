@@ -10,7 +10,9 @@ import Seo from '../components/Seo';
 import { usePreferences } from '../hooks/usePreferences';
 import { useI18n, type TranslationKey } from '../i18n';
 import { getCanonicalLanguagePath } from '../i18n/languageRouting';
-import { PAGES } from '../routes';
+import { PAGES, getTimeDifferencePath } from '../routes';
+import { getCityPairs } from '../timeDifference';
+import { getPairCityNames } from '../timeDifferenceTexts';
 import { formatClockTime, getRelativeDayMarker } from '../utils/time';
 
 import { getEnabledExamples, getExampleDate } from './converterExamples';
@@ -124,7 +126,7 @@ export default function TimeZoneConverterPage() {
 
                     <div className="timeZoneConverterExamples-list">
                       {region.cities.map((city) => {
-                        const cityName = t(`timeZoneConverter.exampleCityNames.${city.id}`);
+                        const cityName = t(`cityNames.${city.id}`);
 
                         return (
                           <article
@@ -167,7 +169,7 @@ export default function TimeZoneConverterPage() {
                                             key={target.id}
                                           >
                                             {t(resultKey, {
-                                              city: t(`timeZoneConverter.exampleCityNames.${target.id}`),
+                                              city: t(`cityNames.${target.id}`),
                                               time: formatClockTime(exampleDate, target.timezone, timeFormat),
                                             })}
                                           </li>
@@ -188,6 +190,24 @@ export default function TimeZoneConverterPage() {
             </div>
           </section>
         )}
+
+        <section className="section timeZoneConverterPairs">
+          <div className="container timeZoneConverterPairs-container">
+            <h2 className="section-title">{t('timeDifference.popularTitle')}</h2>
+            <ul className="timeZoneConverterPairs-list">
+              {getCityPairs().map((pair) => (
+                <li key={pair.slug}>
+                  <a
+                    className="timeZoneConverterLinks-link"
+                    href={getCanonicalLanguagePath(language, getTimeDifferencePath(pair.slug))}
+                  >
+                    {t('timeDifference.pairLink', getPairCityNames(t, pair))}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
 
         <section className="section timeZoneConverterFaq">
           <div className="container timeZoneConverterFaq-container">
@@ -241,6 +261,12 @@ export default function TimeZoneConverterPage() {
                 href={getCanonicalLanguagePath(language, PAGES.meetingTimePlanner.path)}
               >
                 {t('timeZoneConverter.meetingPlannerLink')}
+              </a>
+              <a
+                className="timeZoneConverterLinks-link"
+                href={getCanonicalLanguagePath(language, PAGES.hourClock.path)}
+              >
+                {t('common.hourClockLabel')}
               </a>
             </div>
           </div>

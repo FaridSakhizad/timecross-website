@@ -15,10 +15,12 @@ import CitiesPage from './pages/CitiesPage';
 import ConverterPage from './pages/ConverterPage';
 import GridPage from './pages/GridPage';
 import HomePage from './pages/HomePage';
+import HourClockPage from './pages/HourClockPage';
 import MeetingTimePlannerPage from './pages/MeetingTimePlannerPage';
 import NotFoundPage from './pages/NotFoundPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import TermsOfUsePage from './pages/TermsOfUsePage';
+import TimeDifferencePage from './pages/TimeDifferencePage';
 import TimeZoneConverterPage from './pages/TimeZoneConverterPage';
 import WorldClockPage from './pages/WorldClockPage';
 import { PAGES, PAGE_IDS, type PageId } from './routes';
@@ -80,6 +82,8 @@ const PAGE_COMPONENTS: Record<PageId, ComponentType> = {
   worldClock: WorldClockPage,
   meetingTimePlanner: MeetingTimePlannerPage,
   timeZoneConverter: TimeZoneConverterPage,
+  hourClock: HourClockPage,
+  timeDifference: TimeDifferencePage,
   privacy: PrivacyPolicyPage,
   terms: TermsOfUsePage,
 };

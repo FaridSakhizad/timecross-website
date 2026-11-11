@@ -16,6 +16,12 @@ type LeafPaths<T> = {
  * The other languages have exactly the same keys (tests/locales.test.mjs).
  */
 export type TranslationKey = LeafPaths<typeof en>;
+
+/** The last part of the keys under a prefix: "cityNames.berlin" → "berlin" for "cityNames". */
+export type TranslationKeysUnder<Prefix extends string, Key = TranslationKey> = Key extends `${Prefix}.${infer Id}`
+  ? Id
+  : never;
+
 export type TranslationValues = Record<string, string | number>;
 
 /**

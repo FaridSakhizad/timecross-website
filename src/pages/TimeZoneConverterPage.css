@@ -236,6 +236,20 @@
   gap: 28px;
 }
 
+.timeZoneConverterPairs-container {
+  text-align: center;
+}
+
+.timeZoneConverterPairs-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
 .timeZoneConverterLinks-list {
   display: flex;
   flex-wrap: wrap;

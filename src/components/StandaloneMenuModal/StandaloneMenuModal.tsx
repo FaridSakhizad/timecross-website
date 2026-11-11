@@ -68,6 +68,14 @@ export default function StandaloneMenuModal({
           {t('common.timeZoneConverterLabel')}
         </Link>
 
+        <Link
+          to={getCanonicalLanguagePath(language, PAGES.hourClock.path)}
+          className="standaloneMenuModal-item"
+          onClick={onClose}
+        >
+          {t('common.hourClockLabel')}
+        </Link>
+
         <button
           type="button"
           className="standaloneMenuModal-item"

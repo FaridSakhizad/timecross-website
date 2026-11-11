@@ -102,6 +102,13 @@ export default function Header({
             >
               {t('common.timeZoneConverterLabel')}
             </NavLink>
+
+            <NavLink
+              to={getCanonicalLanguagePath(language, PAGES.hourClock.path)}
+              className={({ isActive }) => `headerMenu-item headerMenu-item_link ${isActive ? 'isActive' : ''}`}
+            >
+              {t('common.hourClockLabel')}
+            </NavLink>
           </div>
         </div>
       </div>
