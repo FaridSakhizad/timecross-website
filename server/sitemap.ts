@@ -14,10 +14,14 @@ export function getSitemapUrls() {
   ));
 }
 
+/** Which build made the sitemap, for people checking a deploy; search engines ignore it. */
+const BUILD_ID = import.meta.env.VITE_BUILD_ID ?? 'dev';
+
 export function handleSitemapRequest() {
   const urls = getSitemapUrls().map((url) => `  <url><loc>${url}</loc></url>`);
   const xml = [
     '<?xml version="1.0" encoding="UTF-8"?>',
+    `<!-- TimeCross sitemap, build ${BUILD_ID} -->`,
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
     ...urls,
     '</urlset>',

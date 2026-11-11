@@ -148,6 +148,7 @@ test('the sitemap is made from the page list', async () => {
   assert.match(xml, /<loc>https:\/\/timecross\.app\/pt-br\/time-difference\/lisbon-sao-paulo<\/loc>/);
   assert.match(xml, /<loc>https:\/\/timecross\.app\/ua\/24-hour-clock<\/loc>/);
   assert.doesNotMatch(xml, /\/convert<|:pair/);
+  assert.match(xml, /^<\?xml[^>]*\?>\n<!-- TimeCross sitemap, build [^<>]+ -->\n<urlset/);
 });
 
 test('a full-screen tool page points to its main page with the canonical', async () => {
