@@ -205,7 +205,7 @@
 
 .timelinesEmbedded {
   position: relative;
-  margin: auto;
+  margin: 0 15px;
 
   .timelineGrid {
     max-height: 600px;
