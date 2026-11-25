@@ -1,3 +1,6 @@
+import { getCityIdByGeonameId } from './cities';
+import { formatEventDate, getEventSummaryRow } from './components/TimelineGrid/shared/eventSummary';
+import { getEventParams, readGridEventUrlState } from './components/TimelineGrid/shared/eventUrlState';
 import {
   APP_STORE_URL,
   GOOGLE_PLAY_URL,
@@ -7,6 +10,7 @@ import {
 } from './config';
 import { SUPPORTED_LANGUAGES } from './i18n';
 import { translate, type TranslationKey, type TranslationValues } from './i18n/dictionaries';
+import { getIntlLocale } from './i18n/intlLocale';
 import {
   getCanonicalLanguagePath,
   stripLanguageFromPathname,
@@ -18,7 +22,7 @@ import {
   getTimeDifferenceSlug,
   type Page,
 } from './routes';
-import type { AppLanguage } from './settings';
+import type { AppLanguage, StoredCity } from './settings';
 import { getCityPair, type CityPair } from './timeDifference';
 import {
   getDifferenceSentence,
@@ -318,10 +322,44 @@ function meta(key: 'name' | 'property', value: string, content: string): HeadTag
 }
 
 /**
+ * What a link to a shared meeting shows in messengers: "Weekly sync · Wed, November 18" and the
+ * hours in every city, on the first city's date. Null for a URL without a meeting.
+ */
+function getSharedEventPreview(language: AppLanguage, pagePath: string, search: string) {
+  const pageId = getPageIdByPath(pagePath);
+  const event = pageId === 'meetingTimePlanner' || pageId === 'grid' ? readGridEventUrlState(search) : null;
+  const firstCity = event?.cities[0];
+
+  if (!event || !firstCity) {
+    return null;
+  }
+
+  const options = { locale: getIntlLocale(language), timeFormat: '24h' as const, referenceTimezone: firstCity.timezone };
+  const title = event.title || translate(language, 'sharedEvent.defaultTitle');
+
+  // The localized names of the other cities are in the browser's city data, not on the server.
+  const getName = ({ customName, city, cityId }: StoredCity) => {
+    const knownCityId = getCityIdByGeonameId(cityId);
+
+    return customName || (knownCityId ? translate(language, `cityNames.${knownCityId}`) : city);
+  };
+
+  return {
+    // The month in full: a preview has the room the planner's card has not.
+    title: `${title} · ${formatEventDate(event, options, 'long')}`,
+    description: event.cities
+      .map((city) => getEventSummaryRow(event, getName(city), city.timezone, options))
+      .map(({ name, time, otherDay }) => `${name} ${time}${otherDay ? ` (${otherDay})` : ''}`)
+      .join(' · '),
+  };
+}
+
+/**
  * Everything in <head> that depends on the page and the language, except <title> and <html lang>.
  * The 404 page gets only a description and "noindex": it has no canonical URL or translations.
+ * `search` matters only for a shared meeting, which its link preview describes.
  */
-export function getHeadTags(language: AppLanguage, pathname: string): HeadTag[] {
+export function getHeadTags(language: AppLanguage, pathname: string, search = ''): HeadTag[] {
   const pagePath = stripLanguageFromPathname(pathname);
 
   if (!getPageIdByPath(pagePath)) {
@@ -331,7 +369,13 @@ export function getHeadTags(language: AppLanguage, pathname: string): HeadTag[] 
     ];
   }
 
-  const metadata = getSeoMetadata(language, pagePath);
+  const preview = getSharedEventPreview(language, pagePath, search);
+  const metadata = {
+    ...getSeoMetadata(language, pagePath),
+    ...(preview && { ogTitle: preview.title, ogDescription: preview.description }),
+  };
+  // The preview's own URL: some apps share og:url, which must keep the meeting.
+  const ogUrl = preview ? `${metadata.canonicalUrl}${getEventParams(search, '')}` : metadata.canonicalUrl;
 
   return [
     meta('name', 'description', metadata.description),
@@ -345,7 +389,7 @@ export function getHeadTags(language: AppLanguage, pathname: string): HeadTag[] 
     },
     meta('property', 'og:site_name', metadata.siteName),
     meta('property', 'og:type', 'website'),
-    meta('property', 'og:url', metadata.canonicalUrl),
+    meta('property', 'og:url', ogUrl),
     meta('property', 'og:title', metadata.ogTitle),
     meta('property', 'og:description', metadata.ogDescription),
     meta('property', 'og:image', metadata.imageUrl),

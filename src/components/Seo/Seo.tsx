@@ -7,6 +7,7 @@ import {
   getPageTitle,
   type HeadTag,
 } from '../../seoMetadata';
+import { getEventParams } from '../TimelineGrid/shared/eventUrlState';
 
 const MANAGED_TAG_SELECTOR = '[data-managed-seo="true"]';
 
@@ -32,14 +33,16 @@ function createHeadElement({ name, attributes, content }: HeadTag) {
 export default function Seo() {
   const location = useLocation();
   const { language } = useI18n();
+  // Of the query, only a shared meeting changes the head; the widgets rewrite the rest as they are used.
+  const eventParams = getEventParams(location.search, '');
 
   useEffect(() => {
     document.documentElement.lang = language;
     document.title = getPageTitle(language, location.pathname);
 
     document.head.querySelectorAll(MANAGED_TAG_SELECTOR).forEach((element) => element.remove());
-    document.head.append(...getHeadTags(language, location.pathname).map(createHeadElement));
-  }, [language, location.pathname]);
+    document.head.append(...getHeadTags(language, location.pathname, eventParams).map(createHeadElement));
+  }, [eventParams, language, location.pathname]);
 
   return null;
 }

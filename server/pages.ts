@@ -103,9 +103,9 @@ function renderHeadTag({ name, attributes, content }: HeadTag) {
   return `<${name} ${renderedAttributes} />`;
 }
 
-function injectSsrHtml(template: string, appHtml: string, language: AppLanguage, pathname: string) {
-  const title = getPageTitle(language, pathname);
-  const managedHead = getHeadTags(language, pathname)
+function injectSsrHtml(template: string, appHtml: string, language: AppLanguage, url: URL) {
+  const title = getPageTitle(language, url.pathname);
+  const managedHead = getHeadTags(language, url.pathname, url.search)
     .map(renderHeadTag)
     .join('\n    ');
 
@@ -136,7 +136,7 @@ async function serveSsrPage(request: Request, env: Env, url: URL) {
 
   const template = await templateResponse.text();
   const appHtml = render(`${url.pathname}${url.search}`, language);
-  const html = injectSsrHtml(template, appHtml, language, url.pathname);
+  const html = injectSsrHtml(template, appHtml, language, url);
   const headers = new Headers(templateResponse.headers);
 
   // The validators of index.html do not describe this page: the same ETag on every page would let

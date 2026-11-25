@@ -142,3 +142,41 @@ test('the title of a page comes from its SEO texts', () => {
   assert.equal(getPageTitle('ru', '/ru/world-clock'), getSeoMetadata('ru', '/world-clock').title);
   assert.equal(getPageTitle('es', '/es/time-difference/madrid-mexico-city'), 'Diferencia horaria entre Madrid y Ciudad de México — TimeCross');
 });
+
+test('a shared meeting link previews its title, date and hours in every city', async () => {
+  const { buildGridEventUrl } = await import('../src/components/TimelineGrid/shared/eventUrlState.ts');
+  const { slotsOf } = await import('./support/gridSlots.mjs');
+  const start = Date.parse('2026-11-18T15:00:00Z');
+  const cities = [
+    { id: 'mad', city: 'Madrid', cityId: '3117735', timezone: 'Europe/Madrid', customName: '' },
+    { id: 'ny', city: 'New York City', timezone: 'America/New_York', customName: 'Office NY' },
+    { id: 'bkk', city: 'Bangkok', timezone: 'Asia/Bangkok', customName: '' },
+  ];
+  const hours = slotsOf(cities.flatMap((city) => [0, 1].map((index) => ({ rowId: city.id, start: start + index * 3600000 }))));
+  const { search } = new URL(buildGridEventUrl('https://timecross.app/es/meeting-time-planner', cities, hours, 'Weekly sync'));
+  const content = (tags, property) => tags.find((tag) => tag.attributes.property === property || tag.attributes.name === property)?.attributes.content;
+
+  for (const pathname of ['/es/meeting-time-planner', '/es/grid']) {
+    const tags = getHeadTags('es', pathname, `${search}&at=2026-11-18T15:00:00.000Z`);
+
+    assert.equal(content(tags, 'og:title'), 'Weekly sync · mié, 18 de noviembre');
+    assert.equal(content(tags, 'og:description'), 'Madrid 16:00 – 18:00 · Office NY 10:00 – 12:00 · Bangkok 22:00 – 00:00');
+    assert.equal(content(tags, 'twitter:title'), content(tags, 'og:title'));
+    assert.equal(content(tags, 'og:url'), `${SITE_URL}/es/meeting-time-planner${search}`);
+    assert.equal(findTags(tags, 'link', 'rel', 'canonical')[0].attributes.href, `${SITE_URL}/es/meeting-time-planner`);
+  }
+
+  const untitled = new URL(buildGridEventUrl('https://timecross.app/', cities.slice(2), hours.filter((hour) => hour.rowId === 'bkk'))).search;
+
+  assert.equal(content(getHeadTags('ru', '/ru/meeting-time-planner', untitled), 'og:title'), 'Встреча · ср, 18 ноября');
+  assert.equal(content(getHeadTags('ru', '/ru/meeting-time-planner', untitled), 'og:description'), 'Bangkok 22:00 – 00:00');
+  // A city we translate gets its name in the language, from its geonameId.
+  assert.match(content(getHeadTags('ru', '/ru/meeting-time-planner', search), 'og:description'), /^Мадрид 16:00 – 18:00 · Office NY/);
+  assert.equal(content(getHeadTags('es', '/es/world-clock', search), 'og:url'), `${SITE_URL}/es/world-clock`);
+
+  // A meeting from half past to half past.
+  const halves = hours.filter((hour) => hour.rowId === 'mad').slice(1, -1);
+  const halfLink = new URL(buildGridEventUrl('https://timecross.app/', cities.slice(0, 1), halves)).search;
+
+  assert.equal(content(getHeadTags('en', '/en/meeting-time-planner', halfLink), 'og:description'), 'Madrid 16:30 – 17:30');
+});

@@ -58,3 +58,12 @@ export const CITIES = {
 export function getCitySlug(id: CityId) {
   return id.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
 }
+
+const CITY_IDS_BY_GEONAME_ID = new Map(
+  (Object.entries(CITIES) as [CityId, City][]).map(([id, city]) => [city.geonameId, id]),
+);
+
+/** Our city with this geonameId, which has a translated name; null for the other cities. */
+export function getCityIdByGeonameId(geonameId: string | undefined) {
+  return (geonameId && CITY_IDS_BY_GEONAME_ID.get(geonameId)) || null;
+}
