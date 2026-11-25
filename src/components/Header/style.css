@@ -99,6 +99,7 @@
 .headerMenu-item_link {
   min-width: 75px;
   text-align: center;
+  padding-inline: 12px;
 
   &.isActive {
     font-weight: 500;
