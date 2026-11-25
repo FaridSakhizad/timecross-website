@@ -52,7 +52,7 @@ import { getDefaultSourceCity } from './defaultSourceCity';
 import { readConverterUrlState, writeConverterUrlState } from './urlState';
 
 // The date picker (react-day-picker + date-fns locales) is loaded only when it is first needed.
-const loadDatePickerModal = () => import('./DatePickerModal');
+const loadDatePickerModal = () => import('../DatePickerModal');
 const DatePickerModal = lazy(loadDatePickerModal);
 
 type TimeZoneConverterProps = {

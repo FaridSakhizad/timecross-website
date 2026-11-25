@@ -1,5 +1,5 @@
 import 'react-day-picker/style.css';
-import './DatePickerModal.css';
+import './style.css';
 
 import { de } from 'date-fns/locale/de';
 import { enUS } from 'date-fns/locale/en-US';
@@ -80,15 +80,15 @@ export default function DatePickerModal({
   return (
     <Modal
       isOpen={isOpen}
-      className="timeZoneDatePickerModal"
+      className="datePickerModal"
       title={dateLabel}
       onClose={onClose}
     >
-      <div className="timeZoneDatePickerModal-body">
+      <div className="datePickerModal-body">
         <DayPicker
           animate
           captionLayout="dropdown"
-          className="timeZoneDatePicker"
+          className="datePicker"
           locale={DATE_PICKER_LOCALES[language]}
           mode="single"
           defaultMonth={calendarMonth}
