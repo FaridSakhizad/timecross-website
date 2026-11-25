@@ -1,0 +1,59 @@
+/* Measured unseen at the window's corner first, then shown in its place (see Tooltips). */
+.tooltip {
+  position: fixed;
+  z-index: 3000;
+  top: 0;
+  left: 0;
+  max-width: min(260px, calc(100vw - 16px));
+  padding: 6px 10px;
+  border-radius: 8px;
+  box-sizing: border-box;
+  font: normal 500 13px/1.3 var(--body-font-family-1);
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.tooltip_dark {
+  background-color: rgba(16, 17, 26, 0.94);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  color: #fff;
+}
+
+.tooltip_light {
+  background-color: #fff;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+  color: rgba(var(--body-text-color), 1);
+}
+
+.tooltip_top,
+.tooltip_bottom {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.15s ease;
+}
+
+.tooltip-arrow {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background-color: inherit;
+  translate: -50% 0;
+  rotate: 45deg;
+}
+
+.tooltip_top .tooltip-arrow {
+  top: calc(100% - 4px);
+}
+
+.tooltip_bottom .tooltip-arrow {
+  bottom: calc(100% - 4px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tooltip_top,
+  .tooltip_bottom {
+    transition: none;
+  }
+}
