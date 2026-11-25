@@ -1,42 +1,52 @@
+import { FEATURES } from '../../../config.ts';
 import {
   getArrowKeyStep,
   getEdgeScrollSpeed,
+  getFrameSidePadding,
   getGridSelectionBounds,
   getGridStep,
+  getHourCellSlots,
+  getSelectedHourStarts,
+  GRID_FRAME_COVERS_USER_HOURS,
   getKeyboardResizeAxis,
-  gridHourKey,
+  getWholeHourSlots,
+  gridSlotKey,
   intersectsSelection,
   resizeGridSelection,
   resizeGridSelectionRect,
   type GridResizeDirection,
   type GridSelectionCellGeometry,
-  type SelectedGridHour,
+  type SelectedGridSlot,
   type SelectionRect,
 } from '../shared/gridSelection.ts';
 import { createGridSelectionSnapAnimation } from '../shared/gridSelectionSnapAnimation.ts';
 
 import { getInitialDesktopGridSelection } from './initialGridSelection.ts';
 
-const INTERACTIVE_TARGET = 'a, button, input, select, textarea, [contenteditable], [role="button"], [role="slider"], .timelineGrid-userHours';
+const INTERACTIVE_TARGET = 'a, button, input, select, textarea, [contenteditable], [role="button"], [role="slider"], .timelineGrid-userHours, [data-grid-selection-card]';
 
 type Cell = GridSelectionCellGeometry & { element: HTMLElement };
 const DESKTOP_EDGE_SCROLL = { edge: 28, maxSpeed: 16, slowdown: 3 };
 
 export const GRID_SELECTION_FRAME_HORIZONTAL_PADDING = 6;
-export const GRID_SELECTION_FRAME_TOP_PADDING = -5;
-export const GRID_SELECTION_FRAME_BOTTOM_PADDING = 0;
+export const GRID_SELECTION_FRAME_TOP_PADDING = 1;
+export const GRID_SELECTION_FRAME_BOTTOM_PADDING = 16;
+
+export type GridSelectionInteraction = 'marquee' | 'resize';
 
 export function attachGridSelection(
   viewport: HTMLDivElement,
   overlay: HTMLDivElement,
-  initialSelection: SelectedGridHour[],
-  onCommit: (hours: SelectedGridHour[]) => void,
-  onInteractionChange: (active: boolean) => void,
+  initialSelection: SelectedGridSlot[],
+  onCommit: (hours: SelectedGridSlot[]) => void,
+  /** A drag starts or ends: drawing a new frame ("marquee") or moving an edge of the frame ("resize"). */
+  onInteractionChange: (interaction: GridSelectionInteraction | null) => void,
   options: { selectionFrame?: HTMLDivElement; marqueeEnabled?: boolean } = {},
 ) {
   const selectionFrame = options.selectionFrame;
   const snapAnimation = createGridSelectionSnapAnimation(selectionFrame);
   let frameBounds: SelectionRect | null = null;
+  let sidePadding = getFrameSidePadding(initialSelection, GRID_SELECTION_FRAME_HORIZONTAL_PADDING);
   let committed = initialSelection;
   let preview = committed;
   let session: {
@@ -50,6 +60,8 @@ export function attachGridSelection(
     resizeDirection?: GridResizeDirection;
     resizeBounds?: SelectionRect;
     resizeLimits?: SelectionRect;
+    /** The rectangle drawn so far, in content coordinates. */
+    marquee?: SelectionRect;
   } | null = null;
   let frame = 0;
   let suppressClick = false;
@@ -69,8 +81,8 @@ export function attachGridSelection(
     const x = clientX - origin.left - viewport.clientLeft + viewport.scrollLeft;
     const y = clientY - origin.top - viewport.clientTop + viewport.scrollTop;
 
-    return x < frameBounds.left - GRID_SELECTION_FRAME_HORIZONTAL_PADDING
-      || x > frameBounds.right + GRID_SELECTION_FRAME_HORIZONTAL_PADDING
+    return x < frameBounds.left - sidePadding.left
+      || x > frameBounds.right + sidePadding.right
       || y < frameBounds.top - GRID_SELECTION_FRAME_TOP_PADDING
       || y > frameBounds.bottom + GRID_SELECTION_FRAME_BOTTOM_PADDING;
   };
@@ -78,13 +90,14 @@ export function attachGridSelection(
   const getCells = (): Cell[] => {
     const origin = viewport.getBoundingClientRect();
 
-    return [...viewport.querySelectorAll<HTMLElement>('[data-grid-selection-row][data-grid-hour-start]')].map((element) => {
+    // An hour's cell in halves: the frame snaps to them.
+    return [...viewport.querySelectorAll<HTMLElement>('[data-grid-selection-row][data-grid-hour-start]')].flatMap((element) => {
       const rect = element.getBoundingClientRect();
       const rowRect = element.closest('.timelineGrid-row')?.getBoundingClientRect() ?? rect;
 
-      return {
+      return getHourCellSlots({
         element,
-        hour: { rowId: element.dataset.gridSelectionRow!, start: Number(element.dataset.gridHourStart) },
+        slot: { rowId: element.dataset.gridSelectionRow!, start: Number(element.dataset.gridHourStart) },
         rect: {
           left: rect.left - origin.left - viewport.clientLeft + viewport.scrollLeft,
           top: rect.top - origin.top - viewport.clientTop + viewport.scrollTop,
@@ -93,7 +106,7 @@ export function attachGridSelection(
         },
         rowTop: rowRect.top - origin.top - viewport.clientTop + viewport.scrollTop,
         rowBottom: rowRect.bottom - origin.top - viewport.clientTop + viewport.scrollTop,
-      };
+      });
     });
   };
 
@@ -108,20 +121,33 @@ export function attachGridSelection(
       return;
     }
 
-    selectionFrame.style.left = `${frameBounds.left - GRID_SELECTION_FRAME_HORIZONTAL_PADDING}px`;
-    selectionFrame.style.top = `${frameBounds.top - GRID_SELECTION_FRAME_TOP_PADDING}px`;
-    selectionFrame.style.width = `${frameBounds.right - frameBounds.left + GRID_SELECTION_FRAME_HORIZONTAL_PADDING * 2}px`;
-    selectionFrame.style.height = `${frameBounds.bottom - frameBounds.top + GRID_SELECTION_FRAME_TOP_PADDING + GRID_SELECTION_FRAME_BOTTOM_PADDING}px`;
+    // From the user's hours at the top, or from the first selected city.
+    const top = GRID_FRAME_COVERS_USER_HOURS ? 0 : frameBounds.top;
+
+    selectionFrame.style.left = `${frameBounds.left - sidePadding.left}px`;
+    selectionFrame.style.top = `${top - GRID_SELECTION_FRAME_TOP_PADDING}px`;
+    selectionFrame.style.width = `${frameBounds.right - frameBounds.left + sidePadding.left + sidePadding.right}px`;
+    selectionFrame.style.height = `${frameBounds.bottom - top + GRID_SELECTION_FRAME_TOP_PADDING + GRID_SELECTION_FRAME_BOTTOM_PADDING}px`;
   };
 
-  const paint = (cells: Cell[], hours: SelectedGridHour[], visualBounds?: SelectionRect) => {
-    const keys = new Set(hours.map(gridHourKey));
+  const paint = (cells: Cell[], hours: SelectedGridSlot[], visualBounds?: SelectionRect) => {
+    const keys = new Set(hours.map(gridSlotKey));
+    // An hour's cell is selected when either of its halves is.
+    const selectedElements = new Set(cells.filter((cell) => keys.has(gridSlotKey(cell.slot))).map((cell) => cell.element));
 
-    for (const cell of cells) {
-      cell.element.classList.toggle('isSelected', keys.has(gridHourKey(cell.hour)));
+    for (const { element } of cells) {
+      element.classList.toggle('isSelected', selectedElements.has(element));
+    }
+
+    // The user's hours above the cities show the hours the selection touches.
+    const hourStarts = getSelectedHourStarts(hours);
+
+    for (const hour of viewport.querySelectorAll<HTMLElement>('.timelineGrid-userHours [data-grid-hour-start]')) {
+      hour.classList.toggle('isSelected', hourStarts.has(Number(hour.dataset.gridHourStart)));
     }
 
     frameBounds = visualBounds ?? getGridSelectionBounds(cells, hours);
+    sidePadding = getFrameSidePadding(hours, GRID_SELECTION_FRAME_HORIZONTAL_PADDING, visualBounds && session?.resizeDirection);
     positionFrame();
   };
 
@@ -144,8 +170,19 @@ export function attachGridSelection(
     }
 
     frameBounds = getGridSelectionBounds(previous.cells, committed);
+    sidePadding = getFrameSidePadding(committed, GRID_SELECTION_FRAME_HORIZONTAL_PADDING);
 
-    if (commit && previous.resizeDirection) {
+    if (commit && previous.marquee && selectionFrame && frameBounds) {
+      // The frame grows out of the drawn rectangle into whole hours, instead of replacing it.
+      const { left, top, right, bottom } = previous.marquee;
+
+      selectionFrame.hidden = false;
+      selectionFrame.style.left = `${left}px`;
+      selectionFrame.style.top = `${top}px`;
+      selectionFrame.style.width = `${right - left}px`;
+      selectionFrame.style.height = `${bottom - top}px`;
+      snapAnimation.snap(positionFrame);
+    } else if (commit && previous.resizeDirection) {
       snapAnimation.snap(positionFrame);
     } else {
       positionFrame();
@@ -155,7 +192,7 @@ export function attachGridSelection(
       onCommit(committed);
     }
 
-    onInteractionChange(false);
+    onInteractionChange(null);
 
     if (viewport.hasPointerCapture(previous.pointerId)) {
       viewport.releasePointerCapture(previous.pointerId);
@@ -203,6 +240,14 @@ export function attachGridSelection(
 
     const rect = { left: Math.min(current.x, x), top: Math.min(current.y, y), right: Math.max(current.x, x), bottom: Math.max(current.y, y) };
 
+    // A frame for the time only is drawn across every city, whichever rows the pointer crosses,
+    // and over the user's hours above them.
+    if (FEATURES.timeOnlyFrame && current.cells.length) {
+      rect.top = GRID_FRAME_COVERS_USER_HOURS ? 0 : Math.min(...current.cells.map((cell) => cell.rowTop));
+      rect.bottom = Math.max(...current.cells.map((cell) => cell.rowBottom));
+    }
+
+    current.marquee = rect;
     overlay.hidden = false;
     const visibleLeft = Math.max(origin.left + viewport.clientLeft, rect.left - viewport.scrollLeft + origin.left + viewport.clientLeft);
     const visibleTop = Math.max(origin.top + viewport.clientTop, rect.top - viewport.scrollTop + origin.top + viewport.clientTop);
@@ -213,9 +258,10 @@ export function attachGridSelection(
     overlay.style.top = `${visibleTop}px`;
     overlay.style.width = `${Math.max(0, visibleRight - visibleLeft)}px`;
     overlay.style.height = `${Math.max(0, visibleBottom - visibleTop)}px`;
-    const hits = current.cells.filter((cell) => intersectsSelection(rect, cell.rect)).map((cell) => cell.hour);
+    const hits = current.cells.filter((cell) => intersectsSelection(rect, cell.rect)).map((cell) => cell.slot);
 
-    preview = hits;
+    // Drawn in whole hours; the handles and the keyboard then move its sides by half an hour.
+    preview = getWholeHourSlots(current.cells, hits);
     paint(current.cells, preview);
 
     if (viewport.scrollLeft !== beforeLeft || viewport.scrollTop !== beforeTop) {
@@ -272,7 +318,7 @@ export function attachGridSelection(
     suppressClick = false;
     preview = committed;
     viewport.setPointerCapture(event.pointerId);
-    onInteractionChange(true);
+    onInteractionChange('marquee');
     event.preventDefault();
   };
 
@@ -314,11 +360,11 @@ export function attachGridSelection(
       cells,
       resizeDirection: direction,
       resizeBounds,
-      resizeLimits: getGridSelectionBounds(cells, cells.map((cell) => cell.hour))!,
+      resizeLimits: getGridSelectionBounds(cells, cells.map((cell) => cell.slot))!,
     };
     preview = committed;
     viewport.setPointerCapture(event.pointerId);
-    onInteractionChange(true);
+    onInteractionChange('resize');
     event.preventDefault();
     event.stopPropagation();
   };
@@ -460,7 +506,8 @@ export function attachGridSelection(
   };
 
   const keydown = (event: KeyboardEvent) => {
-    if (event.key === 'Escape' && (session || committed.length)) {
+    // Escape already used by something above the grid (a modal) leaves the selection alone.
+    if (event.key === 'Escape' && !event.defaultPrevented && (session || committed.length)) {
       if (session?.resizeDirection) {
         cancel();
       } else {

@@ -18,12 +18,23 @@ These presentation options select page framing and scroll ownership, not an inpu
 ## Ownership
 
 `desktop/` owns mouse panning, marquee selection, its frame/handles, desktop layout, toolbar and styles.
-`mobile/` owns touch resizing, initial range selection, page scroll locking, mobile layout, toolbar and styles.
+`mobile/` owns touch resizing, page scroll locking, mobile layout, toolbar and styles.
 Neither implementation imports anything from the other folder (enforced by `no-restricted-imports` in `eslint.config.js`).
 
 `shared/` owns city/session state, URL state (`sessionUrlState.ts` for cities and date,
 `eventUrlState.ts` for a shared event), hour cells (`timelineCells.ts`, `constants.ts`), user hour blocks,
-city row markup, calendar actions and pure range geometry. Its scroll helpers work
+city row markup, calendar actions and pure range geometry, including the "New meeting" range
+(`getMeetingSeed`: every city, one hour in the middle of the screen). A selection is made of
+half-hour slots (`SelectedGridSlot`, `GRID_SLOT_MS`): the cells stay whole hours, but both
+geometry readers split each cell into two halves (`getHourCellSlots`). A frame picks only the
+time and spans every city, behind `FEATURES.timeOnlyFrame` (who the meeting is for is checked in
+the selection card): it is drawn across every city in whole hours (`getWholeHourSlots`), and its two
+side handles (`GRID_FRAME_HANDLES`) and the keyboard then move its sides by 30 minutes. Such a frame takes in the user's hours too
+(`GRID_FRAME_COVERS_USER_HOURS`): it starts at the top of the content, where their row is, and is
+drawn above that sticky row; the hours a selection touches show as selected in it as well
+(`getSelectedHourStarts`), painted by the controllers while a frame is drawn. The
+selection card sits by the frame on both versions; both place it with `selectionCardPlacement.ts`. A cell shows as selected when either of its
+halves is (`isGridHourSelected`). Its scroll helpers work
 with an explicit page or element target, without deciding which implementation should be displayed.
 Shared modules do not import either implementation or perform device detection (also enforced by ESLint).
 

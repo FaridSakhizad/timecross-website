@@ -3,21 +3,27 @@
   width: max-content;
   min-width: 100%;
   overflow: clip;
+  padding-bottom: 16px;
 }
 
 .timelineGridSelectionRectangle,
 .timelineGridSelectionFrame {
-  border: 1px solid #fff;
+  border-inline: 2px solid #fff;
   box-sizing: border-box;
   box-shadow: 0 0 30px 0 rgba(0, 0, 0, 0.15);
   pointer-events: none;
-  border-radius: 14px;
+  /*border-radius: 14px;*/
   backdrop-filter: contrast(1.5);
 }
 
 .timelineGridSelectionFrame {
   position: absolute;
   z-index: 20;
+}
+
+/* Over the user's hours at the top too: above their row, which stays put while the cities scroll. */
+.timelineGridSelectionFrame_overUserHours {
+  z-index: 31;
 }
 
 :where(.timelineGridSelectionFrame .timelineGridSelectionHandle) {

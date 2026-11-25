@@ -92,7 +92,10 @@ export default function Modal({
     }, 0);
 
     const handleKeyDown = (event: KeyboardEvent) => {
+      // Escape closes only the modal: what is under it (a grid's selection, say) checks
+      // defaultPrevented and keeps itself.
       if (event.key === 'Escape' && !event.defaultPrevented) {
+        event.preventDefault();
         onCloseRef.current();
       }
 
@@ -102,11 +105,12 @@ export default function Modal({
     };
 
     document.body.style.overflow = 'hidden';
-    window.addEventListener('keydown', handleKeyDown);
+    // In the capture phase: before the page's own Escape handlers on the window.
+    window.addEventListener('keydown', handleKeyDown, true);
 
     return () => {
       window.clearTimeout(focusTimeoutId);
-      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keydown', handleKeyDown, true);
       document.body.style.overflow = previousBodyOverflow;
       previouslyFocused?.focus({ preventScroll: true });
     };

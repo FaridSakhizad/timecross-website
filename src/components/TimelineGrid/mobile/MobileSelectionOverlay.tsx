@@ -2,6 +2,8 @@ import '../shared/selection.css';
 import type { RefObject } from 'react';
 
 import { useI18n } from '../../../i18n';
+import { cx } from '../../../utils/classNames';
+import { GRID_FRAME_COVERS_USER_HOURS, GRID_FRAME_HANDLES } from '../shared/gridSelection';
 
 type MobileSelectionOverlayProps = {
   enabled: boolean;
@@ -21,11 +23,11 @@ export default function MobileSelectionOverlay({
   return (
     <div
       ref={frameRef}
-      className="timelineGridSelectionFrame timelineGridSelectionFrame_mobile"
+      className={cx('timelineGridSelectionFrame', 'timelineGridSelectionFrame_mobile', GRID_FRAME_COVERS_USER_HOURS && 'timelineGridSelectionFrame_overUserHours')}
       data-grid-selection-frame
       hidden
     >
-      {(['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw'] as const).map((direction) => (
+      {GRID_FRAME_HANDLES.map((direction) => (
         <button
           key={direction}
           type="button"

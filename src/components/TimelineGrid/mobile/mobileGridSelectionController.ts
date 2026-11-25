@@ -1,14 +1,18 @@
 import {
   getArrowKeyStep,
   getEdgeScrollSpeed,
+  getFrameSidePadding,
   getGridSelectionBounds,
   getGridStep,
   getKeyboardResizeAxis,
-  gridHourKey,
+  getSelectedHourStarts,
+  GRID_FRAME_COVERS_USER_HOURS,
+  gridSlotKey,
+  isGridHourSelected,
   resizeGridSelection,
   resizeGridSelectionRect,
   type GridResizeDirection,
-  type SelectedGridHour,
+  type SelectedGridSlot,
   type SelectionRect,
 } from '../shared/gridSelection.ts';
 import { createGridSelectionSnapAnimation } from '../shared/gridSelectionSnapAnimation.ts';
@@ -27,8 +31,8 @@ const DIRECTIONS = new Set(['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw']);
 
 export function attachMobileGridSelection(
   frame: HTMLDivElement,
-  initial: SelectedGridHour[],
-  onCommit: (hours: SelectedGridHour[]) => void,
+  initial: SelectedGridSlot[],
+  onCommit: (hours: SelectedGridSlot[]) => void,
   onInteractionChange: (active: boolean) => void,
   viewport?: HTMLDivElement,
 ) {
@@ -43,6 +47,7 @@ export function attachMobileGridSelection(
   let committed = initial;
   let preview = initial;
   let bounds = getGridSelectionBounds(cells, initial);
+  let sidePadding = getFrameSidePadding(initial, MOBILE_SELECTION_HORIZONTAL_PADDING);
   let animation = 0;
   let session: {
     pointerId?: number;
@@ -64,25 +69,32 @@ export function attachMobileGridSelection(
     }
 
     const origin = root.getBoundingClientRect();
+    // From the user's hours at the top of the content, or from the first selected city.
+    const top = GRID_FRAME_COVERS_USER_HOURS ? origin.top + scrollY() : bounds.top;
 
     frame.hidden = false;
-    frame.style.left = `${bounds.left - origin.left - scrollX() - MOBILE_SELECTION_HORIZONTAL_PADDING}px`;
-    frame.style.top = `${bounds.top - origin.top - scrollY() - MOBILE_SELECTION_TOP_PADDING}px`;
-    frame.style.width = `${bounds.right - bounds.left + MOBILE_SELECTION_HORIZONTAL_PADDING * 2}px`;
-    frame.style.height = `${bounds.bottom - bounds.top + MOBILE_SELECTION_TOP_PADDING + MOBILE_SELECTION_BOTTOM_PADDING}px`;
+    frame.style.left = `${bounds.left - origin.left - scrollX() - sidePadding.left}px`;
+    frame.style.top = `${top - origin.top - scrollY() - MOBILE_SELECTION_TOP_PADDING}px`;
+    frame.style.width = `${bounds.right - bounds.left + sidePadding.left + sidePadding.right}px`;
+    frame.style.height = `${bounds.bottom - top + MOBILE_SELECTION_TOP_PADDING + MOBILE_SELECTION_BOTTOM_PADDING}px`;
   };
 
-  const paint = (hours: SelectedGridHour[], visualBounds?: SelectionRect) => {
-    const keys = new Set(hours.map(gridHourKey));
+  const paint = (hours: SelectedGridSlot[], visualBounds?: SelectionRect) => {
+    const keys = new Set(hours.map(gridSlotKey));
 
     for (const element of root.querySelectorAll<HTMLElement>('.timelineGrid-row_mobile [data-grid-hour-start]')) {
-      element.classList.toggle('isSelected', keys.has(gridHourKey({
-        rowId: element.dataset.gridSelectionRow!,
-        start: Number(element.dataset.gridHourStart),
-      })));
+      element.classList.toggle('isSelected', isGridHourSelected(keys, element.dataset.gridSelectionRow!, Number(element.dataset.gridHourStart)));
+    }
+
+    // The user's hours above the cities show the hours the selection touches.
+    const hourStarts = getSelectedHourStarts(hours);
+
+    for (const hour of root.querySelectorAll<HTMLElement>('.timelineGrid-userHours [data-grid-hour-start]')) {
+      hour.classList.toggle('isSelected', hourStarts.has(Number(hour.dataset.gridHourStart)));
     }
 
     bounds = visualBounds ?? getGridSelectionBounds(cells, hours);
+    sidePadding = getFrameSidePadding(hours, MOBILE_SELECTION_HORIZONTAL_PADDING, visualBounds && session?.direction);
     position();
   };
 
@@ -184,7 +196,7 @@ export function attachMobileGridSelection(
       handle,
       direction,
       bounds: initialBounds,
-      limits: getGridSelectionBounds(cells, cells.map((cell) => cell.hour))!,
+      limits: getGridSelectionBounds(cells, cells.map((cell) => cell.slot))!,
       x: clientX + scrollX(),
       y: clientY + scrollY(),
       clientX,
@@ -464,7 +476,7 @@ export function attachMobileGridSelection(
   document.addEventListener('visibilitychange', visibility);
   paint(committed);
   return {
-    setSelection(hours: SelectedGridHour[]) {
+    setSelection(hours: SelectedGridSlot[]) {
       if (hours === committed) {
         return;
       }

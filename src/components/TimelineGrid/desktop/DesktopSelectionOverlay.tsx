@@ -3,6 +3,8 @@ import type { RefObject } from 'react';
 import { createPortal } from 'react-dom';
 
 import { useI18n } from '../../../i18n';
+import { cx } from '../../../utils/classNames';
+import { GRID_FRAME_COVERS_USER_HOURS, GRID_FRAME_HANDLES } from '../shared/gridSelection';
 
 type DesktopSelectionOverlayProps = {
   overlayRef: RefObject<HTMLDivElement | null>;
@@ -28,11 +30,11 @@ export default function DesktopSelectionOverlay({
       )}
       <div
         ref={frameRef}
-        className="timelineGridSelectionFrame timelineGridSelectionFrame_desktop"
+        className={cx('timelineGridSelectionFrame', 'timelineGridSelectionFrame_desktop', GRID_FRAME_COVERS_USER_HOURS && 'timelineGridSelectionFrame_overUserHours')}
         data-grid-selection-frame
         hidden
       >
-        {(['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw'] as const).map((direction) => (
+        {GRID_FRAME_HANDLES.map((direction) => (
           <button
             key={direction}
             type="button"

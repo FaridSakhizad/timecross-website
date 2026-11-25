@@ -1,6 +1,12 @@
-import { getTimeZoneOffsetMinutesFromParts, getZonedDateParts } from '../../../utils/time.ts';
+import { FEATURES } from '../../../config.ts';
+import { getTimeZoneOffsetMinutesFromParts, getUtcDateForZonedTime, getZonedDateParts } from '../../../utils/time.ts';
 
-export type SelectedGridHour = { rowId: string; start: number };
+/**
+ * Half an hour in a city's row. A selection is made of them, so a meeting can start and end at
+ * :30 (a new frame is drawn in whole hours, its sides then move by halves); an hour's cell shows
+ * as selected when either of its halves is.
+ */
+export type SelectedGridSlot = { rowId: string; start: number };
 
 export type SelectionRect = {
   left: number;
@@ -10,14 +16,33 @@ export type SelectionRect = {
 };
 
 export type GridSelectionCellGeometry = {
-  hour: SelectedGridHour;
+  slot: SelectedGridSlot;
   rect: SelectionRect;
   rowTop: number;
   rowBottom: number;
 };
 
 export type GridResizeDirection = 'n' | 'ne' | 'e' | 'se' | 's' | 'sw' | 'w' | 'nw';
+
+const ALL_HANDLES: readonly GridResizeDirection[] = ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw'];
+
+/**
+ * The frame's handles. A frame for the time only spans every city (who the meeting is for is
+ * checked in its card), so only its sides move (see FEATURES.timeOnlyFrame).
+ */
+export const GRID_FRAME_HANDLES: readonly GridResizeDirection[] = FEATURES.timeOnlyFrame ? ['w', 'e'] : ALL_HANDLES;
+
+/**
+ * A frame for the time only takes in the user's own hours too: the row of hours at the top of the
+ * grid, above the cities. That row is the grid content's first, so such a frame starts at the top
+ * of the content (in content coordinates, 0) and is drawn above the row, which stays at the top
+ * while the cities scroll under it.
+ */
+export const GRID_FRAME_COVERS_USER_HOURS = FEATURES.timeOnlyFrame;
 export const GRID_HOUR_MS = 3600000;
+/** The selection's step: half an hour. */
+export const GRID_SLOT_MS = 1800000;
+export const GRID_SLOTS_PER_HOUR = GRID_HOUR_MS / GRID_SLOT_MS;
 
 /** Step of an arrow key along one axis: -1 for `backKey`, 1 for `forwardKey`, otherwise 0. */
 export function getArrowKeyStep(key: string, backKey: string, forwardKey: string) {
@@ -77,29 +102,107 @@ export function getNearestIndex(values: number[], target: number) {
   return nearestIndex;
 }
 
+/** How long a new meeting is: one hour, stretched with the frame's side handles. */
+export const MEETING_SEED_HOURS = 1;
+
 /**
- * Start index of the `count` consecutive rows whose middle is nearest to `targetY`. On a tie the
- * lower group wins, also when the target falls between two rows.
+ * The halves of an hour's cell, each half its width: what a frame snaps to. The cell's
+ * other fields (its element, say) are kept.
  */
-export function getNearestRowGroupStart(rows: GridSelectionCellGeometry[], count: number, targetY: number) {
-  let groupStart = 0;
-  let nearestDistance = Infinity;
+export function getHourCellSlots<Cell extends GridSelectionCellGeometry>(cell: Cell): Cell[] {
+  const width = (cell.rect.right - cell.rect.left) / GRID_SLOTS_PER_HOUR;
 
-  for (let index = 0; count > 0 && index + count <= rows.length; index += 1) {
-    const first = rows[index];
-    const last = rows[index + count - 1];
+  return Array.from({ length: GRID_SLOTS_PER_HOUR }, (_, index) => ({
+    ...cell,
+    slot: { rowId: cell.slot.rowId, start: cell.slot.start + index * GRID_SLOT_MS },
+    rect: {
+      ...cell.rect,
+      left: cell.rect.left + index * width,
+      right: index === GRID_SLOTS_PER_HOUR - 1 ? cell.rect.right : cell.rect.left + (index + 1) * width,
+    },
+  }));
+}
 
-    if (first && last) {
-      const distance = Math.abs((first.rowTop + last.rowBottom) / 2 - targetY);
+/**
+ * A newly drawn frame takes whole hours: every slot of each hour that `touched` reaches, in the
+ * order of `cells`. Only moving the frame's sides afterwards picks half hours.
+ */
+export function getWholeHourSlots(cells: GridSelectionCellGeometry[], touched: SelectedGridSlot[]) {
+  const hourKey = (slot: SelectedGridSlot) => gridSlotKey({ rowId: slot.rowId, start: Math.floor(slot.start / GRID_HOUR_MS) * GRID_HOUR_MS });
+  const hours = new Set(touched.map(hourKey));
 
-      if (distance <= nearestDistance) {
-        groupStart = index;
-        nearestDistance = distance;
-      }
-    }
+  return cells.filter((cell) => hours.has(hourKey(cell.slot))).map((cell) => cell.slot);
+}
+
+/**
+ * How far a frame stands out of its selection at each side: by `padding`, into the gap between the
+ * cells, at a whole hour; not at all at half past, where the side is on the middle of the cell.
+ * While a side is dragged (`moving`), it follows the pointer without any.
+ */
+export function getFrameSidePadding(hours: SelectedGridSlot[], padding: number, moving?: GridResizeDirection) {
+  const span = getMeetingSpan(hours);
+  const at = (time: number | undefined) => (time === undefined || time % GRID_HOUR_MS === 0 ? padding : 0);
+
+  return {
+    left: moving?.includes('w') ? 0 : at(span?.start),
+    right: moving?.includes('e') ? 0 : at(span?.end),
+  };
+}
+
+/**
+ * A selection moved to another day at the same hours on the clock in `timezone`: 13:00–15:00 on
+ * Wednesday becomes 13:00–15:00 on Friday, also across a change of daylight saving time.
+ */
+export function moveSlotsByDays(slots: SelectedGridSlot[], days: number, timezone: string): SelectedGridSlot[] {
+  return slots.map(({ rowId, start }) => {
+    const { year, month, day, hour, minute } = getZonedDateParts(timezone, new Date(start));
+    const target = new Date(Date.UTC(year, month - 1, day + days));
+
+    return {
+      rowId,
+      start: getUtcDateForZonedTime(timezone, {
+        year: target.getUTCFullYear(),
+        month: target.getUTCMonth() + 1,
+        day: target.getUTCDate(),
+        hour,
+        minute,
+      }).getTime(),
+    };
+  });
+}
+
+/** The hours a selection touches, in any city: the user's hours above them show as selected. */
+export function getSelectedHourStarts(hours: SelectedGridSlot[]): ReadonlySet<number> {
+  return new Set(hours.map((hour) => Math.floor(hour.start / GRID_HOUR_MS) * GRID_HOUR_MS));
+}
+
+/** Whether an hour's cell shows as selected: either of its halves is. */
+export function isGridHourSelected(slotKeys: ReadonlySet<string>, rowId: string, hourStart: number) {
+  return Array.from({ length: GRID_SLOTS_PER_HOUR }, (_, index) => hourStart + index * GRID_SLOT_MS)
+    .some((start) => slotKeys.has(gridSlotKey({ rowId, start })));
+}
+
+/**
+ * A new meeting: every city, at the hour nearest to `targetX` (the middle of the screen). A meeting
+ * is for everyone in the list; cities are left out by moving the top or bottom edge of the frame.
+ */
+export function getMeetingSeed(cells: GridSelectionCellGeometry[], targetX: number): SelectedGridSlot[] {
+  const [firstCell] = cells;
+
+  if (!firstCell) {
+    return [];
   }
 
-  return groupStart;
+  const columns = cells
+    .filter((cell) => cell.slot.rowId === firstCell.slot.rowId)
+    .sort((a, b) => a.slot.start - b.slot.start);
+  const center = getNearestIndex(columns.map(({ rect }) => (rect.left + rect.right) / 2), targetX);
+  // A whole hour: from the first half of the hour in the middle.
+  const length = MEETING_SEED_HOURS * GRID_SLOTS_PER_HOUR;
+  const first = Math.max(0, Math.min(columns.length - length, center - (center % GRID_SLOTS_PER_HOUR)));
+  const starts = new Set(columns.slice(first, first + length).map((cell) => cell.slot.start));
+
+  return cells.filter((cell) => starts.has(cell.slot.start)).map((cell) => cell.slot);
 }
 
 /** Distance between the first two sorted grid positions; 1 when there are fewer than two. */
@@ -110,11 +213,11 @@ export function getGridStep(positions: number[]) {
 }
 
 /** Set key of an hour. The start goes first: a number has no ":", so no row id can make two keys equal. */
-export const gridHourKey = (hour: SelectedGridHour) => `${hour.start}:${hour.rowId}`;
+export const gridSlotKey = (hour: SelectedGridSlot) => `${hour.start}:${hour.rowId}`;
 
-export function getGridSelectionBounds(cells: GridSelectionCellGeometry[], hours: SelectedGridHour[]): SelectionRect | null {
-  const keys = new Set(hours.map(gridHourKey));
-  const selected = cells.filter((cell) => keys.has(gridHourKey(cell.hour)));
+export function getGridSelectionBounds(cells: GridSelectionCellGeometry[], hours: SelectedGridSlot[]): SelectionRect | null {
+  const keys = new Set(hours.map(gridSlotKey));
+  const selected = cells.filter((cell) => keys.has(gridSlotKey(cell.slot)));
 
   if (!selected.length) {
     return null;
@@ -130,7 +233,7 @@ export function getGridSelectionBounds(cells: GridSelectionCellGeometry[], hours
 
 export function resizeGridSelection(
   cells: GridSelectionCellGeometry[],
-  initial: SelectedGridHour[],
+  initial: SelectedGridSlot[],
   direction: GridResizeDirection,
   x: number,
   y: number,
@@ -141,8 +244,8 @@ export function resizeGridSelection(
     return [];
   }
 
-  const columns = [...new Map(cells.map((cell) => [cell.hour.start, cell.rect])).entries()].sort((a, b) => a[0] - b[0]);
-  const rows = [...new Map(cells.map((cell) => [cell.hour.rowId, { top: cell.rowTop, bottom: cell.rowBottom }])).entries()]
+  const columns = [...new Map(cells.map((cell) => [cell.slot.start, cell.rect])).entries()].sort((a, b) => a[0] - b[0]);
+  const rows = [...new Map(cells.map((cell) => [cell.slot.rowId, { top: cell.rowTop, bottom: cell.rowBottom }])).entries()]
     .sort((a, b) => a[1].top - b[1].top);
 
   const nearest = getNearestIndex;
@@ -176,12 +279,12 @@ export function resizeGridSelection(
     return [];
   }
 
-  return cells.filter((cell) => rowIds.has(cell.hour.rowId)
-    && cell.hour.start >= firstStart
-    && cell.hour.start <= lastStart).map((cell) => cell.hour);
+  return cells.filter((cell) => rowIds.has(cell.slot.rowId)
+    && cell.slot.start >= firstStart
+    && cell.slot.start <= lastStart).map((cell) => cell.slot);
 }
 
-// Live frame edges are continuous; resizeGridSelection remains the whole-cell preview/commit.
+// Live frame edges are continuous; resizeGridSelection remains the whole-slot preview/commit.
 export function resizeGridSelectionRect(
   initial: SelectionRect,
   limits: SelectionRect,
@@ -214,7 +317,7 @@ export function intersectsSelection(a: SelectionRect, b: SelectionRect) {
   return a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
 }
 
-export function getGridHourRanges(hours: SelectedGridHour[]) {
+export function getGridSlotRanges(hours: SelectedGridSlot[]) {
   const rows = new Map<string, number[]>();
 
   for (const hour of hours) {
@@ -239,14 +342,44 @@ export function getGridHourRanges(hours: SelectedGridHour[]) {
       const previous = ranges.at(-1);
 
       if (previous?.end === start) {
-        previous.end += GRID_HOUR_MS;
+        previous.end += GRID_SLOT_MS;
       } else {
-        ranges.push({ rowId, start, end: start + GRID_HOUR_MS });
+        ranges.push({ rowId, start, end: start + GRID_SLOT_MS });
       }
     }
 
     return ranges;
   });
+}
+
+/** From the selection's first hour to the end of its last; null without a selection. */
+export function getMeetingSpan(hours: SelectedGridSlot[]) {
+  const ranges = getGridSlotRanges(hours);
+
+  if (!ranges.length) {
+    return null;
+  }
+
+  return {
+    start: Math.min(...ranges.map((range) => range.start)),
+    end: Math.max(...ranges.map((range) => range.end)),
+  };
+}
+
+/**
+ * The meeting's hours: the selection's span in the row of every participant, whether or not the
+ * selection covers that row.
+ */
+export function getMeetingSlots(hours: SelectedGridSlot[], participantIds: ReadonlySet<string>): SelectedGridSlot[] {
+  const span = getMeetingSpan(hours);
+
+  if (!span) {
+    return [];
+  }
+
+  const starts = Array.from({ length: (span.end - span.start) / GRID_SLOT_MS }, (_, index) => span.start + index * GRID_SLOT_MS);
+
+  return [...participantIds].flatMap((rowId) => starts.map((start) => ({ rowId, start })));
 }
 
 /** Machine format for calendar files and links: "2026-11-03", "21:05", "UTC+05:30". */
@@ -266,7 +399,7 @@ function formatZonedDateTime(time: number, timezone: string) {
 }
 
 export function buildGridCalendarEvent(
-  hours: SelectedGridHour[],
+  hours: SelectedGridSlot[],
   cities: {
     id: string;
     name: string;
@@ -276,7 +409,7 @@ export function buildGridCalendarEvent(
   title: string,
 ) {
   const validIds = new Set(cities.map((city) => city.id));
-  const ranges = getGridHourRanges(hours.filter((hour) => validIds.has(hour.rowId)));
+  const ranges = getGridSlotRanges(hours.filter((hour) => validIds.has(hour.rowId)));
 
   if (!ranges.length) {
     return null;
@@ -315,5 +448,6 @@ export function buildOutlookCalendarUrl(event: Pick<GridCalendarEvent, 'start' |
   url.searchParams.set('startdt', new Date(event.start).toISOString());
   url.searchParams.set('enddt', new Date(event.end).toISOString());
   url.searchParams.set('body', event.details);
+
   return url.href;
 }

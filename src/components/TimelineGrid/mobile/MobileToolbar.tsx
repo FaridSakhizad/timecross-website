@@ -9,11 +9,13 @@ import { cx } from '../../../utils/classNames';
 import StandaloneMenuModal from '../../StandaloneMenuModal';
 import type { GridToolbarProps } from '../shared/types';
 
-import { type MobileSelectionControlsProps } from './MobileSelectionControls';
-
-type MobileToolbarProps = GridToolbarProps & MobileSelectionControlsProps;
+type MobileToolbarProps = GridToolbarProps & {
+  /** While hours are selected. */
+  editDisabled: boolean;
+};
 
 export default function MobileToolbar({
+  editDisabled,
   isEditMode,
   onAddCityClick,
   onEditModeToggle,
@@ -47,8 +49,11 @@ export default function MobileToolbar({
           <button
             className={cx('widgetHeaderButton', isEditMode && 'isActive')}
             type="button"
-            aria-label="edit"
+            aria-label={t('common.edit')}
             aria-pressed={isEditMode}
+            // Cities are not reordered or removed under a selection: finish with it first.
+            disabled={editDisabled}
+            title={editDisabled ? t('common.editDisabledHint') : undefined}
             onClick={onEditModeToggle}
           >
             <i className="citiesHeaderButton-icon citiesHeaderButton-icon_edit" />

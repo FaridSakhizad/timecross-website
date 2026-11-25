@@ -1,4 +1,3 @@
-import { useI18n } from '../../../i18n';
 import GridRow, { type GridRowClasses } from '../shared/GridRow';
 import GridUserHours from '../shared/GridUserHours';
 import type { GridTimelineProps } from '../shared/types';
@@ -13,20 +12,20 @@ export default function DesktopTimeline({
   browserTimezone,
   cities,
   isEditMode,
-  onAddCityClick,
   onDeleteCity,
-  selectedHourKeys,
+  selectedSlotKeys,
+  selectedHourStarts,
+  meetingExcludedIds,
   timeFormat,
   timelineDates,
   userCells,
 }: GridTimelineProps) {
-  const { t } = useI18n();
-
   return (
     <>
       <GridUserHours
         userCells={userCells}
         className="timelineGrid-userHours_desktop"
+        selectedHourStarts={selectedHourStarts}
       />
       {cities.map((city) => (
         <GridRow
@@ -38,20 +37,11 @@ export default function DesktopTimeline({
           isEditMode={isEditMode}
           timelineDates={timelineDates}
           timeFormat={timeFormat}
-          selectedHourKeys={selectedHourKeys}
+          selectedSlotKeys={selectedSlotKeys}
+          isDimmed={meetingExcludedIds.has(city.id)}
           onDelete={onDeleteCity}
         />
       ))}
-      <div className="timelineGrid-addTimezoneButtonBox">
-        <button
-          className="timelineGrid-addTimezoneButton"
-          type="button"
-          onClick={onAddCityClick}
-        >
-          <i className="timelineGrid-addTimezoneButtonIcon" />
-          <span className="timelineGrid-addTimezoneButtonText">{t('common.addCity')}</span>
-        </button>
-      </div>
     </>
   );
 }

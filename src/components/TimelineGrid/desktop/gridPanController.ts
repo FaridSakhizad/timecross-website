@@ -1,5 +1,5 @@
 const PAN_THRESHOLD = 5;
-const INTERACTIVE_TARGET = 'a, button, input, select, textarea, [contenteditable]:not([contenteditable="false"]), [role="button"], [role="slider"]';
+const INTERACTIVE_TARGET = 'a, button, input, select, textarea, [contenteditable]:not([contenteditable="false"]), [role="button"], [role="slider"], [data-grid-selection-card]';
 
 type PanSession = {
   pointerId: number;

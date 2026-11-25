@@ -8,7 +8,19 @@
     "createCalendarEvent": "Créer un événement dans Google Calendar",
     "createOutlookEvent": "Créer un événement dans Outlook",
     "clearSelection": "Effacer la sélection",
-    "selectHours": "Sélectionner les heures",
+    "collapseSelectionCard": "Réduire",
+    "expandSelectionCard": "Afficher la réunion",
+    "selectParticipantsHint": "Cochez au moins une ville",
+    "durationHours": "{hours} h",
+    "durationMinutes": "{minutes} min",
+    "durationHoursMinutes": "{hours} h {minutes} min",
+    "createEvent": "Créer un événement",
+    "createEventMore": "Créer un événement…",
+    "copyEventDetails": "Copier dans le presse-papiers",
+    "eventDetailsCopied": "Copié",
+    "copyEventDetailsError": "Impossible de copier la réunion.",
+    "selectMeetingHours": "Choisir les heures d’une réunion",
+    "selectMeetingHoursShort": "Heures de réunion",
     "resizeSelection": "Redimensionner la sélection",
     "calendarEventTitle": "Réunion TimeCross",
     "sitePitch": "Comprendre l'heure partout dans le monde",
@@ -17,6 +29,7 @@
     "googlePlay": "Disponible sur Google Play",
     "comingSoon": "Bientôt disponible",
     "home": "Accueil",
+    "today": "Aujourd’hui",
     "menu": "Menu",
     "darkMode": "Mode sombre",
     "lightMode": "Mode clair",
@@ -42,7 +55,8 @@
     "meetingPlannerLabel": "Réunions",
     "timeZoneConverterLabel": "Convertisseur",
     "hourClockLabel": "Format 24 h",
-    "edit": "Modifier"
+    "edit": "Modifier",
+    "editDisabledHint": "Retirez la sélection pour modifier les villes"
   },
   "languages": {
     "en": "English",
@@ -355,6 +369,19 @@
     "nextTitle": "Explorer d’autres outils de temps",
     "gridLink": "Planificateur",
     "worldClockLink": "Horloge mondiale"
+  },
+  "sharedEvent": {
+    "defaultTitle": "Réunion",
+    "shareTitle": "Partager la réunion",
+    "titleLabel": "Nom de la réunion",
+    "titlePlaceholder": "Par exemple, Point hebdomadaire",
+    "titleHint": "Toute personne qui ouvre le lien voit le nom, la date et les horaires dans chaque ville.",
+    "shareButton": "Partager le lien",
+    "googleCalendar": "Google Agenda",
+    "outlook": "Outlook",
+    "ics": "Télécharger .ics",
+    "copyLink": "Copier le lien",
+    "linkCopied": "Lien copié"
   },
   "timeZoneConverter": {
     "title": "Convertisseur de fuseaux horaires pour les villes",

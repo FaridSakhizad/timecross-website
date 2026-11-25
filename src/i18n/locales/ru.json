@@ -8,7 +8,19 @@
     "createCalendarEvent": "Создать событие в Google Calendar",
     "createOutlookEvent": "Создать событие в Outlook",
     "clearSelection": "Снять выделение",
-    "selectHours": "Выделить часы",
+    "collapseSelectionCard": "Свернуть",
+    "expandSelectionCard": "Показать встречу",
+    "selectParticipantsHint": "Отметьте хотя бы один город",
+    "durationHours": "{hours} ч",
+    "durationMinutes": "{minutes} мин",
+    "durationHoursMinutes": "{hours} ч {minutes} мин",
+    "createEvent": "Создать событие",
+    "createEventMore": "Создать событие…",
+    "copyEventDetails": "Скопировать в буфер обмена",
+    "eventDetailsCopied": "Скопировано",
+    "copyEventDetailsError": "Не удалось скопировать встречу.",
+    "selectMeetingHours": "Выбрать часы для встречи",
+    "selectMeetingHoursShort": "Часы для встречи",
     "resizeSelection": "Изменить границы выделения",
     "calendarEventTitle": "Встреча TimeCross",
     "sitePitch": "Понимайте время по всему миру",
@@ -17,6 +29,7 @@
     "googlePlay": "Скачать в Google Play",
     "comingSoon": "Скоро",
     "home": "Главная",
+    "today": "Сегодня",
     "menu": "Меню",
     "darkMode": "Тёмный режим",
     "lightMode": "Светлый режим",
@@ -42,7 +55,8 @@
     "meetingPlannerLabel": "Встречи",
     "timeZoneConverterLabel": "Конвертер",
     "hourClockLabel": "Формат 24 ч",
-    "edit": "Редактировать"
+    "edit": "Редактировать",
+    "editDisabledHint": "Снимите выделение, чтобы редактировать города"
   },
   "languages": {
     "en": "English",
@@ -355,6 +369,19 @@
     "nextTitle": "Другие инструменты для времени",
     "gridLink": "Планировщик",
     "worldClockLink": "Мировые часы"
+  },
+  "sharedEvent": {
+    "defaultTitle": "Встреча",
+    "shareTitle": "Поделиться встречей",
+    "titleLabel": "Название встречи",
+    "titlePlaceholder": "Например, Еженедельный созвон",
+    "titleHint": "Все, кто откроет ссылку, увидят название, дату и часы встречи в каждом городе.",
+    "shareButton": "Поделиться ссылкой",
+    "googleCalendar": "Google Календарь",
+    "outlook": "Outlook",
+    "ics": "Скачать .ics",
+    "copyLink": "Скопировать ссылку",
+    "linkCopied": "Ссылка скопирована"
   },
   "timeZoneConverter": {
     "title": "Конвертер часовых поясов для городов",

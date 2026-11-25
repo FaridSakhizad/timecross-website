@@ -1,57 +1,92 @@
-import { Scan, X } from 'lucide-react';
+import { CalendarPlus, Plus, X } from 'lucide-react';
 
 import { useI18n } from '../../../i18n';
-import { cx } from '../../../utils/classNames';
-import GridCalendarActions from '../shared/GridCalendarActions';
-import type { GridToolbarProps } from '../shared/types';
+import GridDateButton from '../shared/GridDateButton';
+import type { TimelineGridShellProps } from '../shared/types';
 
-export type MobileSelectionControlsProps = Pick<GridToolbarProps, 'calendarEvent' | 'cities' | 'selectedHours' | 'isEditMode'> & {
+export type MobileSelectionControlsProps = Pick<TimelineGridShellProps, 'browserTimezone' | 'focusedDate' | 'onDateSelect'> & {
   selectionEnabled: boolean;
   selectionDisabled: boolean;
   onSelectionToggle: () => void;
+  /** Opens the dialog with the meeting's details and actions. */
+  onCreateEvent: () => void;
 };
 
+/**
+ * A phone's footer: the date and "Meeting hours" without a selection; with one, the date (the
+ * selected hours move to another day), "Create event…", which opens the meeting's details in a
+ * dialog, and "Clear selection".
+ */
 export default function MobileSelectionControls({
-  calendarEvent,
-  cities,
-  isEditMode,
+  browserTimezone,
+  focusedDate,
+  onCreateEvent,
+  onDateSelect,
   onSelectionToggle,
-  selectedHours,
   selectionDisabled,
   selectionEnabled,
 }: MobileSelectionControlsProps) {
   const { t } = useI18n();
 
+  const dateButton = (
+    <GridDateButton
+      compact
+      date={focusedDate}
+      timezone={browserTimezone}
+      disabled={selectionDisabled}
+      onSelect={onDateSelect}
+    />
+  );
+
+  // Another day also with hours selected: they move to it.
+  if (selectionEnabled) {
+    return (
+      <>
+        {dateButton}
+        <button
+          className="widgetHeaderButton widgetHeaderButton_label"
+          type="button"
+          aria-haspopup="dialog"
+          onClick={onCreateEvent}
+        >
+          <CalendarPlus
+            size={18}
+            aria-hidden="true"
+          />
+          {t('common.createEventMore')}
+        </button>
+
+        <button
+          className="widgetHeaderButton"
+          type="button"
+          onClick={onSelectionToggle}
+          aria-label={t('common.clearSelection')}
+        >
+          <X
+            size={18}
+            aria-hidden="true"
+          />
+        </button>
+      </>
+    );
+  }
+
   return (
     <>
+      {dateButton}
       <button
-        className={cx('widgetHeaderButton', selectionEnabled && 'isActive')}
+        className="widgetHeaderButton widgetHeaderButton_label"
         type="button"
-        title={t(selectionEnabled ? 'common.clearSelection' : 'common.selectHours')}
-        aria-label={t(selectionEnabled ? 'common.clearSelection' : 'common.selectHours')}
-        aria-pressed={selectionEnabled}
         disabled={selectionDisabled}
         onClick={onSelectionToggle}
       >
-        {selectionEnabled
-          ? (
-              <X
-                size={18}
-                aria-hidden="true"
-              />
-            )
-          : (
-              <Scan
-                size={18}
-                aria-hidden="true"
-              />
-            )}
+        <Plus
+          size={18}
+          aria-hidden="true"
+        />
+        {/* Shorter than on desktop: it shares a phone's footer with the date. */}
+        {t('common.selectMeetingHoursShort')}
       </button>
-      <GridCalendarActions
-        event={isEditMode || !selectionEnabled ? null : calendarEvent}
-        cities={cities}
-        hours={selectedHours}
-      />
     </>
   );
 }

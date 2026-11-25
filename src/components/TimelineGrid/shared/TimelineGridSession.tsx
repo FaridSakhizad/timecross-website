@@ -22,7 +22,7 @@ import { useCurrentMinuteDate } from '../../../hooks/useCurrentMinuteDate';
 import { usePreferences } from '../../../hooks/usePreferences';
 import { useI18n } from '../../../i18n';
 import { getIntlLocale } from '../../../i18n/intlLocale';
-import { getBrowserTimezone } from '../../../utils/time';
+import { getBrowserTimezone, getUtcDateForZonedTime, getZonedDateParts } from '../../../utils/time';
 import AddCityModal from '../../Cities/AddCityModal';
 import type { CitySearchRow } from '../../Cities/cityData';
 import {
@@ -33,13 +33,16 @@ import {
 } from '../../Cities/selectedCities';
 import { useLocalizedCities } from '../../Cities/useLocalizedCities';
 
-import { getSharedGridTimelineDates, readGridEventUrlState, type SharedGridEvent } from './eventUrlState';
+import { TIMELINE_HOUR_MS } from './constants';
+import { getEventParams, getSharedGridTimelineDates, readGridEventUrlState, type SharedGridEvent } from './eventUrlState';
+import { moveSlotsByDays } from './gridSelection';
 import { readPlannerUrlState, writePlannerUrlState } from './sessionUrlState';
 import {
   getTimelineCells,
   getTimelineDates,
 } from './timelineCells';
 import type { TimelineGridSessionProps, TimelineGridShellProps } from './types';
+import { useMeetingParticipants } from './useMeetingParticipants';
 
 const restrictTimelineGridDragToVerticalAxis: Modifier = ({ transform }) => ({
   ...transform,
@@ -49,12 +52,13 @@ const restrictTimelineGridDragToVerticalAxis: Modifier = ({ transform }) => ({
 type SessionProps = TimelineGridSessionProps & { View: ComponentType<TimelineGridShellProps> };
 
 export default function TimelineGridSession(props: SessionProps) {
-  const { pathname, hash } = useLocation();
-  const sharedEvent = useMemo(() => readGridEventUrlState(hash), [hash]);
+  const { pathname, search, hash } = useLocation();
+  const eventParams = getEventParams(search, hash);
+  const sharedEvent = useMemo(() => readGridEventUrlState(eventParams), [eventParams]);
 
   return (
     <GridSession
-      key={`${pathname}${hash}`}
+      key={`${pathname}${eventParams}`}
       {...props}
       sharedEvent={sharedEvent}
     />
@@ -64,8 +68,10 @@ export default function TimelineGridSession(props: SessionProps) {
 /** Hour to scroll to on open: the middle of a shared event, else the time from the URL. */
 function getInitialFocusHourIndex(timelineDates: Date[], sharedEvent: SharedGridEvent | null, anchorDate: Date | null) {
   if (sharedEvent) {
-    return timelineDates.findIndex((date) => date.getTime() === sharedEvent.start)
-      + Math.floor((sharedEvent.end - sharedEvent.start) / 7200000);
+    // The hour in the middle of the meeting, which may start and end at half past.
+    const middle = (sharedEvent.start + sharedEvent.end) / 2;
+
+    return timelineDates.findIndex((date) => date.getTime() <= middle && middle < date.getTime() + TIMELINE_HOUR_MS);
   }
 
   if (anchorDate) {
@@ -97,6 +103,16 @@ function GridSession({
   const [isEditMode, setIsEditMode] = useState(false);
   const localizedCities = useLocalizedCities(cities);
   const cityIds = useMemo(() => cities.map((city) => city.id), [cities]);
+  const citiesKey = cityIds.join('\n');
+  const [selectionCitiesKey, setSelectionCitiesKey] = useState(citiesKey);
+
+  // Another list of cities drops the selection (a new day carries it along, see handleDateSelect).
+  // Adjusted while rendering, so the grids get the empty selection with the new cities.
+  if (selectionCitiesKey !== citiesKey) {
+    setSelectionCitiesKey(citiesKey);
+    setSelectedHours([]);
+  }
+
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -174,6 +190,36 @@ function GridSession({
     setHasSelection(true);
   }, [timelineDates]);
 
+  // The hour in the middle of the grid: scrolled to, picked or now.
+  const focusedDate = selectedDate ?? anchorDate ?? baseDate;
+
+  /** Another day: the grid moves to it, at the same hour as now in the middle ("2026-11-20"). */
+  const handleDateSelect = useCallback((value: string) => {
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+
+    if (!match) {
+      return;
+    }
+
+    const focused = getZonedDateParts(browserTimezone, focusedDate);
+    const date = getUtcDateForZonedTime(browserTimezone, {
+      year: Number(match[1]),
+      month: Number(match[2]),
+      day: Number(match[3]),
+      hour: focused.hour,
+    });
+    // The grid's hours start on whole UTC hours, also in zones with a half-hour offset.
+    const anchor = new Date(Math.floor(date.getTime() / TIMELINE_HOUR_MS) * TIMELINE_HOUR_MS);
+    const days = (Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3])) - Date.UTC(focused.year, focused.month - 1, focused.day))
+      / (24 * TIMELINE_HOUR_MS);
+
+    setAnchorDate(anchor);
+    setSelectedDate(anchor);
+    setHasSelection(true);
+    // The selected hours go along: the same hours on the clock, on the new day.
+    setSelectedHours((current) => moveSlotsByDays(current, days, browserTimezone));
+  }, [browserTimezone, focusedDate]);
+
   const handleAddCity = (city: CitySearchRow) => {
     const nextCities = [
       ...cities,
@@ -233,16 +279,25 @@ function GridSession({
     setIsDragging(false);
   };
 
+  const {
+    participantIds: meetingParticipantIds,
+    excludedIds: meetingExcludedIds,
+    setParticipant: setMeetingParticipant,
+  } = useMeetingParticipants(localizedCities, selectedHours);
+
   const shellProps = {
     presentation,
-    onHourChange: syncUrl && !sharedEvent ? handleHourChange : undefined,
-    onReset: syncUrl && !sharedEvent
-      ? () => {
+    onHourChange: sharedEvent ? undefined : handleHourChange,
+    // A shared meeting keeps its own day.
+    focusedDate,
+    onDateSelect: sharedEvent ? undefined : handleDateSelect,
+    onReset: sharedEvent
+      ? undefined
+      : () => {
           setAnchorDate(null);
           setSelectedDate(null);
           setHasSelection(true);
-        }
-      : undefined,
+        },
     baseDate,
     browserTimezone,
     cities: localizedCities,
@@ -254,6 +309,9 @@ function GridSession({
     userCells,
     initialSelectedHours: selectedHours,
     onSelectionChange: setSelectedHours,
+    meetingParticipantIds,
+    meetingExcludedIds,
+    onMeetingParticipantChange: setMeetingParticipant,
     initialFocusHourIndex: getInitialFocusHourIndex(timelineDates, sharedEvent, anchorDate),
     onAddCityClick: () => setIsAddCityModalOpen(true),
     onDeleteCity: handleDeleteCity,

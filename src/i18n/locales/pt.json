@@ -8,7 +8,19 @@
     "createCalendarEvent": "Criar evento no Google Calendar",
     "createOutlookEvent": "Criar evento no Outlook",
     "clearSelection": "Limpar seleção",
-    "selectHours": "Selecionar horas",
+    "collapseSelectionCard": "Recolher",
+    "expandSelectionCard": "Mostrar a reunião",
+    "selectParticipantsHint": "Selecione pelo menos uma cidade",
+    "durationHours": "{hours} h",
+    "durationMinutes": "{minutes} min",
+    "durationHoursMinutes": "{hours} h {minutes} min",
+    "createEvent": "Criar evento",
+    "createEventMore": "Criar evento…",
+    "copyEventDetails": "Copiar para a área de transferência",
+    "eventDetailsCopied": "Copiado",
+    "copyEventDetailsError": "Não foi possível copiar a reunião.",
+    "selectMeetingHours": "Escolher horas para uma reunião",
+    "selectMeetingHoursShort": "Horas da reunião",
     "resizeSelection": "Redimensionar seleção",
     "calendarEventTitle": "Reunião TimeCross",
     "sitePitch": "Perceba as horas em todo o mundo",
@@ -17,6 +29,7 @@
     "googlePlay": "Disponível no Google Play",
     "comingSoon": "Em breve",
     "home": "Início",
+    "today": "Hoje",
     "menu": "Menu",
     "darkMode": "Modo escuro",
     "lightMode": "Modo claro",
@@ -42,7 +55,8 @@
     "meetingPlannerLabel": "Reuniões",
     "timeZoneConverterLabel": "Conversor",
     "hourClockLabel": "Relógio de 24 horas",
-    "edit": "Editar"
+    "edit": "Editar",
+    "editDisabledHint": "Retire a seleção para editar as cidades"
   },
   "languages": {
     "en": "English",
@@ -355,6 +369,19 @@
     "nextTitle": "Explore mais ferramentas de tempo",
     "gridLink": "Planeador",
     "worldClockLink": "Relógio mundial"
+  },
+  "sharedEvent": {
+    "defaultTitle": "Reunião",
+    "shareTitle": "Partilhar a reunião",
+    "titleLabel": "Nome da reunião",
+    "titlePlaceholder": "Por exemplo, Reunião semanal",
+    "titleHint": "Quem abrir a ligação vê o nome, a data e o horário em cada cidade.",
+    "shareButton": "Partilhar ligação",
+    "googleCalendar": "Google Calendar",
+    "outlook": "Outlook",
+    "ics": "Descarregar .ics",
+    "copyLink": "Copiar ligação",
+    "linkCopied": "Ligação copiada"
   },
   "timeZoneConverter": {
     "title": "Conversor de fusos horários para cidades",

@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
-type TimelineGridScrollTarget = | { type: 'page' }
-  | { type: 'element'; element: HTMLDivElement };
+import type { TimelineGridScrollTarget } from './useGridScrollPosition';
 
 export type TimelineGridActiveHourDirection = 'left' | 'right' | null;
 
@@ -14,19 +13,6 @@ function getTimelineGridRoot(scrollTarget: TimelineGridScrollTarget) {
 function getTimelineGridActiveHour(scrollTarget: TimelineGridScrollTarget) {
   return getTimelineGridRoot(scrollTarget)
     .querySelector<HTMLElement>('.timelineGrid-userHours .timelineGrid-hour_current');
-}
-
-function getTimelineGridSnapTargets(scrollTarget: TimelineGridScrollTarget) {
-  const firstCellsRow = getTimelineGridRoot(scrollTarget).querySelector<HTMLElement>('.timelineGrid-cells');
-
-  return firstCellsRow
-    ? Array.from(firstCellsRow.querySelectorAll<HTMLElement>('.timelineGrid-cell'))
-    : [];
-}
-
-function getTimelineGridActiveSnapTarget(scrollTarget: TimelineGridScrollTarget) {
-  return getTimelineGridRoot(scrollTarget)
-    .querySelector<HTMLElement>('.timelineGrid-cells .timelineGrid-cell_current');
 }
 
 function getElementActiveHourDirection(
@@ -77,95 +63,6 @@ function getTimelineGridActiveHourDirection(
   return scrollTarget.type === 'page'
     ? getPageActiveHourDirection(activeHour)
     : getElementActiveHourDirection(scrollTarget.element, activeHour);
-}
-
-function getSnapTargetDocumentCenter(target: HTMLElement) {
-  const targetRect = target.getBoundingClientRect();
-
-  return window.scrollX + targetRect.left + targetRect.width / 2;
-}
-
-function getSnapTargetElementCenter(target: HTMLElement) {
-  return target.offsetLeft + target.offsetWidth / 2;
-}
-
-function getSnapStep(targets: HTMLElement[]) {
-  const [first, second] = targets;
-
-  if (!first) {
-    return 1;
-  }
-
-  if (!second) {
-    return first.offsetWidth || 1;
-  }
-
-  return Math.max(1, Math.abs(second.offsetLeft - first.offsetLeft));
-}
-
-function getEdgeTargetIndex(
-  targets: HTMLElement[],
-  activeTargetIndex: number,
-  viewportWidth: number,
-  direction: Exclude<TimelineGridActiveHourDirection, null>,
-) {
-  const activeTarget = targets[activeTargetIndex];
-
-  if (!activeTarget) {
-    return activeTargetIndex;
-  }
-
-  const step = getSnapStep(targets);
-  const edgeDistance = Math.max(
-    0,
-    Math.floor((viewportWidth / 2 - activeTarget.offsetWidth / 2) / step),
-  );
-  const targetIndex = direction === 'left'
-    ? activeTargetIndex + edgeDistance
-    : activeTargetIndex - edgeDistance;
-
-  return Math.max(0, Math.min(targets.length - 1, targetIndex));
-}
-
-function scrollTimelineGridActiveHourToEdge(
-  scrollTarget: TimelineGridScrollTarget,
-  direction: Exclude<TimelineGridActiveHourDirection, null>,
-) {
-  const targets = getTimelineGridSnapTargets(scrollTarget);
-  const activeTarget = getTimelineGridActiveSnapTarget(scrollTarget);
-  const activeTargetIndex = activeTarget ? targets.indexOf(activeTarget) : -1;
-
-  if (activeTargetIndex < 0) {
-    return;
-  }
-
-  const viewportWidth = scrollTarget.type === 'page'
-    ? window.innerWidth
-    : scrollTarget.element.clientWidth;
-  const target = targets[getEdgeTargetIndex(targets, activeTargetIndex, viewportWidth, direction)];
-
-  if (!target) {
-    return;
-  }
-
-  const targetScrollLeft = scrollTarget.type === 'page'
-    ? getSnapTargetDocumentCenter(target) - window.innerWidth / 2
-    : getSnapTargetElementCenter(target) - scrollTarget.element.clientWidth / 2;
-
-  if (scrollTarget.type === 'page') {
-    document.scrollingElement?.scrollTo({
-      left: targetScrollLeft,
-      top: window.scrollY,
-      behavior: 'smooth',
-    });
-    return;
-  }
-
-  scrollTarget.element.scrollTo({
-    left: targetScrollLeft,
-    top: scrollTarget.element.scrollTop,
-    behavior: 'smooth',
-  });
 }
 
 export function useTimelineGridActiveHourIndicator(
@@ -223,20 +120,6 @@ export function useTimelineGridActiveHourIndicator(
     };
   }, [disabled, getScrollTarget, updateDirection]);
 
-  const scrollActiveHourIntoView = useCallback(() => {
-    if (!direction) {
-      return;
-    }
-
-    const scrollTarget = getScrollTarget();
-
-    if (scrollTarget) {
-      scrollTimelineGridActiveHourToEdge(scrollTarget, direction);
-    }
-  }, [direction, getScrollTarget]);
-
-  return {
-    direction: disabled ? null : direction,
-    scrollActiveHourIntoView,
-  };
+  // Its arrow brings the current hour back to the middle, as the reset button does: see useTimelineGridScrollPosition.
+  return { direction: disabled ? null : direction };
 }

@@ -42,6 +42,7 @@ export function createGridSelectionSnapAnimation(frame?: HTMLElement) {
       // Animate the rectangle itself so borders and handles do not stretch as with a scale transform.
       const current = frame.animate([from, to], {
         duration: GRID_SELECTION_SNAP_DURATION,
+        easing: 'ease-out',
       });
 
       animation = current;

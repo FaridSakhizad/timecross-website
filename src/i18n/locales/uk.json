@@ -8,7 +8,19 @@
     "createCalendarEvent": "Створити подію в Google Calendar",
     "createOutlookEvent": "Створити подію в Outlook",
     "clearSelection": "Скасувати виділення",
-    "selectHours": "Виділити години",
+    "collapseSelectionCard": "Згорнути",
+    "expandSelectionCard": "Показати зустріч",
+    "selectParticipantsHint": "Позначте хоча б одне місто",
+    "durationHours": "{hours} год",
+    "durationMinutes": "{minutes} хв",
+    "durationHoursMinutes": "{hours} год {minutes} хв",
+    "createEvent": "Створити подію",
+    "createEventMore": "Створити подію…",
+    "copyEventDetails": "Скопіювати в буфер обміну",
+    "eventDetailsCopied": "Скопійовано",
+    "copyEventDetailsError": "Не вдалося скопіювати зустріч.",
+    "selectMeetingHours": "Вибрати години для зустрічі",
+    "selectMeetingHoursShort": "Години для зустрічі",
     "resizeSelection": "Змінити межі виділення",
     "calendarEventTitle": "Зустріч TimeCross",
     "sitePitch": "Розумійте час у всьому світі",
@@ -17,6 +29,7 @@
     "googlePlay": "Отримати в Google Play",
     "comingSoon": "Незабаром",
     "home": "Головна",
+    "today": "Сьогодні",
     "menu": "Меню",
     "darkMode": "Темний режим",
     "lightMode": "Світлий режим",
@@ -42,7 +55,8 @@
     "meetingPlannerLabel": "Зустрічі",
     "timeZoneConverterLabel": "Конвертер",
     "hourClockLabel": "Формат 24 год",
-    "edit": "Редагувати"
+    "edit": "Редагувати",
+    "editDisabledHint": "Зніміть виділення, щоб редагувати міста"
   },
   "languages": {
     "en": "English",
@@ -355,6 +369,19 @@
     "nextTitle": "Інші інструменти для часу",
     "gridLink": "Планувальник",
     "worldClockLink": "Світовий годинник"
+  },
+  "sharedEvent": {
+    "defaultTitle": "Зустріч",
+    "shareTitle": "Поділитися зустріччю",
+    "titleLabel": "Назва зустрічі",
+    "titlePlaceholder": "Наприклад, Щотижневий дзвінок",
+    "titleHint": "Усі, хто відкриє посилання, побачать назву, дату й години зустрічі в кожному місті.",
+    "shareButton": "Поділитися посиланням",
+    "googleCalendar": "Google Календар",
+    "outlook": "Outlook",
+    "ics": "Завантажити .ics",
+    "copyLink": "Скопіювати посилання",
+    "linkCopied": "Посилання скопійовано"
   },
   "timeZoneConverter": {
     "title": "Конвертер часових поясів для міст",

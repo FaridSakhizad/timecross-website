@@ -15,58 +15,29 @@
   position: relative;
 }
 
+.timelineGrid-scrollViewport {
+  user-select: none;
+}
+
+.timelineGrid > .selectionCard {
+  user-select: text;
+}
+
 .timelineGrid-scroll {
   width: 100%;
   flex: 1 1 auto;
   z-index: 10;
 }
 
-.timelineGridMiddleMarker {
-  display: block;
-  width: var(--timeline-grid-hour-width);
-  position: absolute;
-  z-index: 1;
-  top: 5px;
-  right: 0;
-  left: 0;
-  bottom: 0;
-  margin: auto;
-  background: rgba(var(--accent-color-1), 0.2);
-  border-top-right-radius: 16px;
-  border-top-left-radius: 16px;
-  pointer-events: none;
-}
-
-.timelineGridMiddleHoursMarker {
-  display: block;
-  width: var(--timeline-grid-hour-width);
-  position: absolute;
-  z-index: 100;
-  top: 7px;
-  right: 0;
-  left: 0;
-  height: 38px;
-  margin: 0 auto;
-  background: rgba(var(--accent-color-1), 0.2);
-  border-top-right-radius: 16px;
-  border-top-left-radius: 16px;
-  pointer-events: none;
-  backdrop-filter: contrast(1.5);
-}
-
 .timelineGrid-scrollViewport {
   height: 100%;
   overflow: auto;
-  /*overscroll-behavior: none;*/
-  scroll-padding-inline: calc(50% - var(--timeline-grid-cell-size) / 2);
-  scroll-snap-type: x mandatory;
 }
 
 .timelineGrid.isDragging {
   .timelineGrid-scrollViewport {
     overflow-x: hidden;
     overscroll-behavior-x: none;
-    scroll-snap-type: none;
   }
 
   .timelineGrid-cell {
@@ -92,16 +63,6 @@
     left: 10px;
     right: 10px;
     cursor: ns-resize;
-
-    &:before {
-      content: '';
-      display: block;
-      width: 48px;
-      height: 7px;
-      margin: auto;
-      background: #fff;
-      border-radius: 65536px;
-    }
   }
 
   .timelineGridSelectionHandle_s {
@@ -110,16 +71,6 @@
     left: 10px;
     right: 10px;
     cursor: ns-resize;
-
-    &:before {
-      content: '';
-      display: block;
-      width: 48px;
-      height: 7px;
-      margin: auto;
-      background: #fff;
-      border-radius: 65536px;
-    }
   }
 
   .timelineGridSelectionHandle_e {
@@ -128,16 +79,6 @@
     top: 10px;
     bottom: 10px;
     cursor: ew-resize;
-
-    &:before {
-      content: '';
-      display: block;
-      width: 7px;
-      height: 48px;
-      margin: auto;
-      background: #fff;
-      border-radius: 65536px;
-    }
   }
 
   .timelineGridSelectionHandle_w {
@@ -146,16 +87,6 @@
     top: 10px;
     bottom: 10px;
     cursor: ew-resize;
-
-    &:before {
-      content: '';
-      display: block;
-      width: 7px;
-      height: 48px;
-      margin: auto;
-      background: #fff;
-      border-radius: 65536px;
-    }
   }
 
   .timelineGridSelectionHandle_ne {
@@ -211,16 +142,6 @@
     max-height: 600px;
   }
 }
-
-@media (width <= 1200px) {
-  .timelineGridMiddleHoursMarker {
-    top: 2px;
-    height: 33px;
-    border-top-right-radius: 12px;
-    border-top-left-radius: 12px;
-  }
-}
-
 
 @media (width < 700px) {
   .timelineGrid {

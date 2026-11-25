@@ -1,7 +1,7 @@
 import { useCallback, type RefObject } from 'react';
 
 import { useTimelineGridActiveHourIndicator } from '../shared/useGridActiveHourIndicator';
-import { useTimelineGridSnap } from '../shared/useGridScrollSnap';
+import { useTimelineGridScrollPosition } from '../shared/useGridScrollPosition';
 
 function useElementScrollTarget(viewportRef: RefObject<HTMLDivElement | null>) {
   return useCallback(() => (viewportRef.current
@@ -9,10 +9,17 @@ function useElementScrollTarget(viewportRef: RefObject<HTMLDivElement | null>) {
     : null), [viewportRef]);
 }
 
-export function useDesktopGridSnap(viewportRef: RefObject<HTMLDivElement | null>, currentHourIndex: number, disabled: boolean, shouldSuspend: () => boolean, initialFocusHourIndex?: number, onHourChange?: (index: number) => void) {
+export function useDesktopGridScrollPosition(
+  viewportRef: RefObject<HTMLDivElement | null>,
+  currentHourIndex: number,
+  disabled: boolean,
+  isInteracting: () => boolean,
+  initialFocusHourIndex?: number,
+  onHourChange?: (index: number) => void,
+) {
   const getScrollTarget = useElementScrollTarget(viewportRef);
 
-  return useTimelineGridSnap(getScrollTarget, currentHourIndex, disabled, shouldSuspend, initialFocusHourIndex, onHourChange);
+  return useTimelineGridScrollPosition(getScrollTarget, currentHourIndex, disabled, isInteracting, initialFocusHourIndex, onHourChange);
 }
 
 export function useDesktopGridActiveHourIndicator(viewportRef: RefObject<HTMLDivElement | null>, disabled: boolean) {

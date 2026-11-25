@@ -3,8 +3,8 @@ import type { CSSProperties } from 'react';
 import type { TimeFormat } from '../../../settings';
 import {
   formatShortDate,
-  formatShortMonth,
   formatShortWeekday,
+  formatThreeLetterMonth,
   getClockLabel,
   getDateSerial,
   getUtcDateForZonedTime,
@@ -63,7 +63,7 @@ function getTimelineCellPeriod(hour: number): TimelineCell['period'] {
 function formatCurrentDateCellParts(date: Date, timezone: string, locale: string) {
   return {
     weekdayLabel: formatShortWeekday(date, timezone, locale),
-    dateLabel: `${getZonedDateParts(timezone, date).day} ${formatShortMonth(date, timezone, locale).toLocaleLowerCase(locale)}`,
+    dateLabel: `${getZonedDateParts(timezone, date).day} ${formatThreeLetterMonth(date, timezone, locale).toLocaleLowerCase(locale)}`,
   };
 }
 

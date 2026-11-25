@@ -8,7 +8,19 @@
     "calendarShareError": "Unable to share or copy the event link.",
     "eventLinkCopied": "Event link copied",
     "clearSelection": "Clear selection",
-    "selectHours": "Select hours",
+    "collapseSelectionCard": "Collapse",
+    "expandSelectionCard": "Show the meeting",
+    "selectParticipantsHint": "Select at least one city",
+    "durationHours": "{hours}h",
+    "durationMinutes": "{minutes}m",
+    "durationHoursMinutes": "{hours}h {minutes}m",
+    "createEvent": "Create event",
+    "createEventMore": "Create event…",
+    "copyEventDetails": "Copy to clipboard",
+    "eventDetailsCopied": "Copied",
+    "copyEventDetailsError": "Could not copy the meeting.",
+    "selectMeetingHours": "Select hours for a meeting",
+    "selectMeetingHoursShort": "Meeting hours",
     "resizeSelection": "Resize selection",
     "calendarEventTitle": "TimeCross meeting",
     "sitePitch": "Understand Time Across the World",
@@ -17,6 +29,7 @@
     "googlePlay": "Get it on Google Play",
     "comingSoon": "Coming Soon",
     "home": "Home",
+    "today": "Today",
     "menu": "Menu",
     "darkMode": "Dark Mode",
     "lightMode": "Light Mode",
@@ -42,7 +55,8 @@
     "meetingPlannerLabel": "Meeting Planner",
     "timeZoneConverterLabel": "Converter",
     "hourClockLabel": "24-Hour Clock",
-    "edit": "Edit"
+    "edit": "Edit",
+    "editDisabledHint": "Clear the selection to edit the cities"
   },
   "languages": {
     "en": "English",
@@ -355,6 +369,19 @@
     "nextTitle": "Explore more time tools",
     "gridLink": "Planner",
     "worldClockLink": "World Clock"
+  },
+  "sharedEvent": {
+    "defaultTitle": "Meeting",
+    "shareTitle": "Share the meeting",
+    "titleLabel": "Meeting title",
+    "titlePlaceholder": "For example, Weekly sync",
+    "titleHint": "Everyone who opens the link sees the title, the date and the hours in each city.",
+    "shareButton": "Share link",
+    "googleCalendar": "Google Calendar",
+    "outlook": "Outlook",
+    "ics": "Download .ics",
+    "copyLink": "Copy link",
+    "linkCopied": "Link copied"
   },
   "timeZoneConverter": {
     "title": "Time Zone Converter for Cities",

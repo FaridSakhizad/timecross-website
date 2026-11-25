@@ -1,0 +1,60 @@
+/* The selected meeting on a phone, in a dialog: a long list of cities scrolls with the rest. */
+.meetingDialog-panel {}
+
+.meetingDialog-body {
+  display: grid;
+  gap: 12px;
+  min-height: 0;
+  padding: 4px 22px 22px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.meetingDialog-title {
+  width: 100%;
+  margin: 0;
+  padding: 4px 0 8px;
+  border: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.35);
+  outline: none;
+  background: transparent;
+  color: #fff;
+  font: normal 700 18px/1.3 var(--body-font-family-1);
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.65);
+    font-weight: 400;
+  }
+
+  &:focus {
+    border-bottom-color: #fff;
+  }
+}
+
+.meetingDialog-hint,
+.meetingDialog-error {
+  margin: 0;
+  font-size: 14px;
+}
+
+.meetingDialog-actions {
+  display: grid;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+/* Each action a whole row, its icon before its words. */
+.meetingDialog-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  text-decoration: none;
+
+  &[aria-disabled="true"],
+  &[disabled] {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+}

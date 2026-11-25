@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useRef, useState, type RefObject } from 'react';
 
-import type { SelectedGridHour } from '../shared/gridSelection';
+import type { SelectedGridSlot } from '../shared/gridSelection';
 
 import { attachMobileGridSelection } from './mobileGridSelectionController';
 import { getVisibleMobileGridSelection } from './mobileGridSelectionGeometry';
 
 export function useMobileGridSelection(
-  hours: SelectedGridHour[],
-  onChange: ((hours: SelectedGridHour[]) => void) | undefined,
+  hours: SelectedGridSlot[],
+  onChange: ((hours: SelectedGridSlot[]) => void) | undefined,
   blocked: boolean,
   contentKey: string,
   viewportRef?: RefObject<HTMLDivElement | null>,
@@ -19,7 +19,6 @@ export function useMobileGridSelection(
   const frameRef = useRef<HTMLDivElement>(null);
   const hoursRef = useRef(hours);
   const controllerRef = useRef<ReturnType<typeof attachMobileGridSelection> | null>(null);
-  const contentKeyRef = useRef(contentKey);
   const enabled = mode && hours.length > 0 && !blocked;
   const clear = useCallback(() => {
     setMode(false);
@@ -51,13 +50,9 @@ export function useMobileGridSelection(
     controllerRef.current?.setSelection(hours);
   }, [hours]);
 
+  // Other cells (another day, other cities, see contentKey) attach the controller again, with the
+  // session's selection: moved to the new day, or dropped with the cities.
   useEffect(() => {
-    if (contentKeyRef.current !== contentKey) {
-      contentKeyRef.current = contentKey;
-      onChange?.([]);
-      return;
-    }
-
     const frame = frameRef.current;
 
     if (!enabled || !frame) {

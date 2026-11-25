@@ -1,63 +1,20 @@
 import {
-  getNearestIndex,
-  getNearestRowGroupStart,
+  getHourCellSlots,
+  getMeetingSeed,
   type GridSelectionCellGeometry,
-  type SelectedGridHour,
+  type SelectedGridSlot,
   type SelectionRect,
 } from '../shared/gridSelection.ts';
 
-export const MOBILE_SELECTION_INITIAL_HOURS = 3;
-export const MOBILE_SELECTION_INITIAL_CITIES = 3;
-export const MOBILE_SELECTION_HORIZONTAL_PADDING = 6;
-export const MOBILE_SELECTION_TOP_PADDING = -5;
-export const MOBILE_SELECTION_BOTTOM_PADDING = 0;
+export const MOBILE_SELECTION_HORIZONTAL_PADDING = 3;
+export const MOBILE_SELECTION_TOP_PADDING = 0;
+export const MOBILE_SELECTION_BOTTOM_PADDING = 16;
 
-export function getVisibleMobileGridSelection(viewport?: HTMLDivElement, root: ParentNode = viewport ?? document): SelectedGridHour[] {
+/** The "new meeting" selection: every city at the hour in the middle of the screen. */
+export function getVisibleMobileGridSelection(viewport?: HTMLDivElement, root: ParentNode = viewport ?? document): SelectedGridSlot[] {
   const visible = getMobileGridVisibleRect(viewport);
-  // The add-city button can lie outside the screen on the wide zen document.
-  const targetX = (visible.left + visible.right) / 2;
-  const targetY = viewport ? (visible.top + visible.bottom) / 2 : window.scrollY + window.innerHeight / 2;
 
-  return getInitialMobileGridSelection(getMobileGridSelectionCells(root, viewport), visible, targetX, targetY);
-}
-
-export function getInitialMobileGridSelection(
-  cells: GridSelectionCellGeometry[],
-  visible: SelectionRect,
-  targetX: number,
-  targetY: number,
-): SelectedGridHour[] {
-  const visibleCells = cells.filter((cell) => cell.rect.right > visible.left
-    && cell.rect.left < visible.right
-    && cell.rect.bottom > visible.top
-    && cell.rect.top < visible.bottom);
-  const rows = [...new Map(visibleCells.map((cell) => [cell.hour.rowId, cell])).values()];
-  // Prefer rows whose hour blocks are fully on screen; do not reach into hidden cities to fill the quota.
-  const fullRows = rows.filter((cell) => cell.rect.top >= visible.top && cell.rect.bottom <= visible.bottom);
-  const candidates = (fullRows.length >= MOBILE_SELECTION_INITIAL_CITIES ? fullRows : rows)
-    .sort((a, b) => a.rowTop - b.rowTop);
-  const count = Math.min(MOBILE_SELECTION_INITIAL_CITIES, candidates.length);
-  // Equal distances favor the lower group, including when the center falls between two cities.
-  const firstRow = getNearestRowGroupStart(candidates, count, targetY);
-  const selectedRows = candidates.slice(firstRow, firstRow + count);
-  const [firstSelectedRow] = selectedRows;
-
-  if (!firstSelectedRow) {
-    return [];
-  }
-
-  const rowIds = new Set(selectedRows.map((cell) => cell.hour.rowId));
-  const columns = cells
-    .filter((cell) => cell.hour.rowId === firstSelectedRow.hour.rowId)
-    .sort((a, b) => a.hour.start - b.hour.start);
-  const center = getNearestIndex(
-    columns.map(({ rect }) => (rect.left + rect.right) / 2),
-    targetX,
-  );
-  const first = Math.max(0, Math.min(columns.length - MOBILE_SELECTION_INITIAL_HOURS, center - 1));
-  const starts = new Set(columns.slice(first, first + MOBILE_SELECTION_INITIAL_HOURS).map((cell) => cell.hour.start));
-
-  return cells.filter((cell) => rowIds.has(cell.hour.rowId) && starts.has(cell.hour.start)).map((cell) => cell.hour);
+  return getMeetingSeed(getMobileGridSelectionCells(root, viewport), (visible.left + visible.right) / 2);
 }
 
 export function getMobileGridSelectionCells(root: ParentNode = document, viewport?: HTMLDivElement): GridSelectionCellGeometry[] {
@@ -67,11 +24,12 @@ export function getMobileGridSelectionCells(root: ParentNode = document, viewpor
   return [...root.querySelectorAll<HTMLElement>('.timelineGrid-row_mobile')].flatMap((row) => {
     const rowRect = row.getBoundingClientRect();
 
-    return [...row.querySelectorAll<HTMLElement>('[data-grid-selection-row][data-grid-hour-start]')].map((element) => {
+    // An hour's cell in halves: the frame snaps to them.
+    return [...row.querySelectorAll<HTMLElement>('[data-grid-selection-row][data-grid-hour-start]')].flatMap((element) => {
       const rect = element.getBoundingClientRect();
 
-      return {
-        hour: { rowId: element.dataset.gridSelectionRow!, start: Number(element.dataset.gridHourStart) },
+      return getHourCellSlots({
+        slot: { rowId: element.dataset.gridSelectionRow!, start: Number(element.dataset.gridHourStart) },
         rect: {
           left: rect.left + x,
           right: rect.right + x,
@@ -80,7 +38,7 @@ export function getMobileGridSelectionCells(root: ParentNode = document, viewpor
         },
         rowTop: rowRect.top + y,
         rowBottom: rowRect.bottom + y,
-      };
+      });
     });
   });
 }

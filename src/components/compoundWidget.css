@@ -142,15 +142,27 @@
     outline-offset: 2px;
   }
 
-  &[disabled] {
+  &[disabled],
+  &[aria-disabled="true"] {
     opacity: 0.5;
     cursor: default;
+  }
+
+  /* A button with a word next to its icon: "+ New meeting". */
+  &.widgetHeaderButton_label {
+    width: auto;
+    gap: 6px;
+    padding: 0 14px 0 10px;
+    border-radius: 999px;
+    color: #fff;
+    font: normal 700 14px/1 var(--body-font-family-1);
+    white-space: nowrap;
   }
 }
 
 @media (hover: hover) {
   .widgetHeaderButton {
-    &:not([disabled]) {
+    &:not([disabled], [aria-disabled="true"]) {
       &:hover,
       &.isActive:hover {
         background-color: rgba(var(--accent-color-1), 0.7);

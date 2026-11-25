@@ -2,9 +2,11 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
 import { TIMELINE_RENDERED_HOURS, TIMELINE_TOTAL_HOURS, TIMELINE_EDGE_FADE_HOURS } from '../src/components/TimelineGrid/shared/constants.ts';
-import { buildGridEventUrl, readGridEventUrlState, getSharedGridTimelineDates } from '../src/components/TimelineGrid/shared/eventUrlState.ts';
+import { buildGridEventUrl, getEventParams, readGridEventUrlState, getSharedGridTimelineDates } from '../src/components/TimelineGrid/shared/eventUrlState.ts';
 import { buildGridCalendarEvent, GRID_HOUR_MS } from '../src/components/TimelineGrid/shared/gridSelection.ts';
 import { shareEventLink } from '../src/components/TimelineGrid/shared/shareEventLink.ts';
+
+import { hourOf, PER_HOUR, slotsOf } from './support/gridSlots.mjs';
 
 const start = Date.parse('2026-11-01T05:00:00Z');
 const cities = [
@@ -13,7 +15,7 @@ const cities = [
   { id: 'ldn-uk', city: 'London', cityId: '2643743', timezone: 'Europe/London', customName: '' },
   { id: 'gmt', city: 'GMT+5:30', timezone: 'GMT_OFFSET:330', customName: '' },
 ];
-const hours = cities.slice(0, 3).flatMap((city) => [0, 1, 2].map((i) => ({ rowId: city.id, start: start + i * GRID_HOUR_MS })));
+const hours = slotsOf(cities.slice(0, 3).flatMap((city) => [0, 1, 2].map((i) => ({ rowId: city.id, start: start + i * GRID_HOUR_MS }))));
 const baseUrl = 'https://timecross.app/ru/grid';
 const hashFor = (data) => `#${new URLSearchParams({ event: JSON.stringify(data) })}`;
 const valid = { v: 1, s: start / 1000, e: start / 1000 + 3600, c: [['New York', 'America/New_York']] };
@@ -23,8 +25,9 @@ test('shared URL restores selected rows, identity, names and UTC range without a
   const url = new URL(link);
 
   assert.equal(url.pathname, '/ru/grid');
-  assert.equal(url.search, '');
-  const result = readGridEventUrlState(url.hash);
+  assert.equal(url.hash, '');
+  assert.deepEqual([...url.searchParams.keys()], ['event']);
+  const result = readGridEventUrlState(url.search);
 
   assert.equal(result.start, start);
   assert.equal(result.end, start + 3 * GRID_HOUR_MS);
@@ -34,14 +37,14 @@ test('shared URL restores selected rows, identity, names and UTC range without a
   assert.equal(result.cities[1].timezone, 'America/Toronto');
   assert.equal(result.cities[2].timezone, 'Europe/London');
   assert.equal(new Set(result.cities.map((city) => city.id)).size, 3);
-  assert.equal(result.hours.length, 9);
+  assert.equal(result.hours.length, 3 * 3 * PER_HOUR);
   assert.equal(buildGridEventUrl(baseUrl, result.cities, result.hours), link);
   assert.equal(result.cities.some((city) => city.id === 'gmt'), false);
 });
 
 test('recipient timezone, reloads and later dates do not change the shared event instant', () => {
   const link = buildGridEventUrl(baseUrl, cities, hours);
-  const restored = readGridEventUrlState(new URL(link).hash);
+  const restored = readGridEventUrlState(new URL(link).search);
 
   for (const timezone of ['America/Edmonton', 'Asia/Kathmandu', 'Pacific/Auckland']) {
     const event = buildGridCalendarEvent(restored.hours, restored.cities.map((city) => ({
@@ -55,21 +58,45 @@ test('recipient timezone, reloads and later dates do not change the shared event
     assert.match(event.details, /UTC-04:00 -> UTC-05:00/);
     const dates = getSharedGridTimelineDates(restored).map(Number);
 
-    assert.ok(restored.hours.every((hour) => dates.includes(hour.start)));
+    assert.ok(restored.hours.every((hour) => dates.includes(hourOf(hour.start))));
     assert.equal(dates[24], start);
-    assert.deepEqual(readGridEventUrlState(new URL(link).hash), restored);
+    assert.deepEqual(readGridEventUrlState(new URL(link).search), restored);
   }
 });
 
 test('fixed offsets, duplicate instances, long midnight ranges and Unicode survive roundtrip', () => {
   const rows = [cities[3], { ...cities[3], id: 'duplicate', customName: 'Вторая строка 🌍' }];
-  const selection = rows.flatMap((city) => Array.from({ length: TIMELINE_RENDERED_HOURS }, (_, i) => ({ rowId: city.id, start: start + i * GRID_HOUR_MS })));
-  const restored = readGridEventUrlState(new URL(buildGridEventUrl(baseUrl, rows, selection)).hash);
+  const selection = slotsOf(rows.flatMap((city) => Array.from({ length: TIMELINE_RENDERED_HOURS }, (_, i) => ({ rowId: city.id, start: start + i * GRID_HOUR_MS }))));
+  const restored = readGridEventUrlState(new URL(buildGridEventUrl(baseUrl, rows, selection)).search);
 
-  assert.equal(restored.hours.length, TIMELINE_RENDERED_HOURS * rows.length);
+  assert.equal(restored.hours.length, TIMELINE_RENDERED_HOURS * PER_HOUR * rows.length);
   assert.equal(restored.cities[1].customName, 'Вторая строка 🌍');
   assert.equal(restored.cities[0].timezone, 'GMT_OFFSET:330');
   assert.equal(getSharedGridTimelineDates(restored).at(-1).getTime() + GRID_HOUR_MS, restored.end);
+});
+
+test('a title travels with the link as one trimmed line; links without one still open', () => {
+  const link = buildGridEventUrl(baseUrl, cities, hours, '  Weekly\n sync \u200b ');
+  const restored = readGridEventUrlState(new URL(link).search);
+
+  assert.equal(restored.title, 'Weekly sync');
+  assert.equal(readGridEventUrlState(new URL(buildGridEventUrl(baseUrl, cities, hours)).search).title, '');
+  assert.equal(readGridEventUrlState(new URL(buildGridEventUrl(baseUrl, cities, hours, 'x'.repeat(150))).search).title.length, 100);
+  assert.equal(readGridEventUrlState(hashFor({ ...valid, t: 'Sync' })).title, 'Sync');
+
+  for (const t of [42, 'x'.repeat(101), ' padded ', 'two\nlines']) {
+    assert.equal(readGridEventUrlState(hashFor({ ...valid, t })), null);
+  }
+});
+
+test('older links keep the meeting in the hash; the query wins, the rest of the query is ignored', () => {
+  const link = new URL(buildGridEventUrl(baseUrl, cities, hours, 'Sync'));
+  const legacyHash = `#${link.search.slice(1)}`;
+
+  assert.deepEqual(readGridEventUrlState(legacyHash), readGridEventUrlState(link.search));
+  assert.equal(getEventParams('', legacyHash), legacyHash);
+  assert.equal(getEventParams(`?at=2026-11-01T05:00:00.000Z&${link.search.slice(1)}`, '#other'), link.search);
+  assert.equal(getEventParams('?at=2026-11-01T05:00:00.000Z', ''), '');
 });
 
 test('every supported duration fits the ordinary grid and remains shareable without truncation', () => {
@@ -86,11 +113,11 @@ test('every supported duration fits the ordinary grid and remains shareable with
     assert.ok(dates.at(-1).getTime() + GRID_HOUR_MS >= state.end);
     const values = new Set(dates.map(Number));
 
-    assert.ok(state.hours.every((hour) => values.has(hour.start)));
+    assert.ok(state.hours.every((hour) => values.has(hourOf(hour.start))));
     const link = buildGridEventUrl(baseUrl, state.cities, state.hours);
 
     assert.ok(link);
-    const restored = readGridEventUrlState(new URL(link).hash);
+    const restored = readGridEventUrlState(new URL(link).search);
 
     assert.equal(restored.start, state.start);
     assert.equal(restored.end, state.end);
@@ -117,18 +144,18 @@ test('repeated opening, selecting the entire timeline and sharing cannot grow th
     const dates = getSharedGridTimelineDates(state);
 
     assert.equal(dates.length, TIMELINE_RENDERED_HOURS);
-    const selection = dates.map((date) => ({ rowId: state.cities[0].id, start: date.getTime() }));
+    const selection = slotsOf(dates.map((date) => ({ rowId: state.cities[0].id, start: date.getTime() })));
     const link = buildGridEventUrl(baseUrl, state.cities, selection);
 
     assert.ok(link);
-    state = readGridEventUrlState(new URL(link).hash);
+    state = readGridEventUrlState(new URL(link).search);
     assert.equal(state.end - state.start, TIMELINE_RENDERED_HOURS * GRID_HOUR_MS);
   }
 });
 
 test('one hour beyond actual grid capacity is rejected on both encoding and decoding', () => {
   assert.equal(readGridEventUrlState(hashFor({ ...valid, e: valid.s + (TIMELINE_RENDERED_HOURS + 1) * 3600 })), null);
-  const oversized = Array.from({ length: TIMELINE_RENDERED_HOURS + 1 }, (_, i) => ({ rowId: 'ny', start: start + i * GRID_HOUR_MS }));
+  const oversized = slotsOf(Array.from({ length: TIMELINE_RENDERED_HOURS + 1 }, (_, i) => ({ rowId: 'ny', start: start + i * GRID_HOUR_MS })));
 
   assert.equal(buildGridEventUrl(baseUrl, cities, oversized), null);
 });
@@ -217,4 +244,21 @@ test('missing or denied clipboard reports failure rather than claiming success',
       },
     },
   }), /Denied/);
+});
+
+test('a meeting from half past to half past shares, and its grid has every hour it touches', () => {
+  const halves = slotsOf([0, 1, 2].map((i) => ({ rowId: 'ny', start: start + i * GRID_HOUR_MS }))).slice(1, -1);
+  const restored = readGridEventUrlState(new URL(buildGridEventUrl(baseUrl, cities, halves)).search);
+
+  assert.equal(restored.start, start + 0.5 * GRID_HOUR_MS);
+  assert.equal(restored.end, start + 2.5 * GRID_HOUR_MS);
+  assert.deepEqual(restored.hours.map((hour) => hour.start), halves.map((hour) => hour.start));
+
+  const dates = getSharedGridTimelineDates(restored).map(Number);
+
+  // 05:30 – 07:30 touches the cells of 05, 06 and 07, which stay whole.
+  assert.ok([0, 1, 2].every((i) => dates.includes(start + i * GRID_HOUR_MS)));
+  assert.ok(dates.every((date) => date % GRID_HOUR_MS === 0));
+  // Only whole halves: a quarter past is not a meeting's end.
+  assert.equal(readGridEventUrlState(hashFor({ ...valid, e: valid.s + 3600 + 900 })), null);
 });

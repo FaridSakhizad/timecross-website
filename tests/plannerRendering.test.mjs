@@ -17,8 +17,12 @@ const { default: Mobile } = await import('../src/components/TimelineGrid/mobile/
 const { default: TimelineGridSession } = await import('../src/components/TimelineGrid/shared/TimelineGridSession.tsx');
 const { default: TimelineGrid } = await import('../src/components/TimelineGrid/TimelineGrid.tsx');
 const { useMobileWidgetLayout } = await import('../src/hooks/useMobileWidgetLayout.ts');
-const { default: GridCalendarActions } = await import('../src/components/TimelineGrid/shared/GridCalendarActions.tsx');
 const { buildGridEventUrl } = await import('../src/components/TimelineGrid/shared/eventUrlState.ts');
+const { FEATURES } = await import('../src/config.ts');
+
+const NEW_MEETING = '>Select hours for a meeting</button>';
+// A phone's footer shares its width with the date button.
+const MOBILE_NEW_MEETING = '>Meeting hours</button>';
 
 const props = {
   colorMode: 'day',
@@ -70,26 +74,15 @@ test('widget layout is correct on the first render and on each subsequent page m
   }
 });
 
-test('calendar actions hide Share while retaining Google, Outlook and ICS', () => {
-  const html = render(GridCalendarActions, 'zen', '/en/grid', { event: null, cities: [], hours: [] });
-
-  assert.ok(!html.includes('aria-label="Share event"'));
-  assert.equal((html.match(/timelineGridCalendarButton/g) ?? []).length, 3);
-  assert.equal((html.match(/ disabled=""/g) ?? []).length, 3);
-  assert.ok(html.includes('aria-label="Create event in Outlook"'));
-  assert.ok(html.includes('aria-label="Download event (.ics)"'));
-});
-
 test('mobile selection controls live only in the footer in both presentations', () => {
   for (const presentation of ['zen', 'embedded']) {
     const html = render(Mobile, presentation);
     const footer = html.indexOf('class="zenPageMobile-footer"');
 
     assert.ok(footer > 0);
-    assert.ok(html.indexOf('aria-label="Select hours"') > footer);
-    assert.equal((html.match(/aria-label="Select hours"/g) ?? []).length, 1);
-    assert.equal((html.match(/timelineGridCalendarButton" type="button" disabled=""/g) ?? []).length, 3);
-    assert.ok(html.indexOf('timelineGridCalendarButton') > footer);
+    assert.ok(html.indexOf(MOBILE_NEW_MEETING) > footer);
+    assert.equal(html.split(MOBILE_NEW_MEETING).length - 1, 1);
+    assert.ok(!html.includes('timelineGridCalendarButton'));
   }
 });
 
@@ -97,6 +90,7 @@ for (const [name, Component] of [['desktop', Desktop], ['mobile', Mobile]]) {
   for (const presentation of ['zen', 'embedded']) {
     test(`${name}/${presentation} renders independently with shared cells and the existing header structure`, () => {
       const html = render(Component, presentation);
+      const newMeeting = name === 'desktop' ? NEW_MEETING : MOBILE_NEW_MEETING;
       const header = name === 'desktop' ? 'widgetHeader' : 'zenPageMobile-header';
 
       for (const section of ['Start', 'Middle', 'End']) {
@@ -106,7 +100,13 @@ for (const [name, Component] of [['desktop', Desktop], ['mobile', Mobile]]) {
       assert.equal(html.includes('widgetHeader-backdrop'), name === 'desktop');
       assert.equal(html.includes('widgetHeaderControlPlaceholder'), presentation === 'embedded');
       assert.equal(html.includes('aria-label="Pan"'), name === 'desktop');
-      assert.ok(html.includes('aria-label="Select hours"'));
+      assert.ok(html.includes(newMeeting));
+      // At the bottom, the date button shows the day in the middle of the grid: today until another is picked.
+      const dateButton = html.indexOf('aria-label="Date: Today"');
+
+      assert.ok(dateButton > html.indexOf(name === 'desktop' ? 'class="widgetFooter"' : 'class="zenPageMobile-footer"'));
+      assert.ok(dateButton < html.indexOf(newMeeting));
+      assert.doesNotMatch(html, /aria-label="Edit"[^>]*disabled=""/);
 
       if (name === 'desktop') {
         // The toolbar is rendered in every presentation, before the grid and never inside it.
@@ -116,11 +116,9 @@ for (const [name, Component] of [['desktop', Desktop], ['mobile', Mobile]]) {
         assert.ok(toolbarIndex >= 0 && gridIndex > toolbarIndex);
         assert.equal((html.match(/class="widgetHeader"/g) ?? []).length, 1);
         const footerIndex = html.indexOf('class="widgetFooter"');
-        const actionsIndex = html.indexOf('timelineGridCalendarButton');
 
-        assert.ok(footerIndex > 0 && actionsIndex > footerIndex);
-        assert.equal((html.match(/timelineGridCalendarButton" type="button" disabled=""/g) ?? []).length, 3);
-        assert.ok(html.indexOf('aria-label="Select hours"') > footerIndex);
+        assert.ok(footerIndex > 0 && html.indexOf(newMeeting) > footerIndex);
+        assert.ok(!html.includes('timelineGridCalendarButton'));
         assert.ok(!html.includes('timelineGridClearSelectionButton" hidden'));
       }
 
@@ -145,7 +143,7 @@ for (const [name, Component] of [['desktop', Desktop], ['mobile', Mobile]]) {
     });
   }
 
-  test(`${name} restores a shared event with identical selected hours and calendar dates`, () => {
+  test(`${name} restores a shared event with identical selected hours and calendar dates`, async () => {
     const start = Date.UTC(2026, 9, 26, 12);
     const city = {
       id: 'ny',
@@ -153,21 +151,29 @@ for (const [name, Component] of [['desktop', Desktop], ['mobile', Mobile]]) {
       timezone: 'America/New_York',
       customName: '',
     };
-    const hours = [0, 1, 2].map((offset) => ({ rowId: city.id, start: start + offset * 3600000 }));
+    const { slotsOf } = await import('./support/gridSlots.mjs');
+    const hours = slotsOf([0, 1, 2].map((offset) => ({ rowId: city.id, start: start + offset * 3600000 })));
     const url = buildGridEventUrl('https://timecross.app/en/grid', [city], hours);
 
     assert.ok(url);
     const html = render(Component, 'zen', url.replace('https://timecross.app', ''));
 
-    assert.equal((html.match(/ isSelected/g) ?? []).length, 3);
-    assert.ok(html.includes('20261026T120000Z%2F20261026T150000Z'));
-    assert.ok(html.includes('aria-label="Create event in Outlook"'));
-    assert.ok(html.includes('aria-label="Download event (.ics)"'));
+    // Three hours in the city's row, and the same three in the user's hours above it.
+    assert.equal((html.match(/timelineGrid-cell[^"]* isSelected/g) ?? []).length, 3);
+    assert.equal((html.match(/timelineGrid-hour[^"]* isSelected/g) ?? []).length, 3);
+    // The date stays in the footer with hours selected; a shared meeting keeps its own day.
+    assert.match(html, /aria-label="Date:[^"]*"[^>]*disabled=""/);
+    // Cities cannot be edited under a selection.
+    assert.match(html, /aria-label="Edit"[^>]*disabled=""[^>]*title="Clear the selection to edit the cities"/);
     assert.ok(html.includes(`timelineGridSelectionFrame_${name}`));
-    assert.equal((html.match(/data-grid-resize=/g) ?? []).length, 8);
+    // A frame for the time only spans every city: only its sides move.
+    assert.equal((html.match(/data-grid-resize=/g) ?? []).length, FEATURES.timeOnlyFrame ? 2 : 8);
     assert.ok(!html.includes('timelineGridSelectionLayer'));
     const contentStart = html.indexOf('class="timelineGrid-content"');
-    const frameStart = html.indexOf(`class="timelineGridSelectionFrame timelineGridSelectionFrame_${name}"`);
+    const frameStart = html.indexOf(`class="timelineGridSelectionFrame timelineGridSelectionFrame_${name}`);
+
+    // A frame for the time only covers the user's hours too: it is drawn above their row.
+    assert.equal(html.includes('timelineGridSelectionFrame_overUserHours'), FEATURES.timeOnlyFrame);
     const hoursStart = html.indexOf(`class="timelineGrid-userHours timelineGrid-userHours_${name}"`);
 
     assert.ok(contentStart >= 0 && hoursStart > contentStart && frameStart > hoursStart);
@@ -175,17 +181,29 @@ for (const [name, Component] of [['desktop', Desktop], ['mobile', Mobile]]) {
     if (name === 'mobile') {
       const footer = html.indexOf('class="zenPageMobile-footer"');
 
-      assert.ok(footer > 0);
-      assert.ok(html.indexOf('timelineGridCalendarButton') > footer);
+      // On a phone the card by the frame starts folded; the footer clears the selection and opens
+      // the meeting's details in a dialog.
+      const cardStart = html.indexOf('class="selectionCard selectionCard_collapsed"');
+
+      assert.ok(cardStart > frameStart && cardStart < footer);
+      assert.ok(html.indexOf('aria-label="Show the meeting"') > cardStart);
       assert.ok(html.indexOf('aria-label="Clear selection"') > footer);
-      assert.ok(!html.includes('aria-label="Select hours"'));
-      assert.ok(html.includes('lucide-x'));
-      assert.equal((html.match(/aria-label="Create event in Outlook"/g) ?? []).length, 1);
+      assert.match(html.slice(footer), /aria-haspopup="dialog".*Create event…<\/button>/);
+      assert.ok(!html.includes(MOBILE_NEW_MEETING));
+      assert.ok(!html.includes('timelineGridCalendarButton'));
     }
 
     if (name === 'desktop') {
-      assert.ok(html.indexOf('timelineGridCalendarButton') > html.indexOf('class="widgetFooter"'));
-      assert.equal((html.match(/timelineGridCalendarButton" type="button" disabled=""/g) ?? []).length, 0);
+      // The selection's card, beside the frame (in the still box after the grid's content), holds the actions.
+      const cardStart = html.indexOf('class="selectionCard"');
+
+      assert.ok(cardStart > html.indexOf('class="timelineGrid-content"'));
+      assert.ok(html.includes('20261026T120000Z%2F20261026T150000Z'));
+      assert.ok(html.includes('aria-label="Download event (.ics)"'));
+      assert.ok(html.indexOf('aria-label="Create event in Outlook"') > cardStart);
+      // Each city has a checkbox: the meeting is for the cities the selection covers.
+      assert.match(html, /<input type="checkbox" checked=""\/>New York<\/label><\/div><div class="eventSummary-time">08:00 – 11:00/);
+      assert.ok(!html.includes('timelineGridCalendarButton'));
     }
   });
 }

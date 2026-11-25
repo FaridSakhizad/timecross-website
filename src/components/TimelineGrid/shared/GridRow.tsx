@@ -15,7 +15,7 @@ import {
 } from '../../../utils/time';
 import { getCityDisplayName } from '../../Cities/useLocalizedCities';
 
-import { gridHourKey } from './gridSelection';
+import { isGridHourSelected } from './gridSelection';
 import TimelineCellLabel from './TimelineCellLabel';
 import { getTimelineCells } from './timelineCells';
 
@@ -35,7 +35,9 @@ type TimelineGridRowProps = {
   timelineDates: Date[];
   timeFormat: TimeFormat;
   onDelete: (cityId: string) => void;
-  selectedHourKeys?: ReadonlySet<string>;
+  selectedSlotKeys?: ReadonlySet<string>;
+  /** Unchecked in the selection card: the whole row, its name too, steps back. */
+  isDimmed?: boolean;
 };
 
 function isTimelineGridDragPressTarget(target: EventTarget | null) {
@@ -52,7 +54,8 @@ function TimelineGridRow({
   timelineDates,
   timeFormat,
   onDelete,
-  selectedHourKeys,
+  selectedSlotKeys,
+  isDimmed = false,
 }: TimelineGridRowProps) {
   const { language, t } = useI18n();
   const [isPressed, setIsPressed] = useState(false);
@@ -118,6 +121,7 @@ function TimelineGridRow({
         isEditMode && 'isReorderable',
         isEditMode && isPressed && !isDragging && 'isPressed',
         isDragging && 'isDragging',
+        isDimmed && 'isDimmed',
       )}
       onPointerDown={(event) => handlePressStart(event.target)}
       onTouchStart={(event) => handlePressStart(event.target)}
@@ -175,7 +179,7 @@ function TimelineGridRow({
                   cell.isCurrentHour && 'timelineGrid-cell_current',
                   cell.isDateLabel && 'timelineGrid-cell_date',
                   shouldShowFullCurrentTime && 'timelineGrid-cell_fullTime',
-                  selectedHourKeys?.has(gridHourKey({ rowId: city.id, start: cell.date.getTime() })) && 'isSelected',
+                  selectedSlotKeys && isGridHourSelected(selectedSlotKeys, city.id, cell.date.getTime()) && 'isSelected',
                 )}
                 key={`${city.id}-${cell.date.toISOString()}-${index}`}
                 data-grid-selection-row={city.id}

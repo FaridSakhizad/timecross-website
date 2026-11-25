@@ -22,7 +22,13 @@ export const COPYRIGHT_HOLDER = 'Farid Sakhizad';
 export const COPYRIGHT_YEAR = 2026;
 
 /** Features that are built but switched off. */
-export const FEATURES: Record<'shareEvent', boolean> = {
+export const FEATURES: Record<'shareEvent' | 'timeOnlyFrame', boolean> = {
   /** "Share event" in the planner: a link that opens the selected meeting in someone else's planner. */
   shareEvent: false,
+  /**
+   * The planner's frame picks only the meeting's time: it spans every city, is drawn across all of
+   * them and has only side handles; who the meeting is for is checked in its card. Off: a frame
+   * is a rectangle of cities and hours with eight handles.
+   */
+  timeOnlyFrame: true,
 };

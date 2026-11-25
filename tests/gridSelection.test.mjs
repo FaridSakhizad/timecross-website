@@ -1,11 +1,14 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { buildGridCalendarEvent, buildOutlookCalendarUrl, getGridHourRanges, getGridSelectionBounds, intersectsSelection, resizeGridSelection, resizeGridSelectionRect } from '../src/components/TimelineGrid/shared/gridSelection.ts';
+import { buildGridCalendarEvent, buildOutlookCalendarUrl, getGridSlotRanges, getGridSelectionBounds, getHourCellSlots, getMeetingSlots, getFrameSidePadding, getMeetingSpan, getWholeHourSlots, gridSlotKey, moveSlotsByDays, intersectsSelection, isGridHourSelected, resizeGridSelection, resizeGridSelectionRect } from '../src/components/TimelineGrid/shared/gridSelection.ts';
+
+import { slotsOf } from './support/gridSlots.mjs';
 
 const hour = 3600000;
 const start = Date.parse('2026-10-23T16:00:00Z');
-const selected = (rowId, count = 3, first = start) => Array.from({ length: count }, (_, i) => ({ rowId, start: first + i * hour }));
+// `count` whole hours of a row, as the half-hour slots a selection is made of.
+const selected = (rowId, count = 3, first = start) => slotsOf(Array.from({ length: count }, (_, i) => ({ rowId, start: first + i * hour })));
 const cities = [
   { id: 'ny', name: 'New York', timezone: 'America/New_York' },
   { id: 'lon', name: 'London', timezone: 'Europe/London' },
@@ -76,7 +79,7 @@ test('rectangle intersection includes partially covered blocks but not touching 
 });
 
 test('contiguous cells merge while gaps and distinct rows remain separate', () => {
-  const ranges = getGridHourRanges([...selected('ny'), ...selected('ny'), ...selected('ny', 1, start + 5 * hour), ...selected('lon', 1)]);
+  const ranges = getGridSlotRanges([...selected('ny'), ...selected('ny'), ...selected('ny', 1, start + 5 * hour), ...selected('lon', 1)]);
 
   assert.deepEqual(ranges, [
     { rowId: 'ny', start, end: start + 3 * hour },
@@ -139,12 +142,12 @@ test('empty, invalid or removed rows cannot produce a calendar event', () => {
 });
 
 const geometry = Array.from({ length: 4 }, (_, row) => Array.from({ length: 5 }, (_, col) => ({
-  hour: { rowId: String(row), start: start + col * hour },
+  slot: { rowId: String(row), start: start + col * hour },
   rect: { left: col * 74, right: col * 74 + 64, top: row * 111 + 41, bottom: row * 111 + 105 },
   rowTop: row * 111,
   rowBottom: (row + 1) * 111,
 }))).flat();
-const initial = geometry.filter((cell) => ['1', '2'].includes(cell.hour.rowId) && cell.hour.start >= start + hour && cell.hour.start <= start + 2 * hour).map((cell) => cell.hour);
+const initial = geometry.filter((cell) => ['1', '2'].includes(cell.slot.rowId) && cell.slot.start >= start + hour && cell.slot.start <= start + 2 * hour).map((cell) => cell.slot);
 
 test('persistent frame includes the entire city header and complete hour cells', () => {
   assert.deepEqual(getGridSelectionBounds(geometry, initial), { left: 74, right: 212, top: 111, bottom: 333 });
@@ -184,9 +187,99 @@ test('all eight handles keep their opposite edges fixed and never cross to zero 
 });
 
 test('corner resize fills the bounding rectangle of a disjoint selection deterministically', () => {
-  const disjoint = [geometry[0].hour, geometry.at(-1).hour];
+  const disjoint = [geometry[0].slot, geometry.at(-1).slot];
   const result = resizeGridSelection(geometry, disjoint, 'se', 212, 333);
 
   assert.equal(result.length, 9);
   assert.equal(resizeGridSelection(geometry, [], 'e', 10, 10).length, 0);
+});
+
+test('the meeting takes the selection\'s hours in every participant\'s row, covered or not', () => {
+  // The frame covers New York and London; London is unchecked, Tokyo checked.
+  const hours = [...selected('ny'), ...selected('lon')];
+
+  assert.deepEqual(getMeetingSpan(hours), { start, end: start + 3 * hour });
+  assert.deepEqual(getMeetingSlots(hours, new Set(['ny', 'tok'])), [...selected('ny'), ...selected('tok')]);
+
+  const event = buildGridCalendarEvent(getMeetingSlots(hours, new Set(['ny', 'tok'])), cities.filter((city) => city.id !== 'lon'), 'UTC', 'Sync');
+
+  assert.ok(event.details.includes('New York') && event.details.includes('Tokyo'));
+  assert.ok(!event.details.includes('London'));
+});
+
+test('a meeting for no one has its span but no hours and no calendar event', () => {
+  const hours = selected('ny');
+
+  assert.deepEqual(getMeetingSpan(hours), { start, end: start + 3 * hour });
+  assert.deepEqual(getMeetingSlots(hours, new Set()), []);
+  assert.equal(buildGridCalendarEvent([], [], 'UTC', 'Sync'), null);
+  assert.equal(getMeetingSpan([]), null);
+});
+
+test('an hour\'s cell is two halves of its width, which keep the cell\'s other fields', () => {
+  const cell = { element: 'td', slot: { rowId: 'ny', start }, rect: { left: 100, right: 164, top: 0, bottom: 64 }, rowTop: 0, rowBottom: 70 };
+  const halves = getHourCellSlots(cell);
+
+  assert.deepEqual(halves.map((half) => half.slot.start), [start, start + hour / 2]);
+  assert.deepEqual(halves.map((half) => [half.rect.left, half.rect.right]), [[100, 132], [132, 164]]);
+  assert.ok(halves.every((half) => half.element === 'td' && half.rowBottom === 70));
+});
+
+test('an hour\'s cell shows as selected when either of its halves is', () => {
+  const keys = new Set([gridSlotKey({ rowId: 'ny', start: start + hour / 2 })]);
+
+  assert.equal(isGridHourSelected(keys, 'ny', start), true);
+  assert.equal(isGridHourSelected(keys, 'ny', start + hour), false);
+  assert.equal(isGridHourSelected(keys, 'lon', start), false);
+});
+
+test('a meeting can start and end at half past: 16:30 – 17:30', () => {
+  const halves = selected('ny', 2).slice(1, -1);
+
+  assert.deepEqual(getGridSlotRanges(halves), [{ rowId: 'ny', start: start + hour / 2, end: start + 1.5 * hour }]);
+
+  const event = buildGridCalendarEvent(halves, cities, 'UTC', 'Sync');
+
+  assert.equal(new URL(event.url).searchParams.get('dates'), '20261023T163000Z/20261023T173000Z');
+  assert.match(event.details, /^New York 12:30 -> 13:30/);
+});
+
+test('a drawn frame takes every half of each hour it touches, in the cells\' order', () => {
+  const cells = ['ny', 'lon'].flatMap((rowId, row) => [0, 1, 2].flatMap((col) => getHourCellSlots({
+    slot: { rowId, start: start + col * hour },
+    rect: { left: col * 74, right: col * 74 + 64, top: row * 100, bottom: row * 100 + 64 },
+    rowTop: row * 100,
+    rowBottom: row * 100 + 100,
+  })));
+  // The second half of New York's first hour and the first half of its second.
+  const touched = [{ rowId: 'ny', start: start + hour / 2 }, { rowId: 'ny', start: start + hour }];
+
+  assert.deepEqual(getWholeHourSlots(cells, touched), selected('ny', 2));
+  assert.deepEqual(getWholeHourSlots(cells, []), []);
+});
+
+test('a frame stands out into the gaps at whole hours and sits on the middle of a cell at half past', () => {
+  assert.deepEqual(getFrameSidePadding(selected('ny', 2), 6), { left: 6, right: 6 });
+  assert.deepEqual(getFrameSidePadding(selected('ny', 2).slice(1), 6), { left: 0, right: 6 });
+  assert.deepEqual(getFrameSidePadding(selected('ny', 2).slice(0, -1), 6), { left: 6, right: 0 });
+  // A dragged side follows the pointer.
+  assert.deepEqual(getFrameSidePadding(selected('ny', 2), 6, 'e'), { left: 6, right: 0 });
+  assert.deepEqual(getFrameSidePadding([], 6), { left: 6, right: 6 });
+});
+
+test('a selection moved to another day keeps its hours on the clock, also across daylight saving time', () => {
+  // 13:00 and 13:30 in New York on Sunday, November 1 2026, the first day of standard time.
+  const sunday = [Date.parse('2026-11-01T18:00:00Z'), Date.parse('2026-11-01T18:30:00Z')];
+  const slots = sunday.map((time) => ({ rowId: 'ny', start: time }));
+
+  // The day before is still daylight saving time: 13:00 there is an hour earlier in UTC.
+  assert.deepEqual(moveSlotsByDays(slots, -1, 'America/New_York').map((slot) => new Date(slot.start).toISOString()), [
+    '2026-10-31T17:00:00.000Z',
+    '2026-10-31T17:30:00.000Z',
+  ]);
+  assert.deepEqual(moveSlotsByDays(slots, 2, 'America/New_York').map((slot) => new Date(slot.start).toISOString()), [
+    '2026-11-03T18:00:00.000Z',
+    '2026-11-03T18:30:00.000Z',
+  ]);
+  assert.deepEqual(moveSlotsByDays(slots, 0, 'America/New_York'), slots);
 });

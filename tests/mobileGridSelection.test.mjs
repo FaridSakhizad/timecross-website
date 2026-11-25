@@ -2,7 +2,16 @@ import assert from 'node:assert/strict';
 import { afterEach, beforeEach, test } from 'node:test';
 
 import { attachMobileGridSelection } from '../src/components/TimelineGrid/mobile/mobileGridSelectionController.ts';
-import { getInitialMobileGridSelection, getVisibleMobileGridSelection } from '../src/components/TimelineGrid/mobile/mobileGridSelectionGeometry.ts';
+import {
+  getVisibleMobileGridSelection,
+  MOBILE_SELECTION_BOTTOM_PADDING,
+  MOBILE_SELECTION_HORIZONTAL_PADDING,
+  MOBILE_SELECTION_TOP_PADDING,
+} from '../src/components/TimelineGrid/mobile/mobileGridSelectionGeometry.ts';
+
+import { hourOf, PER_HOUR, SLOT_MS, slotsOf } from './support/gridSlots.mjs';
+
+const { GRID_FRAME_COVERS_USER_HOURS } = await import('../src/components/TimelineGrid/shared/gridSelection.ts');
 
 /** Offset of a resize handle along one axis: -distance, distance or 0. */
 function handleStep(direction, backSide, forwardSide, distance) {
@@ -18,53 +27,30 @@ function handleStep(direction, backSide, forwardSide, distance) {
 }
 
 const hour = 3600000;
+const SIDE = MOBILE_SELECTION_HORIZONTAL_PADDING;
+const px = (value) => `${value}px`;
+/** The initial frame: three hours of three cities, with the frame's padding. */
+const INITIAL_WIDTH = 3 * 74 - 10 + SIDE * 2;
+/** The frame's top: the user's hours at the top of the content, or the first selected city. */
+const INITIAL_TOP = GRID_FRAME_COVERS_USER_HOURS ? 0 : 231;
+const INITIAL_HEIGHT = 564 - INITIAL_TOP + MOBILE_SELECTION_TOP_PADDING + MOBILE_SELECTION_BOTTOM_PADDING;
+
+/** The grid's elements for a selector: the rows, the user's hours, or the cells. */
+function queryGrid(selector, rows) {
+  if (selector === '.timelineGrid-row_mobile') {
+    return rows;
+  }
+
+  return selector.includes('timelineGrid-userHours') ? userHours : elements;
+}
+
+const ALL_ROWS = ['r0', 'r1', 'r2', 'r3', 'r4', 'r5', 'r6'];
 const geometry = Array.from({ length: 7 }, (_, row) => Array.from({ length: 8 }, (_, col) => ({
-  hour: { rowId: `r${row}`, start: col * hour },
+  slot: { rowId: `r${row}`, start: col * hour },
   rect: { left: 100 + col * 74, right: 164 + col * 74, top: 160 + row * 111, bottom: 224 + row * 111 },
   rowTop: 120 + row * 111,
   rowBottom: 231 + row * 111,
 }))).flat();
-
-test('button seed selects three centered hours and a three-city frame nearest the screen center', () => {
-  const selected = getInitialMobileGridSelection(geometry, { left: 100, right: 490, top: 106, bottom: 844 }, 295, 422);
-
-  assert.equal(selected.length, 9);
-  assert.deepEqual([...new Set(selected.map((cell) => cell.rowId))], ['r1', 'r2', 'r3']);
-  assert.deepEqual([...new Set(selected.map((cell) => cell.start))], [hour, 2 * hour, 3 * hour]);
-});
-
-test('initial selection uses the scrolled visible rows, never the first hidden cities', () => {
-  const selected = getInitialMobileGridSelection(geometry, { left: 100, right: 490, top: 430, bottom: 900 }, 295, 665);
-
-  assert.deepEqual([...new Set(selected.map((cell) => cell.rowId))], ['r3', 'r4', 'r5']);
-});
-
-test('equally centered three-city frames favor the lower group without changing the selected hours', () => {
-  const selected = getInitialMobileGridSelection(geometry, { left: 100, right: 490, top: 106, bottom: 800 }, 295, 453);
-
-  assert.deepEqual([...new Set(selected.map((cell) => cell.rowId))], ['r2', 'r3', 'r4']);
-  assert.deepEqual([...new Set(selected.map((cell) => cell.start))], [hour, 2 * hour, 3 * hour]);
-});
-
-test('centering compares complete frame bounds when city rows have different heights', () => {
-  const uneven = geometry.map((cell) => (cell.hour.rowId === 'r1' ? { ...cell, rowTop: cell.rowTop - 20 } : cell));
-  const selected = getInitialMobileGridSelection(uneven, { left: 100, right: 490, top: 106, bottom: 800 }, 295, 450);
-
-  assert.deepEqual([...new Set(selected.map((cell) => cell.rowId))], ['r2', 'r3', 'r4']);
-});
-
-test('fewer visible cities and timeline edges produce a smaller valid rectangle', () => {
-  const few = geometry.filter((cell) => cell.hour.rowId === 'r0' || cell.hour.rowId === 'r1');
-
-  assert.equal(getInitialMobileGridSelection(few, { left: 0, right: 390, top: 106, bottom: 800 }, 0, 700).length, 6);
-  const last = getInitialMobileGridSelection(few, { left: 500, right: 900, top: 106, bottom: 800 }, 850, 700);
-
-  assert.deepEqual([...new Set(last.map((cell) => cell.start))], [5 * hour, 6 * hour, 7 * hour]);
-  const one = geometry.slice(0, 1);
-
-  assert.equal(getInitialMobileGridSelection(one, { left: 0, right: 390, top: 106, bottom: 800 }, 195, 700).length, 1);
-  assert.deepEqual(getInitialMobileGridSelection(geometry, { left: 0, right: 390, top: 1000, bottom: 1100 }, 195, 1050), []);
-});
 
 class FakeElement extends EventTarget {
   dataset = {};
@@ -80,7 +66,7 @@ class FakeElement extends EventTarget {
   releasePointerCapture(id) { this.captured.delete(id); }
 }
 
-let original, layer, frame, handles, elements, initial, committed, active, controller, frames, nextFrame;
+let original, layer, frame, handles, elements, userHours, initial, committed, active, controller, frames, nextFrame;
 
 function emit(target, type, values = {}) {
   const event = new Event(type, { cancelable: true });
@@ -142,10 +128,17 @@ beforeEach(() => {
       this.scrollY = Math.max(0, Math.min(800, this.scrollY + top));
     },
   });
+  // The user's own hours above the cities.
+  userHours = Array.from({ length: 8 }, (_, col) => {
+    const userHour = new FakeElement();
+
+    userHour.dataset = { gridHourStart: String(col * hour) };
+    return userHour;
+  });
   elements = geometry.map((cell) => {
     const element = new FakeElement();
 
-    element.dataset = { gridSelectionRow: cell.hour.rowId, gridHourStart: String(cell.hour.start) };
+    element.dataset = { gridSelectionRow: cell.slot.rowId, gridHourStart: String(cell.slot.start) };
     element.getBoundingClientRect = () => ({
       left: cell.rect.left - window.scrollX,
       right: cell.rect.right - window.scrollX,
@@ -163,7 +156,7 @@ beforeEach(() => {
     documentElement: { clientWidth: 390 },
     visibilityState: 'visible',
     querySelector: () => ({ getBoundingClientRect: () => ({ bottom: 106 }) }),
-    querySelectorAll: (selector) => (selector === '.timelineGrid-row_mobile' ? rows : elements),
+    querySelectorAll: (selector) => queryGrid(selector, rows),
   });
   frame = new FakeElement();
   layer = frame;
@@ -177,9 +170,10 @@ beforeEach(() => {
     handle.dataset.gridResize = direction;
     return [direction, handle];
   }));
-  initial = geometry.filter((cell) => ['r1', 'r2', 'r3'].includes(cell.hour.rowId)
-    && cell.hour.start >= hour
-    && cell.hour.start <= 3 * hour).map((cell) => cell.hour);
+  // Three whole hours of three cities.
+  initial = slotsOf(geometry.filter((cell) => ['r1', 'r2', 'r3'].includes(cell.slot.rowId)
+    && cell.slot.start >= hour
+    && cell.slot.start <= 3 * hour).map((cell) => cell.slot));
   committed = initial;
   active = false;
   controller = attachMobileGridSelection(layer, initial, (value) => {
@@ -200,13 +194,13 @@ afterEach(() => {
 
 test('frame initially includes city titles and full hour cells, not only the hour band', () => {
   assert.equal(layer.hidden, false);
-  assert.equal(frame.style.left, '168px');
-  assert.equal(frame.style.width, '224px');
-  assert.equal(frame.style.height, '328px');
+  assert.equal(frame.style.left, px(174 - SIDE));
+  assert.equal(frame.style.width, px(INITIAL_WIDTH));
+  assert.equal(frame.style.height, px(INITIAL_HEIGHT));
   assert.equal(elements.filter((element) => element.selected).length, 9);
 });
 
-test('zen seed stays over visible hours even when the add-city button is far outside the screen', () => {
+test('zen meeting stays over visible hours even when other elements are far outside the screen', () => {
   document.querySelector = (selector) => ({
     getBoundingClientRect: () => (selector === '.timelineGrid-userHours_mobile'
       ? { bottom: 106 }
@@ -215,27 +209,27 @@ test('zen seed stays over visible hours even when the add-city button is far out
   window.scrollX = 300;
   const selected = getVisibleMobileGridSelection();
 
-  assert.deepEqual([...new Set(selected.map((cell) => cell.start))], [4 * hour, 5 * hour, 6 * hour]);
-  assert.deepEqual([...new Set(selected.map((cell) => cell.rowId))], ['r1', 'r2', 'r3']);
+  assert.deepEqual([...new Set(selected.map((cell) => hourOf(cell.start)))], [5 * hour]);
+  assert.deepEqual([...new Set(selected.map((cell) => cell.rowId))], ALL_ROWS);
   controller.destroy();
   controller = attachMobileGridSelection(layer, selected, () => {}, () => {});
-  assert.equal(frame.style.left, '390px');
-  assert.equal(frame.style.width, '224px');
+  assert.equal(frame.style.left, px(470 - SIDE));
+  assert.equal(frame.style.width, px(64 + SIDE * 2));
 });
 
-test('zen seed follows both axes of page scrolling when selection is enabled again', () => {
+test('zen meeting follows horizontal page scrolling and keeps every city when selection is enabled again', () => {
   window.scrollX = 300;
   window.scrollY = 200;
   const selected = getVisibleMobileGridSelection();
 
-  assert.deepEqual([...new Set(selected.map((cell) => cell.start))], [4 * hour, 5 * hour, 6 * hour]);
-  assert.deepEqual([...new Set(selected.map((cell) => cell.rowId))], ['r3', 'r4', 'r5']);
+  assert.deepEqual([...new Set(selected.map((cell) => hourOf(cell.start)))], [5 * hour]);
+  assert.deepEqual([...new Set(selected.map((cell) => cell.rowId))], ALL_ROWS);
   window.scrollX = 100;
   window.scrollY = 0;
   const reset = getVisibleMobileGridSelection();
 
-  assert.deepEqual([...new Set(reset.map((cell) => cell.start))], [hour, 2 * hour, 3 * hour]);
-  assert.deepEqual([...new Set(reset.map((cell) => cell.rowId))], ['r1', 'r2', 'r3']);
+  assert.deepEqual([...new Set(reset.map((cell) => hourOf(cell.start)))], [2 * hour]);
+  assert.deepEqual([...new Set(reset.map((cell) => cell.rowId))], ALL_ROWS);
 });
 
 test('all eight touch handles resize in complete hours/cities while fixing opposite edges', () => {
@@ -260,14 +254,16 @@ test('all eight touch handles resize in complete hours/cities while fixing oppos
     assert.equal(active, false);
     assert.equal(handles[direction].captured.size, 0);
     assert.equal(new Set(committed.map((cell) => cell.rowId)).size, dy ? 4 : 3, direction);
-    assert.equal(new Set(committed.map((cell) => cell.start)).size, dx ? 4 : 3, direction);
+    assert.equal(new Set(committed.map((cell) => hourOf(cell.start))).size, dx ? 4 : 3, direction);
   }
 });
 
 test('fast touch release commits final coordinates even without intermediate moves', () => {
   emit(layer, 'pointerdown', { target: handles.e, clientX: 286, clientY: 400 });
   emit(window, 'pointerup', { clientX: 360, clientY: 400 });
-  assert.equal(committed.length, 12);
+  assert.equal(committed.length, 3 * 4 * PER_HOUR);
+  // The user's hours above the cities show the four hours now selected.
+  assert.deepEqual(userHours.map((userHour) => Boolean(userHour.selected)), [false, true, true, true, true, false, false, false]);
 });
 
 function nativeTouch(target, type, handle, x, y, identifier = 7, touches) {
@@ -309,7 +305,7 @@ test('native first-contact dragging resizes all eight handles without a prelimin
     nativeTouch(layer, 'touchend', handles[direction], x + dx, y + dy);
     assert.equal(active, false);
     assert.equal(new Set(committed.map((cell) => cell.rowId)).size, dy ? 4 : 3, direction);
-    assert.equal(new Set(committed.map((cell) => cell.start)).size, dx ? 4 : 3, direction);
+    assert.equal(new Set(committed.map((cell) => hourOf(cell.start))).size, dx ? 4 : 3, direction);
   }
 });
 
@@ -317,7 +313,7 @@ test('native touch release uses final coordinates without a rendered move frame'
   enableNativeTouch();
   nativeTouch(layer, 'touchstart', handles.e, 286, 400);
   nativeTouch(layer, 'touchend', handles.e, 360, 400);
-  assert.equal(committed.length, 12);
+  assert.equal(committed.length, 3 * 4 * PER_HOUR);
   assert.equal(frames.size, 0);
 });
 
@@ -327,15 +323,20 @@ test('native resizing moves freely by pixels on every handle then snaps on relea
     committed = initial;
     const x = direction.includes('w') ? 74 : 286;
     const y = direction.includes('n') ? 231 : 564;
-    const dx = handleStep(direction, 'w', 'e', 13.5);
-    const dy = handleStep(direction, 'n', 's', 13.5);
+    // Nearer to the frame's edge than to the next half, across the gap between the cells.
+    const dx = handleStep(direction, 'w', 'e', 8);
+    const dy = handleStep(direction, 'n', 's', 8);
     const before = { ...frame.style };
 
     nativeTouch(layer, 'touchstart', handles[direction], x, y);
     nativeTouch(layer, 'touchmove', handles[direction], x + dx, y + dy);
     flush();
-    assert.equal(parseFloat(frame.style.width), 224 + (dx ? 13.5 : 0), direction);
-    assert.equal(parseFloat(frame.style.height), 328 + (dy ? 13.5 : 0), direction);
+    // A dragged side follows the pointer without padding.
+    assert.equal(parseFloat(frame.style.width), INITIAL_WIDTH + (dx ? 8 - SIDE : 0), direction);
+    // With the user's hours in the frame, its top stays at the top of the content.
+    const movesHeight = direction.includes('s') || (direction.includes('n') && !GRID_FRAME_COVERS_USER_HOURS);
+
+    assert.equal(parseFloat(frame.style.height), INITIAL_HEIGHT + (movesHeight ? 8 : 0), direction);
     assert.equal(committed, initial);
     nativeTouch(layer, 'touchend', handles[direction], x + dx, y + dy);
     assert.deepEqual(frame.style, before, direction);
@@ -361,13 +362,13 @@ test('native snap animation survives selection state sync and stops on the next 
   };
 
   nativeTouch(layer, 'touchstart', handles.e, 286, 400);
-  nativeTouch(layer, 'touchmove', handles.e, 299.5, 400);
+  nativeTouch(layer, 'touchmove', handles.e, 294, 400);
   flush();
   assert.equal(animations.length, 0);
-  nativeTouch(layer, 'touchend', handles.e, 299.5, 400);
+  nativeTouch(layer, 'touchend', handles.e, 294, 400);
   assert.equal(animations.length, 1);
-  assert.equal(animations[0].keyframes[0].width, '237.5px');
-  assert.equal(animations[0].keyframes[1].width, '224px');
+  assert.equal(animations[0].keyframes[0].width, px(INITIAL_WIDTH + 8 - SIDE));
+  assert.equal(animations[0].keyframes[1].width, px(INITIAL_WIDTH));
   controller.setSelection(committed);
   assert.equal(animations[0].cancelled, false);
   nativeTouch(layer, 'touchstart', handles.e, 286, 400);
@@ -451,7 +452,7 @@ test('pointer capture loss with released buttons commits, held buttons cancel', 
   emit(layer, 'pointerdown', { target: handles.e, clientX: 286, clientY: 400 });
   emit(window, 'pointermove', { clientX: 360, clientY: 400 });
   emit(layer, 'lostpointercapture', { buttons: 0 });
-  assert.equal(committed.length, 12);
+  assert.equal(committed.length, 3 * 4 * PER_HOUR);
   const previous = committed;
 
   emit(layer, 'pointerdown', { target: handles.e, clientX: 360, clientY: 400 });
@@ -485,15 +486,17 @@ test('destroy removes input listeners and hides the frame', () => {
 test('shrinking never crosses opposite edges or leaves an empty selection', () => {
   emit(layer, 'pointerdown', { target: handles.nw, clientX: 74, clientY: 231 });
   emit(window, 'pointerup', { clientX: 1000, clientY: 1200 });
+  // The last half of the last hour in the last city: the opposite corner.
   assert.equal(committed.length, 1);
-  assert.deepEqual(committed, [{ rowId: 'r3', start: 3 * hour }]);
+  assert.deepEqual(committed, [{ rowId: 'r3', start: 4 * hour - SLOT_MS }]);
 });
 
 test('keyboard users can adjust a handle by one whole block without scrolling the page', () => {
   const event = emit(window, 'keydown', { target: handles.e, key: 'ArrowRight' });
 
   assert.equal(event.defaultPrevented, true);
-  assert.equal(committed.length, 12);
+  // Half an hour more in each of the three cities.
+  assert.equal(committed.length, 3 * (3 * PER_HOUR + 1));
   assert.equal(window.scrollX, 100);
 });
 
@@ -548,7 +551,7 @@ function embeddedViewport() {
     querySelectorAll: () => elements.slice(index * 8, (index + 1) * 8),
   }));
 
-  viewport.querySelectorAll = (selector) => (selector === '.timelineGrid-row_mobile' ? rows : elements);
+  viewport.querySelectorAll = (selector) => queryGrid(selector, rows);
   frame.parentElement = {
     querySelectorAll: (selector) => viewport.querySelectorAll(selector),
     getBoundingClientRect: () => ({
@@ -597,7 +600,7 @@ test('Safari toolbar height changes do not reposition the content frame or cance
   assert.deepEqual(frame.style, style);
   assert.equal(frames.size, 0);
   nativeTouch(layer, 'touchend', handles.e, 360, 400);
-  assert.equal(committed.length, 12);
+  assert.equal(committed.length, 3 * 4 * PER_HOUR);
 });
 
 test('embedded touch resize uses widget scroll offsets and autoscroll never scrolls the page', () => {
@@ -605,7 +608,7 @@ test('embedded touch resize uses widget scroll offsets and autoscroll never scro
 
   emit(layer, 'pointerdown', { target: handles.e, clientX: 200, clientY: 400 });
   emit(window, 'pointerup', { clientX: 274, clientY: 400 });
-  assert.equal(committed.length, 12);
+  assert.equal(committed.length, 3 * 4 * PER_HOUR);
   emit(layer, 'pointerdown', { target: handles.e, clientX: 274, clientY: 400 });
   emit(window, 'pointermove', { clientX: 369, clientY: 400 });
   flush();
@@ -628,7 +631,7 @@ test('native embedded resizing and edge autoscroll affect only the widget', () =
   enableNativeTouch(viewport);
   assert.equal(nativeTouch(layer, 'touchstart', handles.e, 200, 400).defaultPrevented, true);
   nativeTouch(layer, 'touchend', handles.e, 274, 400);
-  assert.equal(committed.length, 12);
+  assert.equal(committed.length, 3 * 4 * PER_HOUR);
   nativeTouch(layer, 'touchstart', handles.e, 274, 400);
   nativeTouch(layer, 'touchmove', handles.e, 369, 400);
   flush();

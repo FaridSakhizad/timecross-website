@@ -6,11 +6,14 @@ import type { TimelineCell } from './timelineCells';
 type GridUserHoursProps = {
   userCells: TimelineCell[];
   className: string;
+  /** The hours the selection touches: they show as selected here too. */
+  selectedHourStarts?: ReadonlySet<number>;
 };
 
 export default function GridUserHours({
   userCells,
   className,
+  selectedHourStarts,
 }: GridUserHoursProps) {
   return (
     <div className={cx('timelineGrid-userHours', className)}>
@@ -26,7 +29,10 @@ export default function GridUserHours({
               cell.isDateLabel && 'timelineGrid-hour_date',
               shouldShowCurrentMinutes && 'timelineGrid-hour_withTime',
               shouldShowCurrentDateTime && 'timelineGrid-hour_withDateTime',
+              selectedHourStarts?.has(cell.date.getTime()) && 'isSelected',
             )}
+            // The selection controllers mark the hours a selection touches while it is drawn.
+            data-grid-hour-start={cell.date.getTime()}
             key={`user-${cell.date.toISOString()}-${index}`}
           >
             {shouldShowCurrentDateTime && (

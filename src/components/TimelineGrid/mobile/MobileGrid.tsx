@@ -1,25 +1,26 @@
 import './style.css';
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 
-import { useI18n } from '../../../i18n';
-import { getCityDisplayName } from '../../Cities/useLocalizedCities';
 import TimelineGridActiveHourIndicator from '../shared/GridActiveHourIndicator';
-import { buildGridCalendarEvent, gridHourKey } from '../shared/gridSelection';
+import { getSelectedHourStarts, gridSlotKey } from '../shared/gridSelection';
+import SelectionCard from '../shared/SelectionCard';
 import type { TimelineGridShellProps } from '../shared/types';
 import { useTimelineGridActiveHourIndicator } from '../shared/useGridActiveHourIndicator';
-import { useTimelineGridSnap } from '../shared/useGridScrollSnap';
+import { useTimelineGridScrollPosition } from '../shared/useGridScrollPosition';
+import { useSelectionCardCollapse } from '../shared/useSelectionCardCollapse';
 
+import MobileMeetingDialog from './MobileMeetingDialog';
 import MobileSelectionControls from './MobileSelectionControls';
 import MobileSelectionOverlay from './MobileSelectionOverlay';
 import MobileTimeline from './MobileTimeline';
 import MobileToolbar from './MobileToolbar';
 import { useMobileGridHorizontalScrollLock } from './useMobileGridHorizontalScrollLock';
 import { useMobileGridSelection } from './useMobileGridSelection';
+import { useMobileSelectionCardPosition } from './useMobileSelectionCardPosition';
 
 const EMPTY_SELECTION: NonNullable<TimelineGridShellProps['initialSelectedHours']> = [];
 
 export default function MobileGrid(props: TimelineGridShellProps) {
-  const { t } = useI18n();
   const viewportRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const embedded = props.presentation === 'embedded';
@@ -41,36 +42,51 @@ export default function MobileGrid(props: TimelineGridShellProps) {
     embedded ? viewportRef : undefined,
     contentRef,
   );
-  const shouldSuspendSnap = useCallback(() => interactionRef.current, [interactionRef]);
-  const selectedHourKeys = useMemo(() => new Set(selectedHours.map(gridHourKey)), [selectedHours]);
-  const event = buildGridCalendarEvent(selectedHours, props.cities.map((city) => ({ id: city.id, name: getCityDisplayName(city), timezone: city.timezone })), props.browserTimezone, t('common.calendarEventTitle'));
-  const resetGridScroll = useTimelineGridSnap(
+  const isInteracting = useCallback(() => interactionRef.current, [interactionRef]);
+  const selectedSlotKeys = useMemo(() => new Set(selectedHours.map(gridSlotKey)), [selectedHours]);
+  const selectedHourStarts = useMemo(() => getSelectedHourStarts(selectedHours), [selectedHours]);
+  // The meeting's details and actions: in a dialog from the footer, and in the card by the frame,
+  // folded at first so that it does not cover the grid.
+  const [isEventDialogOpen, setEventDialogOpen] = useState(false);
+  const selectionCardRef = useRef<HTMLDivElement>(null);
+  const [isSelectionCardCollapsed, setSelectionCardCollapsed] = useSelectionCardCollapse(enabled, true);
+  const showSelectionCard = enabled && !props.isEditMode && !props.isDragging;
+
+  useMobileSelectionCardPosition(
+    frameRef,
+    selectionCardRef,
+    embedded ? viewportRef : undefined,
+    showSelectionCard ? JSON.stringify([selectedHours, props.cities.length, isSelectionCardCollapsed]) : '',
+    isSelectionCardCollapsed,
+  );
+
+  // Adjusted while rendering: the dialog goes with the selection.
+  if (!enabled && isEventDialogOpen) {
+    setEventDialogOpen(false);
+  }
+
+  const scrollToCurrentHour = useTimelineGridScrollPosition(
     getScrollTarget,
     props.currentUserHourIndex,
     props.isDragging || props.isEditMode || isResizing,
-    shouldSuspendSnap,
+    isInteracting,
     props.initialFocusHourIndex,
     props.onHourChange,
   );
-  const {
-    direction: activeHourDirection,
-    scrollActiveHourIntoView,
-  } = useTimelineGridActiveHourIndicator(
+  // Shown as soon as the current hour leaves the view, also while a handle is being dragged.
+  const { direction: activeHourDirection } = useTimelineGridActiveHourIndicator(
     getScrollTarget,
-    props.isDragging || props.isEditMode || isResizing,
+    props.isDragging || props.isEditMode,
   );
 
   const toolbar = (
     <MobileToolbar
       {...props}
-      calendarEvent={event}
       selectedHours={selectedHours}
-      selectionEnabled={enabled}
-      selectionDisabled={props.isEditMode || props.isDragging || !props.cities.length}
-      onSelectionToggle={toggle}
+      editDisabled={enabled}
+      // Back to the current hour; the selection stays (a grid moved to today drops hours of another day itself).
       onResetClick={() => {
-        clear();
-        resetGridScroll();
+        scrollToCurrentHour();
         props.onReset?.();
       }}
       onEditModeToggle={() => {
@@ -92,19 +108,27 @@ export default function MobileGrid(props: TimelineGridShellProps) {
       >
         <MobileTimeline
           {...props}
-          selectedHourKeys={selectedHourKeys}
-          onAddCityClick={() => {
-            clear();
-            props.onAddCityClick();
-          }}
+          selectedSlotKeys={selectedSlotKeys}
+          selectedHourStarts={selectedHourStarts}
         />
         <MobileSelectionOverlay
           enabled={enabled}
           frameRef={frameRef}
         />
+        {/* By the frame, as on a desktop; it follows the frame while a handle is dragged. */}
+        {showSelectionCard && (
+          <SelectionCard
+            cardRef={selectionCardRef}
+            cities={props.cities}
+            hours={selectedHours}
+            browserTimezone={props.browserTimezone}
+            participantIds={props.meetingParticipantIds}
+            onParticipantChange={props.onMeetingParticipantChange}
+            collapsed={isSelectionCardCollapsed}
+            onCollapsedChange={setSelectionCardCollapsed}
+          />
+        )}
       </div>
-      <div className="timelineGridMiddleMarker" />
-      <div className="timelineGridMiddleHoursMarker" />
     </>
   );
 
@@ -125,19 +149,19 @@ export default function MobileGrid(props: TimelineGridShellProps) {
                 {timeline}
                 <TimelineGridActiveHourIndicator
                   direction={activeHourDirection}
-                  onClick={scrollActiveHourIntoView}
+                  onClick={scrollToCurrentHour}
                 />
               </div>
 
               <div className="zenPageMobile-footer">
                 <MobileSelectionControls
-                  calendarEvent={event}
-                  cities={props.cities}
-                  selectedHours={selectedHours}
-                  isEditMode={props.isEditMode}
+                  browserTimezone={props.browserTimezone}
+                  focusedDate={props.focusedDate}
+                  onDateSelect={props.onDateSelect}
                   selectionEnabled={enabled}
                   selectionDisabled={props.isEditMode || props.isDragging || !props.cities.length}
                   onSelectionToggle={toggle}
+                  onCreateEvent={() => setEventDialogOpen(true)}
                 />
               </div>
             </div>
@@ -153,23 +177,35 @@ export default function MobileGrid(props: TimelineGridShellProps) {
                 {timeline}
                 <TimelineGridActiveHourIndicator
                   direction={activeHourDirection}
-                  onClick={scrollActiveHourIntoView}
+                  onClick={scrollToCurrentHour}
                 />
                 <div className="zenPageMobile-footer">
                   <MobileSelectionControls
-                    calendarEvent={event}
-                    cities={props.cities}
-                    selectedHours={selectedHours}
-                    isEditMode={props.isEditMode}
+                    browserTimezone={props.browserTimezone}
+                    focusedDate={props.focusedDate}
+                    onDateSelect={props.onDateSelect}
                     selectionEnabled={enabled}
                     selectionDisabled={props.isEditMode || props.isDragging || !props.cities.length}
                     onSelectionToggle={toggle}
+                    onCreateEvent={() => setEventDialogOpen(true)}
                   />
                 </div>
               </div>
               <div className="zenPageMobileBackdrop" />
             </>
           )}
+
+      {enabled && (
+        <MobileMeetingDialog
+          isOpen={isEventDialogOpen}
+          cities={props.cities}
+          hours={selectedHours}
+          browserTimezone={props.browserTimezone}
+          participantIds={props.meetingParticipantIds}
+          onParticipantChange={props.onMeetingParticipantChange}
+          onClose={() => setEventDialogOpen(false)}
+        />
+      )}
     </>
   );
 }

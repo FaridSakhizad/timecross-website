@@ -214,10 +214,55 @@ export function formatShortDate(date: Date, timezone: string, locale: string) {
     .join(' ');
 }
 
-export function formatShortMonth(date: Date, timezone: string, locale: string) {
-  return getLocalizedPart(date, timezone, locale, { month: 'short', day: 'numeric' }, 'month');
+const threeLetterMonths = new Map<string, string[]>();
+
+/**
+ * The twelve months of a language in three letters: the first three of each name ("Jan", "ноя",
+ * "лис", "Mär"). Where two names start alike, the third letter is the first that tells them apart:
+ * French "juin" and "juillet" become "jun" and "jul".
+ */
+function getThreeLetterMonths(locale: string) {
+  const cached = threeLetterMonths.get(locale);
+
+  if (cached) {
+    return cached;
+  }
+
+  // The name on its own, in the nominative ("ноябрь", not "ноября"); mid-month, away from any time zone's date line.
+  const format = new Intl.DateTimeFormat(locale, { month: 'long', timeZone: 'UTC' });
+  const names = Array.from({ length: 12 }, (_, month) => format.format(new Date(Date.UTC(2026, month, 15))).replace(/\./g, ''));
+  const months = names.map((name) => {
+    const alike = names.filter((other) => other !== name && other.slice(0, 3) === name.slice(0, 3));
+
+    if (!alike.length) {
+      return name.slice(0, 3);
+    }
+
+    const index = [...name].findIndex((letter, position) => position >= 2 && alike.every((other) => other[position] !== letter));
+
+    return name.slice(0, 2) + (name[index] ?? name[2] ?? '');
+  });
+
+  threeLetterMonths.set(locale, months);
+
+  return months;
+}
+
+/** The month of `date` in `timezone`, in three letters (see getThreeLetterMonths). */
+export function formatThreeLetterMonth(date: Date, timezone: string, locale: string) {
+  return getThreeLetterMonths(locale)[getZonedDateParts(timezone, date).month - 1] ?? '';
 }
 
 export function formatShortWeekday(date: Date, timezone: string, locale: string) {
   return getLocalizedPart(date, timezone, locale, { weekday: 'short' }, 'weekday');
+}
+
+/** A duration in hours in the language's own words and plural forms: "2 hours", "5,5 часа", "1 Stunde". */
+export function formatHourDuration(minutes: number, locale: string) {
+  return new Intl.NumberFormat(locale, {
+    style: 'unit',
+    unit: 'hour',
+    unitDisplay: 'long',
+    maximumFractionDigits: 2,
+  }).format(Math.abs(minutes) / 60);
 }

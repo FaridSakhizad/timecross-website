@@ -11,13 +11,16 @@ import { cx } from '../../../utils/classNames';
 import StandaloneMenuModal from '../../StandaloneMenuModal';
 import type { GridToolbarProps } from '../shared/types';
 
-type DesktopToolbarProps = Omit<GridToolbarProps, 'calendarEvent' | 'selectedHours'> & {
+type DesktopToolbarProps = Omit<GridToolbarProps, 'selectedHours'> & {
+  /** While hours are selected. */
+  editDisabled: boolean;
   panEnabled: boolean;
   panDisabled: boolean;
   onPanToggle: () => void;
 };
 
 export default function DesktopToolbar({
+  editDisabled,
   isEditMode,
   onAddCityClick,
   onEditModeToggle,
@@ -63,8 +66,11 @@ export default function DesktopToolbar({
           <button
             className={cx('widgetHeaderButton citiesHeaderButton_edit', isEditMode && 'isActive')}
             type="button"
-            aria-label="edit"
+            aria-label={t('common.edit')}
             aria-pressed={isEditMode}
+            // Cities are not reordered or removed under a selection: finish with it first.
+            disabled={editDisabled}
+            title={editDisabled ? t('common.editDisabledHint') : undefined}
             onClick={onEditModeToggle}
           >
             <i className="citiesHeaderButton-icon citiesHeaderButton-icon_edit" />

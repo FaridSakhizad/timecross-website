@@ -1,25 +1,27 @@
 import './style.css';
-import { Scan, X } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { usePreferences } from '../../../hooks/usePreferences';
 import { useI18n } from '../../../i18n';
 import { cx } from '../../../utils/classNames';
-import { getCityDisplayName } from '../../Cities/useLocalizedCities';
 import CustomScrollbar from '../../CustomScrollbar';
 import { TIMELINE_DESKTOP_SCROLLBAR_THUMB_WIDTH } from '../shared/constants';
 import TimelineGridActiveHourIndicator from '../shared/GridActiveHourIndicator';
-import GridCalendarActions from '../shared/GridCalendarActions';
-import { buildGridCalendarEvent, gridHourKey } from '../shared/gridSelection';
+import GridDateButton from '../shared/GridDateButton';
+import { getSelectedHourStarts, gridSlotKey } from '../shared/gridSelection';
+import SelectionCard from '../shared/SelectionCard';
 import type { TimelineGridShellProps } from '../shared/types';
+import { useSelectionCardCollapse } from '../shared/useSelectionCardCollapse';
 
 import DesktopSelectionOverlay from './DesktopSelectionOverlay';
 import DesktopTimeline from './DesktopTimeline';
 import DesktopToolbar from './DesktopToolbar';
 import HourNavButton from './HourNavButton';
 import { useDesktopGridPan } from './useDesktopGridPan';
-import { useDesktopGridActiveHourIndicator, useDesktopGridSnap } from './useDesktopGridScroll';
+import { useDesktopGridActiveHourIndicator, useDesktopGridScrollPosition } from './useDesktopGridScroll';
 import { useGridSelection } from './useGridSelection';
+import { useSelectionCardPosition } from './useSelectionCardPosition';
 
 const GRID_VERTICAL_SCROLLBAR_TOP = 50;
 const GRID_VERTICAL_SCROLLBAR_BOTTOM = 12;
@@ -36,7 +38,7 @@ export default function DesktopGrid(props: TimelineGridShellProps) {
   const scrollbarInteractionRef = useRef(false);
   const { t } = useI18n();
   const canPan = panEnabled && !props.isEditMode && !props.isDragging;
-  const { selectedHours, isSelecting, interactionRef: selectionInteractionRef, overlayRef, frameRef, clearSelection, createSelection } = useGridSelection(
+  const { selectedHours, isSelecting, isResizing, interactionRef: selectionInteractionRef, overlayRef, frameRef, clearSelection, createSelection } = useGridSelection(
     timelineGridViewportRef,
     !panEnabled && !props.isEditMode && !props.isDragging,
     JSON.stringify([props.timelineDates[0]?.getTime(), props.cities.map((city) => city.id)]),
@@ -44,15 +46,26 @@ export default function DesktopGrid(props: TimelineGridShellProps) {
     props.initialSelectedHours,
     props.onSelectionChange,
   );
-  const selectedHourKeys = useMemo(() => new Set(selectedHours.map(gridHourKey)), [selectedHours]);
-  const calendarEvent = buildGridCalendarEvent(selectedHours, props.cities.map((city) => ({ id: city.id, name: getCityDisplayName(city), timezone: city.timezone })), props.browserTimezone, t('common.calendarEventTitle'));
+  const selectedSlotKeys = useMemo(() => new Set(selectedHours.map(gridSlotKey)), [selectedHours]);
+  const selectedHourStarts = useMemo(() => getSelectedHourStarts(selectedHours), [selectedHours]);
+  const selectionCardRef = useRef<HTMLDivElement>(null);
+  // While an edge of the frame is dragged, the card slides along; a new frame is drawn without it.
+  const showSelectionCard = selectedHours.length > 0 && (!isSelecting || isResizing) && !props.isEditMode && !props.isDragging;
+  const [isSelectionCardCollapsed, setSelectionCardCollapsed] = useSelectionCardCollapse(selectedHours.length > 0);
+
+  useSelectionCardPosition(
+    timelineGridViewportRef,
+    frameRef,
+    selectionCardRef,
+    showSelectionCard ? JSON.stringify([selectedHours, props.cities.length, isSelectionCardCollapsed]) : '',
+  );
   const { isPanning, interactionRef, cancelPan } = useDesktopGridPan(
     timelineGridViewportRef,
     canPan,
     undefined,
     props.isEditMode || props.isDragging,
   );
-  const shouldSuspendSnap = useCallback(
+  const isInteracting = useCallback(
     () => interactionRef.current || scrollbarInteractionRef.current || selectionInteractionRef.current,
     [interactionRef, selectionInteractionRef],
   );
@@ -80,7 +93,7 @@ export default function DesktopGrid(props: TimelineGridShellProps) {
     }
 
     const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
+      if (event.key === 'Escape' && !event.defaultPrevented) {
         cancelPan();
         setPanEnabled(false);
       }
@@ -90,25 +103,24 @@ export default function DesktopGrid(props: TimelineGridShellProps) {
     return () => window.removeEventListener('keydown', handleEscape);
   }, [cancelPan, panEnabled, setPanEnabled]);
 
-  const resetGridScroll = useDesktopGridSnap(
+  const scrollToCurrentHour = useDesktopGridScrollPosition(
     timelineGridViewportRef,
     props.currentUserHourIndex,
     props.isDragging || props.isEditMode || interactionActive,
-    shouldSuspendSnap,
+    isInteracting,
     props.initialFocusHourIndex,
     props.onHourChange,
   );
-  const {
-    direction: activeHourDirection,
-    scrollActiveHourIntoView,
-  } = useDesktopGridActiveHourIndicator(
+  // Shown as soon as the current hour leaves the view, also while the grid is still being dragged.
+  const { direction: activeHourDirection } = useDesktopGridActiveHourIndicator(
     timelineGridViewportRef,
-    props.isDragging || props.isEditMode || interactionActive,
+    props.isDragging || props.isEditMode,
   );
 
   const toolbar = (
     <DesktopToolbar
       {...props}
+      editDisabled={selectedHours.length > 0}
       panEnabled={canPan}
       panDisabled={props.isEditMode || props.isDragging}
       onPanToggle={() => {
@@ -121,10 +133,10 @@ export default function DesktopGrid(props: TimelineGridShellProps) {
         setPanEnabled(false);
         props.onEditModeToggle();
       }}
+      // Back to the current hour; the selection stays (a grid moved to today drops hours of another day itself).
       onResetClick={() => {
-        clearSelection();
         cancelPan();
-        resetGridScroll();
+        scrollToCurrentHour();
         props.onReset?.();
       }}
     />
@@ -170,8 +182,9 @@ export default function DesktopGrid(props: TimelineGridShellProps) {
               timelineDates={props.timelineDates}
               timeFormat={props.timeFormat}
               userCells={props.userCells}
-              selectedHourKeys={selectedHourKeys}
-              onAddCityClick={props.onAddCityClick}
+              selectedSlotKeys={selectedSlotKeys}
+              selectedHourStarts={selectedHourStarts}
+              meetingExcludedIds={props.meetingExcludedIds}
               onDeleteCity={props.onDeleteCity}
             />
             <DesktopSelectionOverlay
@@ -180,12 +193,23 @@ export default function DesktopGrid(props: TimelineGridShellProps) {
             />
           </div>
           <div className="timelineCitiesBackdrop" />
-          <div className="timelineGridMiddleMarker" />
-          <div className="timelineGridMiddleHoursMarker" />
         </CustomScrollbar>
+        {/* Outside the scrolling viewport, see useSelectionCardPosition. */}
+        {showSelectionCard && (
+          <SelectionCard
+            cardRef={selectionCardRef}
+            cities={props.cities}
+            hours={selectedHours}
+            browserTimezone={props.browserTimezone}
+            participantIds={props.meetingParticipantIds}
+            onParticipantChange={props.onMeetingParticipantChange}
+            collapsed={isSelectionCardCollapsed}
+            onCollapsedChange={setSelectionCardCollapsed}
+          />
+        )}
         <TimelineGridActiveHourIndicator
           direction={activeHourDirection}
-          onClick={scrollActiveHourIntoView}
+          onClick={scrollToCurrentHour}
         />
       </div>
       <div className="widgetFooter">
@@ -202,44 +226,34 @@ export default function DesktopGrid(props: TimelineGridShellProps) {
           />
         </div>
         <div className="widgetFooterMiddle">
-          <button
-            className="widgetHeaderButton"
-            type="button"
-            disabled={props.isEditMode || props.isDragging || !props.cities.length}
-            onClick={() => {
-              if (selectedHours.length) {
-                clearSelection();
-                return;
-              }
-
-              cancelPan();
-
-              if (createSelection()) {
-                setPanEnabled(false);
-              }
-            }}
-            aria-label={t(selectedHours.length ? 'common.clearSelection' : 'common.selectHours')}
-            title={t(selectedHours.length ? 'common.clearSelection' : 'common.selectHours')}
-          >
-            {selectedHours.length
-              ? (
-                  <X
-                    size={16}
-                    aria-hidden="true"
-                  />
-                )
-              : (
-                  <Scan
-                    size={16}
-                    aria-hidden="true"
-                  />
-                )}
-          </button>
-          <GridCalendarActions
-            event={props.isEditMode || props.isDragging ? null : calendarEvent}
-            cities={props.cities}
-            hours={selectedHours}
+          {/* Another day also with hours selected: they move to it. */}
+          <GridDateButton
+            date={props.focusedDate}
+            timezone={props.browserTimezone}
+            disabled={props.isEditMode || props.isDragging}
+            onSelect={props.onDateSelect}
           />
+          {/* With hours selected, their card beside the frame has the actions. */}
+          {!selectedHours.length && (
+            <button
+              className="widgetHeaderButton widgetHeaderButton_label"
+              type="button"
+              disabled={props.isEditMode || props.isDragging || !props.cities.length}
+              onClick={() => {
+                cancelPan();
+
+                if (createSelection()) {
+                  setPanEnabled(false);
+                }
+              }}
+            >
+              <Plus
+                size={16}
+                aria-hidden="true"
+              />
+              {t('common.selectMeetingHours')}
+            </button>
+          )}
         </div>
         <div className="widgetFooterEnd">
           <HourNavButton

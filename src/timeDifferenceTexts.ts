@@ -12,7 +12,7 @@ import {
   getWorkingOverlap,
   type CityPair,
 } from './timeDifference';
-import { formatClockTime } from './utils/time';
+import { formatClockTime, formatHourDuration } from './utils/time';
 
 type Translate = (key: TranslationKey, values?: TranslationValues) => string;
 
@@ -31,12 +31,7 @@ export function getPairCityNames(t: Translate, { cities: [first, second] }: City
 
 /** "7 hours", "5,5 часа", "1 Stunde": the language's own plural forms. */
 export function formatHours(language: AppLanguage, minutes: number) {
-  return new Intl.NumberFormat(getIntlLocale(language), {
-    style: 'unit',
-    unit: 'hour',
-    unitDisplay: 'long',
-    maximumFractionDigits: 2,
-  }).format(Math.abs(minutes) / 60);
+  return formatHourDuration(minutes, getIntlLocale(language));
 }
 
 /** "Madrid is 7 hours ahead of Mexico City." */

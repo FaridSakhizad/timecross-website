@@ -8,6 +8,17 @@ import {
   GRID_SELECTION_FRAME_BOTTOM_PADDING,
 } from '../src/components/TimelineGrid/desktop/gridSelectionController.ts';
 
+import { PER_HOUR, slotsOf } from './support/gridSlots.mjs';
+
+const { GRID_FRAME_COVERS_USER_HOURS } = await import('../src/components/TimelineGrid/shared/gridSelection.ts');
+/** The frame's top in content coordinates: the user's hours at the top, or the first selected city. */
+const FRAME_TOP = GRID_FRAME_COVERS_USER_HOURS ? 0 : 60;
+
+const { FEATURES } = await import('../src/config.ts');
+/** A frame for the time only is drawn across every city, whichever rows the pointer crosses. */
+const everyCity = FEATURES.timeOnlyFrame;
+const drawnRows = (rowIds) => (everyCity ? ['ny', 'lon'] : rowIds);
+
 class FakeElement extends EventTarget {
   interactive = false;
   selected = false;
@@ -23,7 +34,7 @@ class Viewport extends FakeElement {
   get scrollTop() { return this.top; }
   set scrollTop(value) { this.top = Math.max(0, Math.min(600, value)); }
   getBoundingClientRect() { return { left: 0, top: 0, right: 400, bottom: 300 }; }
-  querySelectorAll() { return cells; }
+  querySelectorAll(selector) { return selector.includes('timelineGrid-userHours') ? userHours : cells; }
   setPointerCapture(id) { this.captured.add(id); }
   hasPointerCapture(id) { return this.captured.has(id); }
   releasePointerCapture(id) {
@@ -63,7 +74,7 @@ function emit(target, type, values = {}) {
   return event;
 }
 
-let viewport, cells, overlay, controller, committed, active, frames, original, nextFrame, pointerPositions;
+let viewport, cells, userHours, overlay, controller, committed, active, interaction, frames, original, nextFrame, pointerPositions;
 
 function flushFrame() {
   const pending = [...frames.values()];
@@ -72,6 +83,7 @@ function flushFrame() {
   pending.forEach((callback) => callback());
 }
 
+/** The first hour of New York (of every city, with a frame for the time only). */
 function selectSingleHour() {
   emit(viewport, 'pointerdown');
   emit(window, 'pointermove', { clientX: 100, clientY: 70 });
@@ -100,6 +112,13 @@ beforeEach(() => {
 
   globalThis.cancelAnimationFrame = (id) => frames.delete(id);
   viewport = new Viewport();
+  // The user's own hours above the cities.
+  userHours = [0, 1, 2].map((index) => {
+    const hour = new FakeElement();
+
+    hour.dataset = { gridHourStart: String(index * 3600000) };
+    return hour;
+  });
   cells = ['ny', 'lon'].flatMap((rowId, row) => [0, 1, 2].map((index) => {
     const cell = new FakeElement();
 
@@ -115,9 +134,13 @@ beforeEach(() => {
   overlay = { hidden: true, style: {} };
   committed = [];
   active = false;
+  interaction = null;
   controller = attachGridSelection(viewport, overlay, [], (hours) => {
     committed = hours;
-  }, (value) => { active = value; });
+  }, (value) => {
+    interaction = value;
+    active = value !== null;
+  });
 });
 afterEach(() => {
   controller.destroy();
@@ -136,44 +159,49 @@ test('marquee paints partial intersections and commits only on release', () => {
   emit(window, 'pointermove', { clientX: 245, clientY: 220 });
   flushFrame();
   assert.equal(active, true);
+  assert.equal(interaction, 'marquee');
   assert.equal(overlay.hidden, false);
   assert.equal(overlay.style.width, '150px');
   assert.equal(cells.filter((cell) => cell.selected).length, 6);
   assert.equal(committed.length, 0);
   emit(window, 'pointerup');
-  assert.equal(committed.length, 6);
+  // A drawn frame takes whole hours: all three it touches, in both cities.
+  assert.equal(committed.length, 2 * 3 * PER_HOUR);
   assert.equal(active, false);
   assert.equal(overlay.hidden, true);
   assert.equal(viewport.captured.size, 0);
   assert.equal(emit(viewport, 'click').defaultPrevented, true);
 });
 
-test('button creates a range while marquee is disabled and clear removes it', () => {
+test('the button creates a one-hour meeting for every city while marquee is disabled, and clear removes it', () => {
   controller.destroy();
   window.innerWidth = 400;
   window.innerHeight = 300;
   viewport.querySelector = () => ({ getBoundingClientRect: () => ({ bottom: 46 }) });
   controller = attachGridSelection(viewport, overlay, [], (hours) => {
     committed = hours;
-  }, (value) => { active = value; }, { marqueeEnabled: false });
+  }, (value) => {
+    interaction = value;
+    active = value !== null;
+  }, { marqueeEnabled: false });
   assert.equal(controller.create(), true);
-  assert.equal(committed.length, 6);
-  assert.equal(cells.filter((cell) => cell.selected).length, 6);
+  assert.equal(committed.length, 2 * PER_HOUR);
+  assert.equal(cells.filter((cell) => cell.selected).length, 2);
   controller.clear();
   assert.equal(committed.length, 0);
   assert.equal(cells.filter((cell) => cell.selected).length, 0);
   assert.equal(controller.create(), true);
-  assert.equal(committed.length, 6);
+  assert.equal(committed.length, 2 * PER_HOUR);
 });
 
 test('clicks inside a range preserve it and clicks on blank space outside clear it', () => {
   emit(viewport, 'pointerdown', { clientX: 245, clientY: 220 });
   emit(window, 'pointermove', { clientX: 95, clientY: 65 });
   emit(window, 'pointerup');
-  assert.equal(committed.length, 6);
+  assert.equal(committed.length, 2 * 3 * PER_HOUR);
   emit(viewport, 'pointerdown');
   emit(window, 'pointerup');
-  assert.equal(committed.length, 6);
+  assert.equal(committed.length, 2 * 3 * PER_HOUR);
   emit(viewport, 'pointerdown', { clientX: 50, clientY: 140 });
   emit(window, 'pointerup');
   assert.equal(committed.length, 0);
@@ -191,7 +219,7 @@ test('modified clicks cannot create, add or remove isolated cells', () => {
   for (const modifier of [{ ctrlKey: true }, { metaKey: true }, { shiftKey: true }]) {
     emit(viewport, 'pointerdown', { clientX: 100, clientY: 80, ...modifier });
     emit(window, 'pointerup');
-    assert.deepEqual(committed, [{ rowId: 'ny', start: 0 }]);
+    assert.deepEqual(committed, slotsOf(drawnRows(['ny']).map((rowId) => ({ rowId, start: 0 }))));
   }
 });
 
@@ -201,7 +229,11 @@ test('Ctrl/Cmd/Shift-drag always replaces the previous range instead of adding g
     emit(viewport, 'pointerdown', { clientX: 245, clientY: 220, ...modifier });
     emit(window, 'pointermove', { clientX: 170, clientY: 165, ...modifier });
     emit(window, 'pointerup');
-    assert.deepEqual(committed, [{ rowId: 'lon', start: 3600000 }, { rowId: 'lon', start: 7200000 }]);
+    // The whole hours it touches.
+    assert.deepEqual(committed, slotsOf(drawnRows(['lon']).flatMap((rowId) => [
+      { rowId, start: 3600000 },
+      { rowId, start: 7200000 },
+    ])));
   }
 });
 
@@ -224,8 +256,8 @@ test('blur, cancel, lost capture, resize and hidden tab restore the committed se
     flushFrame();
     cancel();
     assert.equal(active, false);
-    assert.equal(committed.length, 1);
-    assert.equal(cells.filter((cell) => cell.selected).length, 1);
+    assert.equal(committed.length, drawnRows(['ny']).length * PER_HOUR);
+    assert.equal(cells.filter((cell) => cell.selected).length, drawnRows(['ny']).length);
     assert.equal(overlay.hidden, true);
     assert.equal(frames.size, 0);
   }
@@ -281,22 +313,28 @@ function attachWithFrame(marqueeEnabled = true, direction = 'e') {
   layer.hidden = true;
   layer.closest = () => ({ dataset: { gridResize: direction } });
   viewport.querySelector = () => null;
-  committed = [{ rowId: 'ny', start: 0 }];
+  // One whole hour: the first cell of New York.
+  committed = slotsOf([{ rowId: 'ny', start: 0 }]);
   controller = attachGridSelection(viewport, overlay, committed, (hours) => {
     committed = hours;
-  }, (value) => { active = value; }, { selectionFrame: layer, marqueeEnabled });
+  }, (value) => {
+    interaction = value;
+    active = value !== null;
+  }, { selectionFrame: layer, marqueeEnabled });
   return { layer, box };
 }
 
 const frameWidth = (width) => `${width + GRID_SELECTION_FRAME_HORIZONTAL_PADDING * 2}px`;
+/** While a side is dragged it follows the pointer without padding; the other side keeps its own. */
+const liveFrameWidth = (width) => `${width + GRID_SELECTION_FRAME_HORIZONTAL_PADDING}px`;
 
 test('persistent frame has content coordinates and scroll never schedules frame updates', () => {
   const { layer, box } = attachWithFrame();
 
   assert.equal(layer.hidden, false);
   assert.equal(box.style.left, `${190 - GRID_SELECTION_FRAME_HORIZONTAL_PADDING}px`);
-  assert.equal(box.style.top, `${60 - GRID_SELECTION_FRAME_TOP_PADDING}px`);
-  assert.equal(box.style.height, `${64 + GRID_SELECTION_FRAME_TOP_PADDING + GRID_SELECTION_FRAME_BOTTOM_PADDING}px`);
+  assert.equal(box.style.top, `${FRAME_TOP - GRID_SELECTION_FRAME_TOP_PADDING}px`);
+  assert.equal(box.style.height, `${124 - FRAME_TOP + GRID_SELECTION_FRAME_TOP_PADDING + GRID_SELECTION_FRAME_BOTTOM_PADDING}px`);
   assert.equal(Number.parseFloat(box.style.top) + Number.parseFloat(box.style.height), 124 + GRID_SELECTION_FRAME_BOTTOM_PADDING);
   assert.equal(Number.parseFloat(box.style.left) + Number.parseFloat(box.style.width), 254 + GRID_SELECTION_FRAME_HORIZONTAL_PADDING);
   viewport.scrollLeft += 40;
@@ -307,7 +345,7 @@ test('persistent frame has content coordinates and scroll never schedules frame 
   viewport.scrollTop += 20;
   emit(viewport, 'scroll');
   assert.equal(frames.size, 0);
-  assert.equal(box.style.top, `${60 - GRID_SELECTION_FRAME_TOP_PADDING}px`);
+  assert.equal(box.style.top, `${FRAME_TOP - GRID_SELECTION_FRAME_TOP_PADDING}px`);
 });
 
 test('embedded desktop frame follows page scrolling and removes its page listener on destroy', () => {
@@ -317,8 +355,8 @@ test('embedded desktop frame follows page scrolling and removes its page listene
   emit(window, 'scroll');
   flushFrame();
   assert.equal(frames.size, 0);
-  assert.equal(box.style.top, `${60 - GRID_SELECTION_FRAME_TOP_PADDING}px`);
-  assert.equal(committed.length, 1);
+  assert.equal(box.style.top, `${FRAME_TOP - GRID_SELECTION_FRAME_TOP_PADDING}px`);
+  assert.equal(committed.length, PER_HOUR);
   controller.destroy();
   emit(window, 'scroll');
   assert.equal(frames.size, 0);
@@ -333,7 +371,7 @@ test('clicks and sub-threshold mouse jitter keep the existing frame visible and 
     emit(window, 'pointermove', { clientX: 102, clientY: 81, ...modifier });
     flushFrame();
     emit(window, 'pointerup');
-    assert.deepEqual(committed, [{ rowId: 'ny', start: 0 }]);
+    assert.deepEqual(committed, slotsOf([{ rowId: 'ny', start: 0 }]));
     assert.equal(layer.hidden, false);
     assert.equal(box.style.width, frameWidth(64));
   }
@@ -356,11 +394,11 @@ test('inside-frame clicks preserve the range in Pan mode, and panning outside do
 
   emit(viewport, 'pointerdown', { clientX: 100, clientY: 80 });
   emit(window, 'pointerup');
-  assert.equal(committed.length, 1);
+  assert.equal(committed.length, PER_HOUR);
   emit(viewport, 'pointerdown', { clientX: 245, clientY: 165 });
   emit(window, 'pointermove', { clientX: 300, clientY: 180 });
   emit(window, 'pointerup');
-  assert.equal(committed.length, 1);
+  assert.equal(committed.length, PER_HOUR);
   assert.equal(layer.hidden, false);
 });
 
@@ -370,7 +408,7 @@ test('inside/outside hit testing uses calibrated visual frame edges, not only se
 
   emit(viewport, 'pointerdown', { clientX: left + 1, clientY: 80 });
   emit(window, 'pointerup');
-  assert.equal(committed.length, 1);
+  assert.equal(committed.length, PER_HOUR);
   emit(viewport, 'pointerdown', { clientX: left - 1, clientY: 80 });
   emit(window, 'pointerup');
   assert.equal(committed.length, 0);
@@ -382,7 +420,7 @@ test('a click on a resize handle never clears the range', () => {
 
   emit(layer, 'pointerdown', { clientX: 159, clientY: 90 });
   emit(window, 'pointerup');
-  assert.equal(committed.length, 1);
+  assert.equal(committed.length, PER_HOUR);
   assert.equal(layer.hidden, false);
 });
 
@@ -400,15 +438,16 @@ test('handle resize previews cells and commits on release even when marquee mode
   emit(viewport, 'pointerdown');
   assert.equal(active, false);
   emit(layer, 'pointerdown', { clientX: 154, clientY: 90 });
+  assert.equal(interaction, 'resize');
   emit(window, 'pointermove', { clientX: 300, clientY: 90 });
   flushFrame();
-  assert.equal(committed.length, 1);
+  assert.equal(committed.length, PER_HOUR);
   assert.equal(cells.filter((cell) => cell.selected).length, 3);
   assert.equal(overlay.hidden, true);
-  assert.equal(box.style.width, frameWidth(210));
+  assert.equal(box.style.width, liveFrameWidth(210));
   emit(window, 'pointerup');
   assert.equal(box.style.width, frameWidth(212));
-  assert.equal(committed.length, 3);
+  assert.equal(committed.length, 3 * PER_HOUR);
   assert.equal(active, false);
 });
 
@@ -418,7 +457,7 @@ test('frame padding and the handle grab point do not change logical hour resizin
 
     emit(layer, 'pointerdown', { clientX, clientY: 90 });
     emit(window, 'pointerup', { clientX: clientX + 74, clientY: 90 });
-    assert.deepEqual(committed, [{ rowId: 'ny', start: 0 }, { rowId: 'ny', start: 3600000 }]);
+    assert.deepEqual(committed, slotsOf([{ rowId: 'ny', start: 0 }, { rowId: 'ny', start: 3600000 }]));
   }
 });
 
@@ -426,20 +465,22 @@ test('desktop frame follows sub-hour movement freely and snaps only on release',
   const { layer, box } = attachWithFrame(false);
 
   emit(layer, 'pointerdown', { clientX: 154, clientY: 90 });
-  emit(window, 'pointermove', { clientX: 167.5, clientY: 90 });
+  // 6px past the hour: nearer to it than to the end of the next half, so it snaps back.
+  emit(window, 'pointermove', { clientX: 160, clientY: 90 });
   flushFrame();
-  assert.equal(box.style.width, frameWidth(77.5));
-  assert.equal(committed.length, 1);
+  assert.equal(box.style.width, liveFrameWidth(70));
+  assert.equal(committed.length, PER_HOUR);
   emit(window, 'pointerup');
   assert.equal(box.style.width, frameWidth(64));
-  assert.equal(committed.length, 1);
+  assert.equal(committed.length, PER_HOUR);
   emit(layer, 'pointerdown', { clientX: 154, clientY: 90 });
-  emit(window, 'pointermove', { clientX: 204, clientY: 90 });
+  // Nearer to the end of the next hour than to its first half.
+  emit(window, 'pointermove', { clientX: 222, clientY: 90 });
   flushFrame();
-  assert.equal(box.style.width, frameWidth(114));
+  assert.equal(box.style.width, liveFrameWidth(132));
   emit(window, 'pointerup');
   assert.equal(box.style.width, frameWidth(138));
-  assert.equal(committed.length, 2);
+  assert.equal(committed.length, 2 * PER_HOUR);
 });
 
 test('desktop snap animation starts on release and stops immediately on the next resize', () => {
@@ -460,15 +501,61 @@ test('desktop snap animation starts on release and stops immediately on the next
   };
 
   emit(layer, 'pointerdown', { clientX: 154, clientY: 90 });
-  emit(window, 'pointermove', { clientX: 167.5, clientY: 90 });
+  emit(window, 'pointermove', { clientX: 158, clientY: 90 });
   flushFrame();
   assert.equal(animations.length, 0);
   emit(window, 'pointerup');
   assert.equal(animations.length, 1);
-  assert.equal(animations[0].keyframes[0].width, frameWidth(77.5));
+  assert.equal(animations[0].keyframes[0].width, liveFrameWidth(68));
   assert.equal(animations[0].keyframes[1].width, frameWidth(64));
   emit(layer, 'pointerdown', { clientX: 154, clientY: 90 });
   assert.equal(animations[0].cancelled, true);
+});
+
+test('the user\'s hours above the cities show the hours the selection touches', () => {
+  emit(viewport, 'pointerdown');
+  emit(window, 'pointermove', { clientX: 175, clientY: 70 });
+  flushFrame();
+  // While it is drawn, then once it is committed.
+  assert.deepEqual(userHours.map((hour) => hour.selected), [true, true, false]);
+  emit(window, 'pointerup');
+  assert.deepEqual(userHours.map((hour) => hour.selected), [true, true, false]);
+  controller.clear();
+  assert.deepEqual(userHours.map((hour) => hour.selected), [false, false, false]);
+});
+
+test('Escape already used above the grid, by a modal, keeps the selection', () => {
+  selectSingleHour();
+  const before = committed;
+  const escape = Object.assign(new Event('keydown', { cancelable: true }), { key: 'Escape' });
+
+  // A modal closes on it first and marks it used.
+  escape.preventDefault();
+  window.dispatchEvent(escape);
+  assert.equal(committed, before);
+  emit(window, 'keydown', { key: 'Escape' });
+  assert.equal(committed.length, 0);
+});
+
+test('a drawn frame grows out of the drawn rectangle into whole hours on release', () => {
+  const { box } = attachWithFrame();
+  const animations = [];
+
+  box.animate = (keyframes) => {
+    animations.push({ keyframes });
+    return { cancel() {} };
+  };
+
+  emit(viewport, 'pointerdown');
+  emit(window, 'pointermove', { clientX: 245, clientY: 220 });
+  flushFrame();
+  emit(window, 'pointerup');
+  assert.equal(animations.length, 1);
+  // From the rectangle under the pointer to the three whole hours it touched.
+  assert.equal(animations[0].keyframes[0].left, '195px');
+  assert.equal(animations[0].keyframes[0].width, '150px');
+  assert.equal(animations[0].keyframes[1].left, `${190 - GRID_SELECTION_FRAME_HORIZONTAL_PADDING}px`);
+  assert.equal(animations[0].keyframes[1].width, frameWidth(212));
 });
 
 test('vertical frame padding does not change whole-city resizing', () => {
@@ -477,7 +564,7 @@ test('vertical frame padding does not change whole-city resizing', () => {
 
     emit(layer, 'pointerdown', { clientX: 120, clientY });
     emit(window, 'pointerup', { clientX: 120, clientY: clientY + 100 });
-    assert.deepEqual(committed, [{ rowId: 'ny', start: 0 }, { rowId: 'lon', start: 0 }]);
+    assert.deepEqual(committed, slotsOf([{ rowId: 'ny', start: 0 }, { rowId: 'lon', start: 0 }]));
   }
 });
 
@@ -489,7 +576,7 @@ test('Escape and capture loss roll back resizing without clearing the prior sele
     emit(window, 'pointermove', { clientX: 300, clientY: 90 });
     flushFrame();
     cancel();
-    assert.equal(committed.length, 1);
+    assert.equal(committed.length, PER_HOUR);
     assert.equal(box.style.width, frameWidth(64));
     assert.equal(layer.hidden, false);
     assert.equal(active, false);
@@ -500,14 +587,16 @@ test('focused handles can resize one block at a time using the keyboard', () => 
   const { layer, box } = attachWithFrame();
 
   assert.equal(emit(layer, 'keydown', { key: 'ArrowRight' }).defaultPrevented, true);
-  assert.equal(committed.length, 2);
-  assert.equal(box.style.width, frameWidth(138));
+  // Half an hour more: across the gap between the cells, the first half of the next hour.
+  assert.equal(committed.length, PER_HOUR + 1);
+  // The right side on the middle of a cell: no padding there.
+  assert.equal(box.style.width, `${106 + GRID_SELECTION_FRAME_HORIZONTAL_PADDING}px`);
   emit(layer, 'keydown', { key: 'ArrowLeft' });
-  assert.equal(committed.length, 1);
+  assert.equal(committed.length, PER_HOUR);
   controller.destroy();
   assert.equal(layer.hidden, true);
   emit(layer, 'keydown', { key: 'ArrowRight' });
-  assert.equal(committed.length, 1);
+  assert.equal(committed.length, PER_HOUR);
 });
 
 test('fast release uses the release coordinates rather than the last rendered pointermove', () => {
@@ -517,7 +606,7 @@ test('fast release uses the release coordinates rather than the last rendered po
   emit(window, 'pointermove', { clientX: 170, clientY: 100 });
   flushFrame();
   emit(window, 'pointerup', { clientX: 245, clientY: 220 });
-  assert.equal(committed.length, 6);
+  assert.equal(committed.length, 2 * 3 * PER_HOUR);
   assert.equal(layer.hidden, false);
 });
 
@@ -526,7 +615,7 @@ test('a drag with no intermediate move still selects the entire release rectangl
 
   emit(viewport, 'pointerdown');
   emit(window, 'pointerup', { clientX: 245, clientY: 220 });
-  assert.equal(committed.length, 6);
+  assert.equal(committed.length, 2 * 3 * PER_HOUR);
   assert.equal(layer.hidden, false);
 });
 
@@ -537,7 +626,7 @@ test('button-up movement before pointerup commits a fast drag even before its qu
   emit(window, 'pointermove', { clientX: 245, clientY: 220 });
   emit(window, 'pointermove', { buttons: 0, clientX: 245, clientY: 220 });
   emit(window, 'pointerup');
-  assert.equal(committed.length, 6);
+  assert.equal(committed.length, 2 * 3 * PER_HOUR);
   assert.equal(cells.filter((cell) => cell.selected).length, 6);
   assert.equal(layer.hidden, false);
   assert.equal(active, false);
@@ -558,7 +647,7 @@ test('already visible selection is retained when a released-button move precedes
   assert.equal(cells.filter((cell) => cell.selected).length, 6);
   emit(window, 'pointermove', { buttons: 0, clientX: 245, clientY: 220 });
   emit(window, 'pointerup');
-  assert.equal(committed.length, 6);
+  assert.equal(committed.length, 2 * 3 * PER_HOUR);
   assert.equal(cells.filter((cell) => cell.selected).length, 6);
   assert.equal(layer.hidden, false);
 });
@@ -568,7 +657,7 @@ test('a fast handle resize also commits from the final release position', () => 
 
   emit(layer, 'pointerdown', { clientX: 154, clientY: 90 });
   emit(window, 'pointerup', { clientX: 300, clientY: 90 });
-  assert.equal(committed.length, 3);
+  assert.equal(committed.length, 3 * PER_HOUR);
   assert.equal(box.style.width, frameWidth(212));
   assert.equal(layer.hidden, false);
 });
@@ -580,13 +669,13 @@ test('Chrome capture loss with released buttons commits pending selection withou
   emit(window, 'pointermove', { clientX: 245, clientY: 220 });
   // Chrome can report zero/default coordinates on capture loss: retain the last actual position.
   emit(viewport, 'lostpointercapture', { buttons: 0, clientX: 0, clientY: 0 });
-  assert.equal(committed.length, 6);
+  assert.equal(committed.length, 2 * 3 * PER_HOUR);
   assert.equal(cells.filter((cell) => cell.selected).length, 6);
   assert.equal(layer.hidden, false);
   assert.equal(active, false);
   assert.equal(frames.size, 0);
   emit(window, 'blur');
-  assert.equal(committed.length, 6);
+  assert.equal(committed.length, 2 * 3 * PER_HOUR);
   assert.equal(layer.hidden, false);
 });
 
@@ -598,7 +687,7 @@ test('Chrome capture loss after painting preserves the preview and resize frame'
   flushFrame();
   emit(viewport, 'lostpointercapture', { buttons: 0 });
   emit(window, 'blur');
-  assert.equal(committed.length, 3);
+  assert.equal(committed.length, 3 * PER_HOUR);
   assert.equal(box.style.width, frameWidth(212));
   assert.equal(layer.hidden, false);
 });
@@ -610,7 +699,7 @@ test('explicit pointercancel with released buttons still rolls back instead of c
   emit(window, 'pointermove', { clientX: 245, clientY: 220 });
   flushFrame();
   emit(window, 'pointercancel', { buttons: 0 });
-  assert.equal(committed.length, 1);
+  assert.equal(committed.length, PER_HOUR);
   assert.equal(layer.hidden, false);
   assert.equal(active, false);
 });
