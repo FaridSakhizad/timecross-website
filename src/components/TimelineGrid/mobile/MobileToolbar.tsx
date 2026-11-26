@@ -10,12 +10,12 @@ import StandaloneMenuModal from '../../StandaloneMenuModal';
 import type { GridToolbarProps } from '../shared/types';
 
 type MobileToolbarProps = GridToolbarProps & {
-  /** While hours are selected. */
-  editDisabled: boolean;
+  /** Under a selection the cities are not added, reordered or removed: finish with it first. */
+  citiesLocked: boolean;
 };
 
 export default function MobileToolbar({
-  editDisabled,
+  citiesLocked,
   isEditMode,
   onAddCityClick,
   onEditModeToggle,
@@ -51,9 +51,8 @@ export default function MobileToolbar({
             type="button"
             aria-label={t('common.edit')}
             aria-pressed={isEditMode}
-            // Cities are not reordered or removed under a selection: finish with it first.
-            disabled={editDisabled}
-            title={editDisabled ? t('common.editDisabledHint') : undefined}
+            disabled={citiesLocked}
+            title={citiesLocked ? t('common.editDisabledHint') : undefined}
             onClick={onEditModeToggle}
           >
             <i className="citiesHeaderButton-icon citiesHeaderButton-icon_edit" />
@@ -62,6 +61,8 @@ export default function MobileToolbar({
             className="widgetHeaderButton"
             type="button"
             aria-label={t('common.addCity')}
+            disabled={citiesLocked}
+            title={citiesLocked ? t('common.editDisabledHint') : undefined}
             onClick={onAddCityClick}
           >
             <i className="citiesHeaderButton-icon citiesHeaderButton-icon_add" />

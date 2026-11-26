@@ -120,7 +120,7 @@ export default function DesktopGrid(props: TimelineGridShellProps) {
   const toolbar = (
     <DesktopToolbar
       {...props}
-      editDisabled={selectedHours.length > 0}
+      citiesLocked={selectedHours.length > 0}
       panEnabled={canPan}
       panDisabled={props.isEditMode || props.isDragging}
       onPanToggle={() => {

@@ -12,15 +12,15 @@ import StandaloneMenuModal from '../../StandaloneMenuModal';
 import type { GridToolbarProps } from '../shared/types';
 
 type DesktopToolbarProps = Omit<GridToolbarProps, 'selectedHours'> & {
-  /** While hours are selected. */
-  editDisabled: boolean;
+  /** Under a selection the cities are not added, reordered or removed: finish with it first. */
+  citiesLocked: boolean;
   panEnabled: boolean;
   panDisabled: boolean;
   onPanToggle: () => void;
 };
 
 export default function DesktopToolbar({
-  editDisabled,
+  citiesLocked,
   isEditMode,
   onAddCityClick,
   onEditModeToggle,
@@ -68,9 +68,8 @@ export default function DesktopToolbar({
             type="button"
             aria-label={t('common.edit')}
             aria-pressed={isEditMode}
-            // Cities are not reordered or removed under a selection: finish with it first.
-            disabled={editDisabled}
-            title={editDisabled ? t('common.editDisabledHint') : undefined}
+            disabled={citiesLocked}
+            title={citiesLocked ? t('common.editDisabledHint') : undefined}
             onClick={onEditModeToggle}
           >
             <i className="citiesHeaderButton-icon citiesHeaderButton-icon_edit" />
@@ -79,6 +78,8 @@ export default function DesktopToolbar({
             className="widgetHeaderButton citiesHeaderButton_add"
             type="button"
             aria-label={t('common.addCity')}
+            disabled={citiesLocked}
+            title={citiesLocked ? t('common.editDisabledHint') : undefined}
             onClick={onAddCityClick}
           >
             <i className="citiesHeaderButton-icon citiesHeaderButton-icon_add" />

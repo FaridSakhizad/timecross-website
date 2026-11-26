@@ -83,7 +83,7 @@ export default function MobileGrid(props: TimelineGridShellProps) {
     <MobileToolbar
       {...props}
       selectedHours={selectedHours}
-      editDisabled={enabled}
+      citiesLocked={enabled}
       // Back to the current hour; the selection stays (a grid moved to today drops hours of another day itself).
       onResetClick={() => {
         scrollToCurrentHour();
