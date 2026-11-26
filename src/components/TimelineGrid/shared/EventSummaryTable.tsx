@@ -33,7 +33,7 @@ function useSummaryOptions(browserTimezone: string) {
   return { locale: getIntlLocale(language), timeFormat, referenceTimezone: browserTimezone };
 }
 
-/** A meeting on one line in the visitor's own time: "Sun, November 22 · 20:00 – 03:30 · 7h 30m". */
+/** A meeting on one line in the visitor's own time: "Your time: Sun, November 22 · 20:00 – 03:30 · 7h 30m". */
 export function EventSummaryDate({ start, end, browserTimezone }: EventSummaryDateProps) {
   const { t } = useI18n();
   const options = useSummaryOptions(browserTimezone);
@@ -41,6 +41,9 @@ export function EventSummaryDate({ start, end, browserTimezone }: EventSummaryDa
 
   return (
     <p className="eventSummary-date">
+      {/* The viewer's own time: a meeting from a link may have no city in it. */}
+      {t('common.yourTime')}
+      {' '}
       {formatEventDate(event, options)}
       {'  ·  '}
       {getEventSummaryRow(event, '', browserTimezone, options).time}

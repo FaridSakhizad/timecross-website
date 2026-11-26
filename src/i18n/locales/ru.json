@@ -8,6 +8,7 @@
     "createCalendarEvent": "Создать событие в Google Calendar",
     "createOutlookEvent": "Создать событие в Outlook",
     "clearSelection": "Снять выделение",
+    "yourTime": "Ваше время:",
     "collapseSelectionCard": "Свернуть",
     "expandSelectionCard": "Показать встречу",
     "selectParticipantsHint": "Отметьте хотя бы один город",

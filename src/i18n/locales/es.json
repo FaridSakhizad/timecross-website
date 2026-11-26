@@ -8,6 +8,7 @@
     "createCalendarEvent": "Crear evento en Google Calendar",
     "createOutlookEvent": "Crear evento en Outlook",
     "clearSelection": "Borrar selección",
+    "yourTime": "Tu hora:",
     "collapseSelectionCard": "Contraer",
     "expandSelectionCard": "Mostrar la reunión",
     "selectParticipantsHint": "Selecciona al menos una ciudad",
