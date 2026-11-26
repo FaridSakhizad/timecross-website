@@ -72,6 +72,13 @@ test('a redirect to the same page keeps the query, so shared links survive', asy
   assert.equal(location(await request(`/uk/convert${query}`)), `${SITE}/ua/convert${query}`);
 });
 
+test('a meeting link opens the planner in the visitor\'s language, with the meeting', async () => {
+  const query = '?e=l3k8x.2&t=Sync&c=london,tokyo';
+
+  assert.equal(location(await request(`/m${query}`, { headers: { 'accept-language': 'fr' } })), `${SITE}/fr/meeting-time-planner${query}`);
+  assert.equal(location(await request(`/m${query}`)), `${SITE}/en/meeting-time-planner${query}`);
+});
+
 test('a URL that is not a page gets the 404 page with status 404, without a redirect', async () => {
   const cases = [
     ['/en/no-such-page', {}, 'en', 'Page not found'],

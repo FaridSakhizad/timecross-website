@@ -144,6 +144,12 @@ export function getCanonicalPagePath(pagePath: string) {
   return page && 'canonicalPage' in page ? PAGES[page.canonicalPage].path : pagePath;
 }
 
+/**
+ * Links to a meeting: short, and without a language, so whoever opens one gets the planner in
+ * their own. The server redirects it to the planner with the same query.
+ */
+export const MEETING_LINK_PATH = '/m';
+
 /** Where an old or reversed path of a page now is: '/time-difference/mexico-city-madrid' -> '…/madrid-mexico-city'. */
 export function getMovedPagePath(pagePath: string) {
   const slug = getTimeDifferenceSlug(pagePath);

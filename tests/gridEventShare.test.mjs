@@ -26,7 +26,7 @@ test('shared URL restores selected rows, identity, names and UTC range without a
 
   assert.equal(url.pathname, '/ru/grid');
   assert.equal(url.hash, '');
-  assert.deepEqual([...url.searchParams.keys()], ['event']);
+  assert.deepEqual([...url.searchParams.keys()], ['e', 'c']);
   const result = readGridEventUrlState(url.search);
 
   assert.equal(result.start, start);
@@ -261,4 +261,87 @@ test('a meeting from half past to half past shares, and its grid has every hour 
   assert.ok(dates.every((date) => date % GRID_HOUR_MS === 0));
   // Only whole halves: a quarter past is not a meeting's end.
   assert.equal(readGridEventUrlState(hashFor({ ...valid, e: valid.s + 3600 + 900 })), null);
+});
+
+test('a link names our cities by key and spells the rest out, so it stays short', () => {
+  const ours = [
+    { id: 'a', city: 'New York', cityId: '5128581', timezone: 'America/New_York', customName: '' },
+    { id: 'b', city: 'London', cityId: '2643743', timezone: 'Europe/London', customName: 'Office' },
+    { id: 'c', city: 'Tokyo', cityId: '1850147', timezone: 'Asia/Tokyo', customName: '' },
+    { id: 'd', city: 'Kyiv', cityId: '703448', timezone: 'Europe/Kyiv', customName: '' },
+  ];
+  const slots = slotsOf(ours.map((city) => ({ rowId: city.id, start })));
+  const link = buildGridEventUrl('https://timecross.app/m', ours, slots, 'Team sync (weekly).');
+  const restored = readGridEventUrlState(new URL(link).search);
+
+  assert.match(link, /^https:\/\/timecross\.app\/m\?e=[0-9a-z]+\.2&t=Team\+sync\+%28weekly%29%2E&c=newYork,london~Office,tokyo,Europe\/Kyiv~Kyiv~703448$/);
+  assert.ok(link.length < 120, `${link.length}: ${link}`);
+  assert.equal(restored.title, 'Team sync (weekly).');
+  assert.deepEqual(restored.cities.map(({ city, timezone, cityId, customName }) => [city, timezone, cityId, customName]), [
+    ['New York', 'America/New_York', '5128581', ''],
+    ['London', 'Europe/London', '2643743', 'Office'],
+    ['Tokyo', 'Asia/Tokyo', '1850147', ''],
+    ['Kyiv', 'Europe/Kyiv', '703448', ''],
+  ]);
+  assert.equal(buildGridEventUrl('https://timecross.app/m', restored.cities, restored.hours, restored.title), link);
+});
+
+test('separators and other awkward characters in names survive the compact form', () => {
+  const odd = [
+    { id: 'x', city: 'A, B ~ C: D/E + F', timezone: 'GMT_OFFSET:330', customName: '100% & more #1 ~' },
+    { id: 'y', city: 'Paris', cityId: '4717560', timezone: 'America/Chicago', customName: '' },
+  ];
+  const link = buildGridEventUrl('https://timecross.app/m', odd, slotsOf(odd.map((city) => ({ rowId: city.id, start }))), 'a&b=c,d~e');
+  const restored = readGridEventUrlState(getEventParams(`${new URL(link).search}&cities=x&at=y`, ''));
+
+  assert.equal(restored.title, 'a&b=c,d~e');
+  assert.deepEqual(restored.cities.map(({ city, timezone, cityId, customName }) => [city, timezone, cityId, customName]), [
+    ['A, B ~ C: D/E + F', 'GMT_OFFSET:330', undefined, '100% & more #1 ~'],
+    ['Paris', 'America/Chicago', '4717560', ''],
+  ]);
+});
+
+test('fixed offsets and timezone rows, whose ids are negative, make links too', () => {
+  const rows = [
+    { id: 'gmt3', city: 'GMT+3', cityId: '-100180', timezone: 'GMT_OFFSET:180', customName: '' },
+    { id: 'gmt-3', city: 'GMT-3', cityId: '-99820', timezone: 'GMT_OFFSET:-180', customName: '' },
+    { id: 'mt', city: 'Mountain Time', cityId: '-200007', timezone: 'America/Denver', customName: '' },
+  ];
+  const link = buildGridEventUrl('https://timecross.app/m', rows, slotsOf(rows.map((city) => ({ rowId: city.id, start }))));
+  const restored = readGridEventUrlState(new URL(link).search);
+
+  assert.match(link, /&c=GMT_OFFSET:180~GMT%2B3~-100180,GMT_OFFSET:-180~GMT-3~-99820,America\/Denver~Mountain\+Time~-200007$/);
+  assert.deepEqual(restored.cities.map(({ city, timezone, cityId }) => [city, timezone, cityId]), rows.map(({ city, timezone, cityId }) => [city, timezone, cityId]));
+});
+
+test('links in the JSON form still open, from the query and from the hash', () => {
+  const query = `?${new URLSearchParams({ event: JSON.stringify({ ...valid, t: 'Sync' }) })}`;
+
+  assert.equal(readGridEventUrlState(getEventParams(query, '')).title, 'Sync');
+  assert.equal(readGridEventUrlState(hashFor(valid)).cities[0].city, 'New York');
+});
+
+test('a broken compact link opens no meeting', () => {
+  const when = `${(start / (GRID_HOUR_MS / 2)).toString(36)}.2`;
+
+  for (const search of [
+    `?e=${when}`,
+    `?e=${when}&c=`,
+    `?e=${when}&c=atlantis`,
+    `?e=${when}&c=Not/AZone~X`,
+    `?e=${when}&c=london~a~b`,
+    `?e=${when}&c=Europe/Kyiv~Kyiv~12ab`,
+    `?e=${when}&c=Europe/Kyiv~Kyiv~--1`,
+    `?e=${when}&c=Europe/Kyiv~`,
+    `?e=${when}&c=Europe/Kyiv~%E0%A4%A`,
+    `?e=${when}&t=+padded+&c=london`,
+    `?e=${when.replace('.2', '.0')}&c=london`,
+    `?e=${when.replace('.2', '.zz')}&c=london`,
+    '?e=-1.2&c=london',
+    `?e=${when}&c=${Array(101).fill('london').join(',')}`,
+  ]) {
+    assert.equal(readGridEventUrlState(search), null, search);
+  }
+
+  assert.notEqual(readGridEventUrlState(`?e=${when}&c=london`), null);
 });

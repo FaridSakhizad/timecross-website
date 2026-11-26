@@ -10,7 +10,7 @@ import {
   isLocalizedPagePath,
   stripLanguageFromPathname,
 } from '../src/i18n/languageRouting';
-import { getMovedPagePath } from '../src/routes';
+import { getMovedPagePath, MEETING_LINK_PATH, PAGES } from '../src/routes';
 import {
   getHeadTags,
   getPageTitle,
@@ -71,6 +71,11 @@ function getRedirectResponse(request: Request, url: URL) {
   // The old prefix of Ukrainian.
   if (firstPathPart === 'uk') {
     return redirectTo(url, getCanonicalLanguagePath(routeLanguage ?? 'en', pagePath));
+  }
+
+  // A link to a meeting: the planner in the visitor's language, or in the link's own if it has one.
+  if (pagePath === MEETING_LINK_PATH) {
+    return redirectTo(url, getCanonicalLanguagePath(routeLanguage ?? getPreferredLanguage(request), PAGES.meetingTimePlanner.path));
   }
 
   // A page that moved for good: a reversed city pair.
