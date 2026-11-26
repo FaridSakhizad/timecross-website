@@ -65,27 +65,6 @@ export function attachGridSelection(
   } | null = null;
   let frame = 0;
   let suppressClick = false;
-  let panClick: {
-    pointerId: number;
-    x: number;
-    y: number;
-    moved: boolean;
-  } | null = null;
-
-  const isOutsideFrame = (clientX: number, clientY: number) => {
-    if (!frameBounds) {
-      return false;
-    }
-
-    const origin = viewport.getBoundingClientRect();
-    const x = clientX - origin.left - viewport.clientLeft + viewport.scrollLeft;
-    const y = clientY - origin.top - viewport.clientTop + viewport.scrollTop;
-
-    return x < frameBounds.left - sidePadding.left
-      || x > frameBounds.right + sidePadding.right
-      || y < frameBounds.top - GRID_SELECTION_FRAME_TOP_PADDING
-      || y > frameBounds.bottom + GRID_SELECTION_FRAME_BOTTOM_PADDING;
-  };
 
   const getCells = (): Cell[] => {
     const origin = viewport.getBoundingClientRect();
@@ -309,7 +288,6 @@ export function attachGridSelection(
     snapAnimation.cancel();
 
     if (options.marqueeEnabled === false) {
-      panClick = { pointerId: event.pointerId, x: event.clientX, y: event.clientY, moved: false };
       return;
     }
 
@@ -411,14 +389,8 @@ export function attachGridSelection(
       // Commit the release position synchronously; do not wait for a frame or scroll further.
       draw(false);
     } else {
-      const outside = !session.resizeDirection && isOutsideFrame(session.clientX, session.clientY);
-
+      // A click is not a frame: only the clear button removes the selection.
       finish(false);
-
-      if (outside) {
-        clear();
-      }
-
       return;
     }
 
@@ -426,10 +398,6 @@ export function attachGridSelection(
   };
 
   const move = (event: PointerEvent) => {
-    if (panClick?.pointerId === event.pointerId && Math.hypot(event.clientX - panClick.x, event.clientY - panClick.y) >= 4) {
-      panClick.moved = true;
-    }
-
     if (!session || session.pointerId !== event.pointerId) {
       return;
     }
@@ -455,16 +423,6 @@ export function attachGridSelection(
   };
 
   const up = (event: PointerEvent) => {
-    if (panClick?.pointerId === event.pointerId && event.button === 0 && !(event.buttons & 1)) {
-      const isClick = !panClick.moved && Math.hypot(event.clientX - panClick.x, event.clientY - panClick.y) < 4;
-
-      panClick = null;
-
-      if (isClick && isOutsideFrame(event.clientX, event.clientY)) {
-        clear();
-      }
-    }
-
     if (!session || session.pointerId !== event.pointerId || event.button !== 0 || (event.buttons & 1)) {
       return;
     }
@@ -480,15 +438,10 @@ export function attachGridSelection(
 
   const cancel = () => {
     snapAnimation.cancel();
-    panClick = null;
     finish(false);
   };
 
   const cancelPointer = (event: PointerEvent) => {
-    if (panClick?.pointerId === event.pointerId) {
-      panClick = null;
-    }
-
     if (session?.pointerId !== event.pointerId) {
       return;
     }
@@ -516,14 +469,10 @@ export function attachGridSelection(
   };
 
   const keydown = (event: KeyboardEvent) => {
-    // Escape already used by something above the grid (a modal) leaves the selection alone.
-    if (event.key === 'Escape' && !event.defaultPrevented && (session || committed.length)) {
-      if (session?.resizeDirection) {
-        cancel();
-      } else {
-        clear();
-      }
-
+    // Escape drops the frame being drawn or the edge being moved, never the selection: only the
+    // clear button removes it. Escape already used by something above the grid (a modal) is not ours.
+    if (event.key === 'Escape' && !event.defaultPrevented && session) {
+      cancel();
       event.preventDefault();
     }
   };

@@ -194,7 +194,7 @@ test('the button creates a one-hour meeting for every city while marquee is disa
   assert.equal(committed.length, 2 * PER_HOUR);
 });
 
-test('clicks inside a range preserve it and clicks on blank space outside clear it', () => {
+test('clicks inside and outside a range keep it: only clear() removes it', () => {
   emit(viewport, 'pointerdown', { clientX: 245, clientY: 220 });
   emit(window, 'pointermove', { clientX: 95, clientY: 65 });
   emit(window, 'pointerup');
@@ -204,6 +204,8 @@ test('clicks inside a range preserve it and clicks on blank space outside clear 
   assert.equal(committed.length, 2 * 3 * PER_HOUR);
   emit(viewport, 'pointerdown', { clientX: 50, clientY: 140 });
   emit(window, 'pointerup');
+  assert.equal(committed.length, 2 * 3 * PER_HOUR);
+  controller.clear();
   assert.equal(committed.length, 0);
 });
 
@@ -263,10 +265,18 @@ test('blur, cancel, lost capture, resize and hidden tab restore the committed se
   }
 });
 
-test('Escape clears selection and destroy removes all input handlers', () => {
+test('Escape drops only the frame being drawn, never the selection; destroy removes all input handlers', () => {
   selectSingleHour();
+  const selected = committed;
+
+  assert.equal(emit(window, 'keydown', { key: 'Escape' }).defaultPrevented, false);
+  assert.equal(committed, selected);
+  emit(viewport, 'pointerdown');
+  emit(window, 'pointermove', { clientX: 245, clientY: 220 });
+  flushFrame();
   assert.equal(emit(window, 'keydown', { key: 'Escape' }).defaultPrevented, true);
-  assert.equal(committed.length, 0);
+  assert.equal(active, false);
+  assert.equal(committed, selected);
   emit(viewport, 'pointerdown');
   emit(window, 'pointermove', { clientX: 245 });
   controller.destroy();
@@ -382,15 +392,15 @@ test('clicks and sub-threshold mouse jitter keep the existing frame visible and 
   }
 });
 
-test('outside clicks clear the range and its frame without selecting the clicked cell', () => {
+test('outside clicks keep the range and its frame, without selecting the clicked cell', () => {
   for (const marqueeEnabled of [true, false]) {
     const { layer } = attachWithFrame(marqueeEnabled);
+    const selected = committed;
 
     emit(viewport, 'pointerdown', { clientX: 245, clientY: 165 });
     emit(window, 'pointerup');
-    assert.equal(committed.length, 0);
-    assert.equal(layer.hidden, true);
-    assert.equal(cells.filter((cell) => cell.selected).length, 0);
+    assert.equal(committed, selected);
+    assert.equal(layer.hidden, false);
   }
 });
 
@@ -405,19 +415,6 @@ test('inside-frame clicks preserve the range in Pan mode, and panning outside do
   emit(window, 'pointerup');
   assert.equal(committed.length, PER_HOUR);
   assert.equal(layer.hidden, false);
-});
-
-test('inside/outside hit testing uses calibrated visual frame edges, not only selected cells', () => {
-  const { layer } = attachWithFrame();
-  const left = 90 - GRID_SELECTION_FRAME_HORIZONTAL_PADDING;
-
-  emit(viewport, 'pointerdown', { clientX: left + 1, clientY: 80 });
-  emit(window, 'pointerup');
-  assert.equal(committed.length, PER_HOUR);
-  emit(viewport, 'pointerdown', { clientX: left - 1, clientY: 80 });
-  emit(window, 'pointerup');
-  assert.equal(committed.length, 0);
-  assert.equal(layer.hidden, true);
 });
 
 test('a click on a resize handle never clears the range', () => {
@@ -529,7 +526,7 @@ test('the user\'s hours above the cities show the hours the selection touches', 
   assert.deepEqual(userHours.map((hour) => hour.selected), [false, false, false]);
 });
 
-test('Escape already used above the grid, by a modal, keeps the selection', () => {
+test('Escape already used above the grid, by a modal, is left alone', () => {
   selectSingleHour();
   const before = committed;
   const escape = Object.assign(new Event('keydown', { cancelable: true }), { key: 'Escape' });
@@ -538,8 +535,7 @@ test('Escape already used above the grid, by a modal, keeps the selection', () =
   escape.preventDefault();
   window.dispatchEvent(escape);
   assert.equal(committed, before);
-  emit(window, 'keydown', { key: 'Escape' });
-  assert.equal(committed.length, 0);
+  assert.equal(escape.defaultPrevented, true);
 });
 
 test('a drawn frame grows out of the drawn rectangle into whole hours on release', () => {

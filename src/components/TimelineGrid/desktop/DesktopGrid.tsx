@@ -1,5 +1,5 @@
 import './style.css';
-import { Plus } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { usePreferences } from '../../../hooks/usePreferences';
@@ -252,6 +252,21 @@ export default function DesktopGrid(props: TimelineGridShellProps) {
                 aria-hidden="true"
               />
               {t('common.selectMeetingHours')}
+            </button>
+          )}
+          {/* As on a phone, the only way to drop the selection: clicks on the grid and Escape keep it. */}
+          {selectedHours.length > 0 && (
+            <button
+              className="widgetHeaderButton"
+              type="button"
+              aria-label={t('common.clearSelection')}
+              data-tooltip={t('common.clearSelection')}
+              onClick={clearSelection}
+            >
+              <X
+                size={16}
+                aria-hidden="true"
+              />
             </button>
           )}
         </div>
