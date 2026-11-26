@@ -1,6 +1,6 @@
 import { getCityIdByGeonameId } from './cities';
 import { formatEventDate, getEventSummaryRow } from './components/TimelineGrid/shared/eventSummary';
-import { getEventParams, readGridEventUrlState } from './components/TimelineGrid/shared/eventUrlState';
+import { getEventLinkLanguage, getEventParams, readGridEventUrlState } from './components/TimelineGrid/shared/eventUrlState';
 import {
   APP_STORE_URL,
   GOOGLE_PLAY_URL,
@@ -22,7 +22,7 @@ import {
   getTimeDifferenceSlug,
   type Page,
 } from './routes';
-import type { AppLanguage, StoredCity } from './settings';
+import { isSupportedLanguage, type AppLanguage, type StoredCity } from './settings';
 import { getCityPair, type CityPair } from './timeDifference';
 import {
   getDifferenceSentence,
@@ -324,8 +324,12 @@ function meta(key: 'name' | 'property', value: string, content: string): HeadTag
 /**
  * What a link to a shared meeting shows in messengers: "Weekly sync · Wed, November 18" and the
  * hours in every city, on the first city's date. Null for a URL without a meeting.
+ * It speaks the language of the link's author, when the link has one: whoever opens the link still
+ * gets the page in their own.
  */
-function getSharedEventPreview(language: AppLanguage, pagePath: string, search: string) {
+function getSharedEventPreview(pageLanguage: AppLanguage, pagePath: string, search: string) {
+  const linkLanguage = getEventLinkLanguage(search);
+  const language = isSupportedLanguage(linkLanguage) ? linkLanguage : pageLanguage;
   const pageId = getPageIdByPath(pagePath);
   const event = pageId === 'meetingTimePlanner' || pageId === 'grid' ? readGridEventUrlState(search) : null;
   const firstCity = event?.cities[0];

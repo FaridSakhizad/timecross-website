@@ -1,5 +1,5 @@
 import { CITIES, getCityIdByGeonameId, type CityId } from '../../../cities.ts';
-import type { StoredCity } from '../../../settings';
+import type { AppLanguage, StoredCity } from '../../../settings';
 import { getAbstractTimezoneOffsetMinutes } from '../../../utils/abstractTimezone.ts';
 
 import { TIMELINE_EXTRA_DAY_HOURS, TIMELINE_RENDERED_HOURS } from './constants.ts';
@@ -25,11 +25,13 @@ export type SharedGridEvent = {
 /**
  * A meeting in a URL comes in two forms.
  *
- * The compact one, which links are made with: "/m?e=<start>.<length>&t=<title>&c=<cities>".
+ * The compact one, which links are made with: "/m?e=<start>.<length>&t=<title>&l=<language>&c=<cities>".
  * Start and length count half-hour slots (start from the Unix epoch), in base 36. Cities are
  * separated by "," and their fields by "~": one of our cities is its key, with an optional custom
  * name ("london~Office"); any other is "<timezone>~<name>~<cityId>~<custom name>", with the
  * empty fields at the end left out. A key is never a timezone, so the first field tells them apart.
+ * The language is the author's: the link's preview speaks it, while the page that opens is in the
+ * visitor's own language.
  *
  * The older "event" parameter: JSON with version, start and end in Unix seconds, cities and an
  * optional title. Earlier links have it in the query, the earliest ones in the hash.
@@ -281,7 +283,7 @@ export function getEventParams(search: string, hash: string) {
   const when = getRawParam(search, 'e');
 
   if (when !== null) {
-    return `?${(['e', 't', 'c'] as const)
+    return `?${(['e', 't', 'l', 'c'] as const)
       .map((name) => [name, getRawParam(search, name)])
       .filter(([, value]) => value !== null)
       .map(([name, value]) => `${name}=${value}`)
@@ -293,12 +295,18 @@ export function getEventParams(search: string, hash: string) {
   return event === null ? hash : `?${new URLSearchParams({ event }).toString()}`;
 }
 
+/** The language of the link's author ("?l=…"), as written: the caller checks that it is one of ours. */
+export function getEventLinkLanguage(params: string) {
+  return getRawParam(params, 'l');
+}
+
 /** A link to the selected meeting, or null when the selection is not one range in every row. */
 export function buildGridEventUrl(
   baseUrl: string,
   cities: StoredCity[],
   hours: SelectedGridSlot[],
   title = '',
+  language?: AppLanguage,
 ): string | null {
   const ranges = getGridSlotRanges(hours);
   const first = ranges[0];
@@ -319,6 +327,7 @@ export function buildGridEventUrl(
   const params = [
     `e=${when}`,
     ...(normalizedTitle ? [`t=${encodeCompactValue(normalizedTitle)}`] : []),
+    ...(language ? [`l=${language}`] : []),
     `c=${selectedCities.map(writeCompactCity).join(',')}`,
   ].join('&');
   const url = new URL(baseUrl);

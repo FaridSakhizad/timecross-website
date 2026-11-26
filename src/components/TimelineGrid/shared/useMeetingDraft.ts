@@ -59,7 +59,7 @@ export function useMeetingDraft({ cities, hours, browserTimezone, participantIds
   const eventTitle = title.trim() || t('common.calendarEventTitle');
   const calendarEvent = buildGridCalendarEvent(meetingSlots, participants, browserTimezone, eventTitle);
   const linkBase = typeof window === 'undefined' ? null : `${window.location.origin}${MEETING_LINK_PATH}`;
-  const eventUrl = linkBase && buildGridEventUrl(linkBase, cities, meetingSlots, title);
+  const eventUrl = linkBase && buildGridEventUrl(linkBase, cities, meetingSlots, title, language);
   const canShare = systemShare && typeof navigator !== 'undefined' && typeof navigator.share === 'function';
   const eventText = calendarEvent && formatEventText(
     calendarEvent,

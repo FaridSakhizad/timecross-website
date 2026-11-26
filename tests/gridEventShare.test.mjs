@@ -97,6 +97,14 @@ test('older links keep the meeting in the hash; the query wins, the rest of the 
   assert.equal(getEventParams('', legacyHash), legacyHash);
   assert.equal(getEventParams(`?at=2026-11-01T05:00:00.000Z&${link.search.slice(1)}`, '#other'), link.search);
   assert.equal(getEventParams('?at=2026-11-01T05:00:00.000Z', ''), '');
+
+  // The author's language goes with the meeting and does not change it.
+  const withLanguage = new URL(buildGridEventUrl(baseUrl, cities, hours, 'Sync', 'pt-BR'));
+
+  assert.deepEqual([...withLanguage.searchParams.keys()], ['e', 't', 'l', 'c']);
+  assert.equal(withLanguage.searchParams.get('l'), 'pt-BR');
+  assert.equal(getEventParams(`?at=x&${withLanguage.search.slice(1)}&cities=y`, ''), withLanguage.search);
+  assert.deepEqual(readGridEventUrlState(withLanguage.search), readGridEventUrlState(new URL(buildGridEventUrl(baseUrl, cities, hours, 'Sync')).search));
 });
 
 test('every supported duration fits the ordinary grid and remains shareable without truncation', () => {

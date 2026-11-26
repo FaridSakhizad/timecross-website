@@ -180,3 +180,24 @@ test('a shared meeting link previews its title, date and hours in every city', a
 
   assert.equal(content(getHeadTags('en', '/en/meeting-time-planner', halfLink), 'og:description'), 'Madrid 16:30 – 17:30');
 });
+
+test("a meeting link's preview speaks its author's language, the page the visitor's", async () => {
+  const { buildGridEventUrl } = await import('../src/components/TimelineGrid/shared/eventUrlState.ts');
+  const { slotsOf } = await import('./support/gridSlots.mjs');
+  const start = Date.parse('2026-11-18T15:00:00Z');
+  const cities = [{ id: 'mad', city: 'Madrid', cityId: '3117735', timezone: 'Europe/Madrid', customName: '' }];
+  const hours = slotsOf([{ rowId: 'mad', start }]);
+  const { search } = new URL(buildGridEventUrl('https://timecross.app/m', cities, hours, '', 'ru'));
+  const content = (tags, property) => tags.find((tag) => tag.attributes.property === property || tag.attributes.name === property)?.attributes.content;
+  const tags = getHeadTags('en', '/en/meeting-time-planner', search);
+
+  assert.equal(content(tags, 'og:title'), 'Встреча · ср, 18 ноября');
+  assert.equal(content(tags, 'og:description'), 'Мадрид 16:00 – 17:00');
+  assert.equal(content(tags, 'description'), getSeoMetadata('en', '/meeting-time-planner').description);
+  assert.equal(content(tags, 'og:url'), `${SITE_URL}/en/meeting-time-planner${search}`);
+
+  // A language we do not have: the page's.
+  const unknown = search.replace('l=ru', 'l=xx');
+
+  assert.equal(content(getHeadTags('en', '/en/meeting-time-planner', unknown), 'og:title'), 'Meeting · Wed, November 18');
+});
