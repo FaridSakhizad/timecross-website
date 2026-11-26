@@ -185,6 +185,12 @@
     background-color: rgba(var(--accent-color-1), 1);
     mask: url("../../../assets/icon--copy-1.svg");
   }
+
+  &.isCopied::before {
+    width: 13px;
+    height: 13px;
+    mask: url("../../../assets/icon--checkmark-1.svg");
+  }
 }
 
 .selectionCard-link {

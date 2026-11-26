@@ -4,8 +4,7 @@ import { FEATURES } from '../../../config';
 import { usePreferences } from '../../../hooks/usePreferences';
 import { useI18n } from '../../../i18n';
 import { getIntlLocale } from '../../../i18n/intlLocale';
-import { getCanonicalLanguagePath } from '../../../i18n/languageRouting';
-import { PAGES } from '../../../routes';
+import { MEETING_LINK_PATH } from '../../../routes';
 import type { StoredCity } from '../../../settings';
 import { preload } from '../../../utils/preload';
 import { getCityDisplayName } from '../../Cities/useLocalizedCities';
@@ -22,8 +21,11 @@ import {
 } from './gridSelection';
 import { shareEventLink } from './shareEventLink';
 
-/** What the last action did: copied the link (`url`) or the meeting's text, or failed at it. */
-type Status = { kind: 'copied' | 'textCopied' | 'failed' | 'textFailed'; url: string } | null;
+/**
+ * What the last action did: copied the link or the meeting's text, or failed at it. `value` is what
+ * was copied: once the meeting changes, it no longer counts as copied.
+ */
+type Status = { kind: 'copied' | 'textCopied' | 'failed' | 'textFailed'; value: string } | null;
 
 type MeetingDraftOptions = {
   cities: StoredCity[];
@@ -56,17 +58,23 @@ export function useMeetingDraft({ cities, hours, browserTimezone, participantIds
   const participants = selectedCities.filter((city) => participantIds.has(city.id));
   const eventTitle = title.trim() || t('common.calendarEventTitle');
   const calendarEvent = buildGridCalendarEvent(meetingSlots, participants, browserTimezone, eventTitle);
-  const linkBase = typeof window === 'undefined'
-    ? null
-    : `${window.location.origin}${getCanonicalLanguagePath(language, PAGES.meetingTimePlanner.path)}`;
+  const linkBase = typeof window === 'undefined' ? null : `${window.location.origin}${MEETING_LINK_PATH}`;
   const eventUrl = linkBase && buildGridEventUrl(linkBase, cities, meetingSlots, title);
   const canShare = systemShare && typeof navigator !== 'undefined' && typeof navigator.share === 'function';
-  const isLinkCopied = status?.kind === 'copied' && status.url === eventUrl;
-  const isTextCopied = status?.kind === 'textCopied';
+  const eventText = calendarEvent && formatEventText(
+    calendarEvent,
+    eventTitle,
+    participants,
+    { locale: getIntlLocale(language), timeFormat, referenceTimezone: browserTimezone },
+    t,
+    FEATURES.shareEvent ? eventUrl : null,
+  );
+  const isLinkCopied = status?.kind === 'copied' && status.value === eventUrl;
+  const isTextCopied = status?.kind === 'textCopied' && status.value === eventText;
   let errorKey: 'common.calendarShareError' | 'common.calendarFileError' | 'common.copyEventDetailsError' | null = null;
 
   if (status?.kind === 'failed') {
-    errorKey = status.url ? 'common.calendarShareError' : 'common.calendarFileError';
+    errorKey = status.value ? 'common.calendarShareError' : 'common.calendarFileError';
   }
 
   if (status?.kind === 'textFailed') {
@@ -92,7 +100,7 @@ export function useMeetingDraft({ cities, hours, browserTimezone, participantIds
 
       module.downloadCalendarFile(module.createCalendarEventFile(calendarEvent));
     } catch {
-      setStatus({ kind: 'failed', url: '' });
+      setStatus({ kind: 'failed', value: '' });
     }
   };
 
@@ -104,33 +112,24 @@ export function useMeetingDraft({ cities, hours, browserTimezone, participantIds
     try {
       // Nothing is awaited before the share sheet opens: it needs the tap's user activation.
       if (await shareEventLink(eventUrl, navigator) === 'copied') {
-        setStatus({ kind: 'copied', url: eventUrl });
+        setStatus({ kind: 'copied', value: eventUrl });
       }
     } catch {
-      setStatus({ kind: 'failed', url: eventUrl });
+      setStatus({ kind: 'failed', value: eventUrl });
     }
   };
 
   /** The meeting as text, with its link when links are on: to paste into a chat or an email. */
   const copyText = async () => {
-    if (!calendarEvent) {
+    if (!eventText) {
       return;
     }
 
-    const text = formatEventText(
-      calendarEvent,
-      eventTitle,
-      participants,
-      { locale: getIntlLocale(language), timeFormat, referenceTimezone: browserTimezone },
-      t,
-      FEATURES.shareEvent ? eventUrl : null,
-    );
-
     try {
-      await navigator.clipboard.writeText(text);
-      setStatus({ kind: 'textCopied', url: '' });
+      await navigator.clipboard.writeText(eventText);
+      setStatus({ kind: 'textCopied', value: eventText });
     } catch {
-      setStatus({ kind: 'textFailed', url: '' });
+      setStatus({ kind: 'textFailed', value: '' });
     }
   };
 
@@ -141,9 +140,9 @@ export function useMeetingDraft({ cities, hours, browserTimezone, participantIds
 
     try {
       await navigator.clipboard.writeText(eventUrl);
-      setStatus({ kind: 'copied', url: eventUrl });
+      setStatus({ kind: 'copied', value: eventUrl });
     } catch {
-      setStatus({ kind: 'failed', url: eventUrl });
+      setStatus({ kind: 'failed', value: eventUrl });
     }
   };
 

@@ -175,8 +175,10 @@ export default function SelectionCard({
 
         {FEATURES.shareEvent && meeting.canLink && (
           <button
-            className="widgetHeaderButton widgetHeaderButton_label selectionCard-link"
+            className={cx('selectionCard-action selectionCard-action_link', meeting.isLinkCopied && 'isCopied')}
             type="button"
+            aria-label={meeting.linkLabel}
+            data-tooltip={meeting.linkLabel}
             disabled={!meeting.eventUrl}
             onClick={meeting.copyLink}
           >
@@ -193,7 +195,6 @@ export default function SelectionCard({
                     aria-hidden="true"
                   />
                 )}
-            {meeting.linkLabel}
           </button>
         )}
       </div>
