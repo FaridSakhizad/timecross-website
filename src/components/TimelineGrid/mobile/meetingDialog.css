@@ -39,7 +39,7 @@
 
 .meetingDialog-actions {
   display: grid;
-  gap: 8px;
+  gap: 6px;
   margin-top: 4px;
 }
 
@@ -51,6 +51,7 @@
   gap: 8px;
   height: 44px;
   text-decoration: none;
+  padding-block: 8px;
 
   &[aria-disabled="true"],
   &[disabled] {
