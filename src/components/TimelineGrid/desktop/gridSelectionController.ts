@@ -110,6 +110,16 @@ export function attachGridSelection(
     });
   };
 
+  /**
+   * Where the frame ends: under the last selected city. A frame for the time only reaches the
+   * bottom of the grid too, when the cities leave empty room below them.
+   */
+  const getFrameBottom = (rowsBottom: number) => {
+    const bottom = rowsBottom + GRID_SELECTION_FRAME_BOTTOM_PADDING;
+
+    return FEATURES.timeOnlyFrame ? Math.max(bottom, viewport.clientHeight) : bottom;
+  };
+
   const positionFrame = () => {
     if (!selectionFrame) {
       return;
@@ -127,7 +137,7 @@ export function attachGridSelection(
     selectionFrame.style.left = `${frameBounds.left - sidePadding.left}px`;
     selectionFrame.style.top = `${top - GRID_SELECTION_FRAME_TOP_PADDING}px`;
     selectionFrame.style.width = `${frameBounds.right - frameBounds.left + sidePadding.left + sidePadding.right}px`;
-    selectionFrame.style.height = `${frameBounds.bottom - top + GRID_SELECTION_FRAME_TOP_PADDING + GRID_SELECTION_FRAME_BOTTOM_PADDING}px`;
+    selectionFrame.style.height = `${getFrameBottom(frameBounds.bottom) - top + GRID_SELECTION_FRAME_TOP_PADDING}px`;
   };
 
   const paint = (cells: Cell[], hours: SelectedGridSlot[], visualBounds?: SelectionRect) => {
@@ -244,7 +254,7 @@ export function attachGridSelection(
     // and over the user's hours above them.
     if (FEATURES.timeOnlyFrame && current.cells.length) {
       rect.top = GRID_FRAME_COVERS_USER_HOURS ? 0 : Math.min(...current.cells.map((cell) => cell.rowTop));
-      rect.bottom = Math.max(...current.cells.map((cell) => cell.rowBottom));
+      rect.bottom = getFrameBottom(Math.max(...current.cells.map((cell) => cell.rowBottom))) - GRID_SELECTION_FRAME_BOTTOM_PADDING;
     }
 
     current.marquee = rect;

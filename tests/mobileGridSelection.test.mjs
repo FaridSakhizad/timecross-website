@@ -161,6 +161,8 @@ beforeEach(() => {
   frame = new FakeElement();
   layer = frame;
   frame.parentElement = {
+    // The grid's own height: the cities fill it, so the frame ends under the last selected one.
+    clientHeight: 0,
     querySelectorAll: (selector) => document.querySelectorAll(selector),
     getBoundingClientRect: () => ({ left: -window.scrollX, top: -window.scrollY }),
   };

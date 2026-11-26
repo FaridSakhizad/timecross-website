@@ -16,8 +16,13 @@
     position: fixed;
   }
 
-  /* The last city stays above the fixed footer. */
+  /*
+   * The last city stays above the fixed footer. Under the sticky header (61px) the grid fills the
+   * screen down to the footer even with few cities: the selection frame reaches its bottom. Less
+   * the body's 1px padding, or a short grid would scroll by a pixel.
+   */
   .timelineGrid-content {
+    min-height: calc(100dvh - 61px - 60px - 1px);
     margin-bottom: 60px;
   }
 

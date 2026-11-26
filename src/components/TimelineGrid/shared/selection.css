@@ -1,7 +1,10 @@
 .timelineGrid-content {
   position: relative;
+  box-sizing: border-box;
   width: max-content;
   min-width: 100%;
+  /* The whole height of the grid, even with few cities: the selection frame reaches its bottom. */
+  min-height: 100%;
   overflow: clip;
   padding-bottom: 16px;
 }

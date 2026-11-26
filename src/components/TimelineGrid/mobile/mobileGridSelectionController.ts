@@ -1,3 +1,4 @@
+import { FEATURES } from '../../../config.ts';
 import {
   getArrowKeyStep,
   getEdgeScrollSpeed,
@@ -62,6 +63,16 @@ export function attachMobileGridSelection(
     limits: SelectionRect;
   } | null = null;
 
+  /**
+   * Where the frame ends, in page coordinates: under the last selected city. A frame for the time
+   * only reaches the bottom of the grid too, when the cities leave empty room below them.
+   */
+  const getFrameBottom = (rowsBottom: number) => {
+    const bottom = rowsBottom + MOBILE_SELECTION_BOTTOM_PADDING;
+
+    return FEATURES.timeOnlyFrame ? Math.max(bottom, root.getBoundingClientRect().top + scrollY() + root.clientHeight) : bottom;
+  };
+
   const position = () => {
     if (!bounds) {
       frame.hidden = true;
@@ -76,7 +87,7 @@ export function attachMobileGridSelection(
     frame.style.left = `${bounds.left - origin.left - scrollX() - sidePadding.left}px`;
     frame.style.top = `${top - origin.top - scrollY() - MOBILE_SELECTION_TOP_PADDING}px`;
     frame.style.width = `${bounds.right - bounds.left + sidePadding.left + sidePadding.right}px`;
-    frame.style.height = `${bounds.bottom - top + MOBILE_SELECTION_TOP_PADDING + MOBILE_SELECTION_BOTTOM_PADDING}px`;
+    frame.style.height = `${getFrameBottom(bounds.bottom) - top + MOBILE_SELECTION_TOP_PADDING}px`;
   };
 
   const paint = (hours: SelectedGridSlot[], visualBounds?: SelectionRect) => {

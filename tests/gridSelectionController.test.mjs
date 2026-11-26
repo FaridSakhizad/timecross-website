@@ -324,6 +324,11 @@ function attachWithFrame(marqueeEnabled = true, direction = 'e') {
   return { layer, box };
 }
 
+/** A frame for the time only reaches the bottom of the grid (300px high) under few cities. */
+const frameBottom = (rowsBottom) => (everyCity
+  ? Math.max(rowsBottom + GRID_SELECTION_FRAME_BOTTOM_PADDING, 300)
+  : rowsBottom + GRID_SELECTION_FRAME_BOTTOM_PADDING);
+
 const frameWidth = (width) => `${width + GRID_SELECTION_FRAME_HORIZONTAL_PADDING * 2}px`;
 /** While a side is dragged it follows the pointer without padding; the other side keeps its own. */
 const liveFrameWidth = (width) => `${width + GRID_SELECTION_FRAME_HORIZONTAL_PADDING}px`;
@@ -334,8 +339,8 @@ test('persistent frame has content coordinates and scroll never schedules frame 
   assert.equal(layer.hidden, false);
   assert.equal(box.style.left, `${190 - GRID_SELECTION_FRAME_HORIZONTAL_PADDING}px`);
   assert.equal(box.style.top, `${FRAME_TOP - GRID_SELECTION_FRAME_TOP_PADDING}px`);
-  assert.equal(box.style.height, `${124 - FRAME_TOP + GRID_SELECTION_FRAME_TOP_PADDING + GRID_SELECTION_FRAME_BOTTOM_PADDING}px`);
-  assert.equal(Number.parseFloat(box.style.top) + Number.parseFloat(box.style.height), 124 + GRID_SELECTION_FRAME_BOTTOM_PADDING);
+  assert.equal(box.style.height, `${frameBottom(124) - FRAME_TOP + GRID_SELECTION_FRAME_TOP_PADDING}px`);
+  assert.equal(Number.parseFloat(box.style.top) + Number.parseFloat(box.style.height), frameBottom(124));
   assert.equal(Number.parseFloat(box.style.left) + Number.parseFloat(box.style.width), 254 + GRID_SELECTION_FRAME_HORIZONTAL_PADDING);
   viewport.scrollLeft += 40;
   emit(viewport, 'scroll');
@@ -702,4 +707,11 @@ test('explicit pointercancel with released buttons still rolls back instead of c
   assert.equal(committed.length, PER_HOUR);
   assert.equal(layer.hidden, false);
   assert.equal(active, false);
+});
+
+test('under cities taller than the grid the frame ends under the last selected city', () => {
+  viewport.clientHeight = 100;
+  const { box } = attachWithFrame();
+
+  assert.equal(Number.parseFloat(box.style.top) + Number.parseFloat(box.style.height), 124 + GRID_SELECTION_FRAME_BOTTOM_PADDING);
 });
