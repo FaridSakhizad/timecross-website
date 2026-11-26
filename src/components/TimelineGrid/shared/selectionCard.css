@@ -107,7 +107,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 20px;
+  gap: 12px;
 }
 
 .selectionCard-action {
@@ -191,6 +191,10 @@
     height: 13px;
     mask: url("../../../assets/icon--checkmark-1.svg");
   }
+}
+
+.selectionCard-action_clear {
+  margin-left: auto;
 }
 
 .selectionCard-link {

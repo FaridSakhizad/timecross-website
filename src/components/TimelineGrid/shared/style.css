@@ -469,8 +469,9 @@
 }
 
 .timelineGrid-cell_current {
-  background: rgba(var(--accent-color-2), 0.38) !important;
+  background: rgba(var(--accent-color-2), 0.7) !important;
   color: #333!important;
+  text-shadow: none !important;
 }
 
 .timelineGrid-cell:nth-child(1),
