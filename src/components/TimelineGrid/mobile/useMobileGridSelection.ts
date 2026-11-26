@@ -72,20 +72,5 @@ export function useMobileGridSelection(
     };
   }, [contentKey, enabled, onChange, viewportRef]);
 
-  useEffect(() => {
-    if (!enabled) {
-      return;
-    }
-
-    const escape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && !event.defaultPrevented) {
-        clear();
-      }
-    };
-
-    window.addEventListener('keydown', escape);
-    return () => window.removeEventListener('keydown', escape);
-  }, [clear, enabled]);
-
   return { enabled, toggle, clear, frameRef, interactionRef, isResizing };
 }

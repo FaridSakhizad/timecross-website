@@ -205,6 +205,7 @@ export default function DesktopGrid(props: TimelineGridShellProps) {
             onParticipantChange={props.onMeetingParticipantChange}
             collapsed={isSelectionCardCollapsed}
             onCollapsedChange={setSelectionCardCollapsed}
+            onClear={clearSelection}
           />
         )}
         <TimelineGridActiveHourIndicator

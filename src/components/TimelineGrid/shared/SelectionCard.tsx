@@ -1,6 +1,6 @@
 import './selectionCard.css';
 
-import { Check, Link2 } from 'lucide-react';
+import { Check, Link2, X } from 'lucide-react';
 import { useEffect, useRef, type Ref } from 'react';
 
 import { FEATURES } from '../../../config';
@@ -25,6 +25,8 @@ type SelectionCardProps = {
   /** Folded into an icon: the title and the rest are kept for when it opens again. */
   collapsed: boolean;
   onCollapsedChange: (collapsed: boolean) => void;
+  /** Drops the selection, and the card with it. */
+  onClear: () => void;
 };
 
 /**
@@ -41,6 +43,7 @@ export default function SelectionCard({
   cardRef,
   collapsed,
   onCollapsedChange,
+  onClear,
 }: SelectionCardProps) {
   const { t } = useI18n();
   const meeting = useMeetingDraft({ cities, hours, browserTimezone, participantIds });
@@ -197,6 +200,19 @@ export default function SelectionCard({
                 )}
           </button>
         )}
+
+        <button
+          className="selectionCard-action selectionCard-action_clear"
+          type="button"
+          aria-label={t('common.clearSelection')}
+          data-tooltip={t('common.clearSelection')}
+          onClick={onClear}
+        >
+          <X
+            size={16}
+            aria-hidden="true"
+          />
+        </button>
       </div>
 
       {meeting.errorKey && (

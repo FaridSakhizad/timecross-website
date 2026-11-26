@@ -126,6 +126,7 @@ export default function MobileGrid(props: TimelineGridShellProps) {
             onParticipantChange={props.onMeetingParticipantChange}
             collapsed={isSelectionCardCollapsed}
             onCollapsedChange={setSelectionCardCollapsed}
+            onClear={clear}
           />
         )}
       </div>
