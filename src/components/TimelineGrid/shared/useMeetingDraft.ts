@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 
+import { trackEvent, type MeetingSaveMethod } from '../../../analytics';
 import { FEATURES } from '../../../config';
 import { usePreferences } from '../../../hooks/usePreferences';
 import { useI18n } from '../../../i18n';
@@ -37,6 +38,8 @@ type MeetingDraftOptions = {
   systemShare?: boolean;
   /** The title it starts with: a meeting from a link has its own. */
   initialTitle?: string;
+  /** A meeting from a link, not edited: told apart in analytics. */
+  isFromLink?: boolean;
 };
 
 /**
@@ -52,6 +55,7 @@ export function useMeetingDraft({
   participantIds,
   systemShare = false,
   initialTitle = '',
+  isFromLink = false,
 }: MeetingDraftOptions) {
   const { language, t } = useI18n();
   const { timeFormat } = usePreferences();
@@ -94,6 +98,20 @@ export function useMeetingDraft({
     preload(loadCalendarFileModule);
   }, []);
 
+  /** The meeting left the website (see the meeting_saved event): counted, never its title or cities. */
+  const trackSaved = (method: MeetingSaveMethod) => {
+    if (!span) {
+      return;
+    }
+
+    trackEvent('meeting_saved', {
+      method,
+      cities: participants.length,
+      durationMinutes: (span.end - span.start) / 60_000,
+      fromLink: isFromLink,
+    });
+  };
+
   const changeTitle = (value: string) => {
     setTitle(value);
     setStatus(null);
@@ -108,6 +126,7 @@ export function useMeetingDraft({
       const module = getLoadedCalendarFileModule() ?? await loadCalendarFileModule();
 
       module.downloadCalendarFile(module.createCalendarEventFile(calendarEvent));
+      trackSaved('ics');
     } catch {
       setStatus({ kind: 'failed', value: '' });
     }
@@ -120,8 +139,15 @@ export function useMeetingDraft({
 
     try {
       // Nothing is awaited before the share sheet opens: it needs the tap's user activation.
-      if (await shareEventLink(eventUrl, navigator) === 'copied') {
+      const result = await shareEventLink(eventUrl, navigator);
+
+      if (result === 'copied') {
         setStatus({ kind: 'copied', value: eventUrl });
+        trackSaved('link');
+      }
+
+      if (result === 'shared') {
+        trackSaved('share');
       }
     } catch {
       setStatus({ kind: 'failed', value: eventUrl });
@@ -137,6 +163,7 @@ export function useMeetingDraft({
     try {
       await navigator.clipboard.writeText(eventText);
       setStatus({ kind: 'textCopied', value: eventText });
+      trackSaved('text');
     } catch {
       setStatus({ kind: 'textFailed', value: '' });
     }
@@ -150,6 +177,7 @@ export function useMeetingDraft({
     try {
       await navigator.clipboard.writeText(eventUrl);
       setStatus({ kind: 'copied', value: eventUrl });
+      trackSaved('link');
     } catch {
       setStatus({ kind: 'failed', value: eventUrl });
     }
@@ -173,6 +201,8 @@ export function useMeetingDraft({
     /** What went wrong with the last action, if anything. */
     errorKey,
     downloadEvent,
+    /** A calendar link was followed: the calendar opens in a new tab. */
+    openCalendar: (calendar: 'googleCalendar' | 'outlook') => trackSaved(calendar),
     share,
     copyText,
     copyLink,

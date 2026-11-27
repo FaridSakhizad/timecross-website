@@ -23,6 +23,7 @@ import {
 } from 'react';
 import { Link } from 'react-router';
 
+import { trackEvent } from '../../analytics';
 import { useCurrentMinuteDate } from '../../hooks/useCurrentMinuteDate';
 import { useMobileWidgetLayout } from '../../hooks/useMobileWidgetLayout';
 import { usePreferences } from '../../hooks/usePreferences';
@@ -215,6 +216,7 @@ export default function Cities({
     setCities(nextCities);
     saveSelectedCities(nextCities);
     setIsAddCityModalOpen(false);
+    trackEvent('city_added', {});
   };
 
   const handleDeleteCity = useCallback((cityId: string) => {

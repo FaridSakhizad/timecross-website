@@ -249,6 +249,7 @@
       "localDataText2": "Local data is not an account backup. Clearing browser storage, deleting the app, or resetting device data may remove these preferences.",
       "analyticsTitle": "Website analytics",
       "analyticsText1": "The website uses Cloudflare Web Analytics to count visits: which pages are opened, where visitors come from (for example, a search engine), the browser, device type and country, and how fast pages load. It does not use cookies or local storage and does not track you across other websites.",
+      "analyticsEventsText": "To learn which features are used, the website also sends anonymous events to PostHog (servers in the EU): for example, that a page was opened, a meeting was added to a calendar or the App Store button was clicked. Events are not linked to a person and contain no meeting titles or other text you type. Nothing is stored on your device for this. Your IP address is used only to determine the country and is not stored.",
       "analyticsText2": "The statistics are aggregated, and we use them only to understand how the website is used and to improve it.",
       "notificationsTitle": "Notifications",
       "notificationsText": "If you enable notifications, {siteName} uses your device notification system to show reminders you choose. You can disable notification permissions in your device settings.",

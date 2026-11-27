@@ -18,6 +18,15 @@ export const BUY_ME_A_COFFEE_URL = 'https://buy.stripe.com/fZu4gsf6z0M6bROfrrasg
 export const APP_STORE_URL = 'https://apps.apple.com/ca/app/timecross-world-clock/id6770122132';
 export const GOOGLE_PLAY_URL = 'https://play.google.com/store/apps/details?id=com.faridsakhizad.timecross';
 export const ANDROID_APK_URL = 'https://pub-38082d37764b4709b5dd898662301c5e.r2.dev/TimeCross_v1.0.1.apk';
+/**
+ * App Store Connect's provider token (App Analytics → Campaigns): with it, a store link carries the
+ * button it came from ("ct"), and installs from the website show up by campaign. Empty: plain links.
+ */
+export const APP_STORE_PROVIDER_TOKEN: string = '';
+/** POST: the website's analytics events, which the Worker passes on to PostHog (see src/analytics). */
+export const EVENTS_API_PATH = '/api/e';
+/** The PostHog project's key (public, as in any web page that uses PostHog). Empty: events go nowhere. */
+export const POSTHOG_PROJECT_KEY: string = '';
 export const COPYRIGHT_HOLDER = 'Farid Sakhizad';
 export const COPYRIGHT_YEAR = 2026;
 

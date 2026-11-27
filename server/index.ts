@@ -1,6 +1,7 @@
-import { CONTACT_API_PATH } from '../src/config';
+import { CONTACT_API_PATH, EVENTS_API_PATH } from '../src/config';
 
 import { handleContactRequest } from './contact';
+import { handleEventsRequest } from './events';
 import { handlePageRequest } from './pages';
 import { handleSitemapRequest } from './sitemap';
 
@@ -15,6 +16,11 @@ export default {
 
     if (url.pathname === CONTACT_API_PATH) {
       return handleContactRequest(request, env);
+    }
+
+    if (url.pathname === EVENTS_API_PATH) {
+      // A local run sends nothing to PostHog.
+      return handleEventsRequest(request, import.meta.env.DEV ? { projectKey: '' } : undefined);
     }
 
     if (url.pathname === '/sitemap.xml') {

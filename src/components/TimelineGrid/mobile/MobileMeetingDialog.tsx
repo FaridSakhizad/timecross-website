@@ -42,7 +42,15 @@ export default function MobileMeetingDialog({
   onClose,
 }: MobileMeetingDialogProps) {
   const { t } = useI18n();
-  const meeting = useMeetingDraft({ cities, hours, browserTimezone, participantIds, systemShare: true, initialTitle });
+  const meeting = useMeetingDraft({
+    cities,
+    hours,
+    browserTimezone,
+    participantIds,
+    systemShare: true,
+    initialTitle,
+    isFromLink: locked,
+  });
   const { span, calendarEvent } = meeting;
 
   if (!span) {
@@ -97,6 +105,7 @@ export default function MobileMeetingDialog({
             aria-disabled={!calendarEvent || undefined}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => meeting.openCalendar('googleCalendar')}
           >
             <CalendarPlus
               size={18}
@@ -110,6 +119,7 @@ export default function MobileMeetingDialog({
             aria-disabled={!calendarEvent || undefined}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => meeting.openCalendar('outlook')}
           >
             <CalendarDays
               size={18}

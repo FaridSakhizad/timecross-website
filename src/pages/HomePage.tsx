@@ -1,3 +1,4 @@
+import AppStoreLink from '../components/AppStoreLink';
 import ClientOnly from '../components/ClientOnly';
 import ContactForm from '../components/ContactForm';
 import FAQ from '../components/FAQ';
@@ -8,10 +9,6 @@ import Hero from '../components/Hero';
 import { TimelineGrid } from '../components/lazyWidgets';
 import ScreenshotSlider from '../components/ScreenshotSlider';
 import Seo from '../components/Seo';
-import {
-  APP_STORE_URL,
-  GOOGLE_PLAY_URL,
-} from '../config';
 import { useI18n } from '../i18n';
 
 export default function HomePage() {
@@ -95,14 +92,16 @@ export default function HomePage() {
           <h2 className="section-title">{t('home.downloadTitle')}</h2>
 
           <div className="download">
-            <a
-              href={APP_STORE_URL}
+            <AppStoreLink
+              store="appStore"
+              placement="homeDownload"
               className="downloadLink downloadLink_appStore"
               aria-label={t('common.appStore')}
               target="_blank"
             />
-            <a
-              href={GOOGLE_PLAY_URL}
+            <AppStoreLink
+              store="googlePlay"
+              placement="homeDownload"
               className="downloadLink downloadLink_googlePlay"
               data-coming-soon={t('common.comingSoon')}
               aria-label={t('common.googlePlay')}

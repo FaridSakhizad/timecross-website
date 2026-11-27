@@ -55,7 +55,14 @@ export default function SelectionCard({
   initialTitle,
 }: SelectionCardProps) {
   const { t } = useI18n();
-  const meeting = useMeetingDraft({ cities, hours, browserTimezone, participantIds, initialTitle });
+  const meeting = useMeetingDraft({
+    cities,
+    hours,
+    browserTimezone,
+    participantIds,
+    initialTitle,
+    isFromLink: Boolean(onEdit),
+  });
   const { span, calendarEvent } = meeting;
   const toggleRef = useRef<HTMLButtonElement>(null);
   const shouldFocusToggle = useRef(false);
@@ -161,6 +168,7 @@ export default function SelectionCard({
           rel="noopener noreferrer"
           aria-label={t('common.addToGoogleCalendar')}
           data-tooltip={t('common.addToGoogleCalendar')}
+          onClick={() => meeting.openCalendar('googleCalendar')}
         />
 
         <a
@@ -171,6 +179,7 @@ export default function SelectionCard({
           rel="noopener noreferrer"
           aria-label={t('common.addToOutlook')}
           data-tooltip={t('common.addToOutlook')}
+          onClick={() => meeting.openCalendar('outlook')}
         />
 
         <button

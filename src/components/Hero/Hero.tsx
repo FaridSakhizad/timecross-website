@@ -6,11 +6,8 @@ import heroImg3 from '../../assets/3-timelines.jpg';
 import heroImg4 from '../../assets/4-add-city.jpg';
 import heroImg5 from '../../assets/5-add-timezone.jpg';
 import heroImg6 from '../../assets/6-notifications.jpg';
-import {
-  APP_STORE_URL,
-  GOOGLE_PLAY_URL,
-} from '../../config';
 import { useI18n } from '../../i18n';
+import AppStoreLink from '../AppStoreLink';
 import ClientOnly from '../ClientOnly';
 import { Cities } from '../lazyWidgets';
 
@@ -78,15 +75,17 @@ export default function Hero() {
         </div>
 
         <div className="heroDownload">
-          <a
-            href={APP_STORE_URL}
+          <AppStoreLink
+            store="appStore"
+            placement="hero"
             className="heroDownload-button heroDownload-button_appStore"
             aria-label={t('common.appStore')}
             target="_blank"
           />
 
-          <a
-            href={GOOGLE_PLAY_URL}
+          <AppStoreLink
+            store="googlePlay"
+            placement="hero"
             className="heroDownload-button heroDownload-button_googlePlay"
             data-coming-soon={t('common.comingSoon')}
             target="_blank"

@@ -15,9 +15,10 @@ import {
   arrayMove,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { useCallback, useEffect, useMemo, useState, type ComponentType } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ComponentType } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router';
 
+import { trackEvent } from '../../../analytics';
 import { useCurrentMinuteDate } from '../../../hooks/useCurrentMinuteDate';
 import { usePreferences } from '../../../hooks/usePreferences';
 import { useI18n } from '../../../i18n';
@@ -163,6 +164,18 @@ function GridSession({
   const [eventDates, setEventDates] = useState(() => (sharedEvent ? getSharedGridTimelineDates(sharedEvent) : null));
   // The link's cities are not saved as the visitor's.
   const hasLinkCities = linkMode !== null;
+  // The selection as it last was: a new one starts a meeting (see handleSelectionChange).
+  const lastSelectionRef = useRef(selectedHours);
+
+  useEffect(() => {
+    lastSelectionRef.current = selectedHours;
+  }, [selectedHours]);
+
+  useEffect(() => {
+    if (sharedEvent) {
+      trackEvent('meeting_link_opened', { cities: sharedEvent.cities.length });
+    }
+  }, [sharedEvent]);
   const [isAddCityModalOpen, setIsAddCityModalOpen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -300,6 +313,7 @@ function GridSession({
     }
 
     setIsAddCityModalOpen(false);
+    trackEvent('city_added', {});
   };
 
   const handleDeleteCity = (cityId: string) => {
@@ -354,11 +368,19 @@ function GridSession({
   const startEditing = () => {
     setLinkMode('edit');
     onMeetingRelease();
+    trackEvent('meeting_edit_started', {});
   };
 
   // Cleared, the meeting of a link gives way to the planner, with the visitor's own cities.
   const handleSelectionChange = useCallback((hours: SelectedGridSlot[]) => {
+    const isNewSelection = !lastSelectionRef.current.length && hours.length > 0;
+
+    lastSelectionRef.current = hours;
     setSelectedHours(hours);
+
+    if (isNewSelection && !linkMode) {
+      trackEvent('meeting_started', {});
+    }
 
     if (hours.length || linkMode !== 'edit') {
       return;

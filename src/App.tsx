@@ -3,6 +3,7 @@ import './App.css';
 import { useEffect, useLayoutEffect, type ComponentType, type ReactNode } from 'react';
 import { Navigate, Route, Routes, useLocation, useParams } from 'react-router';
 
+import { AnalyticsPageviews } from './analytics';
 import ScrollReset from './components/ScrollReset';
 import Tooltips from './components/Tooltips';
 import { usePreferences } from './hooks/usePreferences';
@@ -100,6 +101,7 @@ function App() {
   return (
     <>
       <ScrollReset />
+      <AnalyticsPageviews />
       <Tooltips />
       <Routes>
         {PAGE_IDS.flatMap((pageId) => {

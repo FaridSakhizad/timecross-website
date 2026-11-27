@@ -15,6 +15,7 @@ import {
 } from 'react';
 import { useSearchParams } from 'react-router';
 
+import { trackEvent, trackEventOnce } from '../../analytics';
 import { usePreferences } from '../../hooks/usePreferences';
 import { useI18n } from '../../i18n';
 import type { StoredCity } from '../../settings';
@@ -226,6 +227,7 @@ export default function TimeZoneConverter({
       city: createFavoriteCityFromSearchResult(city),
       now: new Date(),
     });
+    trackEventOnce('converter_used', { change: 'sourceCity' });
     setCityModalMode(null);
   };
 
@@ -238,6 +240,7 @@ export default function TimeZoneConverter({
     setCityModalMode(null);
     applyCities(nextCities);
     saveSelectedCities(nextCities);
+    trackEvent('city_added', {});
   };
 
   const handleDeleteCity = (cityId: string) => {
@@ -350,6 +353,7 @@ export default function TimeZoneConverter({
                 time: event.target.value,
                 now: new Date(),
               });
+              trackEventOnce('converter_used', { change: 'time' });
             }}
           />
         </div>
@@ -414,6 +418,7 @@ export default function TimeZoneConverter({
                 type: 'dateSelected',
                 date: nextDate,
               });
+              trackEventOnce('converter_used', { change: 'date' });
             }}
           />
         </Suspense>
