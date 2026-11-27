@@ -56,7 +56,7 @@ function post(body, headers = {}, method = 'POST') {
   });
 }
 
-test('an event goes on to PostHog with the project key and the visitor\'s IP, not the one it claims', async () => {
+test('an event goes on to PostHog with the project key and the country, never an IP', async () => {
   const sent = [];
 
   const fetchImpl = async (url, init) => {
@@ -64,15 +64,21 @@ test('an event goes on to PostHog with the project key and the visitor\'s IP, no
     return new Response('{}');
   };
 
-  const response = await handleEventsRequest(post(JSON.stringify(event), { 'cf-connecting-ip': '1.2.3.4' }), { projectKey: 'phc_test', fetchImpl });
+  // What Cloudflare adds to a request in a Worker.
+  const fromCanada = Object.defineProperty(post(JSON.stringify(event), { 'cf-connecting-ip': '1.2.3.4' }), 'cf', { value: { country: 'CA' } });
+  const response = await handleEventsRequest(fromCanada, { projectKey: 'phc_test', fetchImpl });
 
   assert.equal(response.status, 204);
   assert.equal(sent[0].url, 'https://eu.i.posthog.com/i/v0/e/');
-  assert.deepEqual(sent[0].body, { ...event, api_key: 'phc_test', properties: { method: 'ics', $ip: '1.2.3.4' } });
+  assert.deepEqual(sent[0].body, {
+    ...event,
+    api_key: 'phc_test',
+    properties: { method: 'ics', $geoip_disable: true, $geoip_country_code: 'CA' },
+  });
 
-  // Without Cloudflare's header (tests, local runs), no IP at all.
+  // Without Cloudflare (tests, local runs), no country either.
   await handleEventsRequest(post(JSON.stringify(event)), { projectKey: 'phc_test', fetchImpl });
-  assert.equal('$ip' in sent[1].body.properties, false);
+  assert.equal('$geoip_country_code' in sent[1].body.properties, false);
 });
 
 test('without a project key, a broken or a too long event, nothing goes on', async () => {

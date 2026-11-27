@@ -1,7 +1,7 @@
 /**
  * POST /api/e: the website's analytics events (src/analytics), passed on to PostHog. They go through
- * the Worker as the website's own requests; the visitor's IP is added for PostHog to tell the
- * country, and the client cannot set it.
+ * the Worker as the website's own requests. The visitor's IP stays here: PostHog gets the country,
+ * as Cloudflare tells it, and is asked not to look up an IP of its own.
  */
 import { POSTHOG_PROJECT_KEY } from '../src/config';
 
@@ -90,8 +90,10 @@ export async function handleEventsRequest(
         ...event,
         properties: {
           ...event.properties,
-          // Cloudflare's own header; without it, no IP at all (undefined is left out of the JSON).
-          $ip: request.headers.get('cf-connecting-ip') ?? undefined,
+          // Whatever the client claims is dropped (undefined is left out of the JSON).
+          $ip: undefined,
+          $geoip_disable: true,
+          $geoip_country_code: request.cf?.country,
         },
       }),
     });

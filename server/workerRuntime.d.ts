@@ -23,6 +23,14 @@ interface RateLimit {
   limit(options: { key: string }): Promise<{ success: boolean }>;
 }
 
+/** What Cloudflare tells about a request (`request.cf`); only what the Worker reads. */
+interface Request {
+  readonly cf?: {
+    /** The visitor's country, ISO 3166-1 alpha-2, from their IP. */
+    country?: string;
+  };
+}
+
 /** `assets` binding. */
 interface Fetcher {
   fetch(request: Request): Promise<Response>;

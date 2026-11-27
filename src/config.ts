@@ -26,7 +26,7 @@ export const APP_STORE_PROVIDER_TOKEN: string = '';
 /** POST: the website's analytics events, which the Worker passes on to PostHog (see src/analytics). */
 export const EVENTS_API_PATH = '/api/e';
 /** The PostHog project's key (public, as in any web page that uses PostHog). Empty: events go nowhere. */
-export const POSTHOG_PROJECT_KEY: string = '';
+export const POSTHOG_PROJECT_KEY: string = 'phc_o7WMD4bBHBj4KiTbqF7CHxxGqpeFwNN9FB3QMprY6Uzz';
 export const COPYRIGHT_HOLDER = 'Farid Sakhizad';
 export const COPYRIGHT_YEAR = 2026;
 
