@@ -193,7 +193,8 @@
   }
 }
 
-.selectionCard-action_clear {
+.selectionCard-action_clear,
+.selectionCard-action_edit {
   margin-left: auto;
 }
 

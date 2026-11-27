@@ -13,8 +13,7 @@ export default function GridPage() {
   const { language } = useI18n();
   const eventParams = getEventParams(search, hash);
 
-  // Shared meetings open in the planner page, which describes them above the grid. Older links
-  // pointed here, with the meeting in the hash.
+  // Shared meetings open in the planner page. Older links pointed here, with the meeting in the hash.
   if (readGridEventUrlState(eventParams)) {
     return (
       <Navigate

@@ -6,7 +6,6 @@ import Footer from '../components/Footer';
 import Header from '../components/Header';
 import { TimelineGrid } from '../components/lazyWidgets';
 import Seo from '../components/Seo';
-import SharedEventCard from '../components/SharedEventCard';
 import { useI18n } from '../i18n';
 import { getCanonicalLanguagePath } from '../i18n/languageRouting';
 import { PAGES } from '../routes';
@@ -26,9 +25,6 @@ export default function MeetingTimePlannerPage() {
         </section>
 
         <section className="section meetingTimePlannerWidgetSection">
-          <ClientOnly>
-            <SharedEventCard />
-          </ClientOnly>
           <div className="meetingTimePlannerWidgetSection-widget">
             <ClientOnly>
               <TimelineGrid

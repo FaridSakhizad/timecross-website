@@ -31,6 +31,13 @@ export type TimelineGridContentProps = {
   selectedHourStarts?: ReadonlySet<number>;
   initialSelectedHours?: SelectedGridSlot[];
   onSelectionChange?: (hours: SelectedGridSlot[]) => void;
+  /**
+   * Set while a meeting from a link is shown as it came: its frame does not move, no other frame is
+   * drawn and its card cannot be changed, until this takes it into editing.
+   */
+  onMeetingEdit?: () => void;
+  /** The title the meeting from a link came with: its card starts with it. */
+  meetingTitle?: string;
   /** Who the selected meeting is for (see useMeetingParticipants); empty without a selection. */
   meetingParticipantIds: ReadonlySet<string>;
   /** Covered by the selection, but unchecked in its card. */

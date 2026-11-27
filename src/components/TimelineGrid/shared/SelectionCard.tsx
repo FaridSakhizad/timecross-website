@@ -1,6 +1,6 @@
 import './selectionCard.css';
 
-import { Check, Link2, X } from 'lucide-react';
+import { Check, Link2, Pencil, X } from 'lucide-react';
 import { useEffect, useRef, type Ref } from 'react';
 
 import { FEATURES } from '../../../config';
@@ -27,6 +27,13 @@ type SelectionCardProps = {
   onCollapsedChange: (collapsed: boolean) => void;
   /** Drops the selection, and the card with it. */
   onClear: () => void;
+  /**
+   * Set for a meeting from a link, shown as it came: its title and cities as they are, and this in
+   * place of the clear button.
+   */
+  onEdit?: () => void;
+  /** The title it starts with: a meeting from a link has its own. */
+  initialTitle?: string;
 };
 
 /**
@@ -44,9 +51,11 @@ export default function SelectionCard({
   collapsed,
   onCollapsedChange,
   onClear,
+  onEdit,
+  initialTitle,
 }: SelectionCardProps) {
   const { t } = useI18n();
-  const meeting = useMeetingDraft({ cities, hours, browserTimezone, participantIds });
+  const meeting = useMeetingDraft({ cities, hours, browserTimezone, participantIds, initialTitle });
   const { span, calendarEvent } = meeting;
   const toggleRef = useRef<HTMLButtonElement>(null);
   const shouldFocusToggle = useRef(false);
@@ -110,15 +119,21 @@ export default function SelectionCard({
       </button>
 
       <div className="selectionCard-header">
-        <input
-          className="selectionCard-title"
-          value={meeting.title}
-          maxLength={MAX_EVENT_TITLE_LENGTH}
-          placeholder={t('sharedEvent.titleLabel')}
-          aria-label={t('sharedEvent.titleLabel')}
-          autoComplete="off"
-          onChange={(event) => meeting.changeTitle(event.target.value)}
-        />
+        {onEdit && (
+          <p className="selectionCard-title">{meeting.title || t('sharedEvent.defaultTitle')}</p>
+        )}
+
+        {!onEdit && (
+          <input
+            className="selectionCard-title"
+            value={meeting.title}
+            maxLength={MAX_EVENT_TITLE_LENGTH}
+            placeholder={t('sharedEvent.titleLabel')}
+            aria-label={t('sharedEvent.titleLabel')}
+            autoComplete="off"
+            onChange={(event) => meeting.changeTitle(event.target.value)}
+          />
+        )}
         <EventSummaryDate
           start={span.start}
           end={span.end}
@@ -133,7 +148,7 @@ export default function SelectionCard({
           cities={meeting.selectedCities}
           browserTimezone={browserTimezone}
           participantIds={participantIds}
-          onParticipantChange={onParticipantChange}
+          onParticipantChange={onEdit ? undefined : onParticipantChange}
         />
       </div>
 
@@ -144,8 +159,8 @@ export default function SelectionCard({
           aria-disabled={!calendarEvent || undefined}
           target="_blank"
           rel="noopener noreferrer"
-          aria-label={t('common.createCalendarEvent')}
-          data-tooltip={t('common.createCalendarEvent')}
+          aria-label={t('common.addToGoogleCalendar')}
+          data-tooltip={t('common.addToGoogleCalendar')}
         />
 
         <a
@@ -154,8 +169,8 @@ export default function SelectionCard({
           aria-disabled={!calendarEvent || undefined}
           target="_blank"
           rel="noopener noreferrer"
-          aria-label={t('common.createOutlookEvent')}
-          data-tooltip={t('common.createOutlookEvent')}
+          aria-label={t('common.addToOutlook')}
+          data-tooltip={t('common.addToOutlook')}
         />
 
         <button
@@ -201,18 +216,35 @@ export default function SelectionCard({
           </button>
         )}
 
-        <button
-          className="selectionCard-action selectionCard-action_clear"
-          type="button"
-          aria-label={t('common.clearSelection')}
-          data-tooltip={t('common.clearSelection')}
-          onClick={onClear}
-        >
-          <X
-            size={16}
-            aria-hidden="true"
-          />
-        </button>
+        {onEdit && (
+          <button
+            className="selectionCard-action selectionCard-action_edit"
+            type="button"
+            aria-label={t('common.editMeeting')}
+            data-tooltip={t('common.editMeeting')}
+            onClick={onEdit}
+          >
+            <Pencil
+              size={16}
+              aria-hidden="true"
+            />
+          </button>
+        )}
+
+        {!onEdit && (
+          <button
+            className="selectionCard-action selectionCard-action_clear"
+            type="button"
+            aria-label={t('common.clearSelection')}
+            data-tooltip={t('common.clearSelection')}
+            onClick={onClear}
+          >
+            <X
+              size={16}
+              aria-hidden="true"
+            />
+          </button>
+        )}
       </div>
 
       {meeting.errorKey && (

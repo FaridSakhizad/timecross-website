@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
 import { TIMELINE_RENDERED_HOURS, TIMELINE_TOTAL_HOURS, TIMELINE_EDGE_FADE_HOURS } from '../src/components/TimelineGrid/shared/constants.ts';
-import { buildGridEventUrl, getEventParams, readGridEventUrlState, getSharedGridTimelineDates } from '../src/components/TimelineGrid/shared/eventUrlState.ts';
+import { buildGridEventUrl, getEventParams, readGridEventUrlState, getSharedGridTimelineDates, removeEventParams } from '../src/components/TimelineGrid/shared/eventUrlState.ts';
 import { buildGridCalendarEvent, GRID_HOUR_MS } from '../src/components/TimelineGrid/shared/gridSelection.ts';
 import { shareEventLink } from '../src/components/TimelineGrid/shared/shareEventLink.ts';
 
@@ -352,4 +352,13 @@ test('a broken compact link opens no meeting', () => {
   }
 
   assert.notEqual(readGridEventUrlState(`?e=${when}&c=london`), null);
+});
+
+test('editing a meeting from a link takes its parameters, of either form, out of the query', () => {
+  const link = new URL(buildGridEventUrl(baseUrl, cities, hours, 'Sync', 'ru'));
+
+  assert.equal(removeEventParams(link.search), '');
+  assert.equal(removeEventParams(`?at=2026-11-01T05:00:00.000Z&${link.search.slice(1)}&utm_source=x`), '?at=2026-11-01T05:00:00.000Z&utm_source=x');
+  assert.equal(removeEventParams(`?${new URLSearchParams({ event: JSON.stringify(valid) })}`), '');
+  assert.equal(removeEventParams(''), '');
 });

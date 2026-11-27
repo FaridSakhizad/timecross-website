@@ -18,6 +18,10 @@ type MobileMeetingDialogProps = {
   browserTimezone: string;
   participantIds: ReadonlySet<string>;
   onParticipantChange: (cityId: string, included: boolean) => void;
+  /** A meeting from a link, shown as it came: its title and cities as they are. */
+  locked?: boolean;
+  /** The title it starts with: a meeting from a link has its own. */
+  initialTitle?: string;
   onClose: () => void;
 };
 
@@ -33,10 +37,12 @@ export default function MobileMeetingDialog({
   browserTimezone,
   participantIds,
   onParticipantChange,
+  locked = false,
+  initialTitle,
   onClose,
 }: MobileMeetingDialogProps) {
   const { t } = useI18n();
-  const meeting = useMeetingDraft({ cities, hours, browserTimezone, participantIds, systemShare: true });
+  const meeting = useMeetingDraft({ cities, hours, browserTimezone, participantIds, systemShare: true, initialTitle });
   const { span, calendarEvent } = meeting;
 
   if (!span) {
@@ -47,19 +53,25 @@ export default function MobileMeetingDialog({
     <Modal
       isOpen={isOpen}
       className="meetingDialog"
-      title={t('common.createEvent')}
+      title={t(locked ? 'common.saveMeeting' : 'common.createEvent')}
       onClose={onClose}
     >
       <div className="meetingDialog-body">
-        <input
-          className="meetingDialog-title"
-          value={meeting.title}
-          maxLength={MAX_EVENT_TITLE_LENGTH}
-          placeholder={t('sharedEvent.titleLabel')}
-          aria-label={t('sharedEvent.titleLabel')}
-          autoComplete="off"
-          onChange={(event) => meeting.changeTitle(event.target.value)}
-        />
+        {locked && (
+          <p className="meetingDialog-title">{meeting.title || t('sharedEvent.defaultTitle')}</p>
+        )}
+
+        {!locked && (
+          <input
+            className="meetingDialog-title"
+            value={meeting.title}
+            maxLength={MAX_EVENT_TITLE_LENGTH}
+            placeholder={t('sharedEvent.titleLabel')}
+            aria-label={t('sharedEvent.titleLabel')}
+            autoComplete="off"
+            onChange={(event) => meeting.changeTitle(event.target.value)}
+          />
+        )}
         <EventSummaryDate
           start={span.start}
           end={span.end}
@@ -71,7 +83,7 @@ export default function MobileMeetingDialog({
           cities={meeting.selectedCities}
           browserTimezone={browserTimezone}
           participantIds={participantIds}
-          onParticipantChange={onParticipantChange}
+          onParticipantChange={locked ? undefined : onParticipantChange}
         />
 
         {!calendarEvent && (
@@ -90,7 +102,7 @@ export default function MobileMeetingDialog({
               size={18}
               aria-hidden="true"
             />
-            {t('common.createCalendarEvent')}
+            {t('common.addToGoogleCalendar')}
           </a>
           <a
             className="button meetingDialog-action"
@@ -103,7 +115,7 @@ export default function MobileMeetingDialog({
               size={18}
               aria-hidden="true"
             />
-            {t('common.createOutlookEvent')}
+            {t('common.addToOutlook')}
           </a>
           <button
             className="button meetingDialog-action"

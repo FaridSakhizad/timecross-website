@@ -300,6 +300,16 @@ export function getEventLinkLanguage(params: string) {
   return getRawParam(params, 'l');
 }
 
+/** The URL's query without the meeting's parameters, of either form: "?at=…" or "". */
+export function removeEventParams(search: string) {
+  const rest = search
+    .replace(/^\?/, '')
+    .split('&')
+    .filter((part) => part && !['e', 't', 'l', 'c', 'event'].some((name) => part.startsWith(`${name}=`)));
+
+  return rest.length ? `?${rest.join('&')}` : '';
+}
+
 /** A link to the selected meeting, or null when the selection is not one range in every row. */
 export function buildGridEventUrl(
   baseUrl: string,

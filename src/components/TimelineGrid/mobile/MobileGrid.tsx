@@ -49,7 +49,9 @@ export default function MobileGrid(props: TimelineGridShellProps) {
   // folded at first so that it does not cover the grid.
   const [isEventDialogOpen, setEventDialogOpen] = useState(false);
   const selectionCardRef = useRef<HTMLDivElement>(null);
-  const [isSelectionCardCollapsed, setSelectionCardCollapsed] = useSelectionCardCollapse(enabled, true);
+  // A meeting from a link, shown as it came (see onMeetingEdit): its card starts open.
+  const isMeetingLocked = Boolean(props.onMeetingEdit);
+  const [isSelectionCardCollapsed, setSelectionCardCollapsed] = useSelectionCardCollapse(enabled, !isMeetingLocked);
   const showSelectionCard = enabled && !props.isEditMode && !props.isDragging;
 
   useMobileSelectionCardPosition(
@@ -114,6 +116,7 @@ export default function MobileGrid(props: TimelineGridShellProps) {
         <MobileSelectionOverlay
           enabled={enabled}
           frameRef={frameRef}
+          locked={isMeetingLocked}
         />
         {/* By the frame, as on a desktop; it follows the frame while a handle is dragged. */}
         {showSelectionCard && (
@@ -127,6 +130,8 @@ export default function MobileGrid(props: TimelineGridShellProps) {
             collapsed={isSelectionCardCollapsed}
             onCollapsedChange={setSelectionCardCollapsed}
             onClear={clear}
+            onEdit={props.onMeetingEdit}
+            initialTitle={props.meetingTitle}
           />
         )}
       </div>
@@ -163,6 +168,7 @@ export default function MobileGrid(props: TimelineGridShellProps) {
                   selectionDisabled={props.isEditMode || props.isDragging || !props.cities.length}
                   onSelectionToggle={toggle}
                   onCreateEvent={() => setEventDialogOpen(true)}
+                  onEditMeeting={props.onMeetingEdit}
                 />
               </div>
             </div>
@@ -189,6 +195,7 @@ export default function MobileGrid(props: TimelineGridShellProps) {
                     selectionDisabled={props.isEditMode || props.isDragging || !props.cities.length}
                     onSelectionToggle={toggle}
                     onCreateEvent={() => setEventDialogOpen(true)}
+                    onEditMeeting={props.onMeetingEdit}
                   />
                 </div>
               </div>
@@ -204,6 +211,8 @@ export default function MobileGrid(props: TimelineGridShellProps) {
           browserTimezone={props.browserTimezone}
           participantIds={props.meetingParticipantIds}
           onParticipantChange={props.onMeetingParticipantChange}
+          locked={isMeetingLocked}
+          initialTitle={props.meetingTitle}
           onClose={() => setEventDialogOpen(false)}
         />
       )}

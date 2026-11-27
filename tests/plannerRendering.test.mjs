@@ -143,7 +143,7 @@ for (const [name, Component] of [['desktop', Desktop], ['mobile', Mobile]]) {
     });
   }
 
-  test(`${name} restores a shared event with identical selected hours and calendar dates`, async () => {
+  test(`${name} shows a shared event as it came, with identical selected hours and calendar dates`, async () => {
     const start = Date.UTC(2026, 9, 26, 12);
     const city = {
       id: 'ny',
@@ -166,8 +166,8 @@ for (const [name, Component] of [['desktop', Desktop], ['mobile', Mobile]]) {
     // Cities cannot be edited under a selection.
     assert.match(html, /aria-label="Edit"[^>]*disabled=""[^>]*title="Clear the selection to edit the cities"/);
     assert.ok(html.includes(`timelineGridSelectionFrame_${name}`));
-    // A frame for the time only spans every city: only its sides move.
-    assert.equal((html.match(/data-grid-resize=/g) ?? []).length, FEATURES.timeOnlyFrame ? 2 : 8);
+    // Shown as it came: a frame without handles until the meeting is taken into editing.
+    assert.equal((html.match(/data-grid-resize=/g) ?? []).length, 0);
     assert.ok(!html.includes('timelineGridSelectionLayer'));
     const contentStart = html.indexOf('class="timelineGrid-content"');
     const frameStart = html.indexOf(`class="timelineGridSelectionFrame timelineGridSelectionFrame_${name}`);
@@ -181,14 +181,15 @@ for (const [name, Component] of [['desktop', Desktop], ['mobile', Mobile]]) {
     if (name === 'mobile') {
       const footer = html.indexOf('class="zenPageMobile-footer"');
 
-      // On a phone the card by the frame starts folded; the footer clears the selection and opens
-      // the meeting's details in a dialog.
-      const cardStart = html.indexOf('class="selectionCard selectionCard_collapsed"');
+      // A meeting from a link opens its card also on a phone; the footer takes it into editing (in
+      // place of clearing the selection) and opens the meeting's details in a dialog.
+      const cardStart = html.indexOf('class="selectionCard"');
 
       assert.ok(cardStart > frameStart && cardStart < footer);
-      assert.ok(html.indexOf('aria-label="Show the meeting"') > cardStart);
-      assert.ok(html.indexOf('aria-label="Clear selection"') > footer);
-      assert.match(html.slice(footer), /aria-haspopup="dialog".*Create event…<\/button>/);
+      assert.ok(html.lastIndexOf('aria-label="Edit meeting"') > footer);
+      assert.ok(!html.includes('aria-label="Clear selection"'));
+      // Already made, the meeting is saved rather than created.
+      assert.match(html.slice(footer), /aria-haspopup="dialog".*Save meeting…<\/button>/);
       assert.ok(!html.includes(MOBILE_NEW_MEETING));
       assert.ok(!html.includes('timelineGridCalendarButton'));
     }
@@ -200,9 +201,13 @@ for (const [name, Component] of [['desktop', Desktop], ['mobile', Mobile]]) {
       assert.ok(cardStart > html.indexOf('class="timelineGrid-content"'));
       assert.ok(html.includes('20261026T120000Z%2F20261026T150000Z'));
       assert.ok(html.includes('aria-label="Download event (.ics)"'));
-      assert.ok(html.indexOf('aria-label="Create event in Outlook"') > cardStart);
-      // Each city has a checkbox: the meeting is for the cities the selection covers.
-      assert.match(html, /<input type="checkbox" checked=""\/>New York<\/label><\/div><div class="eventSummary-time">08:00 – 11:00/);
+      assert.ok(html.indexOf('aria-label="Add to Outlook"') > cardStart);
+      // Its title and cities as they came: no field, no checkboxes; editing in place of clearing.
+      assert.ok(html.includes('<p class="selectionCard-title">Meeting</p>'));
+      assert.ok(html.includes('<div class="eventSummary-city">New York</div><div class="eventSummary-time">08:00 – 11:00'));
+      assert.ok(html.indexOf('aria-label="Edit meeting"') > cardStart);
+      assert.match(html, />Edit meeting<\/button>/);
+      assert.ok(!html.includes('aria-label="Clear selection"'));
       assert.ok(!html.includes('timelineGridCalendarButton'));
     }
   });

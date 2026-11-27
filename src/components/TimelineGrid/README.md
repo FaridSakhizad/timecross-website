@@ -38,6 +38,13 @@ halves is (`isGridHourSelected`). Its scroll helpers work
 with an explicit page or element target, without deciding which implementation should be displayed.
 Shared modules do not import either implementation or perform device detection (also enforced by ESLint).
 
+A meeting from a link (`eventUrlState.ts`) opens on its own day and cities, shown as it came: the
+session passes `onMeetingEdit`, and while it is set a view draws the frame without handles, draws
+no other frame and shows the card without its title field and checkboxes. "Edit meeting" takes the
+meeting into editing: its parameters leave the URL (the session keeps it, see `isReleased`), and it
+is a selection like any other, still on the link's cities, which are never saved as the visitor's.
+Cleared, it gives way to the planner with the visitor's own cities.
+
 `DesktopToolbar.tsx` and `MobileToolbar.tsx` own their markup, menu state and button sets.
 Their styles live in `desktop/style.css` and `mobile/style.css`. Mobile has no decorative backdrop or
 placeholder controls. Calendar actions and the toolbar data contract are shared; there is no shared

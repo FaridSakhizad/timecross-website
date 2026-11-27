@@ -35,6 +35,8 @@ type MeetingDraftOptions = {
   participantIds: ReadonlySet<string>;
   /** On a phone: the system share sheet, where there is one, is the main way to send the link. */
   systemShare?: boolean;
+  /** The title it starts with: a meeting from a link has its own. */
+  initialTitle?: string;
 };
 
 /**
@@ -43,10 +45,17 @@ type MeetingDraftOptions = {
  * until one of the actions is chosen. Without checked cities there is nothing to put in a calendar
  * or a link.
  */
-export function useMeetingDraft({ cities, hours, browserTimezone, participantIds, systemShare = false }: MeetingDraftOptions) {
+export function useMeetingDraft({
+  cities,
+  hours,
+  browserTimezone,
+  participantIds,
+  systemShare = false,
+  initialTitle = '',
+}: MeetingDraftOptions) {
   const { language, t } = useI18n();
   const { timeFormat } = usePreferences();
-  const [title, setTitle] = useState('');
+  const [title, setTitle] = useState(initialTitle);
   const [status, setStatus] = useState<Status>(null);
   const span = getMeetingSpan(hours);
   const meetingSlots = getMeetingSlots(hours, participantIds);

@@ -1,5 +1,5 @@
 import './style.css';
-import { Plus, X } from 'lucide-react';
+import { Pencil, Plus, X } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { usePreferences } from '../../../hooks/usePreferences';
@@ -38,9 +38,11 @@ export default function DesktopGrid(props: TimelineGridShellProps) {
   const scrollbarInteractionRef = useRef(false);
   const { t } = useI18n();
   const canPan = panEnabled && !props.isEditMode && !props.isDragging;
+  // A meeting from a link, shown as it came (see onMeetingEdit).
+  const isMeetingLocked = Boolean(props.onMeetingEdit);
   const { selectedHours, isSelecting, isResizing, interactionRef: selectionInteractionRef, overlayRef, frameRef, clearSelection, createSelection } = useGridSelection(
     timelineGridViewportRef,
-    !panEnabled && !props.isEditMode && !props.isDragging,
+    !panEnabled && !props.isEditMode && !props.isDragging && !isMeetingLocked,
     JSON.stringify([props.timelineDates[0]?.getTime(), props.cities.map((city) => city.id)]),
     props.isEditMode || props.isDragging,
     props.initialSelectedHours,
@@ -190,6 +192,7 @@ export default function DesktopGrid(props: TimelineGridShellProps) {
             <DesktopSelectionOverlay
               overlayRef={overlayRef}
               frameRef={frameRef}
+              locked={isMeetingLocked}
             />
           </div>
           <div className="timelineCitiesBackdrop" />
@@ -206,6 +209,8 @@ export default function DesktopGrid(props: TimelineGridShellProps) {
             collapsed={isSelectionCardCollapsed}
             onCollapsedChange={setSelectionCardCollapsed}
             onClear={clearSelection}
+            onEdit={props.onMeetingEdit}
+            initialTitle={props.meetingTitle}
           />
         )}
         <TimelineGridActiveHourIndicator
@@ -256,7 +261,7 @@ export default function DesktopGrid(props: TimelineGridShellProps) {
             </button>
           )}
           {/* As on a phone, the only way to drop the selection: clicks on the grid and Escape keep it. */}
-          {selectedHours.length > 0 && (
+          {selectedHours.length > 0 && !isMeetingLocked && (
             <button
               className="widgetHeaderButton"
               type="button"
@@ -268,6 +273,19 @@ export default function DesktopGrid(props: TimelineGridShellProps) {
                 size={16}
                 aria-hidden="true"
               />
+            </button>
+          )}
+          {props.onMeetingEdit && (
+            <button
+              className="widgetHeaderButton widgetHeaderButton_label"
+              type="button"
+              onClick={props.onMeetingEdit}
+            >
+              <Pencil
+                size={16}
+                aria-hidden="true"
+              />
+              {t('common.editMeeting')}
             </button>
           )}
         </div>

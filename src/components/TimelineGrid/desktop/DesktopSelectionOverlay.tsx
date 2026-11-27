@@ -9,11 +9,14 @@ import { GRID_FRAME_COVERS_USER_HOURS, GRID_FRAME_HANDLES } from '../shared/grid
 type DesktopSelectionOverlayProps = {
   overlayRef: RefObject<HTMLDivElement | null>;
   frameRef: RefObject<HTMLDivElement | null>;
+  /** A meeting from a link, shown as it came: a frame without handles. */
+  locked?: boolean;
 };
 
 export default function DesktopSelectionOverlay({
   overlayRef,
   frameRef,
+  locked = false,
 }: DesktopSelectionOverlayProps) {
   const { t } = useI18n();
 
@@ -34,7 +37,7 @@ export default function DesktopSelectionOverlay({
         data-grid-selection-frame
         hidden
       >
-        {GRID_FRAME_HANDLES.map((direction) => (
+        {!locked && GRID_FRAME_HANDLES.map((direction) => (
           <button
             key={direction}
             type="button"
