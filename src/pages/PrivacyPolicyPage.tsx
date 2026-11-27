@@ -40,6 +40,11 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section className="legalPage-section">
+          <h2 className="legalPage-sectionTitle">{t('legal.privacy.meetingLinksTitle')}</h2>
+          <p className="legalPage-para">{t('legal.privacy.meetingLinksText')}</p>
+        </section>
+
+        <section className="legalPage-section">
           <h2 className="legalPage-sectionTitle">{t('legal.privacy.notificationsTitle')}</h2>
           <p className="legalPage-para">{t('legal.privacy.notificationsText', { siteName: SITE_NAME })}</p>
         </section>
